@@ -1,0 +1,39 @@
+# Dependencies & build output
+node_modules/
+dist/
+build/
+.expo/
+web-build/
+
+# Environment & secrets (never commit)
+.env
+.env.*
+.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+firebase-adminsdk*.json
+google-services.json
+GoogleService-Info.plist
+
+# Expo / mobile signing
+npm-debug.*
+*.jks
+*.p8
+*.mobileprovision
+*.orig.*
+
+# Local audit / debug output
+audit-out.txt
+expo-go-qr.png
+*.qr.png
+
+# Editor / agent (optional local)
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db

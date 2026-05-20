@@ -1,0 +1,16 @@
+{
+  // Keep secrets out of editor search / accidental exposure in this workspace
+  "files.exclude": {
+    "**/.env": true,
+    "**/.env.*": true,
+    "**/credentials.json": true,
+    "**/secrets.json": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.env": true,
+    "**/.env.*": true
+  }
+}

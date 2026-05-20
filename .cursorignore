@@ -1,0 +1,23 @@
+# Secrets - exclude from Cursor AI indexing
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+firebase-adminsdk*.json
+google-services.json
+GoogleService-Info.plist
+
+node_modules/
+dist/
+build/
+.expo/
+web-build/
+
+.git/
+coverage/
+
+audit-out.txt

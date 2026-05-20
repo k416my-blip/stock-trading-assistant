@@ -1,0 +1,54 @@
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { Market, SellAllResult } from '../types';
+
+export type RootStackParamList = {
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
+  StockDetail: { symbol: string; market: Market };
+  AddTrade: { symbol?: string; market?: Market } | undefined;
+  ManualAddHolding: { symbol?: string; market?: Market } | undefined;
+  RiskWarning: undefined;
+  AddDividend: undefined;
+  ManualOrderList: undefined;
+  SellAllResult: { result: SellAllResult };
+  Capital: undefined;
+  Performance: undefined;
+  HistoricalValidation: undefined;
+  RealQuantValidation: undefined;
+  PortfolioOptimization: undefined;
+  BayesianAllocation: undefined;
+  MetaAllocation: undefined;
+  Governance: undefined;
+  ShadowTrading: undefined;
+  Monitoring: undefined;
+  AdaptiveExecution: undefined;
+  MarketIntelligence: undefined;
+  DataIntegrity: undefined;
+  PortfolioStress: undefined;
+  BehavioralRisk: undefined;
+  ModelStability: undefined;
+  MetaCapital: undefined;
+  ApiKeySettings: undefined;
+  ApiSetupWizard: undefined;
+  ApiConnectionDiagnostics: undefined;
+  AiSettings: undefined;
+  Settings: undefined;
+  NotificationSettings: undefined;
+  MarketSettings: undefined;
+  CurrencySettings: undefined;
+  PracticeModeSettings: undefined;
+  UpdateFrequencySettings: undefined;
+  MarketDataDiagnostics: undefined;
+  ExecutionReconciliation: undefined;
+  SecuritySettings: undefined;
+  StartupDiagnostics: undefined;
+  PersonalProduction: undefined;
+};
+
+export type MainTabParamList = {
+  Home: undefined;
+  AllocationPlan: undefined;
+  Screener: undefined;
+  Portfolio: undefined;
+  History: undefined;
+  BeginnerGuide: undefined;
+};
