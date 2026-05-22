@@ -4,6 +4,11 @@ import { createDefaultProviderHealth } from './apiHealthDashboard';
 import { loadApiHealthSnapshot } from './apiHealthStorage';
 import { testOpenAiResponsesConnection } from './openAiConnectionTest';
 import { isUsableApiKey } from './apiKeyValidation';
+import { recordXApiUsage } from './xApiUsageStorage';
+import { buildXAuthorizationHeader, normalizeBearerToken } from './xBearerToken';
+import { xHttpStatusDiagnosisJa, xHttpStatusUserMessageJa } from './xHttpStatus';
+import { recordXApiPaymentRequired } from './xApiOptionalModeStorage';
+import { X_API_DEBUG_SEARCH_URL } from './xApiDebug';
 
 const DEFAULT_TIMEOUT_MS = AI_API_TIMEOUT_MS;
 
@@ -198,39 +203,89 @@ async function verifyRedditBearer(apiKey: string, timeoutMs: number): Promise<Ve
   }
 }
 
-async function verifyXApi(apiKey: string, timeoutMs: number): Promise<VerifyResult> {
+async function verifyXApi(apiKeyRaw: string, timeoutMs: number): Promise<VerifyResult> {
+  const apiKey = normalizeBearerToken(apiKeyRaw);
+  if (!apiKey) {
+    return {
+      outcome: 'unconfigured',
+      messageJa: 'X API未設定',
+      quotaNoteJa: null,
+      pingSummaryJa: null,
+    };
+  }
+
+  const headers = buildXAuthorizationHeader(apiKey);
+  console.log('[x-api] VERIFY_BEFORE', {
+    url: X_API_DEBUG_SEARCH_URL,
+    authHeaderPreview: `Bearer ${apiKey.slice(0, 5)}…`,
+    tokenLength: apiKey.length,
+  });
+
   try {
     const res = await fetchWithTimeout(
-      'https://api.twitter.com/2/users/me',
+      X_API_DEBUG_SEARCH_URL,
       {
         method: 'GET',
-        headers: { Authorization: `Bearer ${apiKey}` },
+        headers,
       },
       timeoutMs,
     );
-    const outcome = outcomeFromHttp(res.status);
-    if (outcome === 'success') {
+    const bodyText = await res.text();
+    console.log('[x-api] VERIFY_AFTER', {
+      status: res.status,
+      responseBody: bodyText,
+    });
+
+    if (res.ok) {
+      void recordXApiUsage('verify');
       return {
         outcome: 'success',
         messageJa: '接続成功',
         quotaNoteJa: quotaFromHeaders(res),
-        pingSummaryJa: 'X users/me ping OK',
+        pingSummaryJa: 'X search/recent (Apple) OK',
       };
     }
-    if (outcome === 'rate_limited') {
+
+    const diagnosis = xHttpStatusDiagnosisJa(res.status);
+    const userMsg = xHttpStatusUserMessageJa(res.status);
+    if (res.status === 401) {
+      return {
+        outcome: 'invalid_key',
+        messageJa: userMsg,
+        quotaNoteJa: diagnosis,
+        pingSummaryJa: bodyText.slice(0, 200) || null,
+      };
+    }
+    if (res.status === 402) {
+      void recordXApiPaymentRequired();
+      return {
+        outcome: 'invalid_key',
+        messageJa: userMsg,
+        quotaNoteJa: '有料検索は自動無効化されました。optional モードで無料ニュースを利用できます。',
+        pingSummaryJa: bodyText.slice(0, 200) || null,
+      };
+    }
+    if (res.status === 403) {
+      return {
+        outcome: 'invalid_key',
+        messageJa: userMsg,
+        quotaNoteJa: diagnosis,
+        pingSummaryJa: bodyText.slice(0, 200) || null,
+      };
+    }
+    if (res.status === 429) {
       return {
         outcome: 'rate_limited',
-        messageJa: 'quota制限',
-        quotaNoteJa: 'X API利用上限の可能性',
+        messageJa: userMsg,
+        quotaNoteJa: diagnosis,
         pingSummaryJa: null,
       };
     }
-    if (outcome === 'invalid_key') {
-      return { outcome: 'invalid_key', messageJa: 'APIキー無効', quotaNoteJa: null, pingSummaryJa: null };
-    }
+
+    const outcome = outcomeFromHttp(res.status);
     return {
-      outcome: 'connection_error',
-      messageJa: '接続エラー',
+      outcome,
+      messageJa: userMsg,
       quotaNoteJa: null,
       pingSummaryJa: `HTTP ${res.status}`,
     };

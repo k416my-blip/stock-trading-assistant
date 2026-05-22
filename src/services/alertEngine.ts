@@ -6,6 +6,11 @@ import {
   NOTIFICATION_HISTORY_MAX,
   PRICE_ALERT_PROXIMITY_PCT,
 } from '../constants/notifications';
+import {
+  canSendGlobalNotification,
+  recordGlobalNotificationSent,
+  shouldPauseApiRequests,
+} from './performanceCostRuntime';
 import type {
   AlertType,
   AllocationPlan,
@@ -90,6 +95,12 @@ export function prepareAlertDispatch(
   if (!canSendAlert(state.notificationCooldowns ?? {}, payload.cooldownKey, now)) {
     return { nextState: state, shouldSend: false };
   }
+  if (shouldPauseApiRequests() && payload.type !== 'allocation_plan') {
+    return { nextState: state, shouldSend: false };
+  }
+  if (!canSendGlobalNotification(now)) {
+    return { nextState: state, shouldSend: false };
+  }
 
   const nextState: AppState = {
     ...state,
@@ -104,6 +115,7 @@ export function prepareAlertDispatch(
     }),
   };
 
+  recordGlobalNotificationSent(now);
   return { nextState, shouldSend: true };
 }
 

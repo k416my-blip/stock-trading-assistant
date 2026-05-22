@@ -1,6 +1,8 @@
 import type { AlertPayload } from './alertEngine';
 import { getBrokerageEstimate } from './brokerage';
 import { findStock } from '../data/sampleStocks';
+import { formatSymbolDisplayFromPosition } from '../utils/formatSymbolDisplay';
+import { mergeCompanyName } from '../utils/companyNameResolver';
 import { executePracticeTrade } from './practice';
 import { toMYR } from './fx';
 import { positionDisplayPrice } from '../utils/positionPrice';
@@ -43,7 +45,16 @@ export function isPositionPriceAvailable(position: PortfolioPosition): boolean {
 }
 
 export function positionDisplayName(position: PortfolioPosition): string {
-  return findStock(position.symbol)?.name ?? position.symbol;
+  const companyName = mergeCompanyName(
+    position.symbol,
+    position.market,
+    position.companyName,
+    findStock(position.symbol)?.name,
+  );
+  return formatSymbolDisplayFromPosition({
+    ...position,
+    companyName,
+  });
 }
 
 export function estimateProceedsMYR(shares: number, price: number, currency: Currency): number {

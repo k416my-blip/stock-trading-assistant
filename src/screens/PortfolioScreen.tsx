@@ -45,9 +45,18 @@ import {
 } from '../services/sellAllHoldings';
 import type { RootStackParamList } from '../navigation/types';
 import type { PortfolioPosition, SellAllLineItem } from '../types';
+import type { PriceSyncFailure } from '../types/marketData';
 import { positionDisplayPrice } from '../utils/positionPrice';
 import { positionKey } from '../utils/reactKeys';
+import { formatIsoDateTimeJa } from '../utils/formatDateTimeJa';
 import { safeNumber } from '../utils/safeNumeric';
+import {
+  formatPartialPriceRefreshBanner,
+  formatPriceRefreshErrorDialogMessage,
+  shouldShowPriceRefreshErrorDialog,
+  shouldShowPriceRefreshPartialBanner,
+  totalFailureAlertTitle,
+} from '../services/holdingPriceCore';
 import { theme } from '../theme';
 
 type ResolvedSell = { position: PortfolioPosition; name: string; sellPrice: number };
@@ -171,6 +180,26 @@ export function PortfolioScreen() {
 
   const sellablePositions = useMemo(() => filterSellablePositions(portfolio), [portfolio]);
 
+  const holdingsLastPriceAt = useMemo(() => {
+    let latest: string | undefined;
+    for (const p of portfolio) {
+      const ts = p.lastSuccessfulFetchAt ?? p.lastApiPriceAt ?? p.currentPriceUpdatedAt;
+      if (!ts) continue;
+      if (!latest || Date.parse(ts) > Date.parse(latest)) latest = ts;
+    }
+    return latest;
+  }, [portfolio]);
+
+  const displayLastUpdatedAt = priceSync.lastSuccessAt ?? holdingsLastPriceAt;
+
+  const failureByPositionId = useMemo(() => {
+    const map = new Map<string, PriceSyncFailure>();
+    for (const f of priceSync.lastResult?.failures ?? []) {
+      map.set(f.positionId, f);
+    }
+    return map;
+  }, [priceSync.lastResult]);
+
   const unrealizedMYR = isPractice ? practiceStats.unrealizedPnLMYR : totalUnrealizedPnLMYR(positions);
   const dividendsMYR = isPractice ? 0 : totalDividendsMYR(state.dividends);
 
@@ -183,13 +212,34 @@ export function PortfolioScreen() {
       return;
     }
     const result = await refreshPortfolioPrices({ silent: false });
-    if (result.failures.length > 0) {
-      Alert.alert(
-        MARKET_DATA_MESSAGES.fetchFailed,
-        MARKET_DATA_MESSAGES.aggregatedFetchFailed(result.failures.length),
-      );
+
+    if (shouldShowPriceRefreshErrorDialog(result)) {
+      Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
+      return;
     }
   };
+
+  const onRetryFailedPrices = async (targets?: PriceSyncFailure[]) => {
+    const failures = targets ?? priceSync.lastResult?.failures ?? [];
+    if (failures.length === 0) return;
+    if (!twelveDataApiKey.trim()) {
+      Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey);
+      return;
+    }
+    const result = await refreshPortfolioPrices({
+      silent: false,
+      symbolsOnly: failures.map((f) => ({ market: f.market, symbol: f.symbol })),
+    });
+    if (shouldShowPriceRefreshErrorDialog(result)) {
+      Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
+      return;
+    }
+  };
+
+  const partialFailureBanner =
+    priceSync.lastResult && shouldShowPriceRefreshPartialBanner(priceSync.lastResult)
+      ? formatPartialPriceRefreshBanner()
+      : null;
 
   const sellPractice = (position: PortfolioPosition, name: string, currentPrice: number) => {
     Alert.alert('仮想売却', `${name}を${position.shares}株、仮想売却しますか？`, [
@@ -366,6 +416,7 @@ export function PortfolioScreen() {
   };
 
   return (
+    <>
     <Screen
       title="保有銘柄"
       subtitle={isPractice ? '練習モードの仮想ポジション' : '実運用分析 — 証券会社で約定後に記録したポジション'}
@@ -375,22 +426,49 @@ export function PortfolioScreen() {
         {priceSync.loading ? (
           <View style={styles.loadingRow}>
             <ActivityIndicator color={theme.colors.primary} />
-            <Text style={styles.loadingText}>{MARKET_DATA_MESSAGES.loading}</Text>
+            <Text style={styles.loadingText}>
+              {priceSync.displayStatus === 'fetching'
+                ? MARKET_DATA_MESSAGES.loading
+                : '株価を取得中です'}
+            </Text>
           </View>
         ) : null}
-        {priceSync.lastError ? (
-          <Text style={styles.warnText}>{priceSync.lastError}</Text>
+        {displayLastUpdatedAt && !priceSync.lastResult ? (
+          <Text style={styles.metaText}>
+            保存済み価格の最終更新: {formatIsoDateTimeJa(displayLastUpdatedAt) ?? displayLastUpdatedAt}
+          </Text>
         ) : null}
-        {priceSync.lastResult &&
-        priceSync.lastResult.failures.length > 0 &&
-        priceSync.lastResult.updatedCount === 0 &&
-        holdings.length > 0 ? (
-          <Text style={styles.warnText}>{MARKET_DATA_MESSAGES.offlineBanner}</Text>
-        ) : null}
+        {partialFailureBanner
+          ? partialFailureBanner.split('\n').map((line) => (
+              <Text key={line} style={styles.warnText}>
+                {line}
+              </Text>
+            ))
+          : null}
         {priceSync.marketClosedHint ? (
           <Text style={styles.warnText}>{MARKET_DATA_MESSAGES.marketClosed}</Text>
         ) : null}
-        <PriceSyncResultPanel result={priceSync.lastResult} />
+        <PriceSyncResultPanel
+          result={priceSync.lastResult}
+          lastSuccessAt={displayLastUpdatedAt}
+          lastError={priceSync.lastError}
+          loading={priceSync.loading}
+          displayStatus={priceSync.displayStatus}
+          connectionPhase={priceSync.connectionPhase}
+          connectionDetail={priceSync.connectionDetail}
+          currentSymbol={priceSync.currentSymbol}
+          activeProvider={priceSync.activeProvider}
+          lastPriceProvider={priceSync.lastPriceProvider}
+          quoteFetchDebug={priceSync.quoteFetchDebug}
+          resolvedSymbol={priceSync.resolvedSymbol}
+          onRetry={onAutoRefresh}
+          onRetryFailed={
+            (priceSync.lastResult?.failures.length ?? 0) > 0
+              ? () => onRetryFailedPrices()
+              : undefined
+          }
+          retryFailedLoading={priceSync.loading}
+        />
         <Button
           label="株価を自動更新"
           onPress={onAutoRefresh}
@@ -531,6 +609,23 @@ export function PortfolioScreen() {
             <HoldingCard
               key={positionKey(h.positionId)}
               holding={h}
+              position={position}
+              priceExploring={
+                priceSync.loading &&
+                priceSync.connectionPhase === 'symbol_exploring' &&
+                priceSync.currentSymbol === h.symbol
+              }
+              resolvedYahooSymbol={priceSync.resolvedSymbol}
+              priceFailure={failureByPositionId.get(h.positionId)}
+              onRetryPrice={
+                failureByPositionId.has(h.positionId)
+                  ? () => {
+                      const f = failureByPositionId.get(h.positionId);
+                      if (f) void onRetryFailedPrices([f]);
+                    }
+                  : undefined
+              }
+              priceRetrying={priceSync.loading}
               isPractice={isPractice}
               onPracticeSell={() => sellPractice(position, h.name, positionDisplayPrice(position))}
               onManualSellChecklist={() =>
@@ -590,6 +685,7 @@ export function PortfolioScreen() {
         onCancel={cancelSellAll}
       />
     </Screen>
+    </>
   );
 }
 
@@ -602,6 +698,7 @@ const styles = StyleSheet.create({
   note: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18 },
   loadingRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   loadingText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
+  metaText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm },
   warnText: { color: theme.colors.warning, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm, lineHeight: 18 },
   profit: { color: theme.colors.success },
   loss: { color: theme.colors.danger },

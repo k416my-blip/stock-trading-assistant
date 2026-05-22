@@ -1,5 +1,7 @@
 import type { PriceRefreshOptions, PriceSyncResult } from '../types/marketData';
-import { isDev } from '../utils/isDev';
+import { emptyPriceSyncResult } from './holdingPriceCore';
+import { verboseLog } from './productionLogger';
+import { shouldPauseApiRequests } from './performanceCostRuntime';
 
 const MIN_SILENT_GAP_MS = 8_000;
 const DEFAULT_DEBOUNCE_MS = 2_500;
@@ -10,7 +12,7 @@ let lastCompletedAt = 0;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 function emptyOk(): PriceSyncResult {
-  return { ok: true, updatedCount: 0, failures: [], marketClosedHint: false };
+  return emptyPriceSyncResult();
 }
 
 export function isPortfolioRefreshInFlight(): boolean {
@@ -24,6 +26,15 @@ export function requestPortfolioPriceRefresh(
 ): Promise<PriceSyncResult> {
   const silent = options.silent ?? false;
 
+  if (shouldPauseApiRequests()) {
+    verboseLog('[portfolio-refresh] paused (background/offline)');
+    return Promise.resolve({
+      ...emptyOk(),
+      displayStatus: 'cached',
+      error: 'バックグラウンドまたはオフライン — キャッシュ表示',
+    });
+  }
+
   if (inFlight) {
     return inFlight;
   }
@@ -34,9 +45,7 @@ export function requestPortfolioPriceRefresh(
 
   const now = Date.now();
   if (silent && now - lastCompletedAt < MIN_SILENT_GAP_MS) {
-    if (isDev) {
-      console.log('[portfolio-refresh] skipped (throttled silent refresh)');
-    }
+    verboseLog('[portfolio-refresh] skipped (throttled silent refresh)');
     return Promise.resolve(emptyOk());
   }
 

@@ -20,20 +20,11 @@ import {
   resetAiStrategyServiceForTest,
   sendAiStrategyChat,
 } from '../../src/services/aiStrategyService';
-import type { AiPreferences } from '../../src/types/aiStrategy';
+import { DEFAULT_AI_PREFERENCES } from '../../src/services/aiPreferencesStorage';
 import { minimalAiStrategyContext } from '../helpers/aiContextFixture';
 import { DUMMY_API_KEY } from '../helpers/dummyCredentials';
 
-const basePrefs: AiPreferences = {
-  aiEnabled: true,
-  mockOnly: false,
-  aiExplanationLevel: 'general',
-  voiceEnabled: true,
-  voiceAutoRead: false,
-  voiceSpeechRate: 1,
-  urgentVibrationEnabled: true,
-  urgentSoundEnabled: true,
-};
+const basePrefs = { ...DEFAULT_AI_PREFERENCES };
 
 const baseContext = minimalAiStrategyContext({
   journalSummary: {

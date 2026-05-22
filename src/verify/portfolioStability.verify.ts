@@ -130,7 +130,16 @@ async function scenario6_refreshCoordinator() {
   const exec = async () => {
     runs += 1;
     await new Promise((r) => setTimeout(r, 50));
-    return { ok: true, updatedCount: 0, failures: [], marketClosedHint: false };
+    return {
+      ok: true,
+      updatedCount: 0,
+      failures: [],
+      marketClosedHint: false,
+      successCount: 0,
+      failedCount: 0,
+      partialFailure: false,
+      totalFailure: false,
+    };
   };
 
   const p1 = requestPortfolioPriceRefresh(exec, { silent: true, debounceMs: 10 });

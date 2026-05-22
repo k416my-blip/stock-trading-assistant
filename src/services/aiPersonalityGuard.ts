@@ -11,8 +11,54 @@ import {
 import type { AiExplanationLevel } from '../constants/aiExplanationLevel';
 import { DEFAULT_AI_EXPLANATION_LEVEL } from '../constants/aiExplanationLevel';
 import { AI_PERSONALITY_TONE_GUIDELINES_JA } from '../constants/aiPersonality';
+import { AI_CONCIERGE_RELEVANCE_PROMPT_JA } from '../constants/aiConciergeRelevance';
 import { AI_SPECIFICITY_PROMPT_BLOCK_JA } from '../constants/aiConciergeSpecificity';
+import { AI_ACTION_GUIDE_PROMPT_JA } from '../constants/aiActionGuide';
+import { MARKET_REGIME_AI_PROMPT_JA } from '../constants/globalMarket';
+import { AI_RISK_CONTROL_PROMPT_JA } from '../constants/aiRiskControl';
+import { PORTFOLIO_INTEL_AI_PROMPT_JA } from '../constants/portfolioIntelligence';
+import { CONCIERGE_UX_AI_PROMPT_JA } from '../constants/conciergeUx';
+import { AUTONOMOUS_AI_PROMPT_JA } from '../constants/autonomousMonitoring';
+import { META_AI_PROMPT_JA } from '../constants/metaDecision';
+import { STRATEGY_AI_PROMPT_JA } from '../constants/strategyExecution';
+import { REALITY_AI_PROMPT_JA } from '../constants/portfolioRealityValidation';
+import { PRODUCTION_AI_PROMPT_JA } from '../constants/productionStability';
+import { PAPER_AI_PROMPT_JA } from '../constants/paperBroker';
+import { SELF_EVAL_AI_PROMPT_JA } from '../constants/selfEvaluation';
+import { MACRO_INTEL_AI_PROMPT_JA } from '../constants/macroIntelligence';
+import { DATA_RELIABILITY_AI_PROMPT_JA } from '../constants/dataReliability';
+import { PORTFOLIO_RISK_AI_PROMPT_JA } from '../constants/portfolioRiskExposure';
+import { CAPITAL_ALLOCATION_AI_PROMPT_JA } from '../constants/capitalAllocation';
+import { INTEGRITY_AI_PROMPT_JA } from '../constants/systemStabilityIntegrity';
+import { GOVERNANCE_AI_PROMPT_JA } from '../constants/aiGovernanceDecision';
+import { REACTIVE_AI_PROMPT_JA } from '../constants/reactiveEventOrchestration';
+import { TRACE_AI_PROMPT_JA } from '../constants/explainableCognitiveTrace';
+import { RESOURCE_AI_PROMPT_JA } from '../constants/adaptiveResourceComputeBudget';
+import { TEMPORAL_AI_PROMPT_JA } from '../constants/stateIntegrityTemporalConsistency';
+import { SEMANTIC_AI_PROMPT_JA } from '../constants/semanticConsistencyDecisionCoherence';
+import { EPISTEMIC_AI_PROMPT_JA } from '../constants/epistemicReliabilityEvidenceWeight';
+import { ARBITRATION_AI_PROMPT_JA } from '../constants/cognitiveGoalArbitrationIntentPriority';
+import { REFLECTION_AI_PROMPT_JA } from '../constants/metaCognitiveRiskReflectionSelfCritique';
+import { MEMORY_COMPRESSION_AI_PROMPT_JA } from '../constants/recursiveMemoryCompressionStrategicAbstraction';
+import { SYSTEMIC_STABILITY_AI_PROMPT_JA } from '../constants/systemicStabilityRecursiveGovernance';
+import { RECOVERY_AI_PROMPT_JA } from '../constants/executionRecoveryAdaptiveConfidence';
+import { ORCHESTRATION_AI_PROMPT_JA } from '../constants/dynamicLayerOrchestrationMobileRuntimeOptimization';
+import { REGIME_AI_PROMPT_JA } from '../constants/autonomousMarketRegimeDetection';
+import { CONSENSUS_AI_PROMPT_JA } from '../constants/cognitiveArbitrationConsensus';
+import { META_RELIABILITY_AI_PROMPT_JA } from '../constants/metaReliabilityLongitudinalTrust';
+import { SELF_ARCHITECTURE_AI_PROMPT_JA } from '../constants/selfEvolvingArchitectureReflectiveRefactor';
+import { EPISTEMIC_INTEGRITY_AI_PROMPT_JA } from '../constants/epistemicIntegrityTruthCalibration';
+import { STRATEGIC_MEMORY_GRAPH_AI_PROMPT_JA } from '../constants/strategicMemoryGraphTemporalCausality';
+import { COGNITIVE_RESOURCE_ECONOMY_AI_PROMPT_JA } from '../constants/cognitiveResourceEconomyAttentionAllocation';
+import { UNIFIED_COGNITIVE_STATE_AI_PROMPT_JA } from '../constants/unifiedCognitiveStateExecutiveAwareness';
+import { HUMAN_INTENT_CONTINUITY_AI_PROMPT_JA } from '../constants/humanIntentContinuityAlignmentPreservation';
+import { ADAPTIVE_EXPLORATION_AI_PROMPT_JA } from '../constants/adaptiveExplorationAntiDogma';
+import { CONSTITUTIONAL_GOVERNANCE_AI_PROMPT_JA } from '../constants/constitutionalGovernanceSystemCoherence';
+import { EXPLAINABLE_GOVERNANCE_AI_PROMPT_JA } from '../constants/explainableGovernanceTransparentReasoning';
+import { RUNTIME_SURVIVAL_AI_PROMPT_JA } from '../constants/runtimeSurvivalMobileResilience';
+import { AI_DATA_DRIVEN_PROMPT_JA, type AiAnalysisMode } from '../constants/aiDataDriven';
 import { AI_FORBIDDEN_EXPRESSIONS, AI_SYSTEM_PROMPT } from '../constants/aiStrategy';
+import { buildAnalysisModeInstructions, normalizeAiAnalysisMode } from './aiAnalysisMode';
 import type { AiStrategyContextPayload } from '../types/aiStrategy';
 import type { ParsedAiApiJson } from './aiResponseSanitizer';
 import { buildExplanationLevelInstructions, normalizeAiExplanationLevel } from './aiExplanationLevel';
@@ -41,10 +87,58 @@ export function buildFixedPersonalityGuardrailsBlock(): {
 
 export function buildFixedAiInstructions(
   explanationLevel: AiExplanationLevel = DEFAULT_AI_EXPLANATION_LEVEL,
+  analysisMode?: AiAnalysisMode,
 ): string {
   const level = normalizeAiExplanationLevel(explanationLevel);
+  const mode = normalizeAiAnalysisMode(analysisMode);
   return [
     AI_SYSTEM_PROMPT,
+    AI_DATA_DRIVEN_PROMPT_JA,
+    AI_ACTION_GUIDE_PROMPT_JA,
+    MARKET_REGIME_AI_PROMPT_JA,
+    AI_RISK_CONTROL_PROMPT_JA,
+    PORTFOLIO_INTEL_AI_PROMPT_JA,
+    CONCIERGE_UX_AI_PROMPT_JA,
+    AUTONOMOUS_AI_PROMPT_JA,
+    META_AI_PROMPT_JA,
+    STRATEGY_AI_PROMPT_JA,
+    REALITY_AI_PROMPT_JA,
+    PRODUCTION_AI_PROMPT_JA,
+    PAPER_AI_PROMPT_JA,
+    SELF_EVAL_AI_PROMPT_JA,
+    MACRO_INTEL_AI_PROMPT_JA,
+    DATA_RELIABILITY_AI_PROMPT_JA,
+    PORTFOLIO_RISK_AI_PROMPT_JA,
+    CAPITAL_ALLOCATION_AI_PROMPT_JA,
+    INTEGRITY_AI_PROMPT_JA,
+    GOVERNANCE_AI_PROMPT_JA,
+    REACTIVE_AI_PROMPT_JA,
+    TRACE_AI_PROMPT_JA,
+    RESOURCE_AI_PROMPT_JA,
+    TEMPORAL_AI_PROMPT_JA,
+    SEMANTIC_AI_PROMPT_JA,
+    EPISTEMIC_AI_PROMPT_JA,
+    ARBITRATION_AI_PROMPT_JA,
+    REFLECTION_AI_PROMPT_JA,
+    MEMORY_COMPRESSION_AI_PROMPT_JA,
+    SYSTEMIC_STABILITY_AI_PROMPT_JA,
+    RECOVERY_AI_PROMPT_JA,
+    ORCHESTRATION_AI_PROMPT_JA,
+    REGIME_AI_PROMPT_JA,
+    CONSENSUS_AI_PROMPT_JA,
+    META_RELIABILITY_AI_PROMPT_JA,
+    SELF_ARCHITECTURE_AI_PROMPT_JA,
+    EPISTEMIC_INTEGRITY_AI_PROMPT_JA,
+    STRATEGIC_MEMORY_GRAPH_AI_PROMPT_JA,
+    COGNITIVE_RESOURCE_ECONOMY_AI_PROMPT_JA,
+    UNIFIED_COGNITIVE_STATE_AI_PROMPT_JA,
+    HUMAN_INTENT_CONTINUITY_AI_PROMPT_JA,
+    ADAPTIVE_EXPLORATION_AI_PROMPT_JA,
+    CONSTITUTIONAL_GOVERNANCE_AI_PROMPT_JA,
+    EXPLAINABLE_GOVERNANCE_AI_PROMPT_JA,
+    RUNTIME_SURVIVAL_AI_PROMPT_JA,
+    buildAnalysisModeInstructions(mode),
+    AI_CONCIERGE_RELEVANCE_PROMPT_JA,
     AI_SPECIFICITY_PROMPT_BLOCK_JA,
     AI_NO_USER_LEARNING_POLICY,
     `固定人格特性: ${AI_FIXED_PHILOSOPHY_TRAITS_JA.join(' · ')}`,

@@ -6,10 +6,11 @@ import { theme } from '../../theme';
 
 type Props = {
   onPress: () => void;
+  unreadCount?: number;
 };
 
 /** Floating AI access — visible above tab bar, does not block primary content. */
-export function AiConciergeFab({ onPress }: Props) {
+export function AiConciergeFab({ onPress, unreadCount = 0 }: Props) {
   const insets = useSafeAreaInsets();
   const bottom = Math.max(insets.bottom, 8) + 64;
 
@@ -23,6 +24,11 @@ export function AiConciergeFab({ onPress }: Props) {
       >
         <Ionicons name="chatbubble-ellipses" size={26} color="#fff" />
         <Text style={styles.fabText}>AI</Text>
+        {unreadCount > 0 ? (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+          </View>
+        ) : null}
       </Pressable>
     </View>
   );
@@ -47,6 +53,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 6,
+    position: 'relative',
   },
   fabPressed: { opacity: 0.88 },
   fabText: {
@@ -54,4 +61,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: theme.fontSize.md,
   },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: theme.colors.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: { color: '#fff', fontWeight: '800', fontSize: 10 },
 });

@@ -5,6 +5,7 @@ import {
   shouldShowStructuredForMode,
   stripConciergeBoilerplateFromText,
 } from './aiConciergeConversationMode';
+import { humanizeAnalystText } from './conciergeHumanizeText';
 
 export function enrichConciergeChatMessage(
   message: AiChatMessage,
@@ -19,7 +20,7 @@ export function enrichConciergeChatMessage(
     userMessage: userText,
     ...ops,
   });
-  const stripped = stripConciergeBoilerplateFromText(message.text);
+  const stripped = humanizeAnalystText(stripConciergeBoilerplateFromText(message.text));
   return {
     ...message,
     text: stripped,

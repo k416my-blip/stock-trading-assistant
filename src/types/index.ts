@@ -120,6 +120,12 @@ export interface PortfolioPosition {
   isStale?: boolean;
   /** 緊急キャッシュから復元した価格 */
   priceFromCache?: boolean;
+  /** 最後に API 取得成功した価格（手動・失敗では上書きしない） */
+  lastValidPrice?: number;
+  /** 最後に成功した価格取得元 */
+  lastQuoteProvider?: import('./quoteProvider').QuoteProviderId;
+  /** 表示用会社名（quote / サンプルデータから取得） */
+  companyName?: string;
   openedAt: string;
 }
 
@@ -367,6 +373,10 @@ export interface HoldingDetail extends PositionPnL {
   isNearStopLoss: boolean;
   isNearTakeProfit: boolean;
   priceAvailable: boolean;
+  /** カード表示用（評価額と同一ソース） */
+  displayPrice: number;
+  displayPriceSource?: 'api_live' | 'saved' | 'manual' | 'average_buy';
+  lastSavedPrice?: number;
   priceSource?: 'manual' | 'api';
   /** 現在株価の表示補足（手動価格 / 前回取得価格 など） */
   priceStatusLabel?: string;
@@ -381,6 +391,14 @@ export interface HoldingDetail extends PositionPnL {
   quoteAgeMs?: number;
   quoteAgeSeconds?: number;
   lastSuccessfulFetchAt?: string;
+  /** API 成功時に確定した価格（評価額と一致） */
+  lastValidPrice?: number;
+  /** 表示用 Yahoo symbol（例: 4707.KL） */
+  normalizedYahooSymbol?: string;
+  /** 最後に成功した価格取得元の表示ラベル */
+  lastQuoteProviderLabel?: string;
+  /** 最終更新（表示用・ローカル時刻） */
+  lastUpdatedDisplay?: string;
 }
 
 export interface BuyingPowerResult {

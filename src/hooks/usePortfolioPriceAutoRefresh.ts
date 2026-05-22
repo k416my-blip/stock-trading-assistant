@@ -1,16 +1,23 @@
-import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
-import { priceRefreshMs } from '../constants/marketData';
 import { useApp } from '../context/AppContext';
+import { effectivePriceRefreshMs } from '../services/performanceCostRuntime';
+import { useAppForeground } from './useAppForeground';
 import {
   restartPortfolioPriceRefresh,
   stopPortfolioPriceRefresh,
 } from './portfolioPriceRefreshScheduler';
 
-/** 保有銘柄画面表示時と設定間隔で株価を自動更新（タイマーは1つに統一） */
+/**
+ * 保有銘柄画面を開いている間のみ、設定間隔（既定15分）で株価を自動更新。
+ * 即時更新は「株価を自動更新」ボタン（手動）のみ。
+ */
 export function usePortfolioPriceAutoRefresh(enabled: boolean) {
-  const { refreshPortfolioPrices, twelveDataApiKey, state, killSwitches } = useApp();
-  const refreshMs = priceRefreshMs(state.settings.priceRefreshMinutes);
+  const { refreshPortfolioPrices, state, killSwitches, aiPreferences } = useApp();
+  const appForeground = useAppForeground();
+  const refreshMs = effectivePriceRefreshMs(
+    state.settings.priceRefreshMinutes,
+    aiPreferences.batterySaverEnabled,
+  );
   const refreshRef = useRef(refreshPortfolioPrices);
   refreshRef.current = refreshPortfolioPrices;
 
@@ -18,15 +25,8 @@ export function usePortfolioPriceAutoRefresh(enabled: boolean) {
     void refreshRef.current({ silent: true, debounceMs: 2500 });
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!enabled || killSwitches.disableMarketRefresh || !twelveDataApiKey.trim()) return;
-      void refreshRef.current({ silent: true, debounceMs: 1500 });
-    }, [enabled, twelveDataApiKey, killSwitches.disableMarketRefresh]),
-  );
-
   useEffect(() => {
-    if (!enabled || killSwitches.disableMarketRefresh || !twelveDataApiKey.trim()) {
+    if (!enabled || !appForeground || killSwitches.disableMarketRefresh) {
       stopPortfolioPriceRefresh();
       return;
     }
@@ -36,5 +36,5 @@ export function usePortfolioPriceAutoRefresh(enabled: boolean) {
     return () => {
       stopPortfolioPriceRefresh();
     };
-  }, [enabled, twelveDataApiKey, killSwitches.disableMarketRefresh, refreshMs, tick]);
+  }, [enabled, appForeground, killSwitches.disableMarketRefresh, refreshMs, tick]);
 }

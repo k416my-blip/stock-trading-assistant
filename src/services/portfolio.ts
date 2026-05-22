@@ -10,11 +10,15 @@ import type {
   TradeRecord,
 } from '../types';
 import { findStock, getSamplePriceHistory } from '../data/sampleStocks';
-import { MARKET_DATA_MESSAGES, STALE_QUOTE_MAX_AGE_MS } from '../constants/marketData';
 import { PRICE_ALERT_PROXIMITY_PCT } from '../constants/notifications';
 import { toMYR } from './fx';
 import { computePositionPnL, holdingsValueFromPositions } from './positionValuation';
-import { resolveDisplayPrice, safeNumber, safePrice, safeShares } from '../utils/safeNumeric';
+import {
+  formatHoldingPriceMeta,
+  preserveHoldingCurrentPrice,
+  resolveHoldingPrice,
+} from './holdingPriceCore';
+import { safeNumber, safePrice, safeShares } from '../utils/safeNumeric';
 import { analyzeTechnicals } from './technicalAnalysis';
 import { buildTradeSuggestion } from './tradeSuggestions';
 import { computeQuoteStaleMetadata } from './staleDataMetadata';
@@ -33,15 +37,17 @@ export function normalizePortfolioPosition(raw: LegacyPosition): PortfolioPositi
     0,
   );
   const samplePrice = raw.symbol ? findStock(raw.symbol)?.price : undefined;
-  const currentPrice = safePrice(
-    typeof raw.currentPrice === 'number'
-      ? raw.currentPrice
-      : typeof samplePrice === 'number'
-        ? samplePrice
-        : averageBuyPrice,
+  const currentPrice = preserveHoldingCurrentPrice({
+    ...raw,
+    shares: safeShares(raw.shares, 0),
     averageBuyPrice,
-    0,
-  );
+    currentPrice:
+      typeof raw.currentPrice === 'number'
+        ? raw.currentPrice
+        : typeof samplePrice === 'number'
+          ? samplePrice
+          : averageBuyPrice,
+  });
 
   const market = raw.market ?? 'bursa';
   const symbol = raw.symbol ?? '';
@@ -73,6 +79,9 @@ export function normalizePortfolioPosition(raw: LegacyPosition): PortfolioPositi
     quoteAgeSeconds: raw.quoteAgeSeconds ?? stale.quoteAgeSeconds,
     isStale: raw.isStale ?? stale.isStale,
     priceFromCache: raw.priceFromCache,
+    companyName: typeof raw.companyName === 'string' ? raw.companyName.trim() || undefined : undefined,
+    lastValidPrice: raw.lastValidPrice,
+    lastQuoteProvider: raw.lastQuoteProvider,
     openedAt,
   };
 }
@@ -80,7 +89,7 @@ export function normalizePortfolioPosition(raw: LegacyPosition): PortfolioPositi
 export function portfolioMarketValueMYR(state: AppState): number {
   return state.portfolio.reduce((sum, p) => {
     const shares = safeShares(p.shares, 0);
-    const price = safePrice(p.currentPrice, p.averageBuyPrice, 0);
+    const { price } = resolveHoldingPrice(p);
     return sum + toMYR(price * shares, p.currency);
   }, 0);
 }
@@ -235,27 +244,6 @@ export function updatePositionMarket(
   );
 }
 
-function isQuoteStaleByAge(meta?: PortfolioPosition): boolean {
-  if (meta?.isStale === true) return true;
-  if (meta?.quoteAgeMs != null && meta.quoteAgeMs > STALE_QUOTE_MAX_AGE_MS) return true;
-  const ts = meta?.lastSuccessfulFetchAt ?? meta?.lastApiPriceAt ?? meta?.currentPriceUpdatedAt;
-  if (!ts) return false;
-  return Date.now() - new Date(ts).getTime() > STALE_QUOTE_MAX_AGE_MS;
-}
-
-function resolvePriceStatusLabel(meta?: PortfolioPosition): string | undefined {
-  const price = meta ? safePrice(meta.currentPrice, meta.averageBuyPrice, 0) : 0;
-  if (!meta || price <= 0) return undefined;
-  if (meta.priceSource === 'manual') return MARKET_DATA_MESSAGES.priceLabelManual;
-  if (meta.priceFromCache) return MARKET_DATA_MESSAGES.priceLabelCached;
-  if (meta.priceFetchStatus === 'failed' && meta.currentPrice > 0) {
-    return MARKET_DATA_MESSAGES.priceLabelStale;
-  }
-  if (isQuoteStaleByAge(meta)) return MARKET_DATA_MESSAGES.priceLabelStaleAge;
-  if (meta.priceSource === 'api') return MARKET_DATA_MESSAGES.priceLabelAuto;
-  return undefined;
-}
-
 export function appendPerformanceSnapshot(
   history: PerformancePoint[],
   date: string,
@@ -286,22 +274,26 @@ function positionToHoldingDetail(
   meta?: PortfolioPosition,
 ): HoldingDetail {
   const stock = findStock(p.symbol);
-  const currency = stock?.currency ?? 'MYR';
-  const name = stock?.name ?? p.symbol;
+  const currency = meta?.currency ?? stock?.currency ?? 'MYR';
+  const name =
+    meta?.companyName?.trim() || stock?.name || p.symbol;
   const technicals = analyzeTechnicals(getSamplePriceHistory(p.symbol));
-  const displayPrice = resolveDisplayPrice({
-    currentPrice: p.currentPrice,
-    averageBuyPrice: p.averageBuyPrice,
-    priceSource: meta?.priceSource,
-    previousPrice: meta?.currentPrice,
-  });
-  const suggestion = buildTradeSuggestion(displayPrice, technicals);
+  const resolved = meta ? resolveHoldingPrice(meta) : null;
+  const priceMeta = meta && resolved ? formatHoldingPriceMeta(meta, resolved) : null;
+  const displayPrice =
+    resolved?.price != null && Number.isFinite(resolved.price) && resolved.price > 0
+      ? resolved.price
+      : p.currentPrice > 0 && Number.isFinite(p.currentPrice)
+        ? p.currentPrice
+        : 0;
+  const suggestion = buildTradeSuggestion(displayPrice > 0 ? displayPrice : p.averageBuyPrice, technicals);
 
   const stopLossUnitPrice = suggestion.stopLoss;
   const takeProfitUnitPrice = suggestion.takeProfit;
   const suggestedStopLossTotal = stopLossUnitPrice * p.shares;
   const suggestedTakeProfitTotal = takeProfitUnitPrice * p.shares;
-  const currentValueMYR = toMYR(p.currentValue, currency);
+  const sharesSafe = Number.isFinite(p.shares) ? p.shares : 0;
+  const currentValueMYR = toMYR(displayPrice * sharesSafe, currency);
   const purchaseAmountMYR = toMYR(p.purchaseAmount, currency);
   const allocationPct =
     totalPortfolioValueMYR > 0 ? (currentValueMYR / totalPortfolioValueMYR) * 100 : 0;
@@ -310,18 +302,21 @@ function positionToHoldingDetail(
   const isNearTakeProfit = isNearTakeProfitPrice(displayPrice, takeProfitUnitPrice);
 
   const hasPrice = displayPrice > 0;
-  const fetchFailed = meta?.priceFetchStatus === 'failed' && meta?.priceSource !== 'manual';
-  const staleByAge =
-    (meta?.isStale === true || isQuoteStaleByAge(meta)) && meta?.priceSource !== 'manual';
-  const priceStatusLabel = resolvePriceStatusLabel(meta);
 
   return {
     ...p,
+    currentPrice: displayPrice,
+    currentValue: displayPrice * sharesSafe,
+    unrealizedProfitLoss: displayPrice * sharesSafe - p.purchaseAmount,
+    unrealizedProfitLossPercent:
+      p.purchaseAmount > 0
+        ? ((displayPrice * sharesSafe - p.purchaseAmount) / p.purchaseAmount) * 100
+        : 0,
     positionId: meta?.id ?? `${p.market}-${p.symbol}`,
     name,
     currency,
     purchaseAmountMYR,
-    currentValueMYR,
+    currentValueMYR: toMYR(displayPrice * p.shares, currency),
     allocationPct,
     stopLossUnitPrice,
     takeProfitUnitPrice,
@@ -331,16 +326,23 @@ function positionToHoldingDetail(
     suggestedTakeProfitTotalMYR: toMYR(suggestedTakeProfitTotal, currency),
     isNearStopLoss,
     isNearTakeProfit,
+    displayPrice,
+    displayPriceSource: resolved?.source,
+    lastSavedPrice: resolved?.lastSavedPrice,
+    lastValidPrice: resolved?.lastValidPrice ?? priceMeta?.lastValidPrice,
+    normalizedYahooSymbol: priceMeta?.normalizedYahooSymbol,
+    lastQuoteProviderLabel: priceMeta?.quoteProviderLabel,
     priceAvailable: hasPrice,
     priceSource: meta?.priceSource,
-    priceStatusLabel,
-    priceStaleWarning: (fetchFailed || staleByAge) && hasPrice,
-    priceStaleByAge: staleByAge,
-    priceFromCache: meta?.priceFromCache,
-    isStale: (meta?.isStale === true || staleByAge) && hasPrice,
+    priceStatusLabel: priceMeta?.priceStatusLabel ?? resolved?.priceStatusLabel,
+    priceStaleWarning: resolved?.priceStaleWarning ?? false,
+    priceStaleByAge: resolved?.priceStaleByAge ?? false,
+    priceFromCache: resolved?.priceFromCache,
+    isStale: resolved?.isStale ?? false,
     quoteAgeMs: meta?.quoteAgeMs,
     quoteAgeSeconds: meta?.quoteAgeSeconds,
     lastSuccessfulFetchAt: meta?.lastSuccessfulFetchAt ?? meta?.lastApiPriceAt,
+    lastUpdatedDisplay: priceMeta?.lastUpdatedLabel,
   };
 }
 
@@ -352,7 +354,7 @@ export function buildHoldingDetails(
   const safeMeta = portfolioMeta.map((p) => {
     const shares = safeShares(p.shares, 0);
     const averageBuyPrice = safePrice(p.averageBuyPrice, 0, 0);
-    const currentPrice = safePrice(p.currentPrice, averageBuyPrice, 0);
+    const currentPrice = preserveHoldingCurrentPrice({ ...p, shares, averageBuyPrice });
     return { ...p, shares, averageBuyPrice, currentPrice };
   });
 

@@ -16,11 +16,20 @@ import {
 export type BursaFormatId =
   | 'numeric-xkls'
   | 'dotkl-xkls'
+  | 'colonkl-xkls'
   | 'dotkl-plain'
   | 'klse-prefix'
   | 'bursa-prefix'
   | 'klse-exchange'
   | 'bursa-exchange';
+
+/** フルプローブ時の試行順（4707 → 4707.KL → 4707:KL → BURSA:4707） */
+export const BURSA_DIAGNOSTIC_PROBE_ORDER: BursaFormatId[] = [
+  'numeric-xkls',
+  'dotkl-xkls',
+  'colonkl-xkls',
+  'bursa-prefix',
+];
 
 export type BursaQuoteAttempt = TwelveDataSymbolParams & {
   formatId: BursaFormatId;
@@ -75,6 +84,14 @@ function buildAttempt(formatId: BursaFormatId, numeric: string): BursaQuoteAttem
         formatId,
         attempt: '5347.KL-xkls',
         symbol: `${numeric}.KL`,
+        exchange,
+        mic_code: mic,
+      };
+    case 'colonkl-xkls':
+      return {
+        formatId,
+        attempt: '5347:KL-xkls',
+        symbol: `${numeric}:KL`,
         exchange,
         mic_code: mic,
       };
@@ -255,7 +272,8 @@ export function getBursaQuoteAttempts(
   if (preferred && !skip.has(preferred)) {
     ordered.push(buildAttempt(preferred, numeric));
   }
-  for (const id of FORMAT_ORDER) {
+  const formatOrder = mode === 'full' ? BURSA_DIAGNOSTIC_PROBE_ORDER : FORMAT_ORDER;
+  for (const id of formatOrder) {
     if (id === preferred || skip.has(id)) continue;
     ordered.push(buildAttempt(id, numeric));
   }

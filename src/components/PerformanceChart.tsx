@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import type { PerformancePoint } from '../types';
@@ -5,8 +6,18 @@ import { theme } from '../theme';
 
 type Props = { data: PerformancePoint[] };
 
-export function PerformanceChart({ data }: Props) {
-  if (data.length < 2) {
+const MAX_CHART_POINTS = 48;
+
+function downsamplePoints(data: PerformancePoint[]): PerformancePoint[] {
+  if (data.length <= MAX_CHART_POINTS) return data;
+  const step = Math.ceil(data.length / MAX_CHART_POINTS);
+  return data.filter((_, i) => i % step === 0 || i === data.length - 1);
+}
+
+function PerformanceChartInner({ data }: Props) {
+  const sampled = useMemo(() => downsamplePoints(data), [data]);
+
+  if (sampled.length < 2) {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyText}>売買を記録すると成績グラフ（MYR）が表示されます。</Text>
@@ -14,8 +25,8 @@ export function PerformanceChart({ data }: Props) {
     );
   }
 
-  const labels = data.map((p) => p.date.slice(5));
-  const values = data.map((p) => p.portfolioValueMYR);
+  const labels = sampled.map((p) => p.date.slice(5));
+  const values = sampled.map((p) => p.portfolioValueMYR);
 
   return (
     <LineChart
@@ -34,11 +45,13 @@ export function PerformanceChart({ data }: Props) {
         labelColor: () => theme.colors.textMuted,
         propsForDots: { r: '3' },
       }}
-      bezier
+      bezier={sampled.length >= 8}
       style={styles.chart}
     />
   );
 }
+
+export const PerformanceChart = memo(PerformanceChartInner);
 
 const styles = StyleSheet.create({
   chart: { borderRadius: theme.radius.md },

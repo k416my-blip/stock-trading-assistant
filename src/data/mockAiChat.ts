@@ -1,6 +1,11 @@
 import type { AiExplanationLevel } from '../constants/aiExplanationLevel';
 import { DEFAULT_AI_EXPLANATION_LEVEL } from '../constants/aiExplanationLevel';
-import type { AiChatMessage, AiChatStructuredReply } from '../types/aiChat';
+import type { AiChatMessage, AiChatMessageSource, AiChatStructuredReply } from '../types/aiChat';
+import {
+  createAssistantChatMessagePartial,
+  createChatMessage,
+  createUserChatMessage as createStampedUserChatMessage,
+} from '../services/chatMessageFactory';
 import { createDatetimeInstantMessage } from '../services/currentDateTime';
 import { getConciergeInstantAnswer } from '../services/aiConciergeInstantAnswers';
 import { classifyConciergeResponseIntent } from '../services/aiConciergeResponseIntent';
@@ -11,14 +16,13 @@ import {
 } from '../services/aiConciergeConversationMode';
 import type { AiConciergeConversationMode, AiConciergeResponseIntent } from '../types/aiConcierge';
 
-const WELCOME: AiChatMessage = {
+const WELCOME: AiChatMessage = createChatMessage({
   id: 'welcome',
   role: 'assistant',
   text: 'こんにちは。戦略コンシェルジュです。用語・銘柄・マクロ・保有の見方など、質問に直接答えます。',
   responseIntent: 'general_education',
   conversationMode: 'conversation',
-  createdAt: new Date().toISOString(),
-};
+});
 
 function finalizeMockReply(
   text: string,
@@ -160,13 +164,11 @@ export function getInitialAiChatMessages(): AiChatMessage[] {
   return [WELCOME];
 }
 
-export function createUserChatMessage(text: string): AiChatMessage {
-  return {
-    id: `u-${Date.now()}`,
-    role: 'user',
-    text: text.trim(),
-    createdAt: new Date().toISOString(),
-  };
+export function createUserChatMessage(
+  text: string,
+  options?: { messageSource?: AiChatMessageSource },
+): AiChatMessage {
+  return createStampedUserChatMessage(text, options);
 }
 
 export function createAssistantChatMessage(
@@ -177,13 +179,11 @@ export function createAssistantChatMessage(
     userText,
     explanationLevel,
   );
-  return {
+  return createAssistantChatMessagePartial({
     id: `a-${Date.now()}`,
-    role: 'assistant',
     text,
     structured,
     responseIntent,
     conversationMode,
-    createdAt: new Date().toISOString(),
-  };
+  });
 }

@@ -4,6 +4,11 @@ dist/
 build/
 .expo/
 web-build/
+coverage/
+*.log
+android/app/build/
+ios/build/
+.vscode/settings.json
 
 # Environment & secrets (never commit)
 .env

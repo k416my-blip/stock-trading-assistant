@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLayoutEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
+import { HeaderProactiveBadge } from '../components/proactive/HeaderProactiveBadge';
+import { ProactiveSuggestionsHomeCard } from '../components/proactive/ProactiveSuggestionsHomeCard';
 import { CentralIntelligencePanel } from '../components/CentralIntelligencePanel';
 import { AiTradeQueueSection } from '../components/AiTradeQueueSection';
 import { useNavigation } from '@react-navigation/native';
@@ -39,6 +41,7 @@ export function HomeScreen() {
     tabNav.setOptions({
       headerRight: () => (
         <View style={styles.headerRight}>
+          <HeaderProactiveBadge />
           <HeaderUrgencyBadge />
           <Pressable
             onPress={() => stackNav.navigate('Settings')}
@@ -61,6 +64,7 @@ export function HomeScreen() {
       subtitle={isPractice ? PRACTICE_SUBTITLE : PLATFORM_POSITIONING_SUBTITLE_JA}
     >
       <DegradedModeBanner />
+      <ProactiveSuggestionsHomeCard />
       <CentralIntelligencePanel />
       {isPractice ? (
         <>

@@ -42,6 +42,9 @@ export type RootStackParamList = {
   SecuritySettings: undefined;
   StartupDiagnostics: undefined;
   PersonalProduction: undefined;
+  ProductionDashboard: undefined;
+  ProactiveSuggestions: undefined;
+  XApiUsage: undefined;
 };
 
 export type MainTabParamList = {

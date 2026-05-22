@@ -1,4 +1,5 @@
 import type { AiChatMessage } from '../types/aiChat';
+import { createAssistantChatMessagePartial } from './chatMessageFactory';
 
 export type DatetimeZoneSpec = {
   timeZone: string;
@@ -113,11 +114,11 @@ export function createDatetimeInstantMessage(
 ): AiChatMessage | null {
   if (!isDatetimeQuery(userText)) return null;
 
-  return {
+  return createAssistantChatMessagePartial({
     id: `a-datetime-${now.getTime()}`,
-    role: 'assistant',
     text: buildDatetimeReplyText(userText, now),
     responseIntent: 'general_education',
     createdAt: now.toISOString(),
-  };
+    sortKey: now.getTime() * 1000,
+  });
 }

@@ -1,4 +1,5 @@
 import type { Market, StockFundamentals } from './index';
+import type { XSentimentSnapshot } from './xSentiment';
 
 export type NewsSentimentLabel = 'ポジティブ' | '中立' | 'ネガティブ';
 export type DataSourceState = 'available' | 'unavailable' | 'estimated';
@@ -50,6 +51,8 @@ export interface SnsAnalysisResult {
   warning: string;
   explanation: string;
   source: DataSourceState;
+  /** X投稿ベースのセンチメント詳細（取得データ優先） */
+  xSentiment?: XSentimentSnapshot;
 }
 
 export interface HistoricalLearningResult {

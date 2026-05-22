@@ -3,15 +3,18 @@
  * 平文 AsyncStorage への新規書き込みは行わない
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { LEGACY_PLAIN_SECRET_KEYS, SECRET_KEYS, type SecretKeyId } from '../constants/secretStorage';
+import { secureWarn } from './secureLogger';
 
 type SecureStoreModule = typeof import('expo-secure-store');
 
 let secureStoreModule: SecureStoreModule | null | undefined;
 const memorySecrets = new Map<string, string>();
 
-function canUseNativeSecureStore(): boolean {
-  return typeof globalThis !== 'undefined' && 'window' in globalThis;
+/** Expo Go / dev client on iOS & Android must use SecureStore — not `window` (web-only). */
+export function canUseNativeSecureStore(): boolean {
+  return Platform.OS === 'ios' || Platform.OS === 'android';
 }
 
 function isSecureStoreCorruptionError(err: unknown): boolean {
@@ -28,7 +31,11 @@ async function loadSecureStore(): Promise<SecureStoreModule | null> {
   try {
     secureStoreModule = await import('expo-secure-store');
     return secureStoreModule;
-  } catch {
+  } catch (err) {
+    secureWarn(
+      '[secret-storage] expo-secure-store unavailable',
+      err instanceof Error ? err.message : String(err),
+    );
     secureStoreModule = null;
     return null;
   }
@@ -147,7 +154,6 @@ export async function deleteAllSecrets(): Promise<void> {
 }
 
 async function readLegacyPlainSecret(keyId: SecretKeyId): Promise<string> {
-  if (!canUseNativeSecureStore()) return '';
   try {
     const legacyKey = LEGACY_PLAIN_SECRET_KEYS[keyId];
     const raw = await AsyncStorage.getItem(legacyKey);

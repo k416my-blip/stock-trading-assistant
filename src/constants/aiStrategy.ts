@@ -51,6 +51,8 @@ export const AI_FORBIDDEN_EXPRESSIONS: RegExp[] = [
   /今すぐ全力/i,
   /must\s+buy/i,
   /guaranteed\s+profit/i,
+  /様々な要因(だけ|のみ|による)?/i,
+  /様々な理由(だけ|のみ|による)?/i,
 ];
 
 export const AI_SYSTEM_PROMPT = `あなたは「自己修復型AI投資支援システム」の唯一の知性層であり、全画面から呼び出されるコンシェルジュです。

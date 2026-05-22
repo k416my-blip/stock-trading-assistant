@@ -44,12 +44,30 @@ import type { ApiConnectionStatus } from '../types/apiConnection';
 import type { ApiProviderHealth } from '../types/apiSetup';
 import type { AiApiConnectionTestResult } from '../types/aiStrategy';
 import { assertAiPayloadSafe, buildAiStrategyContext, type BuildAiStrategyContextInput } from './aiContextBuilder';
+import { compressAiStrategyContextForApi } from './aiContextCompressor';
+import {
+  noteNetworkFailure,
+  noteNetworkSuccess,
+  shouldPauseApiRequests,
+} from './performanceCostRuntime';
+import { isCircuitOpen, recordApiFailure, recordApiSuccess } from './productionStability/apiCircuitBreaker';
+import { recordApiLatencyMs } from './productionStability/productionProfiler';
+import {
+  shouldAllowOpenAiRequest,
+  shouldPauseConciergeAi,
+} from './productionStability/productionStabilityRuntime';
+import { nextAsyncGeneration, isStaleAsyncGeneration } from './productionStability/asyncRaceGuard';
+import { resolveAiTemperature } from './aiDeterministicMode';
+import { evaluateHallucinationBlock } from './aiHallucinationBlocker';
+import { ANALYSIS_BLOCKED_LABEL_JA } from '../constants/aiRiskControl';
+import { saveConciergePromptDebug } from './conciergePromptDebug';
 import {
   buildDisplayText,
   containsForbiddenExpression,
   parseAiApiJsonContent,
   toStructuredReply,
 } from './aiResponseSanitizer';
+import { recordOpenAiTokenEstimate } from './apiCostTracker';
 import { recordDiagnosticEvent } from './structuredDiagnostics';
 import { secureLog, secureWarn } from './secureLogger';
 
@@ -362,6 +380,18 @@ function extractResponsesApiText(data: unknown): string | null {
   return null;
 }
 
+function withContextArtifacts(
+  result: AiStrategyChatResult,
+  context: AiStrategyContextPayload,
+): AiStrategyChatResult {
+  return {
+    ...result,
+    evidenceData: context.evidenceData,
+    globalMarketAnalysis: context.globalMarketAnalysis,
+    portfolioIntelligence: context.portfolioIntelligence,
+  };
+}
+
 function mockResult(
   userMessage: string,
   source: 'mock' | 'mock_fallback',
@@ -436,14 +466,22 @@ async function callAiApi(
   | { ok: false; error: string; aborted?: boolean }
 > {
   assertAiPayloadSafe(context);
+  const apiContext = compressAiStrategyContextForApi(context);
 
-  const userPayload = buildEphemeralApiUserPayload(userMessage, context);
+  const userPayload = buildEphemeralApiUserPayload(userMessage, apiContext);
+  const instructions = buildFixedAiInstructions(explanationLevel, context.analysisMode);
+  const userPayloadJson = JSON.stringify(userPayload, null, 2);
+  void saveConciergePromptDebug(instructions, userPayloadJson);
 
   const { signal, dispose } = linkAbortSignals(AI_API_TIMEOUT_MS, externalSignal);
+  const started = Date.now();
 
   try {
     if (signal.aborted) {
       return { ok: false, error: 'aborted', aborted: true };
+    }
+    if (isCircuitOpen('openai')) {
+      return { ok: false, error: 'circuit_open' };
     }
 
     const response = await fetchImpl(AI_API_CHAT_URL, {
@@ -454,11 +492,15 @@ async function callAiApi(
       },
       body: JSON.stringify({
         model: AI_API_MODEL,
-        instructions: buildFixedAiInstructions(explanationLevel),
+        temperature: resolveAiTemperature(
+          context.analysisMode,
+          context.concierge.conversationMode,
+        ),
+        instructions,
         input: [
           {
             role: 'user',
-            content: JSON.stringify(userPayload),
+            content: userPayloadJson,
           },
         ],
       }),
@@ -479,6 +521,7 @@ async function callAiApi(
       } catch {
         // ignore JSON parse errors on error responses
       }
+      recordApiFailure('openai');
       secureWarn('[ai-strategy] api http error', {
         endpoint: 'responses',
         model: AI_API_MODEL,
@@ -545,8 +588,20 @@ async function callAiApi(
 
     const structured = toStructuredReply(parsed, context.marketRegimeLabel);
     const text = buildDisplayText(parsed, structured, context.concierge.conversationMode);
+
+    const hallucination = evaluateHallucinationBlock(parsed, text, context);
+    if (hallucination.blocked) {
+      secureWarn('[ai-strategy] hallucination block', {
+        reason: hallucination.reasonJa,
+        mismatches: hallucination.validationMismatches,
+      });
+      return { ok: false, error: 'hallucination_blocked' };
+    }
+
+    recordApiSuccess('openai');
     return { ok: true, structured, text };
   } catch (e) {
+    recordApiFailure('openai');
     if (isAbortError(e) || signal.aborted) {
       if (externalSignal?.aborted) {
         return { ok: false, error: 'aborted', aborted: true };
@@ -559,6 +614,7 @@ async function callAiApi(
     }
     return { ok: false, error: msg };
   } finally {
+    recordApiLatencyMs(Date.now() - started);
     dispose();
   }
 }
@@ -611,8 +667,29 @@ async function callAiApiWithSingleRetry(
 export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promise<AiStrategyChatResult> {
   const staleCount = input.context.staleHoldingsCount;
   const emit = (status: AiRequestStatus) => emitStatus(input.onRequestStatus, status);
+  const attach = (result: AiStrategyChatResult) => withContextArtifacts(result, input.context);
+  const chatGeneration = nextAsyncGeneration('ai-chat');
 
   try {
+    if (
+      (shouldPauseApiRequests() || shouldPauseConciergeAi()) &&
+      input.preferences.aiEnabled &&
+      !input.preferences.mockOnly
+    ) {
+      emit('degraded');
+      return attach(
+        mockResult(
+          input.userMessage,
+          'mock',
+          '通信一時停止',
+          'バックグラウンドまたはオフラインのためAPIを停止しています。最後のキャッシュ表示をご利用ください。',
+          staleCount,
+          'degraded',
+          input.preferences.aiExplanationLevel,
+        ),
+      );
+    }
+
     emit('checking_api_key');
 
     if (input.signal?.aborted) {
@@ -627,7 +704,8 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
 
     if (!input.preferences.aiEnabled) {
       emit('fallback_mock');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock',
         'AI機能オフ — モック応答',
@@ -635,12 +713,14 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         staleCount,
         'fallback_mock',
         input.preferences.aiExplanationLevel,
+        ),
       );
     }
 
     if (input.preferences.mockOnly) {
       emit('fallback_mock');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock',
         'モックのみモード',
@@ -648,12 +728,14 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         staleCount,
         'fallback_mock',
         input.preferences.aiExplanationLevel,
+        ),
       );
     }
 
     if (loadFailed) {
       emit('error');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock_fallback',
         'エラー',
@@ -663,12 +745,14 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         input.preferences.aiExplanationLevel,
         'APIキーの読み込みに失敗',
         'network_error',
+        ),
       );
     }
 
     if (invalidKey) {
       emit('fallback_mock');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock_fallback',
         '認証エラー',
@@ -678,12 +762,14 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         input.preferences.aiExplanationLevel,
         'マスク済みまたは無効なAPIキー',
         'auth_error',
+        ),
       );
     }
 
     if (!apiKey) {
       emit('api_key_missing');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock',
         'APIキー未設定',
@@ -693,12 +779,30 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         input.preferences.aiExplanationLevel,
         null,
         'not_configured',
+        ),
+      );
+    }
+
+    if (!shouldAllowOpenAiRequest(1200)) {
+      emit('degraded');
+      return attach(
+        mockResult(
+          input.userMessage,
+          'mock_fallback',
+          'AI負荷抑制 — モックに切替',
+          'トークン予算・サーキット・バックグラウンドのいずれかによりAPIを停止しています。',
+          staleCount,
+          'degraded',
+          input.preferences.aiExplanationLevel,
+          'production_stability_gate',
+        ),
       );
     }
 
     if (rateLimited()) {
       emit('fallback_mock');
-      return mockResult(
+      return attach(
+        mockResult(
         input.userMessage,
         'mock_fallback',
         '送信間隔制限 — モックに切替',
@@ -706,7 +810,36 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         staleCount,
         'fallback_mock',
         input.preferences.aiExplanationLevel,
+        ),
       );
+    }
+
+    if (!input.context.evidenceData.riskControl.allowSpeculativeAi) {
+      emit('degraded');
+      const blockedJa =
+        input.context.evidenceData.riskControl.analysisBlockedJa ?? ANALYSIS_BLOCKED_LABEL_JA;
+      return attach({
+        source: 'mock',
+        text: `${blockedJa}。推測回答と行動提案は抑制されています。根拠データを更新してから再質問してください。`,
+        structured: {
+          reason: blockedJa,
+          risk: 'データ品質不足',
+          market: input.context.marketRegimeLabel,
+          urgency: '低',
+          confidence: `${input.context.evidenceData.riskControl.overallConfidencePct}%`,
+          dataFreshness: input.context.evidenceData.riskControl.globalStaleWarningJa ?? '要確認',
+          conclusion: blockedJa,
+        },
+        apiConnected: false,
+        usedMockFallback: false,
+        isLoading: false,
+        errorJa: null,
+        statusJa: '確信度ゲート — 分析抑制',
+        fallbackReasonJa: null,
+        connectionStatus: 'connected',
+        staleHoldingsCount: staleCount,
+        requestStatus: 'degraded',
+      });
     }
 
     if (input.context.operations.degradedMode) {
@@ -728,11 +861,17 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
     );
     const apiResult = attempt.result;
 
+    if (isStaleAsyncGeneration('ai-chat', chatGeneration)) {
+      throw new DOMException('Stale AI response', 'AbortError');
+    }
+
     if (!apiResult.ok && apiResult.aborted) {
       throw new DOMException('Aborted', 'AbortError');
     }
 
     if (apiResult.ok) {
+      noteNetworkSuccess();
+      recordOpenAiTokenEstimate(900);
       emit('success');
       recordDiagnosticEvent({
         type: 'ai_chat',
@@ -748,7 +887,7 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         holdings: input.context.holdings.length,
         stale: input.context.staleHoldingsCount,
       });
-      return {
+      return attach({
         source: 'api',
         text: apiResult.text,
         structured: apiResult.structured,
@@ -761,9 +900,10 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
         connectionStatus: 'connected',
         staleHoldingsCount: staleCount,
         requestStatus: 'success',
-      };
+      });
     }
 
+    noteNetworkFailure();
     const failureStatus = requestStatusForApiFailure(apiResult.error);
     const errorJa = errorJaForApiFailure(apiResult.error);
     const fallbackReasonJa =
@@ -796,7 +936,8 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
             : apiResult.error === 'invalid json' || apiResult.error === 'empty response'
               ? 'parse_error'
               : 'network_error';
-    return mockResult(
+    return attach(
+      mockResult(
       input.userMessage,
       'mock_fallback',
       statusLabelJa(failStatus),
@@ -806,13 +947,15 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
       input.preferences.aiExplanationLevel,
       fallbackReasonJa,
       failStatus,
+      ),
     );
   } catch (e) {
     if (isAbortError(e)) {
       throw e;
     }
     emit('error');
-    return mockResult(
+    return attach(
+      mockResult(
       input.userMessage,
       'mock_fallback',
       'エラー',
@@ -820,6 +963,7 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
       staleCount,
       'error',
       input.preferences.aiExplanationLevel,
+      ),
     );
   }
 }

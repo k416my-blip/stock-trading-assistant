@@ -1,7 +1,7 @@
 import { TWELVE_DATA_EXCHANGE, TWELVE_DATA_MIC } from '../constants/marketData';
 import type { Market } from '../types';
 import type { TwelveDataSymbolParams } from '../types/marketData';
-import { getBursaQuoteAttempts, type BursaQuoteAttempt } from './bursaSymbolFormat';
+import { isMalaysiaMarket, normalizeBursaSymbol } from '../utils/normalizeBursaSymbol';
 
 export type TwelveDataQuoteAttempt = TwelveDataSymbolParams & {
   /** デバッグ用ラベル */
@@ -17,16 +17,6 @@ function stripMarketSuffix(symbol: string, suffix: string): string {
   return upper;
 }
 
-function mapBursaAttempt(a: BursaQuoteAttempt): TwelveDataQuoteAttempt {
-  return {
-    symbol: a.symbol,
-    exchange: a.exchange,
-    mic_code: a.mic_code,
-    attempt: a.attempt,
-    formatId: a.formatId,
-  };
-}
-
 /** Twelve Data 用の複数リクエスト候補（失敗時に順に試行） */
 export function getTwelveDataQuoteAttempts(market: Market, symbol: string): TwelveDataQuoteAttempt[] {
   const raw = symbol.trim().toUpperCase();
@@ -36,8 +26,19 @@ export function getTwelveDataQuoteAttempts(market: Market, symbol: string): Twel
     return [{ symbol: base, attempt: 'us-plain' }];
   }
 
-  if (market === 'bursa') {
-    return getBursaQuoteAttempts(symbol).map(mapBursaAttempt);
+  if (isMalaysiaMarket(market)) {
+    const apiSymbol = normalizeBursaSymbol(symbol);
+    const exchange = TWELVE_DATA_EXCHANGE.bursa;
+    const mic = TWELVE_DATA_MIC.bursa;
+    return [
+      {
+        symbol: apiSymbol,
+        exchange,
+        mic_code: mic,
+        attempt: 'bursa-dotkl-xkls',
+        formatId: 'dotkl-xkls',
+      },
+    ];
   }
 
   if (market === 'hk') {

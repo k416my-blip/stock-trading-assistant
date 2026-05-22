@@ -26,6 +26,7 @@ import {
 import { playUrgentSignalFeedback } from '../services/urgencyAlertFeedback';
 import type { TradeQueueAckStatus, UrgencySignal } from '../types/urgencySignal';
 import { AI_UI } from '../constants/aiStrategyBriefing';
+import { emitChatAuditNotice } from '../services/chatMessageFactory';
 import { useApp } from './AppContext';
 import { useCentralIntelligence } from '../hooks/useCentralIntelligence';
 
@@ -147,22 +148,36 @@ export function UrgencySignalProvider({ children }: { children: ReactNode }) {
 
   const acknowledgeSignal = useCallback(
     async (signalId: string) => {
+      const signal = allSignals.find((s) => s.id === signalId);
       if (signalId.startsWith('sys-')) {
         await acknowledgeSystemSignal(signalId);
       } else {
         await acknowledgeTradeQueueItem(signalId);
       }
       await reloadAck();
+      if (signal) {
+        const label = signal.ticker
+          ? `${signal.actionLabel} (${signal.ticker})`
+          : signal.actionLabel;
+        emitChatAuditNotice(`シグナル確認: ${label}`, 'signal');
+      }
     },
-    [reloadAck],
+    [allSignals, reloadAck],
   );
 
   const acknowledgeQueueItem = useCallback(
     async (itemId: string) => {
+      const item = baseQueue.find((q) => q.id === itemId);
       await acknowledgeTradeQueueItem(itemId);
       await reloadAck();
+      if (item) {
+        emitChatAuditNotice(
+          `キュー確認: ${item.ticker} ${item.suggestedAction}`,
+          'queue_ack',
+        );
+      }
     },
-    [reloadAck],
+    [baseQueue, reloadAck],
   );
 
   const getQueueAckStatus = useCallback(

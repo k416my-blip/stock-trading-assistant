@@ -6,6 +6,7 @@ import {
   extractEntitiesFromText,
   mergeEntityMemory,
 } from './aiConciergeEntityExtraction';
+import { mergeRelevanceMemory } from './aiConciergeRelevance';
 
 export const EMPTY_ENTITY_MEMORY: ConciergeEntityMemory = {
   tickers: [],
@@ -29,6 +30,10 @@ export function createEmptyConciergeSessionMemory(
     explanationLevelLabelJa: AI_EXPLANATION_LEVEL_LABELS_JA[explanationLevel],
     entities: { ...EMPTY_ENTITY_MEMORY },
     lastAssistantSnippet: null,
+    ignoredTopics: [],
+    dismissedSignals: [],
+    userRejectedThemes: [],
+    proactiveAdvisorSummaryJa: null,
   };
 }
 
@@ -96,14 +101,26 @@ export function updateConciergeSessionMemory(
     discussedSymbols = pushUniqueTail(discussedSymbols, sym, MAX_SYMBOLS);
   }
 
-  return {
+  const base: ConciergeSessionMemory = {
     recentQuestions: pushUniqueTail(prev.recentQuestions, userMessage, MAX_RECENT_QUESTIONS),
     discussedSymbols,
     strategyPreference: preference,
     explanationLevelLabelJa: AI_EXPLANATION_LEVEL_LABELS_JA[explanationLevel],
     entities: mergeEntityMemory(prev.entities, userEntities),
     lastAssistantSnippet: prev.lastAssistantSnippet,
+    ignoredTopics: prev.ignoredTopics,
+    dismissedSignals: prev.dismissedSignals,
+    userRejectedThemes: prev.userRejectedThemes,
+    proactiveAdvisorSummaryJa: prev.proactiveAdvisorSummaryJa,
   };
+  return mergeRelevanceMemory(base, userMessage);
+}
+
+export function withProactiveAdvisorSummary(
+  memory: ConciergeSessionMemory,
+  summaryJa: string | null,
+): ConciergeSessionMemory {
+  return { ...memory, proactiveAdvisorSummaryJa: summaryJa };
 }
 
 export function recordConciergeAssistantTurn(

@@ -1,3 +1,4 @@
+import { AI_INSUFFICIENT_DATA_PHRASE_JA, AI_VAGUE_ANSWER_PATTERNS } from '../constants/aiDataDriven';
 import { AI_FORBIDDEN_EXPRESSIONS, AI_PERSONAL_SAFETY_FOOTER } from '../constants/aiStrategy';
 import type { AiConciergeConversationMode } from '../types/aiConcierge';
 import type { AiChatStructuredReply } from '../types/aiChat';
@@ -26,10 +27,21 @@ export function containsForbiddenExpression(text: string): boolean {
   return AI_FORBIDDEN_EXPRESSIONS.some((re) => re.test(text));
 }
 
+export function containsVagueOnlyAnswer(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  const hasNumber = /-?\d+(\.\d+)?%?/.test(trimmed);
+  if (hasNumber) return false;
+  return AI_VAGUE_ANSWER_PATTERNS.some((re) => re.test(trimmed));
+}
+
 export function sanitizeAiText(text: string, options?: SanitizeAiTextOptions): string {
   let out = text;
   for (const re of AI_FORBIDDEN_EXPRESSIONS) {
     out = out.replace(re, '（表現を修正しました）');
+  }
+  if (containsVagueOnlyAnswer(out)) {
+    out = `${AI_INSUFFICIENT_DATA_PHRASE_JA}。根拠データ（株価・出来高・ニュース・X）が不足しているため、汎用的な説明は避けます。`;
   }
   if (options?.appendSafetyFooter && !out.includes('最終判断はユーザー自身')) {
     out = `${out}\n\n${AI_PERSONAL_SAFETY_FOOTER}`;

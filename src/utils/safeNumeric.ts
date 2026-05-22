@@ -1,11 +1,24 @@
 /** 数値の安全ガード（NaN / undefined でアプリが壊れないようにする） */
 
-/** API 取得成功判定: 正の有限数のみ */
+/** API/JSON 由来の価格を正の有限数に正規化（"95" / 95 / 95.0 など） */
+export function normalizeQuotePrice(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const normalizedPrice = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(normalizedPrice) || Number.isNaN(normalizedPrice) || normalizedPrice <= 0) {
+    return null;
+  }
+  return normalizedPrice;
+}
+
+/** API 取得成功判定: 正の有限数のみ（falsy 判定は使わない） */
 export function isValidQuotePrice(value: unknown): value is number {
-  return typeof value === 'number' && Number.isFinite(value) && !Number.isNaN(value) && value > 0;
+  return normalizeQuotePrice(value) != null;
 }
 
 export function safeNumber(value: unknown, fallback = 0): number {
+  const normalized = normalizeQuotePrice(value);
+  if (normalized != null) return normalized;
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string' && value.trim() !== '') {
     const n = Number(value);
@@ -15,6 +28,8 @@ export function safeNumber(value: unknown, fallback = 0): number {
 }
 
 export function safePrice(value: unknown, fallback: number, minExclusive = 0): number {
+  const normalized = normalizeQuotePrice(value);
+  if (normalized != null && normalized > minExclusive) return normalized;
   const n = safeNumber(value, fallback);
   if (n > minExclusive) return n;
   if (fallback > minExclusive) return fallback;

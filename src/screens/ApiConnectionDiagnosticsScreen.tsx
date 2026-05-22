@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ApiCostDashboardPanel } from '../components/ApiCostDashboardPanel';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
@@ -58,6 +59,9 @@ export function ApiConnectionDiagnosticsScreen() {
 
   return (
     <Screen title={API_CONNECTION_DIAGNOSTICS.screenTitle} subtitle={API_CONNECTION_DIAGNOSTICS.screenSubtitle}>
+      <Card>
+        <ApiCostDashboardPanel />
+      </Card>
       <Card>
         <Button
           label={testingId === 'all' ? API_CONNECTION_DIAGNOSTICS.checking : API_CONNECTION_DIAGNOSTICS.testAll}

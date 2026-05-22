@@ -31,11 +31,28 @@ import { analyzeTechnicals } from '../services/technicalAnalysis';
 import { buildBuySignalAlert, buildSellSignalAlert } from '../services/alertEngine';
 import { buildSellSuggestion, buildTradeSuggestion } from '../services/tradeSuggestions';
 import { buildStockRecommendationAsync } from '../services/recommendationEngine';
+import {
+  analyzeXSentimentOnUserRequest,
+  loadCachedXSentimentForStock,
+} from '../services/xSentimentAnalysis';
 import type { StockRecommendation } from '../types/recommendation';
+import type { XSentimentSnapshot } from '../types/xSentiment';
+import { XSentimentPanel } from '../components/XSentimentPanel';
+import { Button } from '../components/ui/Button';
 import { theme } from '../theme';
 
 export function StockDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'StockDetail'>>();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (params?.symbol) {
+        void import('../services/autonomousMonitoringStorage').then(({ recordRecentViewedSymbol }) =>
+          recordRecentViewedSymbol(params.symbol),
+        );
+      }
+    }, [params?.symbol]),
+  );
   const {
     state,
     buyingPower,
@@ -100,6 +117,9 @@ export function StockDetailScreen() {
 
   const [recommendation, setRecommendation] = useState<StockRecommendation | null>(null);
   const [loadingRec, setLoadingRec] = useState(true);
+  const [xSentiment, setXSentiment] = useState<XSentimentSnapshot | null>(null);
+  const [loadingX, setLoadingX] = useState(false);
+  const [xError, setXError] = useState<string | null>(null);
 
   const sizing = useMemo(() => {
     if (!stock) return null;
@@ -217,6 +237,16 @@ export function StockDetailScreen() {
     };
   }, [stock, params.market, analysisApiKeys, twelveDataApiKey]);
 
+  useEffect(() => {
+    if (!stock) {
+      setXSentiment(null);
+      return;
+    }
+    void loadCachedXSentimentForStock(stock).then((cached) => {
+      setXSentiment(cached);
+    });
+  }, [stock?.symbol, stock?.market]);
+
   useFocusEffect(
     useCallback(() => {
       if (!stock || stock.market !== params.market) return;
@@ -256,6 +286,36 @@ export function StockDetailScreen() {
         <StockRecommendationPanel recommendation={recommendation} />
       ) : null}
       <Card>
+        <Text style={styles.muted}>
+          Xセンチメントはユーザー操作時のみ取得（15分キャッシュ・最大20件・バックグラウンド監視なし）
+        </Text>
+        <View style={{ marginTop: theme.spacing.sm }}>
+          <Button
+            label={loadingX ? 'X投稿を分析中…' : 'Xセンチメントを取得'}
+            onPress={() => {
+              if (!stock) return;
+              setLoadingX(true);
+              setXError(null);
+              void analyzeXSentimentOnUserRequest(stock, analysisApiKeys, { forceRefresh: false })
+                .then((sns) => {
+                  if (sns.xSentiment) {
+                    setXSentiment(sns.xSentiment);
+                  } else {
+                    setXError(sns.summary);
+                  }
+                })
+                .catch((e) => {
+                  setXError(e instanceof Error ? e.message : '取得に失敗しました');
+                })
+                .finally(() => setLoadingX(false));
+            }}
+            disabled={loadingX}
+          />
+        </View>
+        {xError ? <Text style={styles.xErr}>{xError}</Text> : null}
+      </Card>
+      {xSentiment ? <XSentimentPanel snapshot={xSentiment} /> : null}
+      <Card>
         <TermHint term="stock" />
         <LabeledValue term="stockPrice" value={`${sym}${stock.price}`} />
         <MetricRow term="rsi" value={technicals.rsi14.toFixed(1)} />
@@ -286,6 +346,7 @@ function MetricRow({ term, value }: { term: 'rsi' | 'movingAverage' | 'buySignal
 
 const styles = StyleSheet.create({
   muted: { color: theme.colors.textMuted, marginTop: 4 },
+  xErr: { color: theme.colors.warning, marginTop: theme.spacing.sm, fontSize: theme.fontSize.sm },
   loadingRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   metric: { marginTop: theme.spacing.sm },
   metricRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

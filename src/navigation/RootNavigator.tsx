@@ -38,6 +38,9 @@ import { ExecutionReconciliationScreen } from '../screens/ExecutionReconciliatio
 import { SecuritySettingsScreen } from '../screens/SecuritySettingsScreen';
 import { StartupDiagnosticsScreen } from '../screens/StartupDiagnosticsScreen';
 import { PersonalProductionScreen } from '../screens/PersonalProductionScreen';
+import { ProductionDashboardScreen } from '../screens/ProductionDashboardScreen';
+import { ProactiveSuggestionsScreen } from '../screens/ProactiveSuggestionsScreen';
+import { XApiUsageScreen } from '../screens/XApiUsageScreen';
 import { RiskWarningScreen } from '../screens/RiskWarningScreen';
 import { StockDetailScreen } from '../screens/StockDetailScreen';
 import { MainTabNavigator } from './MainTabNavigator';
@@ -209,6 +212,21 @@ export function RootNavigator() {
           name="PersonalProduction"
           component={PersonalProductionScreen}
           options={{ title: '個人用運用' }}
+        />
+        <Stack.Screen
+          name="ProductionDashboard"
+          component={ProductionDashboardScreen}
+          options={{ title: 'Production Dashboard' }}
+        />
+        <Stack.Screen
+          name="ProactiveSuggestions"
+          component={ProactiveSuggestionsScreen}
+          options={{ title: 'AI提案一覧' }}
+        />
+        <Stack.Screen
+          name="XApiUsage"
+          component={XApiUsageScreen}
+          options={{ title: 'X API 利用量' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

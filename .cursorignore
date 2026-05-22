@@ -1,23 +1,33 @@
-# Secrets - exclude from Cursor AI indexing
+﻿# Secrets
 .env
 .env.*
 *.pem
 *.key
 *.p12
 *.pfx
-credentials.json
-secrets.json
-firebase-adminsdk*.json
-google-services.json
-GoogleService-Info.plist
 
+# Heavy folders
 node_modules/
 dist/
 build/
 .expo/
 web-build/
-
-.git/
 coverage/
 
+# Generated files
+expo-go-qr.png
+*.qr.png
 audit-out.txt
+*.log
+
+# Git internals
+.git/
+.cursor/
+
+# Optional large logs
+agent-transcripts/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

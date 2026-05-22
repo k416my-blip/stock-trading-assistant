@@ -1,6 +1,11 @@
 import type { StockFundamentals } from '../../types';
 import type { AnalysisApiKeys } from '../analysisApiKeys';
 import type { SnsAnalysisResult } from '../../types/recommendation';
+import {
+  analyzeXSentimentOnUserRequest,
+  loadCachedXSentimentForStock,
+  snapshotToSnsResult,
+} from '../xSentimentAnalysis';
 
 const SNS_WARNING = 'SNSの話題性は短期的に大きく変わります。参考程度に留めてください。';
 
@@ -24,48 +29,34 @@ function buildEstimated(stock: StockFundamentals): SnsAnalysisResult {
     buzzScore,
     positiveRatePct,
     negativeRatePct,
-    summary: `話題性 ${buzzScore}/100 · ポジ ${positiveRatePct}% · ネガ ${negativeRatePct}%`,
+    summary: `話題性 ${buzzScore}/100 · ポジ ${positiveRatePct}% · ネガ ${negativeRatePct}%（推定）`,
     warning: SNS_WARNING,
-    explanation:
-      'SNS評価：SNS上の話題や雰囲気の目安です。必ずしも株価と一致しません。',
+    explanation: 'SNS評価：自動読込では推定のみ。Xセンチメントは「取得」ボタンで分析してください。',
     source: 'estimated',
   };
 }
 
+/** 同期 — 常に推定（X APIを呼ばない） */
 export function analyzeSnsSync(stock: StockFundamentals): SnsAnalysisResult {
   return buildEstimated(stock);
 }
 
+/** 銘柄詳細の自動読み込み — X API 呼び出し禁止・キャッシュ表示のみ */
 export async function analyzeSns(
   stock: StockFundamentals,
-  apiKeys: AnalysisApiKeys,
+  _apiKeys: AnalysisApiKeys,
 ): Promise<SnsAnalysisResult> {
-  const socialKey = apiKeys.xApiKey.trim() || apiKeys.snsApiKey.trim();
-  if (socialKey) {
-    try {
-      const remote = await fetchSnsFromApi(stock, socialKey);
-      if (remote) return remote;
-    } catch {
-      /* unavailable */
-    }
-    return {
-      score: 50,
-      buzzScore: 0,
-      positiveRatePct: 0,
-      negativeRatePct: 0,
-      summary: 'SNSデータ未取得',
-      warning: SNS_WARNING,
-      explanation:
-        'SNS評価：SNS上の話題や雰囲気の目安です。',
-      source: 'unavailable',
-    };
+  const cached = await loadCachedXSentimentForStock(stock);
+  if (cached) {
+    return snapshotToSnsResult({ ...cached, fromCache: true });
   }
   return buildEstimated(stock);
 }
 
-async function fetchSnsFromApi(
-  _stock: StockFundamentals,
-  _apiKey: string,
-): Promise<SnsAnalysisResult | null> {
-  return null;
+/** コンシェルジュ等 — ユーザー質問時 */
+export async function analyzeSnsOnUserQuestion(
+  stock: StockFundamentals,
+  apiKeys: AnalysisApiKeys,
+): Promise<SnsAnalysisResult> {
+  return analyzeXSentimentOnUserRequest(stock, apiKeys, { forceRefresh: false });
 }

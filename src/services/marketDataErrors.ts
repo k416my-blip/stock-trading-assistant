@@ -21,7 +21,7 @@ const USER_MESSAGES: Record<MarketDataErrorKind, string> = {
   server_error: 'データ提供側のサーバーエラーが発生しました',
   unsupported_exchange: 'この取引所はAPIでサポートされていない可能性があります',
   api_key: 'APIキーを確認してください',
-  unknown: '株価を取得できませんでした。しばらくしてから再試行してください',
+  unknown: '価格を取得できませんでした。しばらくしてから再試行してください',
 };
 
 /** HTTP ステータスとメッセージからエラー種別を判定（汎用 "limit" には反応しない） */

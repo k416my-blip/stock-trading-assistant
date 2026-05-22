@@ -22,16 +22,9 @@ import {
   DUMMY_API_KEY_UNVERIFIED,
 } from '../helpers/dummyCredentials';
 
-const basePrefs = {
-  aiEnabled: true,
-  mockOnly: false,
-  aiExplanationLevel: 'general' as const,
-  voiceEnabled: true,
-  urgentVibrationEnabled: true,
-  urgentSoundEnabled: true,
-  voiceAutoRead: false,
-  voiceSpeechRate: 1,
-};
+import { DEFAULT_AI_PREFERENCES } from '../../src/services/aiPreferencesStorage';
+
+const basePrefs = { ...DEFAULT_AI_PREFERENCES };
 
 const validApiJson = {
   conclusion: '参考',

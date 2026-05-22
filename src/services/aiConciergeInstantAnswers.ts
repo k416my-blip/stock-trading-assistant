@@ -1,6 +1,7 @@
 import type { AiExplanationLevel } from '../constants/aiExplanationLevel';
 import { DEFAULT_AI_EXPLANATION_LEVEL } from '../constants/aiExplanationLevel';
 import type { AiChatMessage } from '../types/aiChat';
+import { createAssistantChatMessagePartial } from './chatMessageFactory';
 import type { AiConciergeResponseIntent } from '../types/aiConcierge';
 import type { AiChatStructuredReply } from '../types/aiChat';
 import { createDatetimeInstantMessage } from './currentDateTime';
@@ -200,15 +201,13 @@ export function getConciergeInstantAnswer(
       ? entry.structured
       : undefined;
 
-  const base: AiChatMessage = {
+  const base = createAssistantChatMessagePartial({
     id: `a-instant-${Date.now()}`,
-    role: 'assistant',
     text: body,
     structured,
     responseIntent: intent,
     conversationMode,
-    createdAt: new Date().toISOString(),
-  };
+  });
 
   if (wantsDetailedConciergeAnalysis(raw) && entry.structured) {
     return {

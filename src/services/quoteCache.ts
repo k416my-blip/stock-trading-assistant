@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EMERGENCY_QUOTE_MAX_AGE_MS } from '../constants/marketData';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import type { Currency, Market } from '../types';
-import { isValidQuotePrice } from '../utils/safeNumeric';
+import { isValidQuotePrice, normalizeQuotePrice } from '../utils/safeNumeric';
 import { computeQuoteStaleMetadata, type QuoteStaleMetadata } from './staleDataMetadata';
 
 export interface CachedQuoteEntry extends QuoteStaleMetadata {
@@ -59,7 +59,8 @@ export async function saveCachedQuote(
   entry: CachedQuoteEntry,
   options?: { successful?: boolean },
 ): Promise<void> {
-  if (!isValidQuotePrice(entry.price)) return;
+  const normalizedPrice = normalizeQuotePrice(entry.price);
+  if (normalizedPrice == null) return;
   const store = await loadQuoteCache();
   const key = cacheKey(entry.market, entry.symbol);
   const prev = store.quotes[key];
@@ -72,6 +73,7 @@ export async function saveCachedQuote(
 
   store.quotes[key] = {
     ...entry,
+    price: normalizedPrice,
     symbol: entry.symbol.toUpperCase(),
     fetchedAt,
     lastSuccessfulFetchAt: stale.lastSuccessfulFetchAt,
@@ -89,11 +91,13 @@ export async function getCachedQuote(
 ): Promise<CachedQuoteEntry | null> {
   const store = await loadQuoteCache();
   const row = store.quotes[cacheKey(market, symbol)];
-  if (!row || !isValidQuotePrice(row.price)) return null;
+  const normalizedPrice = row ? normalizeQuotePrice(row.price) : null;
+  if (!row || normalizedPrice == null) return null;
   const stale = computeQuoteStaleMetadata(row.fetchedAt, row.lastSuccessfulFetchAt, maxAgeMs);
   if (stale.quoteAgeMs > maxAgeMs) return null;
   return {
     ...row,
+    price: normalizedPrice,
     lastSuccessfulFetchAt: stale.lastSuccessfulFetchAt,
     quoteAgeMs: stale.quoteAgeMs,
     quoteAgeSeconds: stale.quoteAgeSeconds,

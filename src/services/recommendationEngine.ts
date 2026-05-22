@@ -25,7 +25,7 @@ import { analyzeFundamentals } from './analysis/fundamentalAnalysis';
 import { analyzeHistorical } from './analysis/historicalLearning';
 import { analyzeNews, analyzeNewsSync } from './analysis/newsAnalysis';
 import { analyzeRisk } from './analysis/riskAnalysis';
-import { analyzeSns, analyzeSnsSync } from './analysis/snsAnalysis';
+import { analyzeSnsSync } from './analysis/snsAnalysis';
 import { analyzeTechnicalScore } from './analysis/technicalScore';
 import { buildBeginnerNote, buildSelectionReason } from './recommendationReasons';
 import { isMegaCap } from './stockCatalog';
@@ -248,11 +248,11 @@ export async function buildStockRecommendationAsync(
   const weights = getActiveWeights(aiState);
   const aiNote = formatAiLearningNote(aiState);
 
-  const [newsDetail, earningsDetail, snsDetail] = await Promise.all([
+  const [newsDetail, earningsDetail] = await Promise.all([
     analyzeNews(stock, apiKeys),
     analyzeEarnings(stock, apiKeys),
-    analyzeSns(stock, apiKeys),
   ]);
+  const snsDetail = analyzeSnsSync(stock);
 
   const rec = assembleRecommendation(stock, opts, newsDetail, earningsDetail, snsDetail, weights, aiNote);
 

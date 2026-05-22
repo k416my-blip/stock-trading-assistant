@@ -1,7 +1,9 @@
 import { StyleSheet, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CURRENCY_SYMBOL, MARKET_LABEL } from '../constants/rakutenTrade';
+import { CURRENCY_SYMBOL } from '../constants/rakutenTrade';
+import { findStock } from '../data/sampleStocks';
+import { formatSymbolDisplay } from '../utils/formatSymbolDisplay';
 import { PracticeModeBadge } from '../components/PracticeModeBadge';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -45,7 +47,11 @@ export function TradeHistoryScreen() {
           <Card key={recordListKey(t.id, index)}>
             <Text style={styles.symbol}>
               {isPractice && t.side === 'buy' ? '仮想買付' : isPractice && t.side === 'sell' ? '仮想売却' : tradeSideLabel[t.side]}{' '}
-              {t.symbol} · {MARKET_LABEL[t.market]}
+              {formatSymbolDisplay({
+                symbol: t.symbol,
+                market: t.market,
+                companyName: findStock(t.symbol)?.name,
+              })}
             </Text>
             <Text style={styles.muted}>
               {t.shares}株 @ {CURRENCY_SYMBOL[t.currency]}

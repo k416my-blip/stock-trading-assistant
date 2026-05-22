@@ -43,8 +43,7 @@ export function SellAllResultScreen() {
           ) : (
             <>
               <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.row}>銘柄: {item.symbol}</Text>
-              <Text style={styles.row}>市場: {MARKET_LABEL[item.market]}</Text>
+              <Text style={styles.row}>銘柄: {item.name}</Text>
               <Text style={styles.row}>保有株数: {item.shares}株</Text>
               <Text style={styles.row}>
                 現在株価: {CURRENCY_SYMBOL[item.currency]}

@@ -1,0 +1,13 @@
+{
+  "name": "sta-native-runtime",
+  "version": "1.0.0",
+  "description": "STA Android native runtime metrics bridge",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": ["expo-module", "react-native", "android"],
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

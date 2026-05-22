@@ -3,6 +3,7 @@ import { AI_CHAT_HISTORY_MAX_UI_MESSAGES } from '../constants/aiPersonalityGuard
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import type { AiChatMessage } from '../types/aiChat';
 import { getInitialAiChatMessages } from '../data/mockAiChat';
+import { normalizeChatHistory } from '../utils/chatTimestamp';
 import { getChatHistoryScopeNotice } from './aiPersonalityGuard';
 
 /**
@@ -19,14 +20,17 @@ export async function loadAiChatHistory(): Promise<AiChatMessage[]> {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.aiChatHistory);
     if (!raw) return getInitialAiChatMessages();
     const parsed = JSON.parse(raw) as AiChatMessage[];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : getInitialAiChatMessages();
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return getInitialAiChatMessages();
+    }
+    return normalizeChatHistory(parsed);
   } catch {
     return getInitialAiChatMessages();
   }
 }
 
 export async function saveAiChatHistory(messages: AiChatMessage[]): Promise<void> {
-  const trimmed = messages.slice(-AI_CHAT_HISTORY_MAX_UI_MESSAGES);
+  const trimmed = normalizeChatHistory(messages).slice(-AI_CHAT_HISTORY_MAX_UI_MESSAGES);
   await AsyncStorage.setItem(STORAGE_KEYS.aiChatHistory, JSON.stringify(trimmed));
 }
 

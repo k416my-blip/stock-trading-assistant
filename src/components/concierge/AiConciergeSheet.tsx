@@ -8,18 +8,21 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { OpenConciergePanelOptions } from '../../context/AiConciergeContext';
 import { AI_CONCIERGE_UI } from '../../constants/aiConcierge';
 import { CONCIERGE_SECTION_TEST_ID } from '../../constants/aiConciergeLayout';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 import { AiAssistantChat } from '../AiAssistantChat';
+import { AiConciergeErrorBoundary } from './AiConciergeErrorBoundary';
 
 type Props = {
   visible: boolean;
   onClose: () => void;
+  panelOptions?: OpenConciergePanelOptions | null;
 };
 
-export function AiConciergeSheet({ visible, onClose }: Props) {
+export function AiConciergeSheet({ visible, onClose, panelOptions }: Props) {
   const insets = useSafeAreaInsets();
   const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.top + 12 : 0;
 
@@ -59,7 +62,13 @@ export function AiConciergeSheet({ visible, onClose }: Props) {
             </View>
 
             <View style={styles.chatHost}>
-              <AiAssistantChat variant="concierge" />
+              <AiConciergeErrorBoundary>
+                <AiAssistantChat
+                  variant="concierge"
+                  seedMessage={panelOptions?.seedMessage}
+                  focusSuggestionId={panelOptions?.focusSuggestionId}
+                />
+              </AiConciergeErrorBoundary>
             </View>
           </View>
         </KeyboardAvoidingView>

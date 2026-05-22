@@ -95,6 +95,12 @@ export function SettingsScreen() {
           onPress={() => stackNav.navigate('ApiConnectionDiagnostics')}
         />
         <SettingsMenuRow
+          icon="logo-twitter"
+          title="X API 利用量"
+          subtitle="節約モード · 本日の使用量 · クレジット予測"
+          onPress={() => stackNav.navigate('XApiUsage')}
+        />
+        <SettingsMenuRow
           icon="chatbubbles-outline"
           title="AI戦略アシスタント設定"
           subtitle="OpenAI互換API · モック切替 · 会話履歴"
@@ -159,6 +165,12 @@ export function SettingsScreen() {
           title="個人用運用"
           subtitle="バックアップ · ヘルスチェック · 緊急停止 · 実機テスト"
           onPress={() => stackNav.navigate('PersonalProduction')}
+        />
+        <SettingsMenuRow
+          icon="speedometer-outline"
+          title="Production Dashboard"
+          subtitle="API · memory · queue · AI負荷 · 本番準備チェックリスト"
+          onPress={() => stackNav.navigate('ProductionDashboard')}
         />
         <SettingsMenuRow
           icon="analytics-outline"

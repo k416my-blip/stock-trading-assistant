@@ -1,24 +1,44 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
+export type OpenConciergePanelOptions = {
+  seedMessage?: string;
+  focusSuggestionId?: string;
+};
+
 type AiConciergeContextValue = {
   panelOpen: boolean;
-  openPanel: () => void;
+  panelOptions: OpenConciergePanelOptions | null;
+  openPanel: (options?: OpenConciergePanelOptions) => void;
   closePanel: () => void;
   togglePanel: () => void;
+  clearPanelOptions: () => void;
 };
 
 const AiConciergeContext = createContext<AiConciergeContextValue | null>(null);
 
 export function AiConciergeProvider({ children }: { children: ReactNode }) {
   const [panelOpen, setPanelOpen] = useState(false);
+  const [panelOptions, setPanelOptions] = useState<OpenConciergePanelOptions | null>(null);
 
-  const openPanel = useCallback(() => setPanelOpen(true), []);
+  const openPanel = useCallback((options?: OpenConciergePanelOptions) => {
+    if (options) setPanelOptions(options);
+    setPanelOpen(true);
+  }, []);
+
   const closePanel = useCallback(() => setPanelOpen(false), []);
   const togglePanel = useCallback(() => setPanelOpen((v) => !v), []);
+  const clearPanelOptions = useCallback(() => setPanelOptions(null), []);
 
   const value = useMemo(
-    () => ({ panelOpen, openPanel, closePanel, togglePanel }),
-    [panelOpen, openPanel, closePanel, togglePanel],
+    () => ({
+      panelOpen,
+      panelOptions,
+      openPanel,
+      closePanel,
+      togglePanel,
+      clearPanelOptions,
+    }),
+    [panelOpen, panelOptions, openPanel, closePanel, togglePanel, clearPanelOptions],
   );
 
   return <AiConciergeContext.Provider value={value}>{children}</AiConciergeContext.Provider>;

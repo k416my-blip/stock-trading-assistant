@@ -19,6 +19,7 @@ import {
 } from '../constants/quantValidation';
 import { SAMPLE_STOCKS } from '../data/sampleStocks';
 import type { Currency, Market } from '../types';
+import type { QuoteProviderId } from '../types/quoteProvider';
 import type {
   ExchangeRateResult,
   MarketDataErrorKind,
@@ -28,22 +29,21 @@ import type {
   TwelveDataSymbolParams,
 } from '../types/marketData';
 import { isDev } from '../utils/isDev';
+import { recordMarketDataCall } from './apiCostTracker';
 import { secureLog } from './secureLogger';
+import { verboseLog } from './productionLogger';
 import { isValidQuotePrice } from '../utils/safeNumeric';
+import { recordBursaFormatSuccess, type BursaFormatId } from './bursaSymbolFormat';
 import {
-  getBursaQuoteAttempts,
-  hydrateBursaFormatCache,
-  recordBursaCachedFormatFailure,
-  recordBursaFormatSuccess,
-  resolveBursaProbeMode,
-  type BursaFormatId,
-  type BursaProbeMode,
-} from './bursaSymbolFormat';
+  isBareBursaTicker,
+  isMalaysiaMarket,
+  normalizeBursaSymbol,
+} from '../utils/normalizeBursaSymbol';
 import {
   classifyMarketDataError,
   userMessageForErrorKind,
 } from './marketDataErrors';
-import { recordApiCallOutcome, recordBursaCacheProbe, recordBursaFullProbe } from './marketDataDiagnostics';
+import { recordApiCallOutcome } from './marketDataDiagnostics';
 import {
   probeErrorFromMarketData,
   QuoteProbeSession,
@@ -51,26 +51,53 @@ import {
 import { loadOHLCVCache, saveOHLCVCache, ohlcvCacheKey } from './ohlcvCacheService';
 import { barsToAdjustedOHLCV } from './priceAdjustmentService';
 import { getTwelveDataQuoteAttempts, toTwelveDataSymbol, type TwelveDataQuoteAttempt } from './marketDataSymbols';
+import {
+  logQuoteFetchFailure,
+  marketDataErrorToFailureLog,
+} from './quoteFetchDiagnostics';
+import {
+  logTwelveDataApiKeyDiagnostic,
+  logTwelveDataRequestUrl,
+} from '../utils/quoteFetchDebugLog';
+import { logTwelveDataApiResponse } from '../utils/twelveDataResponseLog';
 
 export type GetQuoteForMarketOptions = {
   probe?: QuoteProbeSession;
+  timeoutMs?: number;
+};
+
+export type MarketDataErrorOptions = {
+  httpStatus?: number;
+  rawMessage?: string;
+  lastProvider?: QuoteProviderId;
+  requestUrl?: string;
+  normalizedSymbol?: string;
+  responseBody?: string;
 };
 
 export class MarketDataError extends Error {
   readonly kind: MarketDataErrorKind;
   readonly httpStatus?: number;
   readonly rawMessage: string;
+  readonly lastProvider?: QuoteProviderId;
+  readonly requestUrl?: string;
+  readonly normalizedSymbol?: string;
+  readonly responseBody?: string;
 
   constructor(
     kind: MarketDataErrorKind,
     message: string,
-    options?: { httpStatus?: number; rawMessage?: string },
+    options?: MarketDataErrorOptions,
   ) {
     super(message);
     this.name = 'MarketDataError';
     this.kind = kind;
     this.httpStatus = options?.httpStatus;
     this.rawMessage = options?.rawMessage ?? message;
+    this.lastProvider = options?.lastProvider;
+    this.requestUrl = options?.requestUrl;
+    this.normalizedSymbol = options?.normalizedSymbol;
+    this.responseBody = options?.responseBody;
   }
 }
 
@@ -95,7 +122,7 @@ type TwelveDataErrorBody = {
   code?: number | string;
 };
 
-function buildRequestUrl(path: string, params: Record<string, string>): string {
+export function buildRequestUrl(path: string, params: Record<string, string>): string {
   const url = new URL(`${TWELVE_DATA_BASE_URL}${path}`);
   for (const [key, value] of Object.entries(params)) {
     if (value) url.searchParams.set(key, value);
@@ -105,6 +132,11 @@ function buildRequestUrl(path: string, params: Record<string, string>): string {
 
 function buildDebugUrl(path: string, params: Record<string, string>): string {
   return buildRequestUrl(path, { ...params, apikey: '***' });
+}
+
+/** APIキーをマスクした診断用 URL */
+export function buildSafeMarketDataUrl(path: string, params: Record<string, string>): string {
+  return buildDebugUrl(path, params);
 }
 
 function resolveEffectiveHttpStatus(
@@ -225,6 +257,27 @@ class InternalMarketDataRequestQueue {
     this.backoffMs = MARKET_DATA_RATE_LIMIT_BACKOFF_INITIAL_MS;
   }
 
+  /**
+   * 滞留した pending リクエストを解放（重複リクエストは行わない）。
+   * 実行中の in-flight は完了まで待つが、新規 pending はすべて拒否する。
+   */
+  resetStuckPending(): { clearedPending: number } {
+    let cleared = 0;
+    for (const group of [...this.fifo]) {
+      if (!group.running) {
+        cleared += group.waiters.length;
+        this.settleGroup(group, 'err', undefined, new MarketDataStaleRequestError('queue reset'));
+      }
+    }
+    this.fifo = this.fifo.filter((g) => g.running);
+    for (const [key, group] of [...this.pendingByKey.entries()]) {
+      if (!group.running) {
+        this.pendingByKey.delete(key);
+      }
+    }
+    return { clearedPending: cleared };
+  }
+
   getSnapshot(): {
     pending: number;
     inFlight: number;
@@ -282,6 +335,7 @@ class InternalMarketDataRequestQueue {
           .run()
           .then((result) => {
             this.noteSuccess();
+            recordMarketDataCall(1);
             if (group.generation === group.dispatchGeneration) {
               this.settleGroup(group, 'ok', result);
             } else {
@@ -334,6 +388,11 @@ export function enqueueMarketDataRequest<T>(key: string, task: () => Promise<T>)
   return marketDataRequestQueue.enqueue(key, task);
 }
 
+/** キューに滞留した pending を安全に解放し、再試行を可能にする */
+export function resetStuckMarketDataQueue(): { clearedPending: number } {
+  return marketDataRequestQueue.resetStuckPending();
+}
+
 function throwIfProbeAborted(probe?: QuoteProbeSession): void {
   if (!probe?.shouldAbort()) return;
   const p = probe.getAbortError();
@@ -366,6 +425,12 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
 
   throwIfProbeAborted(options?.probe);
   const url = buildRequestUrl(path, params);
+  logTwelveDataRequestUrl({
+    ticker: params.symbol ?? 'unknown',
+    path,
+    queryParams: params,
+    label: options?.queueKey,
+  });
   if (isDev) {
     secureLog('[market-data] request', buildDebugUrl(path, params));
   }
@@ -386,10 +451,26 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
       : networkErr instanceof Error
         ? networkErr.message
         : 'ネットワーク接続に失敗しました';
-    if (isDev) {
-      secureLog('[market-data] network error (debug)', raw);
-    }
     const err = createMarketDataError(raw, undefined, 'network_timeout');
+    logTwelveDataApiResponse({
+      ticker: params.symbol ?? 'unknown',
+      requestUrl: url,
+      status: 0,
+      body: { networkError: raw },
+      elapsedMs: Date.now() - startedAt,
+      errorMessage: raw,
+    });
+    logQuoteFetchFailure({
+      provider: 'twelve_data',
+      ticker: params.symbol ?? 'unknown',
+      httpStatus: undefined,
+      errorKind: err.kind,
+      message: err.message,
+      rawMessage: err.rawMessage,
+      timedOut: isAbort,
+      rateLimited: false,
+      responseBody: { path, networkError: raw },
+    });
     finishApiCall(err.kind);
     throw err;
   } finally {
@@ -400,13 +481,27 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
   try {
     data = (await response.json()) as T & TwelveDataErrorBody;
   } catch {
-    if (isDev) {
-      secureLog('[market-data] empty or invalid JSON (debug)', response.status);
-    }
     const err = createMarketDataError('APIから空の応答が返されました', response.status, 'empty_response');
+    logQuoteFetchFailure({
+      provider: 'twelve_data',
+      ticker: params.symbol ?? 'unknown',
+      httpStatus: response.status,
+      errorKind: err.kind,
+      message: err.message,
+      rawMessage: err.rawMessage,
+      responseBody: '(invalid JSON)',
+    });
     finishApiCall(err.kind);
     throw err;
   }
+
+  logTwelveDataApiResponse({
+    ticker: params.symbol ?? 'unknown',
+    requestUrl: url,
+    status: response.status,
+    body: data,
+    elapsedMs: Date.now() - startedAt,
+  });
 
   if (isDev) {
     secureLog('[market-data] response status', response.status, 'status field', data.status);
@@ -415,16 +510,17 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
   if (isTwelveDataErrorResponse(data, response.ok)) {
     const message = data.message ?? `HTTP ${response.status}`;
     const effectiveStatus = resolveEffectiveHttpStatus(response, data);
-    if (isDev) {
-      secureLog('[market-data] API error (debug)', {
-        message,
-        httpStatus: response.status,
-        effectiveStatus,
-        code: data.code,
-        kind: classifyMarketDataError(message, effectiveStatus),
-      });
-    }
     const err = createMarketDataError(message, effectiveStatus);
+    logQuoteFetchFailure({
+      provider: 'twelve_data',
+      ticker: params.symbol ?? 'unknown',
+      httpStatus: response.status,
+      errorKind: err.kind,
+      message: err.message,
+      rawMessage: message,
+      rateLimited: err.kind === 'rate_limit',
+      responseBody: data,
+    });
     if (err.kind === 'rate_limit') {
       marketDataRequestQueue.noteRateLimit();
     }
@@ -488,11 +584,17 @@ export async function getQuote(
   market?: Market,
   options?: GetQuoteOptions,
 ): Promise<MarketQuote> {
+  logTwelveDataApiKeyDiagnostic(apiKey, 'getQuote');
   if (!apiKey.trim()) {
     throw new MarketDataError('api_key', userMessageForErrorKind('api_key'));
   }
   if (!params.symbol.trim()) {
     throw new MarketDataError('symbol_invalid', userMessageForErrorKind('symbol_invalid'));
+  }
+  if (market && isMalaysiaMarket(market) && isBareBursaTicker(params.symbol)) {
+    throw new MarketDataError('symbol_invalid', 'Bursa銘柄は .KL 形式で送信してください', {
+      rawMessage: `bare symbol rejected: ${params.symbol}`,
+    });
   }
 
   const query: Record<string, string> = {
@@ -556,6 +658,7 @@ async function tryQuoteAttempts(
   currency: Currency,
   attempts: TwelveDataQuoteAttempt[],
   probe?: QuoteProbeSession,
+  timeoutMs?: number,
 ): Promise<MarketQuote> {
   let lastError: MarketDataError | null = null;
   let lastSymbolInvalid: MarketDataError | null = null;
@@ -564,6 +667,15 @@ async function tryQuoteAttempts(
     throwIfProbeAborted(probe);
 
     try {
+      console.log('[TwelveData] QUOTE_SYMBOL_ATTEMPT', {
+        market,
+        inputSymbol: symbol,
+        attempt: attempt.attempt,
+        apiSymbol: attempt.symbol,
+        exchange: attempt.exchange,
+        mic_code: attempt.mic_code,
+        formatId: attempt.formatId,
+      });
       if (isDev) {
         secureLog('[market-data] quote attempt', attempt.attempt);
       }
@@ -576,7 +688,7 @@ async function tryQuoteAttempts(
         },
         currency,
         market,
-        { probe },
+        { probe, timeoutMs },
       );
 
       if (!isValidQuotePrice(quote.price)) {
@@ -585,7 +697,7 @@ async function tryQuoteAttempts(
         });
       }
 
-      if (market === 'bursa' && attempt.formatId) {
+      if (isMalaysiaMarket(market) && attempt.formatId) {
         await recordBursaFormatSuccess(symbol, attempt.formatId as BursaFormatId, attempt.attempt);
         if (isDev) {
           secureLog('[market-data] Bursa fetch succeeded', {
@@ -614,85 +726,17 @@ async function tryQuoteAttempts(
         lastSymbolInvalid = mdErr;
       }
 
-      if (isDev) {
-        secureLog('[market-data] quote attempt failed (debug)', {
-          attempt: attempt.attempt,
-          symbol: attempt.symbol,
+      logQuoteFetchFailure(
+        marketDataErrorToFailureLog('twelve_data', symbol, market, mdErr, {
           exchange: attempt.exchange,
-          errorKind: mdErr.kind,
-          error: mdErr.rawMessage,
-        });
-      }
+          mic_code: attempt.mic_code,
+          attempt: attempt.attempt,
+        }),
+      );
     }
   }
 
   throw lastSymbolInvalid ?? lastError ?? new MarketDataError('unknown', userMessageForErrorKind('unknown'));
-}
-
-async function fetchBursaQuoteWithProbe(
-  apiKey: string,
-  symbol: string,
-  currency: Currency,
-  probe?: QuoteProbeSession,
-): Promise<MarketQuote> {
-  const skippedFormats: BursaFormatId[] = [];
-  let phase: BursaProbeMode = resolveBursaProbeMode(symbol);
-  let loggedFullProbe = phase === 'full';
-
-  if (phase === 'cached-only') {
-    recordBursaCacheProbe();
-  } else {
-    recordBursaFullProbe();
-  }
-
-  while (true) {
-    const attempts = getBursaQuoteAttempts(symbol, {
-      mode: phase,
-      skipFormatIds: skippedFormats,
-    });
-
-    if (attempts.length === 0) {
-      break;
-    }
-
-    try {
-      return await tryQuoteAttempts(apiKey, 'bursa', symbol, currency, attempts, probe);
-    } catch (err) {
-      if (!(err instanceof MarketDataError)) {
-        throw err;
-      }
-      if (probe?.shouldAbort()) {
-        throw err;
-      }
-
-      if (phase === 'cached-only') {
-        const failure = await recordBursaCachedFormatFailure(symbol, err.kind);
-        if (failure.shouldExpandToFull) {
-          const failedFormat = attempts[0]?.formatId;
-          if (failedFormat) {
-            skippedFormats.push(failedFormat);
-          }
-          phase = 'full';
-          if (!loggedFullProbe) {
-            recordBursaFullProbe();
-            loggedFullProbe = true;
-          }
-          if (isDev) {
-            secureLog('[market-data] Bursa self-heal: expanding to full probe', {
-              symbol,
-              consecutiveFailures: failure.consecutiveFailures,
-              skipped: skippedFormats,
-            });
-          }
-          continue;
-        }
-      }
-
-      throw err;
-    }
-  }
-
-  throw new MarketDataError('unknown', userMessageForErrorKind('unknown'));
 }
 
 /** 市場別シンボル候補を順に試して株価を取得 */
@@ -703,15 +747,24 @@ export async function getQuoteForMarket(
   currency: Currency,
   options?: GetQuoteForMarketOptions,
 ): Promise<MarketQuote> {
-  await hydrateBursaFormatCache();
   const probe = options?.probe;
+  const apiSymbol = isMalaysiaMarket(market) ? normalizeBursaSymbol(symbol) : symbol;
 
-  if (market === 'bursa') {
-    return fetchBursaQuoteWithProbe(apiKey, symbol, currency, probe);
-  }
+  const attempts = getTwelveDataQuoteAttempts(market, apiSymbol);
+  return tryQuoteAttempts(
+    apiKey,
+    market,
+    symbol,
+    currency,
+    attempts,
+    probe,
+    options?.timeoutMs,
+  );
+}
 
-  const attempts = getTwelveDataQuoteAttempts(market, symbol);
-  return tryQuoteAttempts(apiKey, market, symbol, currency, attempts, probe);
+/** @deprecated 互換用 — Bursa は normalizeBursaSymbol で *.KL のみ送信 */
+export function resolveBursaApiSymbol(symbol: string): string {
+  return normalizeBursaSymbol(symbol);
 }
 
 export type TimeSeriesAdjustMode = 'all' | 'splits' | 'dividends' | 'none';

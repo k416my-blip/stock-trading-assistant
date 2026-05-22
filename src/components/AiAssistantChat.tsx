@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -29,6 +29,12 @@ import {
 } from '../constants/aiStrategyBriefing';
 import { useApp } from '../context/AppContext';
 import { loadAiChatHistory, saveAiChatHistory } from '../services/aiChatHistoryStorage';
+import {
+  createAssistantChatMessagePartial,
+  registerChatAuditListener,
+} from '../services/chatMessageFactory';
+import { normalizeChatHistory } from '../utils/chatTimestamp';
+import { ChatMessageTimestamp } from './chat/ChatMessageTimestamp';
 import {
   getConciergeInstantAnswer,
   shouldAcceptChatSend,
@@ -62,10 +68,87 @@ import {
   shouldShowApiSpinner,
   statusJaForRequestStatus,
 } from '../utils/aiAssistantChatState';
+import { PROACTIVE_CHAT_UI_TIMEOUT_MS, PROACTIVE_UI } from '../constants/proactiveConcierge';
+import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
+import {
+  useExplainableGovernanceDashboardBundle,
+  useRuntimeSurvivalDashboardBundle,
+  useRuntimeTelemetryDashboardBundle,
+  useStrategicMemoryDashboardBundle,
+  useUnifiedCognitiveDashboardBundle,
+} from '../hooks/useConciergeDashboardSlices';
+import { StaleSafeDashboardShell } from './concierge/StaleSafeDashboardShell';
+import { activateAnalysisMode, detectAnalysisRequestJa } from '../services/layerRuntimeScheduler';
+import { useAppForeground } from '../hooks/useAppForeground';
+import { isUnhandledProactiveStatus } from '../types/proactiveSuggestion';
+import { ProactiveSuggestionCard } from './proactive/ProactiveSuggestionCard';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { SelectableText } from './ui/SelectableText';
 import { theme } from '../theme';
+import { ConciergeActionPanel } from './concierge/ConciergeActionPanel';
+import { ConciergeEvidencePanel } from './concierge/ConciergeEvidencePanel';
+import { MarketSituationCard } from './concierge/MarketSituationCard';
+import { ConciergeRiskControlPanel } from './concierge/ConciergeRiskControlPanel';
+import { PortfolioIntelligencePanel } from './concierge/PortfolioIntelligencePanel';
+import { ConciergePromptDebugPanel } from './concierge/ConciergePromptDebugPanel';
+import {
+  AI_ANALYSIS_MODE_LABELS_JA,
+  AI_ANALYSIS_MODE_ORDER,
+} from '../constants/aiDataDriven';
+import { buildConciergeUxBundle } from '../services/conciergeUxPriorityBuilder';
+import { buildShortAnswerFromStructured } from '../services/conciergeHumanizeText';
+import { ConciergeUxModeToggle } from './concierge/ConciergeUxModeToggle';
+import { ConciergeOneScreenDashboard } from './concierge/ConciergeOneScreenDashboard';
+import { ConciergeMarketRadar } from './concierge/ConciergeMarketRadar';
+import { ConciergeNotificationDigest } from './concierge/ConciergeNotificationDigest';
+import { ConciergeContextMemoryPanel } from './concierge/ConciergeContextMemoryPanel';
+import { ConciergeShortAnswerBlock } from './concierge/ConciergeShortAnswerBlock';
+import { ConciergePrioritySection } from './concierge/ConciergePrioritySection';
+import { ConciergeUxAdvancedStrip } from './concierge/ConciergeUxAdvancedStrip';
+import { usePerformanceCostOptional } from '../context/PerformanceCostContext';
+import {
+  LazyAiActionCenterPanel,
+  LazyAiPerformanceCenterPanel,
+  LazyAutonomousMonitoringPanel,
+  LazyExecutionDashboardPanel,
+  LazyMetaTopPrioritiesPanel,
+  LazySelfEvaluationPanel,
+  LazyWorldStatePanel,
+  LazyDataReliabilityPanel,
+  LazyPortfolioRiskExposurePanel,
+  LazyCapitalAllocationPanel,
+  LazySystemStabilityIntegrityPanel,
+  LazyAiGovernancePanel,
+  LazyReactiveEventDashboardPanel,
+  LazyExplainabilityDashboardPanel,
+  LazyResourceDashboardPanel,
+  LazyIntegrityDashboardPanel,
+  LazySemanticDashboardPanel,
+  LazyReliabilityDashboardPanel,
+  LazyArbitrationDashboardPanel,
+  LazyMetaAuditDashboardPanel,
+  LazyMemoryCompressionDashboardPanel,
+  LazySystemicStabilityDashboardPanel,
+  LazyExecutionRecoveryDashboardPanel,
+  LazyDynamicOrchestrationDashboardPanel,
+  LazyMarketRegimeDashboardPanel,
+  LazyCognitiveConsensusDashboardPanel,
+  LazyMetaReliabilityDashboardPanel,
+  LazySelfArchitectureDashboardPanel,
+  LazyEpistemicIntegrityDashboardPanel,
+  LazyStrategicMemoryGraphDashboardPanel,
+  LazyCognitiveResourceEconomyDashboardPanel,
+  LazyUnifiedCognitiveStateDashboardPanel,
+  LazyHumanIntentContinuityDashboardPanel,
+  LazyAdaptiveExplorationDashboardPanel,
+  LazyConstitutionalGovernanceDashboardPanel,
+  LazyExplainableGovernanceDashboardPanel,
+  LazyRuntimeSurvivalDashboardPanel,
+  LazyRuntimeTelemetryDashboardPanel,
+} from './concierge/lazyConciergePanels';
+import { AiPerformanceCenterPanel } from './concierge/AiPerformanceCenterPanel';
+import type { ConciergeUxDisplayMode } from '../types/conciergeUx';
 
 function ConciergeWarningBadge({ message }: { message: AiChatMessage }) {
   if (message.conversationMode !== 'warning') return null;
@@ -76,11 +159,20 @@ function ConciergeWarningBadge({ message }: { message: AiChatMessage }) {
   );
 }
 
-function StructuredBlock({ message }: { message: AiChatMessage }) {
+function StructuredBlock({
+  message,
+  uxMode,
+}: {
+  message: AiChatMessage;
+  uxMode: ConciergeUxDisplayMode;
+}) {
   const s = message.structured;
   if (!s) return null;
   const mode = message.conversationMode ?? 'conversation';
   if (!shouldShowStructuredForMode(mode)) {
+    return null;
+  }
+  if (uxMode === 'beginner') {
     return null;
   }
   return (
@@ -158,15 +250,32 @@ function resultToMessage(
     apiHealthDegraded: boolean;
   },
 ): AiChatMessage {
-  const base: AiChatMessage = {
+  const base = createAssistantChatMessagePartial({
     id: `a-${Date.now()}`,
-    role: 'assistant',
     text: result.text,
     structured: result.structured,
     responseIntent: classifyConciergeResponseIntent(userText),
-    createdAt: new Date().toISOString(),
-  };
-  return enrichConciergeChatMessage(base, userText, ops);
+  });
+  const enriched = enrichConciergeChatMessage(base, userText, ops);
+  let msg = enriched;
+  if (result.evidenceData) msg = { ...msg, evidenceData: result.evidenceData };
+  if (result.globalMarketAnalysis) msg = { ...msg, globalMarketAnalysis: result.globalMarketAnalysis };
+  if (result.portfolioIntelligence) {
+    msg = { ...msg, portfolioIntelligence: result.portfolioIntelligence };
+  }
+  return msg;
+}
+
+function roleLabelJa(msg: AiChatMessage): string {
+  if (msg.role === 'user') {
+    return msg.messageSource === 'voice' ? AI_UI.voiceLabel : AI_UI.userLabel;
+  }
+  if (msg.role === 'system') return AI_UI.systemLabel;
+  return AI_UI.assistantLabel;
+}
+
+function appendChatMessages(prev: AiChatMessage[], ...items: AiChatMessage[]): AiChatMessage[] {
+  return normalizeChatHistory([...prev, ...items]);
 }
 
 function isAbortError(e: unknown): boolean {
@@ -197,14 +306,30 @@ type AiAssistantChatProps = {
   /** @deprecated use variant */
   embedded?: boolean;
   variant?: 'default' | 'embedded' | 'concierge';
+  seedMessage?: string;
+  focusSuggestionId?: string;
 };
 
-export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatProps) {
+export function AiAssistantChat({
+  embedded = false,
+  variant,
+  seedMessage,
+  focusSuggestionId,
+}: AiAssistantChatProps) {
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
-  const { sendAiStrategyMessage, aiPreferences, aiApiKey } = useApp();
+  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey } = useApp();
   const { worldModel } = useCentralIntelligence();
+  const proactive = useProactiveConciergeOptional();
+  const unifiedCognitiveBundle = useUnifiedCognitiveDashboardBundle();
+  const strategicMemoryBundle = useStrategicMemoryDashboardBundle();
+  const runtimeSurvivalBundle = useRuntimeSurvivalDashboardBundle();
+  const runtimeTelemetryBundle = useRuntimeTelemetryDashboardBundle();
+  const explainableGovernanceBundle = useExplainableGovernanceDashboardBundle();
+  const performanceCost = usePerformanceCostOptional();
+  const appForeground = useAppForeground();
+  const uxMode = aiPreferences.conciergeUxMode ?? 'beginner';
   const awareness = worldModel?.systemAwareness;
   const initialIdle = resolveIdleConnectionStatus({
     aiEnabled: aiPreferences.aiEnabled,
@@ -227,6 +352,10 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [slowResponse, setSlowResponse] = useState(false);
+  const [retryPrompt, setRetryPrompt] = useState<string | null>(null);
+  const seedSentRef = useRef(false);
+  const voiceInputPendingRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
   const conciergeScrollRef = useRef<ScrollView>(null);
   const mountedRef = useRef(true);
@@ -296,19 +425,37 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
   }, [aiApiKey, aiPreferences.aiEnabled, aiPreferences.mockOnly]);
 
   useEffect(() => {
+    if (!isSending) {
+      setSlowResponse(false);
+      return;
+    }
+    const slow = setTimeout(() => setSlowResponse(true), PROACTIVE_CHAT_UI_TIMEOUT_MS);
+    return () => clearTimeout(slow);
+  }, [isSending]);
+
+  useEffect(() => {
     if (!isSending) return;
     const watchdog = setTimeout(() => {
       if (!mountedRef.current || !isSending) return;
       setIsSending(false);
       setRequestStatus('timeout');
       setStatusJa(statusJaForRequestStatus('timeout'));
-      setErrorJa(AI_ERROR_TIMEOUT);
+      setErrorJa(PROACTIVE_UI.retryPrompt);
       setUsedMockFallback(true);
       setApiConnected(false);
       setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.role !== 'user') return prev;
-        return [...prev, createAssistantChatMessage(last.text)];
+        let retryText: string | null = null;
+        const updated = prev.map((m, i) => {
+          if (i === prev.length - 1 && m.role === 'user') {
+            retryText = m.pendingUserText ?? m.text;
+            return { ...m, deliveryStatus: 'timeout' as const, failureKindJa: 'タイムアウト' };
+          }
+          return m;
+        });
+        if (retryText) setRetryPrompt(retryText);
+        const last = updated[updated.length - 1];
+        if (last?.role !== 'user') return updated;
+        return appendChatMessages(updated, createAssistantChatMessage(last.text));
       });
     }, AI_MAX_IN_FLIGHT_MS);
     return () => clearTimeout(watchdog);
@@ -317,7 +464,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
   useEffect(() => {
     void loadAiChatHistory().then((loaded) => {
       if (mountedRef.current) {
-        setMessages(loaded);
+        setMessages(normalizeChatHistory(loaded));
       }
     });
   }, []);
@@ -339,6 +486,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
 
   const maybeSpeakAssistant = useCallback(
     async (messageId: string, text: string) => {
+      if (!appForeground) return;
       if (!aiPreferences.voiceEnabled) return;
       await stopVoiceOutput();
       setSpeakingMessageId(messageId);
@@ -348,7 +496,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
         onStopped: () => setSpeakingMessageId((id) => (id === messageId ? null : id)),
       });
     },
-    [aiPreferences.voiceEnabled, aiPreferences.voiceSpeechRate],
+    [aiPreferences.voiceEnabled, aiPreferences.voiceSpeechRate, appForeground],
   );
 
   const onSpeakMessage = useCallback(
@@ -383,8 +531,9 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
 
   const applyDeletedMessages = useCallback(
     (remaining: AiChatMessage[]) => {
-      const next =
-        remaining.length === 0 ? getInitialAiChatMessages() : remaining;
+      const next = normalizeChatHistory(
+        remaining.length === 0 ? getInitialAiChatMessages() : remaining,
+      );
       setMessages(next);
       sessionMemoryRef.current = buildSessionMemoryFromMessages(
         next,
@@ -420,6 +569,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
     setVoiceNoticeJa(null);
     startVoiceCapture(
       (transcript) => {
+        voiceInputPendingRef.current = true;
         setInput((prev) => (prev.trim() ? `${prev.trim()} ${transcript}` : transcript));
       },
       (status, messageJa) => {
@@ -434,17 +584,40 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
     setTimeout(() => target?.current?.scrollToEnd({ animated: true }), 80);
   }, [isConcierge, conciergeScrollRef]);
 
+  useEffect(() => {
+    registerChatAuditListener((notice) => {
+      if (!mountedRef.current) return;
+      setMessages((prev) => appendChatMessages(prev, notice));
+      scrollToEnd();
+    });
+    return () => registerChatAuditListener(null);
+  }, [scrollToEnd]);
+
   const handleSendMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
       if (!shouldAcceptChatSend(trimmed, isSending)) return;
 
+      if (detectAnalysisRequestJa(trimmed)) {
+        activateAnalysisMode();
+        void proactive?.refreshProactive();
+      }
+
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
 
-      const userMsg = createUserChatMessage(trimmed);
-      setMessages((prev) => [...prev, userMsg]);
+      const userMsg: AiChatMessage = {
+        ...createUserChatMessage(trimmed, {
+          messageSource: voiceInputPendingRef.current ? 'voice' : 'chat',
+        }),
+        deliveryStatus: 'pending_response',
+        pendingUserText: trimmed,
+      };
+      voiceInputPendingRef.current = false;
+      setRetryPrompt(null);
+      setSlowResponse(false);
+      setMessages((prev) => appendChatMessages(prev, userMsg));
       setInput('');
       scrollToEnd();
 
@@ -474,7 +647,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
           enriched.text,
         );
         if (!stream || enriched.text.length < 48) {
-          setMessages((prev) => [...prev, enriched]);
+          setMessages((prev) => appendChatMessages(prev, enriched));
           scrollToEnd();
           if (aiPreferences.voiceEnabled && aiPreferences.voiceAutoRead) {
             void maybeSpeakAssistant(enriched.id, enriched.text);
@@ -484,7 +657,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
         const placeholderId = enriched.id;
         setRequestStatus('streaming');
         setStatusJa(statusJaForRequestStatus('streaming'));
-        setMessages((prev) => [...prev, { ...enriched, text: '' }]);
+        setMessages((prev) => appendChatMessages(prev, { ...enriched, text: '' }));
         scrollToEnd();
         try {
           await streamRevealText(
@@ -543,16 +716,37 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
         if (!mountedRef.current || controller.signal.aborted) return;
 
         applyResult(result);
+        setMessages((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1 && m.role === 'user'
+              ? { ...m, deliveryStatus: 'ok' as const, failureKindJa: undefined }
+              : m,
+          ),
+        );
         await appendAssistant(resultToMessage(result, trimmed, conciergeOps), result.source === 'api');
       } catch (e) {
         if (!mountedRef.current) return;
         if (isAbortError(e) && controller.signal.aborted) return;
 
         setRequestStatus('error');
-        setErrorJa('送信に失敗しました。モック応答を表示しています。');
+        const failureKindJa =
+          e instanceof Error && e.message.includes('429')
+            ? 'レート制限'
+            : e instanceof Error && e.name === 'AbortError'
+              ? 'タイムアウト'
+              : 'ネットワーク/API';
+        setErrorJa(PROACTIVE_UI.retryPrompt);
+        setRetryPrompt(trimmed);
         setStatusJa(statusJaForRequestStatus('error'));
         setApiConnected(false);
         setUsedMockFallback(true);
+        setMessages((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1 && m.role === 'user'
+              ? { ...m, deliveryStatus: 'failed' as const, failureKindJa }
+              : m,
+          ),
+        );
         if (!assistantAdded) {
           await appendAssistant(createAssistantChatMessage(trimmed), false);
         }
@@ -566,7 +760,7 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
             setMessages((prev) => {
               const last = prev[prev.length - 1];
               if (last?.role !== 'user') return prev;
-              return [...prev, createAssistantChatMessage(last.text)];
+              return appendChatMessages(prev, createAssistantChatMessage(last.text));
             });
             setUsedMockFallback(true);
             const idle = resolveIdleConnectionStatus({
@@ -594,8 +788,21 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
       scrollToEnd,
       sendAiStrategyMessage,
       worldModel,
+      proactive?.refreshProactive,
     ],
   );
+
+  useEffect(() => {
+    if (!seedMessage?.trim() || seedSentRef.current) return;
+    seedSentRef.current = true;
+    void handleSendMessage(seedMessage);
+  }, [seedMessage, handleSendMessage]);
+
+  useEffect(() => {
+    if (!focusSuggestionId || !proactive) return;
+    const match = proactive.suggestions.find((s) => s.id === focusSuggestionId);
+    if (match) void proactive.openDetail(match.id);
+  }, [focusSuggestionId, proactive]);
 
   const onPressSend = () => {
     void handleSendMessage(input);
@@ -614,6 +821,49 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
       : theme.colors.textMuted;
 
   const quickQuestions = [...AI_SAMPLE_QUESTIONS];
+
+  const latestAssistantPanels = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== 'assistant') continue;
+      if (m.evidenceData || m.globalMarketAnalysis || m.portfolioIntelligence) {
+        return m;
+      }
+    }
+    return null;
+  }, [messages]);
+
+  const proactiveForUx = useMemo(() => {
+    if (!proactive) return [];
+    return (proactive.suggestions ?? [])
+      .filter((s) => isUnhandledProactiveStatus(s.status))
+      .map((s) => ({
+        titleJa: s.titleJa,
+        whyJa: s.notificationWhyJa ?? s.actionHintJa,
+        symbol: s.symbol,
+        priority: s.priority,
+      }));
+  }, [proactive]);
+
+  const uxBundle = useMemo(
+    () =>
+      buildConciergeUxBundle({
+        displayMode: uxMode,
+        marketRegimeLabel: worldModel?.marketRegimeLabel ?? null,
+        riskModeLabel: worldModel?.riskMode ?? null,
+        evidence: latestAssistantPanels?.evidenceData ?? null,
+        globalMarket: latestAssistantPanels?.globalMarketAnalysis ?? null,
+        portfolioIntel: latestAssistantPanels?.portfolioIntelligence ?? null,
+        proactiveTitles: proactiveForUx,
+        degradedMode: worldModel?.operations.degradedMode ?? false,
+      }),
+    [
+      uxMode,
+      worldModel,
+      latestAssistantPanels,
+      proactiveForUx,
+    ],
+  );
 
   const scrollComposerIntoView = useCallback(() => {
     conciergeScrollRef.current?.scrollTo({ y: 0, animated: true });
@@ -635,6 +885,23 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
       {errorJa && !usedMockFallback ? (
         <SelectableText style={styles.errorText}>{errorJa}</SelectableText>
       ) : null}
+      {slowResponse && isSending ? (
+        <SelectableText style={styles.errorText}>{PROACTIVE_UI.timeout}</SelectableText>
+      ) : null}
+      {retryPrompt ? (
+        <View style={styles.retryRow}>
+          <SelectableText style={styles.errorText}>{PROACTIVE_UI.retryPrompt}</SelectableText>
+          <Button
+            label={PROACTIVE_UI.retry}
+            onPress={() => {
+              const text = retryPrompt;
+              setRetryPrompt(null);
+              void handleSendMessage(text);
+            }}
+            variant="ghost"
+          />
+        </View>
+      ) : null}
       {staleWarning ? (
         <SelectableText style={styles.staleWarning}>{AI_UI.staleDataWarning}</SelectableText>
       ) : null}
@@ -647,33 +914,243 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
     </>
   );
 
-  const conciergeSystemStatusBlock = (
-    <View testID={CONCIERGE_SECTION_TEST_ID.status_card} style={styles.conciergeStatus}>
-      <SelectableText style={styles.conciergeStatusLabel}>{AI_CONCIERGE_UI.systemStatus}</SelectableText>
-      {worldModel ? (
-        <>
-          <SelectableText style={styles.conciergeStatusLine}>
-            {AI_CONCIERGE_UI.marketRegime}: {worldModel.marketRegimeLabel}
-          </SelectableText>
-          <SelectableText style={styles.conciergeStatusLine}>
-            {AI_CONCIERGE_UI.riskMode}: {worldModel.riskMode}
-          </SelectableText>
-          <SelectableText style={styles.conciergeStatusLine}>
-            総合信頼度: {awareness?.compositeConfidence ?? '—'}%
-            {worldModel.operations.degradedMode ? ' · 劣化モード' : ''}
-          </SelectableText>
-          <SelectableText style={styles.conciergeStatusLine}>
-            {worldModel.operations.queueStateJa}
-          </SelectableText>
-          {worldModel.operations.degradedReasonsJa.length > 0 ? (
-            <SelectableText style={styles.conciergeStatusWarn}>
-              {worldModel.operations.degradedReasonsJa.join(' · ')}
-            </SelectableText>
-          ) : null}
-        </>
-      ) : (
-        <SelectableText style={styles.conciergeStatusLine}>読み込み中…</SelectableText>
-      )}
+  const analysisModeBlock = isConcierge ? (
+    <View style={styles.analysisModeRow}>
+      <SelectableText style={styles.analysisModeLabel}>分析モード</SelectableText>
+      {AI_ANALYSIS_MODE_ORDER.map((mode) => {
+        const active = aiPreferences.aiAnalysisMode === mode;
+        return (
+          <Pressable
+            key={mode}
+            onPress={() => void saveAiPreferences({ aiAnalysisMode: mode })}
+            style={[styles.analysisChip, active && styles.analysisChipActive]}
+          >
+            <Text style={[styles.analysisChipText, active && styles.analysisChipTextActive]}>
+              {AI_ANALYSIS_MODE_LABELS_JA[mode]}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  ) : null;
+
+  const conciergeUxDashboardBlock = (
+    <View testID={CONCIERGE_SECTION_TEST_ID.status_card}>
+      <Suspense fallback={<ActivityIndicator color={theme.colors.primary} />}>
+        {proactive?.metaBundle && aiPreferences.metaDecisionEnabled ? (
+          <LazyMetaTopPrioritiesPanel bundle={proactive.metaBundle} />
+        ) : null}
+        {proactive?.strategyBundle && aiPreferences.strategyExecutionEnabled ? (
+          <LazyAiActionCenterPanel bundle={proactive.strategyBundle} />
+        ) : null}
+        {proactive?.realityBundle && aiPreferences.realityValidationEnabled ? (
+          <LazyAiPerformanceCenterPanel bundle={proactive.realityBundle} />
+        ) : null}
+        {proactive?.executionBundle && aiPreferences.paperBrokerEnabled ? (
+          <LazyExecutionDashboardPanel bundle={proactive.executionBundle} />
+        ) : null}
+        {proactive?.capitalAllocationBundle && aiPreferences.capitalAllocationEnabled ? (
+          <LazyCapitalAllocationPanel
+            bundle={proactive.capitalAllocationBundle}
+            onPrefsSaved={() => void proactive.refreshProactive()}
+          />
+        ) : null}
+        {proactive?.selfEvaluationBundle && aiPreferences.selfEvaluationEnabled ? (
+          <LazySelfEvaluationPanel bundle={proactive.selfEvaluationBundle} />
+        ) : null}
+        {proactive?.macroIntelligenceBundle && aiPreferences.macroIntelligenceEnabled ? (
+          <LazyWorldStatePanel bundle={proactive.macroIntelligenceBundle} />
+        ) : null}
+        {proactive?.dataReliabilityBundle && aiPreferences.dataReliabilityEnabled ? (
+          <LazyDataReliabilityPanel bundle={proactive.dataReliabilityBundle} />
+        ) : null}
+        {proactive?.portfolioRiskExposureBundle &&
+        aiPreferences.portfolioRiskExposureEnabled ? (
+          <LazyPortfolioRiskExposurePanel
+            bundle={proactive.portfolioRiskExposureBundle}
+            onOverrideSaved={() => void proactive.refreshProactive()}
+          />
+        ) : null}
+        {proactive?.systemStabilityIntegrityBundle &&
+        aiPreferences.systemStabilityIntegrityEnabled !== false ? (
+          <LazySystemStabilityIntegrityPanel bundle={proactive.systemStabilityIntegrityBundle} />
+        ) : null}
+        {proactive?.aiGovernanceDecisionBundle &&
+        aiPreferences.aiGovernanceDecisionEnabled !== false ? (
+          <LazyAiGovernancePanel
+            bundle={proactive.aiGovernanceDecisionBundle}
+            onOverrideSaved={() => void proactive.refreshProactive()}
+          />
+        ) : null}
+        {proactive?.reactiveEventOrchestrationBundle &&
+        aiPreferences.reactiveEventOrchestrationEnabled !== false ? (
+          <LazyReactiveEventDashboardPanel bundle={proactive.reactiveEventOrchestrationBundle} />
+        ) : null}
+        {proactive?.explainableCognitiveTraceBundle &&
+        aiPreferences.explainableCognitiveTraceEnabled !== false ? (
+          <LazyExplainabilityDashboardPanel bundle={proactive.explainableCognitiveTraceBundle} />
+        ) : null}
+        {proactive?.adaptiveResourceComputeBudgetBundle &&
+        aiPreferences.adaptiveResourceComputeBudgetEnabled !== false ? (
+          <LazyResourceDashboardPanel bundle={proactive.adaptiveResourceComputeBudgetBundle} />
+        ) : null}
+        {proactive?.stateIntegrityTemporalConsistencyBundle &&
+        aiPreferences.stateIntegrityTemporalConsistencyEnabled !== false ? (
+          <LazyIntegrityDashboardPanel
+            bundle={proactive.stateIntegrityTemporalConsistencyBundle}
+          />
+        ) : null}
+        {proactive?.semanticConsistencyDecisionCoherenceBundle &&
+        aiPreferences.semanticConsistencyDecisionCoherenceEnabled !== false ? (
+          <LazySemanticDashboardPanel
+            bundle={proactive.semanticConsistencyDecisionCoherenceBundle}
+          />
+        ) : null}
+        {proactive?.epistemicReliabilityEvidenceWeightBundle &&
+        aiPreferences.epistemicReliabilityEvidenceWeightEnabled !== false ? (
+          <LazyReliabilityDashboardPanel
+            bundle={proactive.epistemicReliabilityEvidenceWeightBundle}
+          />
+        ) : null}
+        {proactive?.cognitiveGoalArbitrationIntentPriorityBundle &&
+        aiPreferences.cognitiveGoalArbitrationIntentPriorityEnabled !== false ? (
+          <LazyArbitrationDashboardPanel
+            bundle={proactive.cognitiveGoalArbitrationIntentPriorityBundle}
+          />
+        ) : null}
+        {proactive?.metaCognitiveRiskReflectionSelfCritiqueBundle &&
+        aiPreferences.metaCognitiveRiskReflectionSelfCritiqueEnabled !== false ? (
+          <LazyMetaAuditDashboardPanel
+            bundle={proactive.metaCognitiveRiskReflectionSelfCritiqueBundle}
+          />
+        ) : null}
+        {proactive?.recursiveMemoryCompressionStrategicAbstractionBundle &&
+        aiPreferences.recursiveMemoryCompressionStrategicAbstractionEnabled !== false ? (
+          <LazyMemoryCompressionDashboardPanel
+            bundle={proactive.recursiveMemoryCompressionStrategicAbstractionBundle}
+          />
+        ) : null}
+        {proactive?.systemicStabilityRecursiveGovernanceBundle &&
+        aiPreferences.systemicStabilityRecursiveGovernanceEnabled !== false ? (
+          <LazySystemicStabilityDashboardPanel
+            bundle={proactive.systemicStabilityRecursiveGovernanceBundle}
+          />
+        ) : null}
+        {proactive?.executionRecoveryAdaptiveConfidenceBundle &&
+        aiPreferences.executionRecoveryAdaptiveConfidenceEnabled !== false ? (
+          <LazyExecutionRecoveryDashboardPanel
+            bundle={proactive.executionRecoveryAdaptiveConfidenceBundle}
+          />
+        ) : null}
+        {proactive?.dynamicLayerOrchestrationMobileRuntimeOptimizationBundle &&
+        aiPreferences.dynamicLayerOrchestrationMobileRuntimeOptimizationEnabled !== false ? (
+          <LazyDynamicOrchestrationDashboardPanel
+            bundle={proactive.dynamicLayerOrchestrationMobileRuntimeOptimizationBundle}
+          />
+        ) : null}
+        {proactive?.autonomousMarketRegimeDetectionBundle &&
+        aiPreferences.autonomousMarketRegimeDetectionEnabled !== false ? (
+          <LazyMarketRegimeDashboardPanel bundle={proactive.autonomousMarketRegimeDetectionBundle} />
+        ) : null}
+        {proactive?.cognitiveArbitrationConsensusBundle &&
+        aiPreferences.cognitiveArbitrationConsensusEnabled !== false ? (
+          <LazyCognitiveConsensusDashboardPanel
+            bundle={proactive.cognitiveArbitrationConsensusBundle}
+          />
+        ) : null}
+        {proactive?.metaReliabilityLongitudinalTrustBundle &&
+        aiPreferences.metaReliabilityLongitudinalTrustEnabled !== false ? (
+          <LazyMetaReliabilityDashboardPanel
+            bundle={proactive.metaReliabilityLongitudinalTrustBundle}
+          />
+        ) : null}
+        {proactive?.selfEvolvingArchitectureReflectiveRefactorBundle &&
+        aiPreferences.selfEvolvingArchitectureReflectiveRefactorEnabled !== false ? (
+          <LazySelfArchitectureDashboardPanel
+            bundle={proactive.selfEvolvingArchitectureReflectiveRefactorBundle}
+          />
+        ) : null}
+        {proactive?.epistemicIntegrityTruthCalibrationBundle &&
+        aiPreferences.epistemicIntegrityTruthCalibrationEnabled !== false ? (
+          <LazyEpistemicIntegrityDashboardPanel
+            bundle={proactive.epistemicIntegrityTruthCalibrationBundle}
+          />
+        ) : null}
+        {strategicMemoryBundle &&
+        aiPreferences.strategicMemoryGraphTemporalCausalityEnabled !== false ? (
+          <StaleSafeDashboardShell bundle={strategicMemoryBundle}>
+            {(b) => <LazyStrategicMemoryGraphDashboardPanel bundle={b} />}
+          </StaleSafeDashboardShell>
+        ) : null}
+        {proactive?.cognitiveResourceEconomyAttentionAllocationBundle &&
+        aiPreferences.cognitiveResourceEconomyAttentionAllocationEnabled !== false ? (
+          <LazyCognitiveResourceEconomyDashboardPanel
+            bundle={proactive.cognitiveResourceEconomyAttentionAllocationBundle}
+          />
+        ) : null}
+        {unifiedCognitiveBundle &&
+        aiPreferences.unifiedCognitiveStateExecutiveAwarenessEnabled !== false ? (
+          <StaleSafeDashboardShell bundle={unifiedCognitiveBundle}>
+            {(b) => <LazyUnifiedCognitiveStateDashboardPanel bundle={b} />}
+          </StaleSafeDashboardShell>
+        ) : null}
+        {proactive?.humanIntentContinuityAlignmentPreservationBundle &&
+        aiPreferences.humanIntentContinuityAlignmentPreservationEnabled !== false ? (
+          <LazyHumanIntentContinuityDashboardPanel
+            bundle={proactive.humanIntentContinuityAlignmentPreservationBundle}
+          />
+        ) : null}
+        {proactive?.adaptiveExplorationAntiDogmaBundle &&
+        aiPreferences.adaptiveExplorationAntiDogmaEnabled !== false ? (
+          <LazyAdaptiveExplorationDashboardPanel
+            bundle={proactive.adaptiveExplorationAntiDogmaBundle}
+          />
+        ) : null}
+        {proactive?.constitutionalGovernanceSystemCoherenceBundle &&
+        aiPreferences.constitutionalGovernanceSystemCoherenceEnabled !== false ? (
+          <LazyConstitutionalGovernanceDashboardPanel
+            bundle={proactive.constitutionalGovernanceSystemCoherenceBundle}
+          />
+        ) : null}
+        {explainableGovernanceBundle &&
+        aiPreferences.explainableGovernanceTransparentReasoningEnabled !== false ? (
+          <StaleSafeDashboardShell bundle={explainableGovernanceBundle}>
+            {(b) => <LazyExplainableGovernanceDashboardPanel bundle={b} />}
+          </StaleSafeDashboardShell>
+        ) : null}
+        {runtimeSurvivalBundle &&
+        aiPreferences.runtimeSurvivalMobileResilienceEnabled !== false ? (
+          <StaleSafeDashboardShell bundle={runtimeSurvivalBundle}>
+            {(b) => <LazyRuntimeSurvivalDashboardPanel bundle={b} />}
+          </StaleSafeDashboardShell>
+        ) : null}
+        {runtimeTelemetryBundle &&
+        aiPreferences.runtimeSurvivalMobileResilienceEnabled !== false ? (
+          <LazyRuntimeTelemetryDashboardPanel bundle={runtimeTelemetryBundle} />
+        ) : null}
+      </Suspense>
+      <ConciergeUxModeToggle
+        mode={uxMode}
+        onChange={(m) => void saveAiPreferences({ conciergeUxMode: m })}
+      />
+      <ConciergeOneScreenDashboard bundle={uxBundle} />
+      {uxBundle.digest ? <ConciergeNotificationDigest digest={uxBundle.digest} /> : null}
+      <ConciergeMarketRadar items={uxBundle.radar} />
+      <ConciergeContextMemoryPanel
+        items={uxBundle.contextMemory}
+        defaultCollapsed={uxBundle.defaultCollapse.medium}
+      />
+      {uxMode === 'advanced' && performanceCost ? (
+        <ConciergeUxAdvancedStrip
+          evidence={latestAssistantPanels?.evidenceData ?? null}
+          costDashboard={performanceCost.costDashboard}
+        />
+      ) : null}
+      <Suspense fallback={null}>
+        {proactive?.autonomousBundle && aiPreferences.autonomousMonitoringEnabled ? (
+          <LazyAutonomousMonitoringPanel bundle={proactive.autonomousBundle} />
+        ) : null}
+      </Suspense>
     </View>
   );
 
@@ -788,7 +1265,11 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
             }}
             style={[
               styles.bubble,
-              msg.role === 'user' ? styles.bubbleUser : styles.bubbleAssistant,
+              msg.role === 'user'
+                ? styles.bubbleUser
+                : msg.role === 'system'
+                  ? styles.bubbleSystem
+                  : styles.bubbleAssistant,
               selectionMode && selected && styles.bubbleSelected,
             ]}
           >
@@ -800,19 +1281,82 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
                 style={styles.selectIcon}
               />
             ) : null}
-            <SelectableText style={styles.bubbleRole}>
-              {msg.role === 'user' ? AI_UI.userLabel : AI_UI.assistantLabel}
-            </SelectableText>
+            <ChatMessageTimestamp message={msg} compact={isConcierge} />
+            <SelectableText style={styles.bubbleRole}>{roleLabelJa(msg)}</SelectableText>
             {msg.role === 'assistant' ? <ConciergeWarningBadge message={msg} /> : null}
-            <SelectableText
-              style={[
-                styles.bubbleText,
-                isConcierge && msg.role === 'assistant' && styles.bubbleTextConcierge,
-              ]}
-            >
-              {msg.text}
-            </SelectableText>
-            {msg.role === 'assistant' ? <StructuredBlock message={msg} /> : null}
+            {msg.role === 'assistant' && isConcierge ? (
+              <ConciergeShortAnswerBlock
+                answer={buildShortAnswerFromStructured(msg.structured, msg.text)}
+              />
+            ) : null}
+            {uxMode === 'advanced' || msg.role !== 'assistant' ? (
+              <SelectableText
+                style={[
+                  styles.bubbleText,
+                  isConcierge && msg.role === 'assistant' && styles.bubbleTextConcierge,
+                ]}
+              >
+                {msg.text}
+              </SelectableText>
+            ) : null}
+            {msg.deliveryStatus && msg.deliveryStatus !== 'ok' ? (
+              <SelectableText style={styles.deliveryMeta}>
+                {msg.deliveryStatus === 'pending_response'
+                  ? '未応答'
+                  : msg.deliveryStatus === 'timeout'
+                    ? `タイムアウト${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`
+                    : `失敗${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`}
+              </SelectableText>
+            ) : null}
+            {msg.role === 'assistant' ? <StructuredBlock message={msg} uxMode={uxMode} /> : null}
+            {msg.role === 'assistant' && msg.globalMarketAnalysis ? (
+              <ConciergePrioritySection
+                title="市場状況"
+                priority="medium"
+                defaultCollapsed={uxBundle.defaultCollapse.medium}
+              >
+                <MarketSituationCard analysis={msg.globalMarketAnalysis} />
+              </ConciergePrioritySection>
+            ) : null}
+            {msg.role === 'assistant' && msg.evidenceData?.riskControl ? (
+              <ConciergePrioritySection
+                title="リスク統制"
+                priority="critical"
+                defaultCollapsed={uxBundle.defaultCollapse.critical}
+              >
+                <ConciergeRiskControlPanel risk={msg.evidenceData.riskControl} />
+              </ConciergePrioritySection>
+            ) : null}
+            {msg.role === 'assistant' && msg.evidenceData?.actionGuide ? (
+              <ConciergePrioritySection
+                title="行動ガイド"
+                priority="high"
+                defaultCollapsed={uxBundle.defaultCollapse.high}
+              >
+                <ConciergeActionPanel
+                  guide={msg.evidenceData.actionGuide}
+                  riskControl={msg.evidenceData.riskControl}
+                />
+              </ConciergePrioritySection>
+            ) : null}
+            {msg.role === 'assistant' && msg.evidenceData && uxMode === 'advanced' ? (
+              <ConciergePrioritySection
+                title="根拠・evidence"
+                priority="low"
+                defaultCollapsed
+              >
+                <ConciergeEvidencePanel evidence={msg.evidenceData} />
+              </ConciergePrioritySection>
+            ) : null}
+            {msg.role === 'assistant' && msg.portfolioIntelligence ? (
+              <ConciergePrioritySection
+                title="ポートフォリオ学習"
+                priority="low"
+                defaultCollapsed={uxBundle.defaultCollapse.low}
+              >
+                <PortfolioIntelligencePanel intel={msg.portfolioIntelligence} />
+              </ConciergePrioritySection>
+            ) : null}
             {msg.role === 'assistant' && aiPreferences.voiceEnabled && !selectionMode ? (
               <Pressable
                 onPress={() => onSpeakMessage(msg)}
@@ -845,6 +1389,28 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
     </>
   );
 
+  const proactiveConciergeBlock =
+    isConcierge && proactive && !uxBundle.digest ? (
+      <>
+        {(proactive.suggestions ?? [])
+          .filter((s) => isUnhandledProactiveStatus(s.status))
+          .slice(0, 3)
+          .map((s) => (
+            <ProactiveSuggestionCard
+              key={s.id}
+              suggestion={s}
+              compact
+              onAcknowledge={() => void proactive.acknowledge(s.id)}
+              onSeeLater={() => void proactive.seeLater(s.id)}
+              onDetail={() => {
+                void proactive.openDetail(s.id);
+                void handleSendMessage(`${s.titleJa} — 詳しく教えてください（参考情報として）`);
+              }}
+            />
+          ))}
+      </>
+    ) : null;
+
   const threadBlock = isConcierge ? (
     <View testID={CONCIERGE_SECTION_TEST_ID.chat_history} style={styles.threadConciergeFlat}>
       {threadMessages}
@@ -876,8 +1442,11 @@ export function AiAssistantChat({ embedded = false, variant }: AiAssistantChatPr
         showsVerticalScrollIndicator
         nestedScrollEnabled
       >
-        {conciergeSystemStatusBlock}
+        {conciergeUxDashboardBlock}
+        {analysisModeBlock}
+        {proactiveConciergeBlock}
         {threadBlock}
+        {aiPreferences.aiConciergeDebugMode ? <ConciergePromptDebugPanel /> : null}
         <View testID={CONCIERGE_SECTION_TEST_ID.footer_meta} style={styles.footerMeta}>
           {statusMetaBlock}
         </View>
@@ -1012,6 +1581,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     marginBottom: theme.spacing.xs,
   },
+  retryRow: { marginBottom: theme.spacing.sm, gap: theme.spacing.xs },
+  deliveryMeta: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSize.sm,
+    marginTop: 4,
+  },
   staleWarning: {
     color: theme.colors.warning,
     fontSize: theme.fontSize.sm,
@@ -1093,6 +1668,13 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     maxWidth: '100%',
   },
+  bubbleSystem: {
+    alignSelf: 'center',
+    backgroundColor: theme.colors.surfaceElevated,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    maxWidth: '96%',
+  },
   bubbleRole: {
     color: theme.colors.textMuted,
     fontSize: theme.fontSize.sm,
@@ -1150,6 +1732,38 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     marginTop: theme.spacing.sm,
     lineHeight: 18,
+  },
+  analysisModeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: theme.spacing.sm,
+  },
+  analysisModeLabel: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textMuted,
+    marginRight: 4,
+  },
+  analysisChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: theme.radius.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+  },
+  analysisChipActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+  },
+  analysisChipText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textMuted,
+  },
+  analysisChipTextActive: {
+    color: theme.colors.primary,
+    fontWeight: '600',
   },
   selectionBar: {
     flexDirection: 'row',

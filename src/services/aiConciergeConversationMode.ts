@@ -1,6 +1,6 @@
 import type { AiConciergeConversationMode } from '../types/aiConcierge';
 import type { ResolveConciergeConversationModeInput } from '../types/aiConciergeMode';
-import { userWantsElaboration } from './aiConciergeEntityExtraction';
+import { userRequestsExpansion } from './aiConciergeRelevance';
 
 export type { AiConciergeConversationMode, ResolveConciergeConversationModeInput };
 
@@ -37,7 +37,7 @@ export function resolveConciergeConversationMode(
     return 'analysis';
   }
 
-  if (userWantsElaboration(t)) {
+  if (userRequestsExpansion(t)) {
     return 'elaboration';
   }
 

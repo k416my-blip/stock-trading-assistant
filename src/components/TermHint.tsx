@@ -83,5 +83,5 @@ const styles = StyleSheet.create({
   valueWrap: { marginTop: theme.spacing.sm },
   valueRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4 },
   valueLabel: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md },
-  valueText: { color: theme.colors.text, fontSize: theme.fontSize.md, flex: 1 },
+  valueText: { color: theme.colors.text, fontSize: theme.fontSize.md, flexShrink: 1, flexGrow: 1, minWidth: 48 },
 });

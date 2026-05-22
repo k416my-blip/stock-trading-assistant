@@ -83,6 +83,8 @@ export const AI_UI = {
   chatInputPlaceholder: '銘柄や方針を入力（例: 1155 はどう？）',
   userLabel: 'あなた',
   assistantLabel: 'AI',
+  systemLabel: 'システム',
+  voiceLabel: '音声入力',
   personalAssistBadge: '個人利用の分析補助',
   apiStatus: 'API接続',
   mockFallback: 'モック応答に切替中',

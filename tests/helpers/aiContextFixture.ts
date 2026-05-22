@@ -3,6 +3,10 @@ import { AI_PERSONALITY_ROLE_JA, AI_PERSONALITY_TONE_GUIDELINES_JA } from '../..
 import { buildExplanationLevelContextBlock } from '../../src/services/aiExplanationLevel';
 import { createEmptyConciergeSessionMemory } from '../../src/services/aiConciergeSessionMemory';
 import { buildFixedPersonalityGuardrailsBlock } from '../../src/services/aiPersonalityGuard';
+import { buildConciergeActionGuide } from '../../src/services/conciergeActionGuideBuilder';
+import { buildStubGlobalMarketAnalysis } from '../../src/services/marketRegimeConciergeEngine';
+import { buildStubPortfolioIntelligenceBundle } from '../../src/services/portfolioIntelligenceBuilder';
+import { buildConciergeRiskControl } from '../../src/services/conciergeRiskControlBuilder';
 import type { AiStrategyContextPayload } from '../../src/types/aiStrategy';
 
 export function minimalAiStrategyContext(
@@ -84,6 +88,15 @@ export function minimalAiStrategyContext(
         wantsElaboration: false,
         specificityHintJa: '',
       },
+      relevanceControl: {
+        compactMode: true,
+        priorityOrderJa: ['最新のユーザー指示'],
+        scopeJa: '通常',
+        suppressedSummaryJa: '',
+        heldTickers: [],
+        filteredOutTickers: [],
+        instructionJa: '簡潔モード',
+      },
     },
     sessionMemory: createEmptyConciergeSessionMemory(DEFAULT_AI_EXPLANATION_LEVEL),
     personalityGuardrails: buildFixedPersonalityGuardrailsBlock(),
@@ -100,6 +113,20 @@ export function minimalAiStrategyContext(
       anyStaleWarning: false,
       degradedByApis: true,
     },
+    evidenceData: (() => {
+      const ev = {
+        generatedAt: new Date().toISOString(),
+        analysisMode: 'balanced' as const,
+        symbols: [],
+        globalSummaryJa: 'テスト用',
+        cacheNotesJa: [],
+      };
+      const withGuide = { ...ev, actionGuide: buildConciergeActionGuide(ev) };
+      return { ...withGuide, riskControl: buildConciergeRiskControl({ evidence: withGuide }) };
+    })(),
+    analysisMode: 'balanced',
+    globalMarketAnalysis: buildStubGlobalMarketAnalysis(),
+    portfolioIntelligence: buildStubPortfolioIntelligenceBundle(),
     ...overrides,
   };
 }

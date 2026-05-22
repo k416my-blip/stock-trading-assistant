@@ -22,7 +22,16 @@ export const STALE_QUOTE_MAX_AGE_MS = 15 * 60 * 1000;
 export const EMERGENCY_QUOTE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** 1回の quote 試行タイムアウト（ミリ秒） */
-export const QUOTE_ATTEMPT_TIMEOUT_MS = 7_000;
+export const QUOTE_ATTEMPT_TIMEOUT_MS = 15_000;
+
+/** ポートフォリオ全体の株価更新タイムアウト（ミリ秒・リトライ込み） */
+export const PORTFOLIO_REFRESH_TIMEOUT_MS = 120_000;
+
+/** 銘柄ごとの取得間隔（レート制限対策） */
+export const PORTFOLIO_SYMBOL_FETCH_DELAY_MS = 500;
+
+/** quote リトライ待機（1回目失敗後2秒、2回目失敗後5秒） */
+export const QUOTE_RETRY_DELAYS_MS = [2_000, 5_000] as const;
 
 /** 連続タイムアウトがこの回数で残りのシンボル形式試行を打ち切る */
 export const BURSA_PROBE_CONSECUTIVE_TIMEOUT_ABORT = 2;
@@ -93,8 +102,29 @@ export const TWELVE_DATA_MIC: Record<Market, string | undefined> = {
   hk: 'XHKG',
 };
 
+/** Bursa 銘柄が Twelve Data で取得できない場合の警告 */
+export const BURSA_TWELVE_DATA_UNSUPPORTED =
+  'この銘柄はTwelve Dataで取得できない可能性があります';
+
 export const MARKET_DATA_MESSAGES = {
-  loading: '株価を取得中です',
+  loading: '取得中',
+  refreshTimeout: '株価取得がタイムアウトしました',
+  apiKeyInvalid: 'Twelve Data APIキーが未設定または無効です',
+  partialFailure: '一部失敗',
+  partialFailureBanner: '一部銘柄の価格取得に失敗しました',
+  partialFailureSavedHint: '最後に保存した価格を表示しています',
+  totalFailureAlertTitle: '市場APIに接続できません',
+  totalFailureAlertBody: '最後に取得した価格を表示しています',
+  showingCache: 'キャッシュ表示中',
+  usingMock: 'モック使用中',
+  connectionFailed: '接続失敗',
+  refreshComplete: '更新完了',
+  apiConnecting: 'API接続中',
+  symbolExploring: 'symbol探索中...',
+  apiRetrying: 'リトライ中',
+  apiSuccess: '接続成功',
+  apiTimeout: 'タイムアウト',
+  apiRateLimit: 'レート制限',
   fetchFailed: '株価の取得に失敗しました',
   checkApiKey: 'APIキーを確認してください',
   marketClosed: '市場が閉まっているため最新価格ではない可能性があります',
@@ -107,6 +137,8 @@ export const MARKET_DATA_MESSAGES = {
   fixMarketButton: '市場を修正',
   aggregatedFetchFailed: (count: number) =>
     `株価取得に失敗: ${count}件\n詳細は更新結果を確認してください`,
+  partialRefreshSummary: (successCount: number, failCount: number) =>
+    `${successCount}件更新成功 / ${failCount}件失敗`,
   priceLabelManual: '手動価格',
   priceLabelStale: '前回取得価格',
   priceLabelStaleAge: '取得から時間経過',

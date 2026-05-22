@@ -4,6 +4,7 @@ import { Button } from './ui/Button';
 import { theme } from '../theme';
 import { secureError } from '../services/secureLogger';
 import { incrementRecoveryAttemptCount } from '../services/safeBoot';
+import { recordUiCrash } from '../services/productionStability/productionStabilityRuntime';
 
 type Props = {
   children: ReactNode;
@@ -25,6 +26,7 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     secureError('[AppErrorBoundary]', error.message, info.componentStack);
+    recordUiCrash(error.message);
     void incrementRecoveryAttemptCount();
   }
 
