@@ -13,14 +13,30 @@ const COALESCE_BY_KIND_ONLY: Set<RuntimeEffect['kind']> = new Set([
   'WS_RECONNECT_DEFER',
   'MEMORY_PRESSURE_CLEANUP',
   'IMMINENT_KILL_MITIGATION',
+  'RESUME_GLOBAL_GATE',
+  'RESUME_WS_RESTORE_SEQUENCE',
+  'RESUME_SERIALIZE_HYDRATION',
+  'RESUME_DEFER_TELEMETRY',
+  'RESUME_ASYNC_BURST_CLAMP',
+  'RESUME_COORDINATOR_OBSERVE',
 ]);
 
 export function coalesceRuntimeEffects(effects: RuntimeEffect[]): RuntimeEffect[] {
+  const hasResumeWs = effects.some((e) => e.kind === 'RESUME_WS_RESTORE_SEQUENCE');
+  const hasResumeGate = effects.some((e) => e.kind === 'RESUME_GLOBAL_GATE');
   const kindEmitted = new Set<RuntimeEffect['kind']>();
   const dedupeSeen = new Set<string>();
   const out: RuntimeEffect[] = [];
 
   for (const effect of effects) {
+    if (
+      hasResumeWs &&
+      (effect.kind === 'STABILITY_RECONNECT_GUARD' || effect.kind === 'WS_RECONNECT_JITTER')
+    ) {
+      continue;
+    }
+    if (hasResumeGate && effect.kind === 'STABILITY_RECONNECT_GUARD') continue;
+
     if (COALESCE_BY_KIND_ONLY.has(effect.kind)) {
       if (kindEmitted.has(effect.kind)) continue;
       kindEmitted.add(effect.kind);

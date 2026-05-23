@@ -34,6 +34,8 @@ import { buildStabilityEffects } from '../stability/stabilityEffects';
 import type { RuntimeStabilitySnapshot } from '../../types/runtimeStability';
 import { shouldEmitMemoryPressureCleanup } from '../orchestrator/memoryPressureGuardian';
 import { coalesceRuntimeEffects } from './effectCoalescing';
+import { buildResumeCoordinatorEffects } from '../coordinator/resumeCoordinatorEffects';
+import { getResumeCoordinatorSnapshot } from '../coordinator/resumeCoordinatorIntegration';
 
 import type { RuntimeDecision } from '../../types/runtimeKernel';
 
@@ -255,11 +257,13 @@ export function assembleRuntimeDecision(params: {
   });
 
   const stabilityEffects = buildStabilityEffects(params.stabilitySnapshot);
+  const resumeEffects = buildResumeCoordinatorEffects(getResumeCoordinatorSnapshot());
 
   const allEffects = coalesceRuntimeEffects([
     ...policyEffects,
     ...auxEffects,
     ...stabilityEffects,
+    ...resumeEffects,
   ]);
 
   return {

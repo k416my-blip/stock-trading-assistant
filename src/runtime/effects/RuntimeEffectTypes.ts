@@ -34,7 +34,13 @@ export type RuntimeEffectKind =
   | 'STABILITY_RECONNECT_GUARD'
   | 'STABILITY_HYDRATION_ENFORCE'
   | 'STABILITY_ASYNC_STARVATION_WARN'
-  | 'STABILITY_MIUI_DIAGNOSTIC';
+  | 'STABILITY_MIUI_DIAGNOSTIC'
+  | 'RESUME_COORDINATOR_OBSERVE'
+  | 'RESUME_GLOBAL_GATE'
+  | 'RESUME_SERIALIZE_HYDRATION'
+  | 'RESUME_DEFER_TELEMETRY'
+  | 'RESUME_ASYNC_BURST_CLAMP'
+  | 'RESUME_WS_RESTORE_SEQUENCE';
 
 export type RuntimeEffect = {
   id: string;
@@ -123,6 +129,14 @@ export type StabilityAsyncWarnPayload = {
 export type StabilityMiuiPayload = {
   snapshot: import('../../types/runtimeStability').RuntimeStabilitySnapshot;
   anomaly: import('../../types/runtimeStability').RuntimeStabilityAnomaly;
+};
+
+export type ResumeCoordinatorEffectPayload = {
+  snapshot: import('../../types/runtimeResumeCoordinator').ResumeCoordinatorSnapshot;
+};
+
+export type ResumeGlobalGatePayload = ResumeCoordinatorEffectPayload & {
+  gateMs: number;
 };
 
 export type RuntimeEffectPayload =

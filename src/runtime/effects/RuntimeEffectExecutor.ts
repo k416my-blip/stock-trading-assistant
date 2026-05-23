@@ -47,11 +47,18 @@ import type {
   StabilityReconnectGuardPayload,
   StabilityAsyncWarnPayload,
   StabilityMiuiPayload,
+  ResumeCoordinatorEffectPayload,
+  ResumeGlobalGatePayload,
 } from './RuntimeEffectTypes';
 import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
 import { setLastRuntimeStabilitySnapshot } from '../stability/RuntimeHealthMonitor';
 import { tryAcquireHydrationLock } from '../stability/hydrationLock';
-import { requestReconnectSchedule } from '../stability/reconnectCoordinator';
+import { applyResumeGlobalGate, requestReconnectSchedule } from '../stability/reconnectCoordinator';
+import {
+  noteHydrationSequenceStart,
+  scheduleDelayedWebsocketRestore,
+} from '../stability/hydrationRestoreSequencer';
+import { RESUME_COORDINATOR_WS_RESTORE_DELAY_MS } from '../../constants/runtimeResumeCoordinator';
 
 export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace {
   const started = Date.now();
@@ -192,6 +199,35 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         noteOfflineForDebounce(8000);
         break;
       }
+      case 'RESUME_COORDINATOR_OBSERVE': {
+        const o = effect.payload as ResumeCoordinatorEffectPayload;
+        recordLifecycleEvent('trim_memory', `resume: ${o.snapshot.plan.summaryJa}`, false);
+        break;
+      }
+      case 'RESUME_GLOBAL_GATE': {
+        const g = effect.payload as ResumeGlobalGatePayload;
+        applyResumeGlobalGate(g.gateMs);
+        break;
+      }
+      case 'RESUME_SERIALIZE_HYDRATION': {
+        tryAcquireHydrationLock('resume-coordinator');
+        beginHydrationPauseWindow();
+        noteHydrationSequenceStart();
+        recordLifecycleEvent('hydration_start', 'resume coordinator serialize', true);
+        break;
+      }
+      case 'RESUME_DEFER_TELEMETRY':
+        recordLifecycleEvent('trim_memory', 'resume coordinator — telemetry defer', false);
+        break;
+      case 'RESUME_ASYNC_BURST_CLAMP':
+        setAsyncConcurrentLimit(2);
+        recordLifecycleEvent('trim_memory', 'resume coordinator — async burst clamp', false);
+        break;
+      case 'RESUME_WS_RESTORE_SEQUENCE':
+        scheduleDelayedWebsocketRestore(RESUME_COORDINATOR_WS_RESTORE_DELAY_MS, () => {
+          recordLifecycleEvent('reconnect_start', 'resume coordinator ws restore', false);
+        });
+        break;
       default:
         break;
     }

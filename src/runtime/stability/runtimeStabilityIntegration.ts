@@ -8,11 +8,11 @@ import { recordMemoryPressureSample } from '../orchestrator/memoryPressureGuardi
 import { noteRuntimeReconnect } from './RuntimeReconnectTracker';
 import { observeThermalLevel } from './RuntimeThermalTracker';
 import { noteAppBackground, noteAppForeground } from './miuiBatteryDiagnostics';
-import { noteResumeStormGate } from './reconnectCoordinator';
 import {
   evaluateRuntimeStabilitySnapshot,
   setLastRuntimeStabilitySnapshot,
 } from './RuntimeHealthMonitor';
+import { observeResumeCoordinatorTick } from '../coordinator/resumeCoordinatorIntegration';
 
 /** Signal collection tick — no runtime knob mutations. */
 export function observeRuntimeStabilityTick(
@@ -30,13 +30,11 @@ export function observeRuntimeStabilityTick(
     noteRuntimeHeartbeat(Date.now() - metrics.websocket.heartbeatDelayMs);
   }
   if (!performance.appForeground) noteAppBackground();
-  else {
-    noteAppForeground();
-    noteResumeStormGate();
-  }
+  else noteAppForeground();
 
   const snapshot = evaluateRuntimeStabilitySnapshot(metrics, performance);
   setLastRuntimeStabilitySnapshot(snapshot);
+  observeResumeCoordinatorTick(metrics, performance, snapshot);
   return snapshot;
 }
 

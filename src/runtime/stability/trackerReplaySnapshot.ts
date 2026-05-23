@@ -15,6 +15,7 @@ import { resetReconnectStormGuardForTest } from './reconnectStormGuard';
 import { resetRuntimeHeartbeatTrackerForTest } from './RuntimeHeartbeatTracker';
 import { resetRuntimeMemoryPressureTrackerForTest } from './RuntimeMemoryPressureTracker';
 import { resetRuntimeThermalTrackerForTest } from './RuntimeThermalTracker';
+import { resetRuntimeResumeCoordinatorForTest } from '../coordinator/resumeCoordinatorIntegration';
 
 export type TrackerReplaySnapshot = {
   stability: RuntimeStabilitySnapshot | null;
@@ -53,6 +54,7 @@ export function resetAllRuntimeTrackersForReplay(): void {
   resetRuntimeHeartbeatTrackerForTest();
   resetRuntimeMemoryPressureTrackerForTest();
   resetRuntimeThermalTrackerForTest();
+  resetRuntimeResumeCoordinatorForTest();
 }
 
 /** Replay helper — reset trackers then optionally validate snapshot shape. */

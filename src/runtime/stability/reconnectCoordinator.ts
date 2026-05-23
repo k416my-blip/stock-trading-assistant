@@ -8,6 +8,8 @@ import { recordReconnectTrace } from './reconnectSequenceTrace';
 import { isReconnectPausedForHydration } from './hydrationReconnectGate';
 import { getMiuiDiagnostics } from './miuiBatteryDiagnostics';
 import { STABILITY_RESUME_RACE_MS } from '../../constants/runtimeStability';
+import { getResumeCoordinatorSnapshot } from '../coordinator/resumeCoordinatorIntegration';
+import { isResumeGlobalGateActive } from '../coordinator/RuntimeResumeCoordinator';
 
 let reconnectTokenSeq = 0;
 let lastResumeGateUntil = 0;
@@ -20,18 +22,25 @@ export function resetReconnectCoordinatorForTest(): void {
 export function noteResumeStormGate(at = Date.now()): void {
   const diag = getMiuiDiagnostics();
   if (diag.resumeLatencyMs >= STABILITY_RESUME_RACE_MS) {
-    lastResumeGateUntil = at + Math.min(15_000, diag.resumeLatencyMs);
-    recordReconnectTrace({
-      phase: 'defer',
-      delayMs: diag.resumeLatencyMs,
-      allowed: false,
-      storm: false,
-      detailJa: 'resume storm gate',
-    });
+    applyResumeGlobalGate(Math.min(15_000, diag.resumeLatencyMs), at);
   }
 }
 
+/** Effect executor — extends resume storm gate from coordinator plan. */
+export function applyResumeGlobalGate(gateMs: number, at = Date.now()): void {
+  lastResumeGateUntil = Math.max(lastResumeGateUntil, at + gateMs);
+  recordReconnectTrace({
+    phase: 'defer',
+    delayMs: gateMs,
+    allowed: false,
+    storm: false,
+    detailJa: 'resume coordinator global gate',
+  });
+}
+
 export function isResumeReconnectGated(now = Date.now()): boolean {
+  const snap = getResumeCoordinatorSnapshot();
+  if (snap && isResumeGlobalGateActive(snap, now)) return true;
   return now < lastResumeGateUntil || isReconnectPausedForHydration();
 }
 
