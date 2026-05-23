@@ -27,7 +27,8 @@
     "verify:personal-production": "npx tsx src/verify/personalProduction.verify.ts",
     "verify:ai-strategy": "npx tsx src/verify/aiStrategy.verify.ts",
     "verify:x-bearer": "npx tsx src/verify/xBearerAuth.verify.ts",
-    "verify:full-audit": "npx tsx src/verify/fullAudit.verify.ts"
+    "verify:full-audit": "npx tsx src/verify/fullAudit.verify.ts",
+    "verify:redmi-soak": "npx tsx src/verify/redmiLongSoak.verify.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

@@ -25,6 +25,15 @@ import {
   formatNativeBoundaryValidationReport,
 } from './nativeBoundaryValidation';
 import { isSoakModeActive, recordSoakSample, exportSoakCsv, noteAiSuppressionActive, getSoakRecordCount } from './longSoakTesting';
+import {
+  buildRedmiLongSoakDashboardReport,
+  exportRedmiLongSoakJson,
+  formatRedmiLongSoakSummaryText,
+  isRedmiLongSoakActive,
+  maybeAutoStartRedmiSoakValidation,
+  tickRedmiLongSoakValidation,
+} from './redmiLongSoakValidation';
+import { getPerformanceCostSnapshot } from '../../services/performanceCostRuntime';
 
 let lastExtension: NativeRuntimeDashboardExtension | null = null;
 
@@ -35,6 +44,7 @@ export function resetNativeRuntimeIntegrationForTest(): void {
 export async function initNativeRuntimeLayer(): Promise<void> {
   initAnrPreventionLayer();
   initNativeRuntimeBridge();
+  maybeAutoStartRedmiSoakValidation();
   await fetchNativeRuntimeSnapshot();
 }
 
@@ -95,6 +105,10 @@ export function buildNativeDashboardExtension(
 
   noteAiSuppressionActive(orchEval?.snapshot.aiSuppressionActive ?? false);
 
+  if (isRedmiLongSoakActive()) {
+    tickRedmiLongSoakValidation(metrics, getPerformanceCostSnapshot().appForeground);
+  }
+
   const ext: NativeRuntimeDashboardExtension = {
     bridgeAvailable: isNativeRuntimeBridgeAvailable(),
     metricSource: native?.source ?? 'heuristic',
@@ -144,6 +158,18 @@ export function getNativeBoundarySoakReportText(): string {
 
 export function getNativeBoundaryValidationJson(): string {
   return exportNativeBoundaryValidationJson();
+}
+
+export function getRedmiLongSoakJsonExport(): string {
+  return exportRedmiLongSoakJson();
+}
+
+export function getRedmiLongSoakSummaryText(): string {
+  return formatRedmiLongSoakSummaryText();
+}
+
+export function getRedmiLongSoakDashboardReport(): ReturnType<typeof buildRedmiLongSoakDashboardReport> {
+  return buildRedmiLongSoakDashboardReport();
 }
 
 /** Signal refresh only — policy applied via kernel effects. */

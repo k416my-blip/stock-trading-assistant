@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { STABILITY_UI_LABELS_JA } from '../../constants/runtimeStability';
 import { selectRuntimeStabilitySnapshot } from '../../runtime/stability/runtimeStabilitySelectors';
 import { buildNativeBoundaryValidationReport } from '../../native/runtime/nativeBoundaryValidation';
+import { buildRedmiLongSoakDashboardReport, isRedmiLongSoakActive } from '../../native/runtime/redmiLongSoakValidation';
 import { theme } from '../../theme';
 
 function RuntimeStabilityDashboardPanelInner() {
@@ -19,6 +20,7 @@ function RuntimeStabilityDashboardPanelInner() {
 
   const m = snap.metrics;
   const boundary = buildNativeBoundaryValidationReport();
+  const soak = isRedmiLongSoakActive() ? buildRedmiLongSoakDashboardReport() : null;
   return (
     <View style={styles.wrap} testID="runtime-stability-dashboard-panel">
       <Text style={styles.title}>{STABILITY_UI_LABELS_JA.panelTitle}</Text>
@@ -44,6 +46,18 @@ function RuntimeStabilityDashboardPanelInner() {
             : `ok · js ${boundary.comparison.jsScheduleCount}/${boundary.comparison.jsExecuteCount}`
         }
       />
+      {soak ? (
+        <>
+          <Row
+            label="Redmi soak"
+            value={`${soak.elapsedHours.toFixed(1)}h/${soak.targetHours}h · ${soak.soakProgressPct}%`}
+          />
+          <Row
+            label="Soak failures"
+            value={`${soak.failuresCount} · scenarios ${soak.scenariosCount}/14`}
+          />
+        </>
+      ) : null}
       {snap.anomalies.length > 0 ? (
         <Text style={styles.anomaly}>
           {STABILITY_UI_LABELS_JA.anomalies}: {snap.anomalies.map((a) => a.summaryJa).join(' · ')}

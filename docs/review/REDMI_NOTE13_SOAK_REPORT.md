@@ -1,101 +1,111 @@
-# Redmi Note 13 Pro — Native Boundary Soak Report (Diagnostic Framework)
+# Redmi Note 13 Pro — 8h/24h Soak Report
 
-**Report version:** 1.0.0  
-**Generated:** framework commit (pre-device soak)  
-**Target device:** Redmi Note 13 Pro / MIUI / HyperOS  
-**Session type:** diagnostic instrumentation validation (not live device capture)
-
----
-
-## Executive summary
-
-This report documents the **Runtime Native Boundary Validation** diagnostic layer deployed for MIUI long-session soak. Live device metrics must be collected on hardware using the export APIs below; this document defines methodology, expected signals, and initial static-audit findings.
+**Harness version:** 1.0.0  
+**Status:** DEVICE RUN REQUIRED — this report template is filled after on-device soak  
+**Target:** Redmi Note 13 Pro / MIUI / HyperOS  
+**Minimum duration:** 8h (recommended 24h)
 
 ---
 
-## Soak protocol (device)
+## How to run
 
-1. Install release build with `StaNativeRuntime` module (not Expo Go).
-2. Run ≥ 6 hours foreground/background cycles (soak mode activates at 360 min).
-3. Trigger: lock screen 30s → unlock, MIUI battery saver toggle, Wi‑Fi flap.
-4. Export every 2h:
-   - `getNativeBoundarySoakReportText()`
-   - `exportTrackerReplaySnapshot()` via debug hook
-   - `getSoakCsvForExport()`
-
----
-
-## Instrumentation checklist
-
-| Signal | Source | Status |
-|--------|--------|--------|
-| Native reconnect trace | JS coordinator + native lifecycle | ✅ wired |
-| Lifecycle timeline | `lifecycleTimeline` + boundary trace | ✅ wired |
-| Websocket ownership UUID | `websocketOwnershipTrace` | ✅ wired |
-| Foreground/background phase | `app_phase` boundary events | ✅ wired |
-| Coordinator vs native compare | `buildNativeBoundaryValidationReport` | ✅ wired |
-| Duplicate socket detection | `RuntimeReconnectTracker` | ✅ existing |
-| Reconnect latency histogram | `nativeBoundaryHistograms` | ✅ wired |
-| Event loop lag histogram | ANR layer + boundary tick | ✅ wired |
-| Memory pressure timeline | boundary tick + native snapshot | ✅ wired |
-| Thermal timeline | boundary tick + native snapshot | ✅ wired |
+1. Release build with `StaNativeRuntime` (not Expo Go).
+2. Set `EXPO_PUBLIC_REDMI_SOAK=1` or call `startRedmiLongSoakSession(8)`.
+3. Execute all 14 scenarios per [REDMI_LONG_SOAK_VALIDATION.md](./REDMI_LONG_SOAK_VALIDATION.md).
+4. After ≥8h, export:
+   - `getRedmiLongSoakJsonExport()`
+   - `getRedmiLongSoakSummaryText()`
+5. Attach JSON to this report.
 
 ---
 
-## Static audit findings (pre-soak)
+## Session summary (fill from export)
 
-| Check | Result |
-|-------|--------|
-| `scheduleWebsocketReconnectWithJitter` in `src/` | **0 hits** — no JS bypass |
-| Reconnect single owner | `requestReconnectSchedule` only |
-| Native module reconnect scheduling | **None** — `reconnectOwner: none` |
-| execute without coordinator | Detected by validation report |
-
----
-
-## Expected MIUI failure signatures
-
-| Scenario | Expected boundary trace |
-|----------|-------------------------|
-| Resume storm | `app_phase foreground` → `coordinator_reconnect` → `resume_gate defer` |
-| MIUI trim burst | `native_lifecycle trim_memory` × N within 3s |
-| Timer resurrection | `timerDriftMs` spike in MIUI diagnostics + event loop lag histogram tail |
-| Hydration overlap | `hydration_overlap` events before `js_reconnect_execute` |
-| Native bypass | `ownership_mismatch` or `orphanNativeReconnect > 0` |
+| Field | Value |
+|-------|-------|
+| Device | _pending_ |
+| Started | _pending_ |
+| Elapsed | _pending_ |
+| Target | 8h / 24h |
+| `productionReady` | _pending_ |
+| Headline | _pending_ |
 
 ---
 
-## Placeholder metrics (fill on device)
+## Critical checks A–H (fill from `summary.criticalChecks`)
 
-| Metric | Target | Device measured |
-|--------|--------|-----------------|
-| JS schedule/execute ratio | 1:1 ± coalesce | _pending_ |
-| Duplicate sockets / session | 0 | _pending_ |
-| Bridge fetch p95 | < 250ms | _pending_ |
-| Event loop lag p95 | < 150ms | _pending_ |
-| Native bypass events | 0 | _pending_ |
-
----
-
-## Export commands
-
-```typescript
-import {
-  getNativeBoundarySoakReportText,
-  getNativeBoundaryValidationJson,
-} from '../src/native/runtime/nativeRuntimeIntegration';
-import { exportTrackerReplaySnapshot } from '../src/runtime/stability/trackerReplaySnapshot';
-
-console.log(getNativeBoundarySoakReportText());
-console.log(getNativeBoundaryValidationJson());
-console.log(JSON.stringify(exportTrackerReplaySnapshot(), null, 2));
-```
+| Check | PASS/FAIL | Occurrences | Last at |
+|-------|-----------|-------------|---------|
+| A native_reconnect_bypass | _pending_ | | |
+| B duplicate_reconnect | _pending_ | | |
+| C coordinator_ownership_violation | _pending_ | | |
+| D reconnect_storm | _pending_ | | |
+| E hydration_race | _pending_ | | |
+| F timer_resurrection | _pending_ | | |
+| G silent_websocket_disconnect | _pending_ | | |
+| H miui_delayed_resume | _pending_ | | |
 
 ---
 
-## Next steps
+## Scenarios observed
 
-1. Run 8h Redmi Note 13 Pro soak with battery optimization **on**.
-2. Compare `native_lifecycle` trim bursts vs JS reconnect timeline.
-3. If `bypassDetected: true`, grep orphan execute paths and native WebSocket libs.
-4. Attach CSV + JSON exports to this report for production sign-off.
+_pending — list from `summary.session.scenariosObserved`_
+
+---
+
+## Failure timeline (last 10)
+
+_pending — from `failureTimeline`_
+
+---
+
+## Histograms (end of soak)
+
+### Reconnect latency
+
+_pending — `histograms.reconnectLatencyMs` in boundaryValidation_
+
+### Event loop lag
+
+_pending_
+
+### Memory pressure
+
+_pending_
+
+### Thermal
+
+_pending_
+
+---
+
+## Production readiness (post-soak)
+
+| Score | Pre-soak (framework) | Post 8h device |
+|-------|---------------------|----------------|
+| Overall | ~91 | _pending_ |
+
+### Redmi operational risk
+
+_pending_
+
+### Unresolved races
+
+_pending_
+
+### Single failure point
+
+_pending_
+
+### Coordinator architecture
+
+_pending_
+
+---
+
+## Sign-off
+
+- [ ] 8h minimum elapsed
+- [ ] JSON export attached
+- [ ] No critical A/C/D failures
+- [ ] Duplicate sockets = 0 at end state
