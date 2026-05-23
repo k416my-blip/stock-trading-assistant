@@ -25,6 +25,7 @@ import {
   formatNativeBoundaryValidationReport,
 } from './nativeBoundaryValidation';
 import { isSoakModeActive, recordSoakSample, exportSoakCsv, noteAiSuppressionActive, getSoakRecordCount } from './longSoakTesting';
+import { loadPersistedRedmiLongSoakExport } from './redmiLongSoakValidation';
 import {
   buildRedmiLongSoakDashboardReport,
   exportRedmiLongSoakJson,
@@ -170,6 +171,24 @@ export function getRedmiLongSoakSummaryText(): string {
 
 export function getRedmiLongSoakDashboardReport(): ReturnType<typeof buildRedmiLongSoakDashboardReport> {
   return buildRedmiLongSoakDashboardReport();
+}
+
+export {
+  analyzeRedmiSoakReport,
+  analyzeRedmiSoakReportBundle,
+  analyzeRedmiSoakExportJson,
+  formatPostSoakAnalysisMarkdown,
+  exportPostSoakAnalysisJson,
+  findRootOwnershipEvent,
+} from './postSoakFailureAnalysis';
+
+export async function analyzePersistedRedmiSoakExport(): Promise<
+  ReturnType<typeof analyzeRedmiSoakReportBundle> | null
+> {
+  const exp = await loadPersistedRedmiLongSoakExport();
+  if (!exp) return null;
+  const { analyzeRedmiSoakReportBundle } = await import('./postSoakFailureAnalysis');
+  return analyzeRedmiSoakReportBundle(exp);
 }
 
 /** Signal refresh only — policy applied via kernel effects. */
