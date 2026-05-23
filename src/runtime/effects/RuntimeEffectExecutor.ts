@@ -18,7 +18,7 @@ import { scheduleDedupedTimer } from '../../services/mobileRedmiRuntime';
 import { setOrchestratorProactiveGates } from '../../services/productionStability/productionStabilityRuntime';
 import { setAsyncConcurrentLimit } from '../../services/asyncRuntimeCoordinator';
 import { persistTelemetryCycle } from '../../services/runtimeTelemetryStorage';
-import { observeMemoryPressure } from '../orchestrator/memoryPressureGuardian';
+import { recordMemoryPressureSample, executeMemoryPressureCleanup } from '../orchestrator/memoryPressureGuardian';
 import { runLongSessionSurvivabilityPass } from '../orchestrator/longSessionSurvivability';
 import { applyAsyncSchedulerPolicy } from '../orchestrator/asyncPriorityScheduler';
 import {
@@ -130,8 +130,17 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         break;
       }
       case 'MEMORY_PRESSURE_OBSERVE':
-        observeMemoryPressure((effect.payload as { metrics: import('../../types/runtimeTelemetry').RuntimeTelemetryMetricsSnapshot }).metrics);
+        recordMemoryPressureSample(
+          (effect.payload as { metrics: import('../../types/runtimeTelemetry').RuntimeTelemetryMetricsSnapshot })
+            .metrics,
+        );
         break;
+      case 'MEMORY_PRESSURE_CLEANUP': {
+        const m = (effect.payload as { metrics: import('../../types/runtimeTelemetry').RuntimeTelemetryMetricsSnapshot })
+          .metrics;
+        executeMemoryPressureCleanup(m);
+        break;
+      }
       case 'LONG_SESSION_PASS': {
         const l = effect.payload as LongSessionPassPayload;
         runLongSessionSurvivabilityPass(l.sessionMinutes, l.metrics);

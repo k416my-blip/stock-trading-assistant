@@ -60,6 +60,7 @@ export function buildStabilityEffects(snapshot: RuntimeStabilitySnapshot): Runti
         break;
       default:
         break;
+        break;
     }
   }
 

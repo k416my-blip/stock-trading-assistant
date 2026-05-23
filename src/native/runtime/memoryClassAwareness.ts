@@ -1,5 +1,4 @@
 import type { NativeMemoryClassSnapshot } from '../../types/nativeRuntimeBridge';
-import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
 import { getLastNativeRuntimeSnapshot } from './nativeRuntimeBridge';
 
 export type MemoryClassPolicyHints = {
@@ -19,11 +18,4 @@ export function resolveMemoryClassPolicy(
     preloadForbidden: lowRam,
     speculativeRenderForbidden: lowRam || smallClass,
   };
-}
-
-/**
- * @deprecated Policy merged in RuntimeKernel.mergeKernelOwnedPolicy — no side effects.
- */
-export function applyMemoryClassAwareness(_policy: RuntimeOrchestratorPolicy): void {
-  void resolveMemoryClassPolicy();
 }

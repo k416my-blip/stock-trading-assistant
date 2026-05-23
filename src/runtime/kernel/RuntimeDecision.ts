@@ -32,6 +32,7 @@ import {
 import { getReducerTransitionHistory } from './RuntimeReducer';
 import { buildStabilityEffects } from '../stability/stabilityEffects';
 import type { RuntimeStabilitySnapshot } from '../../types/runtimeStability';
+import { shouldEmitMemoryPressureCleanup } from '../orchestrator/memoryPressureGuardian';
 
 import type { RuntimeDecision } from '../../types/runtimeKernel';
 
@@ -167,6 +168,14 @@ export function buildAuxiliaryEffects(params: {
   const metrics = kernelInput.telemetry.metrics;
   const effects: RuntimeEffect[] = [];
 
+  if (imminentKill) {
+    effects.push(makeEffect('IMMINENT_KILL_MITIGATION', 'imminent-kill', { metrics }));
+  }
+
+  if (shouldEmitMemoryPressureCleanup()) {
+    effects.push(makeEffect('MEMORY_PRESSURE_CLEANUP', `mem-cleanup-${state}`, { metrics }));
+  }
+
   effects.push(
     makeEffect('MEMORY_PRESSURE_OBSERVE', `mem-obs-${state}`, { metrics }),
     makeEffect('NATIVE_EXTENSION_BUILD', `native-ext-${state}`, {
@@ -179,10 +188,6 @@ export function buildAuxiliaryEffects(params: {
       metrics,
     }),
   );
-
-  if (imminentKill) {
-    effects.push(makeEffect('IMMINENT_KILL_MITIGATION', 'imminent-kill', { metrics }));
-  }
 
   if (longSessionActionsJa.length > 0 && state === 'SURVIVAL') {
     effects.push(

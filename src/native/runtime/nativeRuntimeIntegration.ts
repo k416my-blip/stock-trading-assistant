@@ -11,7 +11,7 @@ import {
   isNativeRuntimeBridgeAvailable,
 } from './nativeRuntimeBridge';
 import { buildTelemetryConfidenceMap, nativeCoveragePct } from './telemetryConfidence';
-import { predictRuntimeKill, isImminentKillRisk } from './runtimeKillPredictor';
+import { predictRuntimeKill } from './runtimeKillPredictor';
 import { observeAnrRisk, initAnrPreventionLayer, pingEventLoop } from './anrPreventionLayer';
 import { detectMiuiAggressiveReclaim, getMiuiReclaimEventCount } from './miuiReclaimDetector';
 import {
@@ -110,14 +110,6 @@ export function buildNativeDashboardExtension(
 
 export function getLastNativeDashboardExtension(): NativeRuntimeDashboardExtension | null {
   return lastExtension;
-}
-
-/**
- * @deprecated Policy owned by RuntimeKernel — use IMMINENT_KILL_MITIGATION effect.
- * Kept for orphan detection; does not mutate runtime knobs.
- */
-export function applyImminentKillMitigations(_metrics: RuntimeTelemetryMetricsSnapshot): void {
-  void isImminentKillRisk();
 }
 
 export function shouldForceMiuiSurvivalEscalation(): boolean {

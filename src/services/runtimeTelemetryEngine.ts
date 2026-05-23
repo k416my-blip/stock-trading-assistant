@@ -12,6 +12,7 @@ import {
   TELEMETRY_WS_RTT_CRITICAL_MS,
   TELEMETRY_WS_RTT_DEGRADED_MS,
 } from '../constants/runtimeTelemetry';
+import { RUNTIME_KERNEL_OWNS_POLICY } from '../constants/runtimeKernel';
 import type {
   EvaluateRuntimeTelemetryInput,
   RuntimeTelemetryDashboardBundle,
@@ -201,12 +202,14 @@ export function evaluateRuntimeTelemetry(
   };
 
   lastEvaluation = evaluation;
-  void persistTelemetryCycle({
-    metrics,
-    state,
-    summaryJa,
-    longSession: metrics.longSession,
-  });
+  if (!RUNTIME_KERNEL_OWNS_POLICY) {
+    void persistTelemetryCycle({
+      metrics,
+      state,
+      summaryJa,
+      longSession: metrics.longSession,
+    });
+  }
 
   return evaluation;
 }
