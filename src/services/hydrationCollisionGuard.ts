@@ -6,6 +6,10 @@ import {
 } from './hydrationResumeTelemetry';
 import { resolveAsyncBudgetDecision } from './asyncBudgetSystem';
 import { getKernelGuardState } from '../runtime/kernel/runtimeKernelGuards';
+import {
+  releaseHydrationLock,
+  tryAcquireHydrationLock,
+} from '../runtime/stability/hydrationLock';
 
 let hydrationInFlight = false;
 let orchestrationPausedUntil = 0;
@@ -36,11 +40,16 @@ export async function runSerializedHydration(
   const { isRedmiFullHydrationBlocked } = await import('../runtime/orchestrator/redmiOrchestratorGuard');
   if (isRedmiFullHydrationBlocked()) return false;
   if (hydrationInFlight) return false;
+  if (!tryAcquireHydrationLock(key)) return false;
   if (lastHydrationKey === key && Date.now() - lastHydrationAt < HYDRATION_PAUSE_WINDOW_MS) {
+    releaseHydrationLock();
     return false;
   }
   const decision = resolveAsyncBudgetDecision('hydration');
-  if (decision === 'defer' || decision === 'idle_schedule') return false;
+  if (decision === 'defer' || decision === 'idle_schedule') {
+    releaseHydrationLock();
+    return false;
+  }
 
   hydrationInFlight = true;
   beginHydrationPauseWindow();
@@ -70,6 +79,7 @@ export async function runSerializedHydration(
     return true;
   } finally {
     hydrationInFlight = false;
+    releaseHydrationLock();
   }
 }
 

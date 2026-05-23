@@ -43,8 +43,15 @@ import type {
   ImminentKillPayload,
   LongSessionPassPayload,
   KernelGuardSyncPayload,
+  StabilityObservePayload,
+  StabilityReconnectGuardPayload,
+  StabilityAsyncWarnPayload,
+  StabilityMiuiPayload,
 } from './RuntimeEffectTypes';
 import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
+import { setLastRuntimeStabilitySnapshot } from '../stability/RuntimeHealthMonitor';
+import { registerReconnectAttempt } from '../stability/reconnectStormGuard';
+import { tryAcquireHydrationLock } from '../stability/hydrationLock';
 
 export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace {
   const started = Date.now();
@@ -148,6 +155,33 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
           summaryJa: 'IMMINENT kill risk — effect layer clamp',
           longSession: k.metrics.longSession,
         });
+        break;
+      }
+      case 'STABILITY_OBSERVE':
+        setLastRuntimeStabilitySnapshot((effect.payload as StabilityObservePayload).snapshot);
+        break;
+      case 'STABILITY_RECONNECT_GUARD': {
+        const p = effect.payload as StabilityReconnectGuardPayload;
+        registerReconnectAttempt();
+        setWebsocketLightweightMode(true);
+        scheduleWebsocketReconnectWithJitter(2500, 12_000);
+        noteOfflineForDebounce(Math.max(5000, p.delayMs > Date.now() ? p.delayMs - Date.now() : 5000));
+        recordLifecycleEvent('reconnect_start', `stability guard · ${p.snapshot.websocketStatusJa}`, false);
+        break;
+      }
+      case 'STABILITY_HYDRATION_ENFORCE':
+        tryAcquireHydrationLock('stability-enforce');
+        beginHydrationPauseWindow();
+        break;
+      case 'STABILITY_ASYNC_STARVATION_WARN': {
+        const w = effect.payload as StabilityAsyncWarnPayload;
+        recordLifecycleEvent('trim_memory', `async: ${w.anomaly.summaryJa}`, false);
+        break;
+      }
+      case 'STABILITY_MIUI_DIAGNOSTIC': {
+        const m = effect.payload as StabilityMiuiPayload;
+        recordLifecycleEvent('trim_memory', `miui: ${m.anomaly.summaryJa}`, true);
+        noteOfflineForDebounce(8000);
         break;
       }
       default:

@@ -30,6 +30,8 @@ import {
   buildOrchestratorSnapshotFromKernel,
 } from './RuntimeSnapshot';
 import { getReducerTransitionHistory } from './RuntimeReducer';
+import { buildStabilityEffects } from '../stability/stabilityEffects';
+import type { RuntimeStabilitySnapshot } from '../../types/runtimeStability';
 
 import type { RuntimeDecision } from '../../types/runtimeKernel';
 
@@ -205,6 +207,7 @@ export function assembleRuntimeDecision(params: {
   imminentKill: boolean;
   longSessionActionsJa: string[];
   memoryClassHints: MemoryClassPolicyHints;
+  stabilitySnapshot: RuntimeStabilitySnapshot;
 }): RuntimeDecision {
   const policy = mergeKernelOwnedPolicy(params.state, params.signals, params.memoryClassHints);
   const guards = buildGuardStateFromPolicy(policy, params.signals);
@@ -245,13 +248,15 @@ export function assembleRuntimeDecision(params: {
     longSessionActionsJa: params.longSessionActionsJa,
   });
 
+  const stabilityEffects = buildStabilityEffects(params.stabilitySnapshot);
+
   return {
     nextState: params.state,
     candidateState: params.candidate,
     flapSuppressed: params.flapSuppressed,
     snapshot,
     orchestratorEvaluation,
-    effects: [...policyEffects, ...auxEffects],
+    effects: [...policyEffects, ...auxEffects, ...stabilityEffects],
     confidence: params.confidenceMap,
     transitions: getReducerTransitionHistory(),
   };

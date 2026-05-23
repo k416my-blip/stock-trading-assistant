@@ -7,6 +7,12 @@ import {
   noteWebsocketRtt,
 } from './websocketTelemetry';
 import { TELEMETRY_HEARTBEAT_BASE_MS } from '../constants/runtimeTelemetry';
+import {
+  computeReconnectBackoffMs,
+  registerReconnectAttempt,
+  resetReconnectBackoffOnStable,
+} from '../runtime/stability/reconnectStormGuard';
+import { noteRuntimeReconnect } from '../runtime/stability/RuntimeReconnectTracker';
 
 let lightweightMode = false;
 let offlineDebounceUntil = 0;
@@ -53,12 +59,18 @@ export function scheduleWebsocketReconnectWithJitter(baseMs: number, maxMs: numb
     scheduleDedupedTimer('ws-reconnect-deferred', () => {}, baseMs * 2);
     return;
   }
-  reconnectJitterMs = Math.min(
-    maxMs,
-    baseMs + Math.floor(Math.random() * baseMs * 0.4),
-  );
+
+  const attempt = registerReconnectAttempt();
+  if (!attempt.allowed) {
+    scheduleDedupedTimer('ws-reconnect-budget-blocked', () => {}, attempt.delayMs);
+    return;
+  }
+
+  const backoff = Math.max(attempt.delayMs, computeReconnectBackoffMs());
+  reconnectJitterMs = Math.min(maxMs, backoff + Math.floor(Math.random() * baseMs * 0.4));
   scheduleDedupedTimer('ws-reconnect-jitter', () => {
     if (!isOfflineDebounced()) {
+      noteRuntimeReconnect('ws-jitter');
       noteWebsocketReconnect();
       noteWebsocketReconnectAttempt();
       noteWebsocketRtt(reconnectJitterMs);
@@ -70,6 +82,10 @@ export function scheduleWebsocketReconnectWithJitter(baseMs: number, maxMs: numb
       });
     }
   }, reconnectJitterMs);
+}
+
+export function noteWebsocketStableConnection(): void {
+  resetReconnectBackoffOnStable();
 }
 
 export function batchWebsocketFrame(fn: () => void): void {

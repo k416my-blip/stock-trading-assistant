@@ -11,6 +11,7 @@ import { resetKernelGuardsForTest } from './runtimeKernelGuards';
 import { resetRuntimeReducerForTest } from './RuntimeReducer';
 import type { PreparedRuntimeKernelContext } from './runtimeKernelPreparation';
 import { prepareRuntimeKernelContextSync } from './runtimeKernelPreparation';
+import { observeRuntimeStabilityTick } from '../stability/runtimeStabilityIntegration';
 
 let lastDecision: RuntimeDecision | null = null;
 let lastEvaluation: RuntimeKernelEvaluation | null = null;
@@ -62,6 +63,7 @@ export function evaluateRuntimeKernelPure(
     imminentKill: killLevel === 'IMMINENT',
     longSessionActionsJa: [],
     memoryClassHints: prepared.memoryClassHints,
+    stabilitySnapshot: observeRuntimeStabilityTick(prepared.mergedMetrics, input.performance),
   });
 
   lastDecision = decision;

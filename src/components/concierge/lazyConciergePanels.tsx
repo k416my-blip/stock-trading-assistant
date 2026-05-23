@@ -211,3 +211,9 @@ export const LazyRuntimeTelemetryDashboardPanel = lazy(() =>
     default: m.RuntimeTelemetryDashboardPanel,
   })),
 );
+
+export const LazyRuntimeStabilityDashboardPanel = lazy(() =>
+  import('./RuntimeStabilityDashboardPanel').then((m) => ({
+    default: m.RuntimeStabilityDashboardPanel,
+  })),
+);

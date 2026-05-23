@@ -146,6 +146,7 @@ import {
   LazyExplainableGovernanceDashboardPanel,
   LazyRuntimeSurvivalDashboardPanel,
   LazyRuntimeTelemetryDashboardPanel,
+  LazyRuntimeStabilityDashboardPanel,
 } from './concierge/lazyConciergePanels';
 import { AiPerformanceCenterPanel } from './concierge/AiPerformanceCenterPanel';
 import type { ConciergeUxDisplayMode } from '../types/conciergeUx';
@@ -1126,7 +1127,10 @@ export function AiAssistantChat({
         ) : null}
         {runtimeTelemetryBundle &&
         aiPreferences.runtimeSurvivalMobileResilienceEnabled !== false ? (
-          <LazyRuntimeTelemetryDashboardPanel bundle={runtimeTelemetryBundle} />
+          <>
+            <LazyRuntimeTelemetryDashboardPanel bundle={runtimeTelemetryBundle} />
+            <LazyRuntimeStabilityDashboardPanel />
+          </>
         ) : null}
       </Suspense>
       <ConciergeUxModeToggle

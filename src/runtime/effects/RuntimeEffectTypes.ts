@@ -28,7 +28,12 @@ export type RuntimeEffectKind =
   | 'LONG_SESSION_PASS'
   | 'NATIVE_EXTENSION_BUILD'
   | 'IMMINENT_KILL_MITIGATION'
-  | 'KERNEL_GUARD_SYNC';
+  | 'KERNEL_GUARD_SYNC'
+  | 'STABILITY_OBSERVE'
+  | 'STABILITY_RECONNECT_GUARD'
+  | 'STABILITY_HYDRATION_ENFORCE'
+  | 'STABILITY_ASYNC_STARVATION_WARN'
+  | 'STABILITY_MIUI_DIAGNOSTIC';
 
 export type RuntimeEffect = {
   id: string;
@@ -98,6 +103,25 @@ export type LongSessionPassPayload = {
 
 export type KernelGuardSyncPayload = {
   guards: import('../../types/runtimeKernel').RuntimeGuardKernelState;
+};
+
+export type StabilityObservePayload = {
+  snapshot: import('../../types/runtimeStability').RuntimeStabilitySnapshot;
+};
+
+export type StabilityReconnectGuardPayload = {
+  snapshot: import('../../types/runtimeStability').RuntimeStabilitySnapshot;
+  delayMs: number;
+};
+
+export type StabilityAsyncWarnPayload = {
+  snapshot: import('../../types/runtimeStability').RuntimeStabilitySnapshot;
+  anomaly: import('../../types/runtimeStability').RuntimeStabilityAnomaly;
+};
+
+export type StabilityMiuiPayload = {
+  snapshot: import('../../types/runtimeStability').RuntimeStabilitySnapshot;
+  anomaly: import('../../types/runtimeStability').RuntimeStabilityAnomaly;
 };
 
 export type RuntimeEffectPayload =
