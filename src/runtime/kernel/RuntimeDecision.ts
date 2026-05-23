@@ -15,12 +15,19 @@ import type { RuntimeOrchestratorTransition } from '../../types/runtimeOrchestra
 import type { RuntimeEffect } from '../effects/RuntimeEffectTypes';
 import { createEffectId } from '../effects/RuntimeEffectQueue';
 import { priorityForEffectKind } from '../effects/RuntimeEffectRegistry';
-import { heartbeatMsFromPolicy } from '../orchestrator/runtimePolicyEngine';
 import { buildGuardStateFromPolicy } from './RuntimePolicyKernel';
+import type { MemoryClassPolicyHints } from '../../native/runtime/memoryClassAwareness';
+import {
+  mergeKernelOwnedPolicy,
+  resolveKernelWebsocketHeartbeatMs,
+  shouldEmitWsOfflineDebounce,
+  shouldEmitWsReconnectJitter,
+  wsReconnectJitterBaseMs,
+  type WsPolicyCommandParams,
+} from './RuntimePolicyOwnership';
 import {
   assembleRuntimeKernelSnapshot,
   buildOrchestratorSnapshotFromKernel,
-  resolvePolicyForKernelState,
 } from './RuntimeSnapshot';
 import { getReducerTransitionHistory } from './RuntimeReducer';
 
@@ -43,14 +50,62 @@ function makeEffect(
   };
 }
 
+export function buildWebsocketPolicyEffects(
+  params: WsPolicyCommandParams & { guards: RuntimeGuardKernelState },
+): RuntimeEffect[] {
+  const { policy, signals, state, heartbeatMs, wsLightweight, guards } = params;
+  const effects: RuntimeEffect[] = [
+    makeEffect('WS_HEARTBEAT_MS', `ws-hb-${heartbeatMs}`, { heartbeatMs }),
+    makeEffect('WS_LIGHTWEIGHT_MODE', `ws-light-${wsLightweight}`, {
+      lightweight: wsLightweight,
+      heartbeatMs,
+      batchMode: policy.websocketBatching,
+    }),
+  ];
+
+  if (signals.wsJitterScore > 35 || policy.websocketHeartbeatMultiplier > 1.2) {
+    effects.push(
+      makeEffect('WS_HEARTBEAT_BACKOFF', `ws-hb-backoff-${heartbeatMs}`, { intervalMs: heartbeatMs }),
+    );
+  }
+
+  if (shouldEmitWsReconnectJitter(params)) {
+    const { baseMs, maxMs } = wsReconnectJitterBaseMs(params);
+    effects.push(
+      makeEffect('WS_RECONNECT_JITTER', `ws-reconnect-jitter-${state}`, {
+        baseMs,
+        maxMs,
+        storm: signals.wsReconnectStorm,
+      }),
+    );
+  } else if (policy.websocketSafeMode && state !== 'STABLE') {
+    effects.push(makeEffect('WS_RECONNECT_DEFER', `ws-reconnect-defer-${state}`, { baseMs: 3000 }));
+  }
+
+  if (shouldEmitWsOfflineDebounce(params)) {
+    effects.push(
+      makeEffect('WS_OFFLINE_DEBOUNCE', `ws-offline-${state}`, {
+        durationMs: guards.websocketOfflineDebounceUntil > Date.now() ? 8000 : 5000,
+      }),
+    );
+  }
+
+  if (policy.websocketBatching || policy.websocketSafeMode) {
+    effects.push(makeEffect('WS_BATCH_MODE', `ws-batch-${state}`, { enabled: true }));
+  }
+
+  return effects;
+}
+
 export function buildPolicyEffects(
   policy: RuntimeOrchestratorPolicy,
   signals: RuntimeUnifiedSignals,
   guards: RuntimeGuardKernelState,
   state: RuntimeKernelState,
 ): RuntimeEffect[] {
-  const heartbeatMs = guards.websocketHeartbeatMs || heartbeatMsFromPolicy(policy);
-  const wsLight = guards.websocketLightweight;
+  const heartbeatMs = guards.websocketHeartbeatMs || resolveKernelWebsocketHeartbeatMs(policy, signals);
+  const wsLightweight = guards.websocketLightweight;
+  const wsParams: WsPolicyCommandParams = { policy, signals, state, heartbeatMs, wsLightweight };
 
   const effects: RuntimeEffect[] = [
     makeEffect('KERNEL_GUARD_SYNC', `guard-${state}`, { guards }),
@@ -59,22 +114,13 @@ export function buildPolicyEffects(
       maxFps: policy.maxDashboardFps,
       metricsSamplingRate: policy.telemetrySamplingRate,
     }),
-    makeEffect('WS_HEARTBEAT_MS', `ws-hb-${heartbeatMs}`, { heartbeatMs }),
-    makeEffect('WS_LIGHTWEIGHT_MODE', `ws-light-${wsLight}`, {
-      lightweight: wsLight,
-      heartbeatMs,
-      batchMode: policy.websocketBatching,
-    }),
+    ...buildWebsocketPolicyEffects({ ...wsParams, guards }),
     makeEffect('QUEUE_COMPACTION', `async-policy-${state}`, { policy }),
     makeEffect('PROACTIVE_COOLDOWN', `pro-cd-${guards.proactiveThrottle}`, {
       pauseProactive: guards.proactivePause,
       throttleProactive: guards.proactiveThrottle,
     }),
   ];
-
-  if (policy.websocketBatching || policy.websocketSafeMode) {
-    effects.push(makeEffect('WS_BATCH_MODE', `ws-batch-${state}`, { enabled: true }));
-  }
 
   if (policy.suspendProactiveAi) {
     effects.push(
@@ -158,9 +204,11 @@ export function assembleRuntimeDecision(params: {
   confidenceMap: TelemetryConfidenceMap;
   imminentKill: boolean;
   longSessionActionsJa: string[];
+  memoryClassHints: MemoryClassPolicyHints;
 }): RuntimeDecision {
-  const policy = resolvePolicyForKernelState(params.state);
+  const policy = mergeKernelOwnedPolicy(params.state, params.signals, params.memoryClassHints);
   const guards = buildGuardStateFromPolicy(policy, params.signals);
+  guards.websocketHeartbeatMs = resolveKernelWebsocketHeartbeatMs(policy, params.signals);
 
   const orchestratorSnapshot = buildOrchestratorSnapshotFromKernel(
     params.state,

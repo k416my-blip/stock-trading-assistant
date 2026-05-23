@@ -12,6 +12,10 @@ export type RuntimeEffectKind =
   | 'QUEUE_COMPACTION'
   | 'WS_LIGHTWEIGHT_MODE'
   | 'WS_HEARTBEAT_MS'
+  | 'WS_HEARTBEAT_BACKOFF'
+  | 'WS_RECONNECT_JITTER'
+  | 'WS_RECONNECT_DEFER'
+  | 'WS_OFFLINE_DEBOUNCE'
   | 'WS_BATCH_MODE'
   | 'PROACTIVE_COOLDOWN'
   | 'PROACTIVE_PAUSE'
@@ -45,6 +49,20 @@ export type WsPolicyPayload = {
   lightweight: boolean;
   heartbeatMs: number;
   batchMode: boolean;
+};
+
+export type WsReconnectJitterPayload = {
+  baseMs: number;
+  maxMs: number;
+  storm: boolean;
+};
+
+export type WsOfflineDebouncePayload = {
+  durationMs: number;
+};
+
+export type WsHeartbeatBackoffPayload = {
+  intervalMs: number;
 };
 
 export type ProactiveGatesPayload = {

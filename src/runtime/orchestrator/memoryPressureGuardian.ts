@@ -2,6 +2,7 @@
  * Memory leak defense — heap slope, stale timers, cleanup triggers.
  */
 import type { RuntimeTelemetryMetricsSnapshot } from '../../types/runtimeTelemetry';
+import { RUNTIME_KERNEL_OWNS_POLICY } from '../../constants/runtimeKernel';
 import { persistTelemetryCycle } from '../../services/runtimeTelemetryStorage';
 import { cleanupDuplicateTimers } from '../../services/mobileRedmiRuntime';
 import { cancelAsyncTasksByLabel } from './asyncPriorityScheduler';
@@ -72,7 +73,7 @@ export function observeMemoryPressure(metrics: RuntimeTelemetryMetricsSnapshot):
     orphanSubscriptionCount = 0;
     retainedWsRefCount = Math.max(0, retainedWsRefCount - 1);
 
-    if (now - lastTelemetryEmitAt > 60_000) {
+    if (!RUNTIME_KERNEL_OWNS_POLICY && now - lastTelemetryEmitAt > 60_000) {
       lastTelemetryEmitAt = now;
       void persistTelemetryCycle({
         metrics,

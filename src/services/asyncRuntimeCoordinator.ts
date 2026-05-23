@@ -1,6 +1,7 @@
 /**
  * Async Runtime Orchestration Coordinator — burst suppression, concurrency, cooperative yielding.
  */
+import { RUNTIME_KERNEL_OWNS_POLICY } from '../constants/runtimeKernel';
 import {
   ASYNC_BURST_WINDOW_MS,
   ASYNC_CONCURRENT_LIMIT,
@@ -240,10 +241,12 @@ export function evaluateAsyncRuntime(input: EvaluateAsyncRuntimeInput): AsyncRun
     longPolicy.dashboardMinimalRefresh ||
     isPostResumeLightweightWindow();
 
-  setDashboardCompactMode(compact);
-  setWebsocketLightweightMode(
-    compact || input.batterySaver || input.cascadePressure >= 78,
-  );
+  if (!RUNTIME_KERNEL_OWNS_POLICY) {
+    setDashboardCompactMode(compact);
+    setWebsocketLightweightMode(
+      compact || input.batterySaver || input.cascadePressure >= 78,
+    );
+  }
 
   applyBatterySaverGuard(input.batterySaver);
   applyThermalThrottlingGuard(input.cascadePressure > 70 ? 72 : 0);

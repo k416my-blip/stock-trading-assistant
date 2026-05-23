@@ -9,6 +9,10 @@ import {
   shouldForceMiuiSurvivalEscalation,
 } from '../../native/runtime/nativeRuntimeIntegration';
 import { predictRuntimeKill } from '../../native/runtime/runtimeKillPredictor';
+import {
+  resolveMemoryClassPolicy,
+  type MemoryClassPolicyHints,
+} from '../../native/runtime/memoryClassAwareness';
 
 export type PreparedRuntimeKernelContext = {
   input: RuntimeKernelInput;
@@ -17,6 +21,7 @@ export type PreparedRuntimeKernelContext = {
   killRiskScore: number;
   killLevel: ReturnType<typeof predictRuntimeKill>['level'];
   forceMiuiSurvival: boolean;
+  memoryClassHints: MemoryClassPolicyHints;
 };
 
 export async function prepareRuntimeKernelContext(
@@ -42,6 +47,7 @@ export async function prepareRuntimeKernelContext(
     killRiskScore: kill.score,
     killLevel: kill.level,
     forceMiuiSurvival: shouldForceMiuiSurvivalEscalation(),
+    memoryClassHints: resolveMemoryClassPolicy(),
   };
 }
 
@@ -61,5 +67,6 @@ export function prepareRuntimeKernelContextSync(
     killRiskScore: kill.score,
     killLevel: kill.level,
     forceMiuiSurvival: shouldForceMiuiSurvivalEscalation(),
+    memoryClassHints: resolveMemoryClassPolicy(),
   };
 }

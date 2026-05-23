@@ -8,9 +8,13 @@ import {
   setMetricsSamplingRate,
 } from '../../services/dashboardFrameStabilizer';
 import {
+  noteOfflineForDebounce,
+  scheduleHeartbeatBackoff,
+  scheduleWebsocketReconnectWithJitter,
   setWebsocketHeartbeatIntervalMs,
   setWebsocketLightweightMode,
 } from '../../services/websocketStabilityGuard';
+import { scheduleDedupedTimer } from '../../services/mobileRedmiRuntime';
 import { setOrchestratorProactiveGates } from '../../services/productionStability/productionStabilityRuntime';
 import { setAsyncConcurrentLimit } from '../../services/asyncRuntimeCoordinator';
 import { persistTelemetryCycle } from '../../services/runtimeTelemetryStorage';
@@ -29,6 +33,9 @@ import type {
   RuntimeEffectTrace,
   DashboardPolicyPayload,
   WsPolicyPayload,
+  WsReconnectJitterPayload,
+  WsOfflineDebouncePayload,
+  WsHeartbeatBackoffPayload,
   ProactiveGatesPayload,
   HydrationDeferPayload,
   TelemetryPersistPayload,
@@ -61,6 +68,22 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         break;
       case 'WS_LIGHTWEIGHT_MODE':
         setWebsocketLightweightMode((effect.payload as WsPolicyPayload).lightweight);
+        break;
+      case 'WS_HEARTBEAT_BACKOFF':
+        scheduleHeartbeatBackoff((effect.payload as WsHeartbeatBackoffPayload).intervalMs);
+        break;
+      case 'WS_RECONNECT_JITTER': {
+        const r = effect.payload as WsReconnectJitterPayload;
+        scheduleWebsocketReconnectWithJitter(r.baseMs, r.maxMs);
+        break;
+      }
+      case 'WS_RECONNECT_DEFER': {
+        const d = effect.payload as { baseMs: number };
+        scheduleDedupedTimer('ws-reconnect-deferred', () => {}, d.baseMs);
+        break;
+      }
+      case 'WS_OFFLINE_DEBOUNCE':
+        noteOfflineForDebounce((effect.payload as WsOfflineDebouncePayload).durationMs);
         break;
       case 'WS_BATCH_MODE':
         if ((effect.payload as { enabled: boolean }).enabled) setWebsocketLightweightMode(true);

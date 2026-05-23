@@ -1,7 +1,6 @@
 import type { NativeMemoryClassSnapshot } from '../../types/nativeRuntimeBridge';
 import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
 import { getLastNativeRuntimeSnapshot } from './nativeRuntimeBridge';
-import { setDashboardCompactMode } from '../../services/dashboardFrameStabilizer';
 
 export type MemoryClassPolicyHints = {
   compactFirst: boolean;
@@ -22,10 +21,9 @@ export function resolveMemoryClassPolicy(
   };
 }
 
-export function applyMemoryClassAwareness(policy: RuntimeOrchestratorPolicy): void {
-  const hints = resolveMemoryClassPolicy();
-  if (hints.compactFirst) {
-    setDashboardCompactMode(true);
-  }
-  void policy;
+/**
+ * @deprecated Policy merged in RuntimeKernel.mergeKernelOwnedPolicy — no side effects.
+ */
+export function applyMemoryClassAwareness(_policy: RuntimeOrchestratorPolicy): void {
+  void resolveMemoryClassPolicy();
 }

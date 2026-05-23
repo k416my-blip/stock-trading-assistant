@@ -61,6 +61,7 @@ export function evaluateRuntimeKernelPure(
     confidenceMap,
     imminentKill: killLevel === 'IMMINENT',
     longSessionActionsJa: [],
+    memoryClassHints: prepared.memoryClassHints,
   });
 
   lastDecision = decision;

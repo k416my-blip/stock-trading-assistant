@@ -1,5 +1,5 @@
 /**
- * Native Runtime Bridge integration — feeds orchestrator & telemetry with native-weighted signals.
+ * Native Runtime Bridge — signal provider only (no policy mutations).
  */
 import type { NativeRuntimeDashboardExtension } from '../../types/nativeRuntimeBridge';
 import type { RuntimeTelemetryMetricsSnapshot } from '../../types/runtimeTelemetry';
@@ -17,15 +17,8 @@ import { detectMiuiAggressiveReclaim, getMiuiReclaimEventCount } from './miuiRec
 import {
   formatLifecycleTimelineVisualization,
   getLifecycleTimeline,
-  recordLifecycleEvent,
 } from './lifecycleTimeline';
-import { applyMemoryClassAwareness, resolveMemoryClassPolicy } from './memoryClassAwareness';
 import { isSoakModeActive, recordSoakSample, exportSoakCsv, noteAiSuppressionActive } from './longSoakTesting';
-import { setOrchestratorProactiveGates } from '../../services/productionStability/productionStabilityRuntime';
-import { setWebsocketLightweightMode } from '../../services/websocketStabilityGuard';
-import { setAsyncConcurrentLimit } from '../../services/asyncRuntimeCoordinator';
-import { persistTelemetryCycle } from '../../services/runtimeTelemetryStorage';
-import { beginHydrationPauseWindow } from '../../services/hydrationCollisionGuard';
 
 let lastExtension: NativeRuntimeDashboardExtension | null = null;
 
@@ -119,19 +112,12 @@ export function getLastNativeDashboardExtension(): NativeRuntimeDashboardExtensi
   return lastExtension;
 }
 
-export function applyImminentKillMitigations(metrics: RuntimeTelemetryMetricsSnapshot): void {
-  if (!isImminentKillRisk()) return;
-  setOrchestratorProactiveGates({ pauseProactive: true, throttleProactive: true });
-  setWebsocketLightweightMode(true);
-  setAsyncConcurrentLimit(1);
-  beginHydrationPauseWindow();
-  recordLifecycleEvent('hydration_start', 'deferred — imminent kill risk', true);
-  void persistTelemetryCycle({
-    metrics,
-    state: 'TELEMETRY_CRITICAL',
-    summaryJa: 'IMMINENT kill risk — proactive/ws/async clamp',
-    longSession: metrics.longSession,
-  });
+/**
+ * @deprecated Policy owned by RuntimeKernel — use IMMINENT_KILL_MITIGATION effect.
+ * Kept for orphan detection; does not mutate runtime knobs.
+ */
+export function applyImminentKillMitigations(_metrics: RuntimeTelemetryMetricsSnapshot): void {
+  void isImminentKillRisk();
 }
 
 export function shouldForceMiuiSurvivalEscalation(): boolean {
@@ -147,32 +133,8 @@ export function getSoakCsvForExport(): string {
   return exportSoakCsv();
 }
 
+/** Signal refresh only — policy applied via kernel effects. */
 export async function refreshNativeRuntimeCycle(): Promise<void> {
   pingEventLoop();
   await fetchNativeRuntimeSnapshot();
-  const hints = resolveMemoryClassPolicy();
-  if (hints.compactFirst) {
-    void applyMemoryClassAwareness({
-      telemetrySamplingRate: 0.45,
-      animationReduction: true,
-      websocketHeartbeatMultiplier: 1.2,
-      websocketBatching: true,
-      proactiveCooldown: true,
-      suspendProactiveAi: false,
-      compactDashboard: true,
-      maxDashboardFps: 12,
-      suspendLowPriorityAsync: true,
-      pauseNonessentialRenderLoop: false,
-      queueHardLimit: 28,
-      disableExpensiveTransitions: false,
-      hydrationSerializeMode: false,
-      minimalUiMode: false,
-      websocketSafeMode: false,
-      disableBackgroundRefresh: false,
-      disableSpeculativeRender: hints.speculativeRenderForbidden,
-      aiChatOnly: false,
-      lightweightAiResponses: true,
-      suppressAiOnReconnectStorm: true,
-    });
-  }
 }

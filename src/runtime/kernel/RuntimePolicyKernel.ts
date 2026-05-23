@@ -5,13 +5,15 @@ import type { RuntimeGuardKernelState } from '../../types/runtimeKernel';
 import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
 import type { RuntimeUnifiedSignals } from '../../types/runtimeKernel';
 import { heartbeatMsFromPolicy } from '../orchestrator/runtimePolicyEngine';
+import { resolveKernelWebsocketHeartbeatMs } from './RuntimePolicyOwnership';
 import { HYDRATION_PAUSE_WINDOW_MS } from '../../constants/asyncRuntimeCoordinator';
 
 export function buildGuardStateFromPolicy(
   policy: RuntimeOrchestratorPolicy,
   signals: RuntimeUnifiedSignals,
 ): RuntimeGuardKernelState {
-  const heartbeatMs = heartbeatMsFromPolicy(policy);
+  const heartbeatMs =
+    resolveKernelWebsocketHeartbeatMs(policy, signals) || heartbeatMsFromPolicy(policy);
   const wsLight = policy.websocketBatching || policy.websocketSafeMode;
   return {
     hydrationSerializeMode: policy.hydrationSerializeMode,
