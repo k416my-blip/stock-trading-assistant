@@ -1,5 +1,4 @@
 import { scheduleDedupedTimer } from './mobileRedmiRuntime';
-import { resolveAsyncBudgetDecision } from './asyncBudgetSystem';
 import { noteWebsocketReconnect } from './mobileRuntimeMetrics';
 import {
   noteWebsocketHeartbeatDelay,
@@ -9,13 +8,10 @@ import {
 import { TELEMETRY_HEARTBEAT_BASE_MS } from '../constants/runtimeTelemetry';
 import {
   computeReconnectBackoffMs,
-  registerReconnectAttempt,
   resetReconnectBackoffOnStable,
-  getReconnectBudgetRemaining,
-  getReconnectCooldownUntil,
 } from '../runtime/stability/reconnectStormGuard';
-import { noteRuntimeReconnect } from '../runtime/stability/RuntimeReconnectTracker';
 import { recordReconnectTrace } from '../runtime/stability/reconnectSequenceTrace';
+import type { ReconnectSource } from '../types/reconnectEntry';
 
 let lightweightMode = false;
 let offlineDebounceUntil = 0;
@@ -56,16 +52,14 @@ export function isOfflineDebounced(): boolean {
   return Date.now() < offlineDebounceUntil;
 }
 
-export function executeWebsocketReconnectJitter(baseMs: number, maxMs: number): void {
+/** Internal — only reconnectCoordinator may invoke after budget/gate checks. */
+export function executeWebsocketReconnectJitter(
+  baseMs: number,
+  maxMs: number,
+  meta?: { token: string; source: ReconnectSource },
+): void {
   const backoff = computeReconnectBackoffMs();
   reconnectJitterMs = Math.min(maxMs, backoff + Math.floor(Math.random() * baseMs * 0.4));
-  recordReconnectTrace({
-    phase: 'schedule',
-    delayMs: reconnectJitterMs,
-    allowed: true,
-    storm: false,
-    detailJa: 'jitter scheduled',
-  });
   scheduleDedupedTimer('ws-reconnect-jitter', () => {
     if (!isOfflineDebounced()) {
       recordReconnectTrace({
@@ -74,8 +68,9 @@ export function executeWebsocketReconnectJitter(baseMs: number, maxMs: number): 
         allowed: true,
         storm: false,
         detailJa: 'reconnect execute',
+        source: meta?.source,
+        token: meta?.token,
       });
-      noteRuntimeReconnect('ws-jitter');
       noteWebsocketReconnect();
       noteWebsocketReconnectAttempt();
       noteWebsocketRtt(reconnectJitterMs);
@@ -83,40 +78,14 @@ export function executeWebsocketReconnectJitter(baseMs: number, maxMs: number): 
         noteMiuiForcedReconnect();
       });
       void import('../native/runtime/lifecycleTimeline').then(({ recordLifecycleEvent }) => {
-        recordLifecycleEvent('reconnect_end', `jitter ${reconnectJitterMs}ms`, false);
+        recordLifecycleEvent(
+          'reconnect_end',
+          `${meta?.source ?? 'ws'} · jitter ${reconnectJitterMs}ms`,
+          false,
+        );
       });
     }
   }, reconnectJitterMs);
-}
-
-export function scheduleWebsocketReconnectWithJitter(baseMs: number, maxMs: number): void {
-  const decision = resolveAsyncBudgetDecision('websocket');
-  if (decision === 'idle_schedule' || decision === 'defer') {
-    recordReconnectTrace({
-      phase: 'defer',
-      delayMs: baseMs * 2,
-      allowed: false,
-      storm: false,
-      detailJa: `async budget ${decision}`,
-    });
-    scheduleDedupedTimer('ws-reconnect-deferred', () => {}, baseMs * 2);
-    return;
-  }
-
-  const attempt = registerReconnectAttempt();
-  if (!attempt.allowed) {
-    recordReconnectTrace({
-      phase: 'budget_block',
-      delayMs: attempt.delayMs,
-      allowed: false,
-      storm: attempt.storm,
-      detailJa: `budget ${getReconnectBudgetRemaining()} cooldown ${getReconnectCooldownUntil()}`,
-    });
-    scheduleDedupedTimer('ws-reconnect-budget-blocked', () => {}, attempt.delayMs);
-    return;
-  }
-
-  executeWebsocketReconnectJitter(baseMs, maxMs);
 }
 
 export function noteWebsocketStableConnection(): void {

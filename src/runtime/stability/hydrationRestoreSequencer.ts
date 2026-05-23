@@ -35,7 +35,7 @@ function flushPendingWebsocketRestore(): void {
   scheduleDedupedTimer('hydration-ws-restore', () => {
     onReady();
     setHydrationRestorePhase('reconnect_scheduled');
-    requestReconnectSchedule(2500, 10_000, 'post-hydration-restore');
+    requestReconnectSchedule(2500, 10_000, 'post-hydration-restore', 'hydration_sequencer');
   }, delayMs);
 }
 
@@ -48,6 +48,6 @@ export function scheduleDelayedWebsocketRestore(delayMs: number, onReady: () => 
   scheduleDedupedTimer('hydration-ws-restore', () => {
     onReady();
     setHydrationRestorePhase('reconnect_scheduled');
-    requestReconnectSchedule(2500, 10_000, 'hydration-ws-restore');
+    requestReconnectSchedule(2500, 10_000, 'hydration-ws-restore', 'hydration_sequencer');
   }, delayMs);
 }

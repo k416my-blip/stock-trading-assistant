@@ -1,22 +1,31 @@
 /**
- * Single ownership for reconnect scheduling — budget, lock, resume gate, trace.
+ * Single ownership for reconnect scheduling — budget, lock, resume gate, trace, coalescing.
  */
 import { executeWebsocketReconnectJitter } from '../../services/websocketStabilityGuard';
-import { registerReconnectAttempt, canScheduleReconnect } from './reconnectStormGuard';
+import { resolveAsyncBudgetDecision } from '../../services/asyncBudgetSystem';
+import { registerReconnectAttempt } from './reconnectStormGuard';
 import { noteRuntimeReconnect, noteRuntimeSocketClosed } from './RuntimeReconnectTracker';
 import { recordReconnectTrace } from './reconnectSequenceTrace';
 import { isReconnectPausedForHydration } from './hydrationReconnectGate';
 import { getMiuiDiagnostics } from './miuiBatteryDiagnostics';
 import { STABILITY_RESUME_RACE_MS } from '../../constants/runtimeStability';
+import { RESUME_RECONNECT_COALESCE_WINDOW_MS } from '../../constants/runtimeResumeCoordinator';
 import { getResumeCoordinatorSnapshot } from '../coordinator/resumeCoordinatorIntegration';
-import { isResumeGlobalGateActive } from '../coordinator/RuntimeResumeCoordinator';
+import { isResumeGlobalGateActive, shouldCoalesceReconnect } from '../coordinator/RuntimeResumeCoordinator';
+import type { ReconnectSource } from '../../types/reconnectEntry';
 
 let reconnectTokenSeq = 0;
 let lastResumeGateUntil = 0;
+let lastScheduleAt = 0;
+let lastScheduleSource: ReconnectSource | null = null;
+let pendingScheduleToken: string | null = null;
 
 export function resetReconnectCoordinatorForTest(): void {
   reconnectTokenSeq = 0;
   lastResumeGateUntil = 0;
+  lastScheduleAt = 0;
+  lastScheduleSource = null;
+  pendingScheduleToken = null;
 }
 
 export function noteResumeStormGate(at = Date.now()): void {
@@ -35,6 +44,7 @@ export function applyResumeGlobalGate(gateMs: number, at = Date.now()): void {
     allowed: false,
     storm: false,
     detailJa: 'resume coordinator global gate',
+    source: 'resume_coordinator',
   });
 }
 
@@ -53,17 +63,79 @@ export type ReconnectScheduleResult = {
   scheduled: boolean;
   token: string;
   reasonJa: string;
+  coalesced?: boolean;
+  source: ReconnectSource;
 };
 
+function shouldCoalesceDuplicate(source: ReconnectSource, now: number): boolean {
+  if (pendingScheduleToken && now - lastScheduleAt < RESUME_RECONNECT_COALESCE_WINDOW_MS) {
+    return true;
+  }
+  if (
+    lastScheduleSource === source &&
+    now - lastScheduleAt < RESUME_RECONNECT_COALESCE_WINDOW_MS
+  ) {
+    return true;
+  }
+  const snap = getResumeCoordinatorSnapshot();
+  if (snap && shouldCoalesceReconnect(snap) && now - lastScheduleAt < RESUME_RECONNECT_COALESCE_WINDOW_MS) {
+    return true;
+  }
+  return false;
+}
+
+/** Sole public reconnect scheduling entry. */
 export function requestReconnectSchedule(
   baseMs: number,
   maxMs: number,
   reasonJa: string,
+  source: ReconnectSource = 'kernel_policy',
 ): ReconnectScheduleResult {
-  const token = createReconnectSocketKey('coord');
-  if (isResumeReconnectGated()) {
-    return { scheduled: false, token, reasonJa: `${reasonJa} · gated` };
+  const now = Date.now();
+  const token = createReconnectSocketKey(source.slice(0, 4));
+
+  recordReconnectTrace({
+    phase: 'request',
+    delayMs: baseMs,
+    allowed: true,
+    storm: false,
+    detailJa: reasonJa,
+    source,
+    token,
+  });
+
+  if (shouldCoalesceDuplicate(source, now)) {
+    recordReconnectTrace({
+      phase: 'coalesce',
+      delayMs: 0,
+      allowed: false,
+      storm: false,
+      detailJa: `${reasonJa} · duplicate suppressed`,
+      source,
+      token: pendingScheduleToken ?? token,
+    });
+    return {
+      scheduled: false,
+      token: pendingScheduleToken ?? token,
+      reasonJa: `${reasonJa} · coalesced`,
+      coalesced: true,
+      source,
+    };
   }
+
+  if (isResumeReconnectGated(now)) {
+    recordReconnectTrace({
+      phase: 'defer',
+      delayMs: baseMs,
+      allowed: false,
+      storm: false,
+      detailJa: `${reasonJa} · resume gate`,
+      source,
+      token,
+    });
+    return { scheduled: false, token, reasonJa: `${reasonJa} · gated`, source };
+  }
+
   if (isReconnectPausedForHydration()) {
     recordReconnectTrace({
       phase: 'defer',
@@ -71,25 +143,68 @@ export function requestReconnectSchedule(
       allowed: false,
       storm: false,
       detailJa: `${reasonJa} · hydration pause`,
+      source,
+      token,
     });
-    return { scheduled: false, token, reasonJa: `${reasonJa} · hydration pause` };
+    return { scheduled: false, token, reasonJa: `${reasonJa} · hydration pause`, source };
   }
-  if (!canScheduleReconnect()) {
-    const attempt = registerReconnectAttempt();
+
+  const asyncDecision = resolveAsyncBudgetDecision('websocket');
+  if (asyncDecision === 'idle_schedule' || asyncDecision === 'defer') {
+    recordReconnectTrace({
+      phase: 'defer',
+      delayMs: baseMs,
+      allowed: false,
+      storm: false,
+      detailJa: `${reasonJa} · async budget ${asyncDecision}`,
+      source,
+      token,
+    });
+    return { scheduled: false, token, reasonJa: `${reasonJa} · async budget`, source };
+  }
+
+  const attempt = registerReconnectAttempt(now);
+  if (!attempt.allowed) {
     recordReconnectTrace({
       phase: 'budget_block',
       delayMs: attempt.delayMs,
       allowed: false,
       storm: attempt.storm,
       detailJa: reasonJa,
+      source,
+      token,
     });
-    return { scheduled: false, token, reasonJa: `${reasonJa} · budget` };
+    return { scheduled: false, token, reasonJa: `${reasonJa} · budget`, source };
   }
+
   noteRuntimeReconnect(token);
-  executeWebsocketReconnectJitter(baseMs, maxMs);
-  return { scheduled: true, token, reasonJa };
+  pendingScheduleToken = token;
+  lastScheduleAt = now;
+  lastScheduleSource = source;
+
+  recordReconnectTrace({
+    phase: 'schedule',
+    delayMs: baseMs,
+    allowed: true,
+    storm: false,
+    detailJa: reasonJa,
+    source,
+    token,
+  });
+
+  executeWebsocketReconnectJitter(baseMs, maxMs, { token, source });
+  return { scheduled: true, token, reasonJa, source };
 }
 
 export function noteReconnectSocketClosed(socketKey: string): void {
   noteRuntimeSocketClosed(socketKey);
+  pendingScheduleToken = null;
+}
+
+export function getReconnectCoordinatorStateForTest(): {
+  lastScheduleAt: number;
+  lastScheduleSource: ReconnectSource | null;
+  pendingScheduleToken: string | null;
+} {
+  return { lastScheduleAt, lastScheduleSource, pendingScheduleToken };
 }

@@ -10,7 +10,6 @@ import {
 import {
   noteOfflineForDebounce,
   scheduleHeartbeatBackoff,
-  scheduleWebsocketReconnectWithJitter,
   setWebsocketHeartbeatIntervalMs,
   setWebsocketLightweightMode,
 } from '../../services/websocketStabilityGuard';
@@ -88,12 +87,17 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         break;
       case 'WS_RECONNECT_JITTER': {
         const r = effect.payload as WsReconnectJitterPayload;
-        scheduleWebsocketReconnectWithJitter(r.baseMs, r.maxMs);
+        requestReconnectSchedule(
+          r.baseMs,
+          r.maxMs,
+          r.storm ? 'kernel policy reconnect storm' : 'kernel policy reconnect',
+          'kernel_policy',
+        );
         break;
       }
       case 'WS_RECONNECT_DEFER': {
         const d = effect.payload as { baseMs: number };
-        scheduleDedupedTimer('ws-reconnect-deferred', () => {}, d.baseMs);
+        requestReconnectSchedule(d.baseMs * 2, d.baseMs * 4, 'kernel defer reconnect', 'kernel_defer');
         break;
       }
       case 'WS_OFFLINE_DEBOUNCE':
@@ -178,7 +182,12 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         break;
       case 'STABILITY_RECONNECT_GUARD': {
         const p = effect.payload as StabilityReconnectGuardPayload;
-        requestReconnectSchedule(2500, 12_000, `stability · ${p.snapshot.websocketStatusJa}`);
+        requestReconnectSchedule(
+          2500,
+          12_000,
+          `stability · ${p.snapshot.websocketStatusJa}`,
+          'stability_guard',
+        );
         setWebsocketLightweightMode(true);
         noteOfflineForDebounce(Math.max(5000, p.delayMs > Date.now() ? p.delayMs - Date.now() : 5000));
         recordLifecycleEvent('reconnect_start', `stability guard · ${p.snapshot.websocketStatusJa}`, false);

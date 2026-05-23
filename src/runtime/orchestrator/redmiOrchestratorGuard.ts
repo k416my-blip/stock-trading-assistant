@@ -3,7 +3,7 @@
  */
 import { noteForegroundResumeSpike } from '../../services/redmiSchedulerGuard';
 import { isPostResumeLightweightWindow } from '../../services/redmiSchedulerGuard';
-import { scheduleWebsocketReconnectWithJitter } from '../../services/websocketStabilityGuard';
+import { requestReconnectSchedule } from '../stability/reconnectCoordinator';
 import {
   WEBSOCKET_RECONNECT_BASE_MS,
   WEBSOCKET_RECONNECT_MAX_MS,
@@ -37,9 +37,11 @@ export function tickRedmiResumeStagger(onReady?: () => void): void {
   if (resumePhase === 'compact' && elapsed >= 2000) {
     resumePhase = 'stagger';
     staggerStep += 1;
-    scheduleWebsocketReconnectWithJitter(
+    requestReconnectSchedule(
       WEBSOCKET_RECONNECT_BASE_MS + staggerStep * 400,
       WEBSOCKET_RECONNECT_MAX_MS,
+      'redmi stagger resume',
+      'redmi_stagger',
     );
   }
   if (resumePhase === 'stagger' && elapsed >= 8000) {

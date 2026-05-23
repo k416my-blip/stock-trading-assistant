@@ -5,7 +5,7 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { noteAppBackgrounded, noteAppForegroundResume } from './mobileRuntimeMetrics';
 import { beginHydrationPauseWindow } from './hydrationCollisionGuard';
 import { noteForegroundResumeSpike } from './redmiSchedulerGuard';
-import { scheduleWebsocketReconnectWithJitter } from './websocketStabilityGuard';
+import { requestReconnectSchedule } from '../runtime/stability/reconnectCoordinator';
 import { ORCHESTRATION_RESTART_DELAY_MS } from '../constants/layerRuntimeScheduler';
 import {
   FOREGROUND_RESUME_DEBOUNCE_MS,
@@ -97,9 +97,11 @@ export function initMobileRedmiRuntime(onForegroundResume?: () => void): void {
         ORCHESTRATION_RESTART_DELAY_MS,
       );
       if (recoveryMs != null && recoveryMs > 500) {
-        scheduleWebsocketReconnectWithJitter(
+        requestReconnectSchedule(
           WEBSOCKET_RECONNECT_BASE_MS,
           WEBSOCKET_RECONNECT_MAX_MS,
+          'redmi foreground resume',
+          'redmi_foreground',
         );
       }
     }
@@ -154,7 +156,12 @@ export function scheduleDelayedOrchestrationRestart(onReady?: () => void): void 
 }
 
 export function noteWebsocketSoftReconnect(): void {
-  scheduleWebsocketReconnectWithJitter(WEBSOCKET_RECONNECT_BASE_MS, WEBSOCKET_RECONNECT_MAX_MS);
+  requestReconnectSchedule(
+    WEBSOCKET_RECONNECT_BASE_MS,
+    WEBSOCKET_RECONNECT_MAX_MS,
+    'mobile soft reconnect',
+    'mobile_soft',
+  );
 }
 
 export function noteThermalPressureForRunaway(thermalPressurePct: number): boolean {

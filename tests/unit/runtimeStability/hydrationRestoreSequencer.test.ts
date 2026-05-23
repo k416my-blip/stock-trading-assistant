@@ -5,7 +5,7 @@ vi.mock('../../../src/services/mobileRedmiRuntime', () => ({
 }));
 
 vi.mock('../../../src/services/websocketStabilityGuard', () => ({
-  scheduleWebsocketReconnectWithJitter: vi.fn(),
+  executeWebsocketReconnectJitter: vi.fn(),
 }));
 
 import {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../../src/services/websocketStabilityGuard', () => ({
-  scheduleWebsocketReconnectWithJitter: vi.fn(),
+  executeWebsocketReconnectJitter: vi.fn(),
 }));
 
 import {
@@ -22,7 +22,7 @@ describe('reconnectCoordinator', () => {
   it('blocks reconnect during hydration lock', () => {
     tryAcquireHydrationLock('x');
     setHydrationRestorePhase('hydrating');
-    const r = requestReconnectSchedule(1000, 5000, 'test');
+    const r = requestReconnectSchedule(1000, 5000, 'test', 'kernel_policy');
     expect(r.scheduled).toBe(false);
     expect(isResumeReconnectGated()).toBe(true);
   });
