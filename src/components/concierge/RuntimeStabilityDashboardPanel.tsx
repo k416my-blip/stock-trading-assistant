@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { STABILITY_UI_LABELS_JA } from '../../constants/runtimeStability';
 import { selectRuntimeStabilitySnapshot } from '../../runtime/stability/runtimeStabilitySelectors';
+import { buildNativeBoundaryValidationReport } from '../../native/runtime/nativeBoundaryValidation';
 import { theme } from '../../theme';
 
 function RuntimeStabilityDashboardPanelInner() {
@@ -17,6 +18,7 @@ function RuntimeStabilityDashboardPanelInner() {
   }
 
   const m = snap.metrics;
+  const boundary = buildNativeBoundaryValidationReport();
   return (
     <View style={styles.wrap} testID="runtime-stability-dashboard-panel">
       <Text style={styles.title}>{STABILITY_UI_LABELS_JA.panelTitle}</Text>
@@ -34,6 +36,14 @@ function RuntimeStabilityDashboardPanelInner() {
       <Row label={STABILITY_UI_LABELS_JA.thermalPressure} value={m.thermalLevel} />
       <Row label={STABILITY_UI_LABELS_JA.websocketStatus} value={snap.websocketStatusJa} />
       <Row label={STABILITY_UI_LABELS_JA.heartbeatAge} value={`${m.heartbeatAgeMs}ms`} />
+      <Row
+        label="Native boundary"
+        value={
+          boundary.bypassDetected
+            ? `BYPASS · ${boundary.bypassDetailJa}`
+            : `ok · js ${boundary.comparison.jsScheduleCount}/${boundary.comparison.jsExecuteCount}`
+        }
+      />
       {snap.anomalies.length > 0 ? (
         <Text style={styles.anomaly}>
           {STABILITY_UI_LABELS_JA.anomalies}: {snap.anomalies.map((a) => a.summaryJa).join(' · ')}

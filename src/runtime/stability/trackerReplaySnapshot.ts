@@ -2,6 +2,7 @@
  * Tracker state export/import for deterministic replay and debug.
  */
 import type { RuntimeStabilitySnapshot } from '../../types/runtimeStability';
+import type { NativeBoundaryValidationReport } from '../../types/nativeBoundaryValidation';
 import { getReconnectSequenceTrace, resetReconnectSequenceTraceForTest } from './reconnectSequenceTrace';
 import { getReconnectPerMin, resetRuntimeReconnectTrackerForTest } from './RuntimeReconnectTracker';
 import { getHydrationLockState, resetHydrationLockForTest } from './hydrationLock';
@@ -16,6 +17,17 @@ import { resetRuntimeHeartbeatTrackerForTest } from './RuntimeHeartbeatTracker';
 import { resetRuntimeMemoryPressureTrackerForTest } from './RuntimeMemoryPressureTracker';
 import { resetRuntimeThermalTrackerForTest } from './RuntimeThermalTracker';
 import { resetRuntimeResumeCoordinatorForTest } from '../coordinator/resumeCoordinatorIntegration';
+import { getLifecycleTimeline } from '../../native/runtime/lifecycleTimeline';
+import { getNativeBoundaryTrace, resetNativeBoundaryTraceForTest } from '../../native/runtime/nativeBoundaryTrace';
+import {
+  getNativeBoundaryHistograms,
+  resetNativeBoundaryHistogramsForTest,
+} from '../../native/runtime/nativeBoundaryHistograms';
+import {
+  getWebsocketOwnershipTrace,
+  resetWebsocketOwnershipTraceForTest,
+} from '../../native/runtime/websocketOwnershipTrace';
+import { buildNativeBoundaryValidationReport } from '../../native/runtime/nativeBoundaryValidation';
 
 export type TrackerReplaySnapshot = {
   stability: RuntimeStabilitySnapshot | null;
@@ -25,6 +37,12 @@ export type TrackerReplaySnapshot = {
   asyncQueue: ReturnType<typeof getAsyncQueueMetrics>;
   miui: ReturnType<typeof getMiuiDiagnostics>;
   reconnectTraceCount: number;
+  reconnectTrace: ReturnType<typeof getReconnectSequenceTrace>;
+  lifecycleTimeline: ReturnType<typeof getLifecycleTimeline>;
+  nativeBoundaryTrace: ReturnType<typeof getNativeBoundaryTrace>;
+  nativeBoundaryHistograms: ReturnType<typeof getNativeBoundaryHistograms>;
+  websocketOwnership: ReturnType<typeof getWebsocketOwnershipTrace>;
+  boundaryValidation: NativeBoundaryValidationReport;
   exportedAt: string;
 };
 
@@ -37,6 +55,12 @@ export function exportTrackerReplaySnapshot(): TrackerReplaySnapshot {
     asyncQueue: getAsyncQueueMetrics(),
     miui: getMiuiDiagnostics(),
     reconnectTraceCount: getReconnectSequenceTrace().length,
+    reconnectTrace: getReconnectSequenceTrace(),
+    lifecycleTimeline: getLifecycleTimeline(),
+    nativeBoundaryTrace: getNativeBoundaryTrace(),
+    nativeBoundaryHistograms: getNativeBoundaryHistograms(),
+    websocketOwnership: getWebsocketOwnershipTrace(),
+    boundaryValidation: buildNativeBoundaryValidationReport(),
     exportedAt: new Date().toISOString(),
   };
 }
@@ -55,6 +79,9 @@ export function resetAllRuntimeTrackersForReplay(): void {
   resetRuntimeMemoryPressureTrackerForTest();
   resetRuntimeThermalTrackerForTest();
   resetRuntimeResumeCoordinatorForTest();
+  resetNativeBoundaryTraceForTest();
+  resetNativeBoundaryHistogramsForTest();
+  resetWebsocketOwnershipTraceForTest();
 }
 
 /** Replay helper — reset trackers then optionally validate snapshot shape. */

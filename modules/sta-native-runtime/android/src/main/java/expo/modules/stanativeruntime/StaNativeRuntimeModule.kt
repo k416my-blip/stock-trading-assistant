@@ -19,7 +19,7 @@ class StaNativeRuntimeModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("StaNativeRuntime")
 
-    Events("onTrimMemory")
+    Events("onTrimMemory", "onNativeLifecycle")
 
     OnCreate {
       registerTrimCallbacks()
@@ -48,11 +48,29 @@ class StaNativeRuntimeModule : Module() {
         }
         lastTrimAt = now
         sendEvent("onTrimMemory", mapOf("level" to level))
+        sendEvent(
+          "onNativeLifecycle",
+          mapOf(
+            "kind" to "trim_memory",
+            "level" to level,
+            "phase" to trimPhaseLabel(level),
+            "reconnectOwner" to "none",
+          ),
+        )
       }
 
       override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {}
       override fun onLowMemory() {
         sendEvent("onTrimMemory", mapOf("level" to ComponentCallbacks2.TRIM_MEMORY_COMPLETE))
+        sendEvent(
+          "onNativeLifecycle",
+          mapOf(
+            "kind" to "low_memory",
+            "level" to ComponentCallbacks2.TRIM_MEMORY_COMPLETE,
+            "phase" to "low_memory",
+            "reconnectOwner" to "none",
+          ),
+        )
       }
     })
   }
@@ -182,5 +200,13 @@ class StaNativeRuntimeModule : Module() {
   private fun isXiaomiFamily(manufacturer: String, brand: String): Boolean {
     val m = "$manufacturer $brand".lowercase()
     return m.contains("xiaomi") || m.contains("redmi") || m.contains("poco")
+  }
+
+  private fun trimPhaseLabel(level: Int): String = when {
+    level >= ComponentCallbacks2.TRIM_MEMORY_COMPLETE -> "complete"
+    level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND -> "background"
+    level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN -> "ui_hidden"
+    level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL -> "running_critical"
+    else -> "running"
   }
 }

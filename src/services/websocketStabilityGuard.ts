@@ -12,6 +12,13 @@ import {
 } from '../runtime/stability/reconnectStormGuard';
 import { recordReconnectTrace } from '../runtime/stability/reconnectSequenceTrace';
 import type { ReconnectSource } from '../types/reconnectEntry';
+import {
+  noteJsReconnectExecuted,
+} from '../native/runtime/websocketOwnershipTrace';
+import {
+  recordJsReconnectExecuteTrace,
+} from '../native/runtime/nativeBoundaryTrace';
+import { recordReconnectLatencyMs } from '../native/runtime/nativeBoundaryHistograms';
 
 let lightweightMode = false;
 let offlineDebounceUntil = 0;
@@ -62,6 +69,7 @@ export function executeWebsocketReconnectJitter(
   reconnectJitterMs = Math.min(maxMs, backoff + Math.floor(Math.random() * baseMs * 0.4));
   scheduleDedupedTimer('ws-reconnect-jitter', () => {
     if (!isOfflineDebounced()) {
+      const uuid = meta?.token ?? 'unknown';
       recordReconnectTrace({
         phase: 'execute',
         delayMs: reconnectJitterMs,
@@ -69,8 +77,11 @@ export function executeWebsocketReconnectJitter(
         storm: false,
         detailJa: 'reconnect execute',
         source: meta?.source,
-        token: meta?.token,
+        token: uuid,
       });
+      recordJsReconnectExecuteTrace(uuid, reconnectJitterMs);
+      recordReconnectLatencyMs(reconnectJitterMs);
+      noteJsReconnectExecuted(uuid, reconnectJitterMs);
       noteWebsocketReconnect();
       noteWebsocketReconnectAttempt();
       noteWebsocketRtt(reconnectJitterMs);

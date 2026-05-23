@@ -13,6 +13,14 @@ import { RESUME_RECONNECT_COALESCE_WINDOW_MS } from '../../constants/runtimeResu
 import { getResumeCoordinatorSnapshot } from '../coordinator/resumeCoordinatorIntegration';
 import { isResumeGlobalGateActive, shouldCoalesceReconnect } from '../coordinator/RuntimeResumeCoordinator';
 import type { ReconnectSource } from '../../types/reconnectEntry';
+import {
+  createReconnectUuid,
+  noteCoordinatorReconnectScheduled,
+} from '../../native/runtime/websocketOwnershipTrace';
+import {
+  recordCoordinatorReconnectTrace,
+} from '../../native/runtime/nativeBoundaryTrace';
+import { recordReconnectLatencyMs } from '../../native/runtime/nativeBoundaryHistograms';
 
 let reconnectTokenSeq = 0;
 let lastResumeGateUntil = 0;
@@ -92,6 +100,7 @@ export function requestReconnectSchedule(
   source: ReconnectSource = 'kernel_policy',
 ): ReconnectScheduleResult {
   const now = Date.now();
+  const reconnectUuid = createReconnectUuid(source);
   const token = createReconnectSocketKey(source.slice(0, 4));
 
   recordReconnectTrace({
@@ -181,6 +190,9 @@ export function requestReconnectSchedule(
   pendingScheduleToken = token;
   lastScheduleAt = now;
   lastScheduleSource = source;
+  noteCoordinatorReconnectScheduled(reconnectUuid, source);
+  recordCoordinatorReconnectTrace(source, reconnectUuid, reasonJa);
+  recordReconnectLatencyMs(baseMs);
 
   recordReconnectTrace({
     phase: 'schedule',
@@ -189,10 +201,10 @@ export function requestReconnectSchedule(
     storm: false,
     detailJa: reasonJa,
     source,
-    token,
+    token: reconnectUuid,
   });
 
-  executeWebsocketReconnectJitter(baseMs, maxMs, { token, source });
+  executeWebsocketReconnectJitter(baseMs, maxMs, { token: reconnectUuid, source });
   return { scheduled: true, token, reasonJa, source };
 }
 

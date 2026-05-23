@@ -13,6 +13,8 @@ import {
   setLastRuntimeStabilitySnapshot,
 } from './RuntimeHealthMonitor';
 import { observeResumeCoordinatorTick } from '../coordinator/resumeCoordinatorIntegration';
+import { observeNativeBoundaryTick } from '../../native/runtime/nativeBoundaryValidation';
+import { getHydrationLockState } from './hydrationLock';
 
 /** Signal collection tick — no runtime knob mutations. */
 export function observeRuntimeStabilityTick(
@@ -35,6 +37,20 @@ export function observeRuntimeStabilityTick(
   const snapshot = evaluateRuntimeStabilitySnapshot(metrics, performance);
   setLastRuntimeStabilitySnapshot(snapshot);
   observeResumeCoordinatorTick(metrics, performance, snapshot);
+
+  const hydration = getHydrationLockState();
+  observeNativeBoundaryTick({
+    eventLoopLagMs: metrics.eventLoopLatencyMs,
+    memoryPressurePct: metrics.memoryTrendPct,
+    thermalLevel: metrics.thermalState,
+    asyncQueueDepth: metrics.asyncQueueDepth,
+    asyncQueueLagMs: metrics.asyncQueueLatencyMs,
+    hydrationOverlap: hydration.overlapCount,
+    telemetryBurst: snapshot.anomalies.some(
+      (a) => a.kind === 'heartbeat_gap' || a.kind === 'miui_battery_kill',
+    ),
+  });
+
   return snapshot;
 }
 

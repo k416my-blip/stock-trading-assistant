@@ -18,7 +18,13 @@ import {
   formatLifecycleTimelineVisualization,
   getLifecycleTimeline,
 } from './lifecycleTimeline';
-import { isSoakModeActive, recordSoakSample, exportSoakCsv, noteAiSuppressionActive } from './longSoakTesting';
+import type { NativeBoundaryValidationReport } from '../../types/nativeBoundaryValidation';
+import {
+  buildNativeBoundaryValidationReport,
+  exportNativeBoundaryValidationJson,
+  formatNativeBoundaryValidationReport,
+} from './nativeBoundaryValidation';
+import { isSoakModeActive, recordSoakSample, exportSoakCsv, noteAiSuppressionActive, getSoakRecordCount } from './longSoakTesting';
 
 let lastExtension: NativeRuntimeDashboardExtension | null = null;
 
@@ -82,6 +88,9 @@ export function buildNativeDashboardExtension(
       queueDepth: metrics.asyncQueueDepth,
       survivalActivations: orchEval.snapshot.survivalActivationCount,
     });
+    if (getSoakRecordCount() % 10 === 0) {
+      void import('./longSoakTesting').then(({ persistSoakRecords }) => persistSoakRecords());
+    }
   }
 
   noteAiSuppressionActive(orchEval?.snapshot.aiSuppressionActive ?? false);
@@ -123,6 +132,18 @@ export function getLifecycleTimelineVisualization(): string {
 
 export function getSoakCsvForExport(): string {
   return exportSoakCsv();
+}
+
+export function getNativeBoundaryValidationReport(): NativeBoundaryValidationReport {
+  return buildNativeBoundaryValidationReport();
+}
+
+export function getNativeBoundarySoakReportText(): string {
+  return formatNativeBoundaryValidationReport(buildNativeBoundaryValidationReport());
+}
+
+export function getNativeBoundaryValidationJson(): string {
+  return exportNativeBoundaryValidationJson();
 }
 
 /** Signal refresh only — policy applied via kernel effects. */

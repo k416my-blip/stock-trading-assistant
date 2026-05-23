@@ -15,6 +15,12 @@ import type {
   TelemetryMetricSource,
 } from '../../types/nativeRuntimeBridge';
 import { getPerformanceCostSnapshot } from '../../services/performanceCostRuntime';
+import {
+  recordBridgeFetchTrace,
+  recordNativeLifecycleTrace,
+  recordAppPhaseTrace,
+} from './nativeBoundaryTrace';
+import { recordBridgeFetchMs } from './nativeBoundaryHistograms';
 
 type NativeModuleShape = {
   getSnapshot?: () => Promise<Record<string, unknown>>;
@@ -156,19 +162,49 @@ export function isNativeRuntimeBridgeAvailable(): boolean {
 }
 
 export async function fetchNativeRuntimeSnapshot(): Promise<NativeRuntimeSnapshot> {
+  const started = Date.now();
   if (!isNativeRuntimeBridgeAvailable() || !NativeSta?.getSnapshot) {
     const h = heuristicSnapshot();
     lastNativeSnapshot = h;
+    const durationMs = Date.now() - started;
+    recordBridgeFetchMs(durationMs);
+    recordBridgeFetchTrace({
+      durationMs,
+      ok: true,
+      metricSource: 'heuristic',
+      detailJa: 'heuristic fallback',
+    });
     return h;
   }
   try {
     const raw = await NativeSta.getSnapshot();
     const snap = parseSnapshot(raw);
     lastNativeSnapshot = snap;
+    const durationMs = Date.now() - started;
+    recordBridgeFetchMs(durationMs);
+    if (durationMs > 250) {
+      void import('./anrPreventionLayer').then(({ noteBridgeCongestion }) => {
+        noteBridgeCongestion(Math.min(100, durationMs / 10));
+      });
+    }
+    recordBridgeFetchTrace({
+      durationMs,
+      ok: true,
+      metricSource: 'native',
+      detailJa: `native snapshot ${snap.model}`,
+    });
     return snap;
-  } catch {
+  } catch (err) {
     const h = heuristicSnapshot();
     lastNativeSnapshot = h;
+    const durationMs = Date.now() - started;
+    recordBridgeFetchMs(durationMs);
+    recordBridgeFetchTrace({
+      durationMs,
+      ok: false,
+      metricSource: 'heuristic',
+      detailJa: `fetch error: ${err instanceof Error ? err.message : 'unknown'}`,
+    });
     return h;
   }
 }
@@ -199,12 +235,21 @@ export function initNativeRuntimeBridge(): void {
     eventSub = emitter.addListener('onTrimMemory', (payload: { level?: number }) => {
       noteNativeTrimMemory(payload?.level ?? 10);
     });
+    emitter.addListener(
+      'onNativeLifecycle',
+      (payload: { kind?: string; level?: number; phase?: string }) => {
+        recordNativeLifecycleTrace(
+          `${payload.kind ?? 'lifecycle'} level ${payload.level ?? 0} · ${payload.phase ?? 'unknown'}`,
+        );
+      },
+    );
   }
 
   let lastBgAt: number | null = null;
   AppState.addEventListener('change', (next) => {
     void import('./lifecycleTimeline').then(({ recordLifecycleEvent }) => {
       if (next === 'active') {
+        recordAppPhaseTrace('foreground', 'AppState active');
         recordLifecycleEvent('foreground', 'AppState active', false);
         if (lastBgAt != null && Date.now() - lastBgAt < 45_000) {
           trimBurstCount += 1;
@@ -212,8 +257,10 @@ export function initNativeRuntimeBridge(): void {
         lastBgAt = null;
       } else if (next === 'background') {
         lastBgAt = Date.now();
+        recordAppPhaseTrace('background', 'AppState background');
         recordLifecycleEvent('background', 'AppState background', false);
       } else {
+        recordAppPhaseTrace('inactive', 'AppState inactive');
         recordLifecycleEvent('inactive', 'AppState inactive', false);
       }
     });
