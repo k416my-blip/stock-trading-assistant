@@ -1,0 +1,122 @@
+import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
+import type { RuntimeKernelState } from '../../types/runtimeKernel';
+import type {
+  RuntimeTelemetryMetricsSnapshot,
+  TelemetryHealthState,
+} from '../../types/runtimeTelemetry';
+import type { RuntimeOrchestratorEvaluation } from '../../types/runtimeOrchestrator';
+
+export type RuntimeEffectPriority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
+
+export type RuntimeEffectKind =
+  | 'QUEUE_COMPACTION'
+  | 'WS_LIGHTWEIGHT_MODE'
+  | 'WS_HEARTBEAT_MS'
+  | 'WS_BATCH_MODE'
+  | 'PROACTIVE_COOLDOWN'
+  | 'PROACTIVE_PAUSE'
+  | 'HYDRATION_DEFER'
+  | 'HYDRATION_SERIALIZE'
+  | 'DASHBOARD_POLICY'
+  | 'SURVIVAL_MINIMAL_UI'
+  | 'TELEMETRY_PERSIST'
+  | 'MEMORY_PRESSURE_OBSERVE'
+  | 'LONG_SESSION_PASS'
+  | 'NATIVE_EXTENSION_BUILD'
+  | 'IMMINENT_KILL_MITIGATION'
+  | 'KERNEL_GUARD_SYNC';
+
+export type RuntimeEffect = {
+  id: string;
+  kind: RuntimeEffectKind;
+  priority: RuntimeEffectPriority;
+  dedupeKey: string;
+  emittedAt: string;
+  payload: unknown;
+};
+
+export type DashboardPolicyPayload = {
+  compact: boolean;
+  maxFps: number;
+  metricsSamplingRate: number;
+};
+
+export type WsPolicyPayload = {
+  lightweight: boolean;
+  heartbeatMs: number;
+  batchMode: boolean;
+};
+
+export type ProactiveGatesPayload = {
+  pauseProactive: boolean;
+  throttleProactive: boolean;
+};
+
+export type HydrationDeferPayload = {
+  reasonJa: string;
+  serializeMode: boolean;
+};
+
+export type TelemetryPersistPayload = {
+  metrics: RuntimeTelemetryMetricsSnapshot;
+  state: TelemetryHealthState;
+  summaryJa: string;
+};
+
+export type NativeExtensionBuildPayload = {
+  metrics: RuntimeTelemetryMetricsSnapshot;
+  sessionMinutes: number;
+  orchEval: RuntimeOrchestratorEvaluation;
+};
+
+export type ImminentKillPayload = {
+  metrics: RuntimeTelemetryMetricsSnapshot;
+};
+
+export type LongSessionPassPayload = {
+  sessionMinutes: number;
+  metrics: RuntimeTelemetryMetricsSnapshot;
+};
+
+export type KernelGuardSyncPayload = {
+  guards: import('../../types/runtimeKernel').RuntimeGuardKernelState;
+};
+
+export type RuntimeEffectPayload =
+  | { kind: 'DASHBOARD_POLICY'; data: DashboardPolicyPayload }
+  | { kind: 'WS_LIGHTWEIGHT_MODE'; data: WsPolicyPayload }
+  | { kind: 'WS_HEARTBEAT_MS'; data: { heartbeatMs: number } }
+  | { kind: 'WS_BATCH_MODE'; data: { enabled: boolean } }
+  | { kind: 'PROACTIVE_COOLDOWN'; data: ProactiveGatesPayload }
+  | { kind: 'PROACTIVE_PAUSE'; data: ProactiveGatesPayload }
+  | { kind: 'HYDRATION_DEFER'; data: HydrationDeferPayload }
+  | { kind: 'HYDRATION_SERIALIZE'; data: { enabled: boolean } }
+  | { kind: 'QUEUE_COMPACTION'; data: { policy: RuntimeOrchestratorPolicy } }
+  | { kind: 'SURVIVAL_MINIMAL_UI'; data: { enabled: boolean } }
+  | { kind: 'TELEMETRY_PERSIST'; data: TelemetryPersistPayload }
+  | { kind: 'MEMORY_PRESSURE_OBSERVE'; data: { metrics: RuntimeTelemetryMetricsSnapshot } }
+  | { kind: 'LONG_SESSION_PASS'; data: LongSessionPassPayload }
+  | { kind: 'NATIVE_EXTENSION_BUILD'; data: NativeExtensionBuildPayload }
+  | { kind: 'IMMINENT_KILL_MITIGATION'; data: ImminentKillPayload }
+  | { kind: 'KERNEL_GUARD_SYNC'; data: KernelGuardSyncPayload };
+
+export type RuntimeEffectDispatchResult = {
+  executed: number;
+  skipped: number;
+  failed: number;
+  droppedLow: number;
+  traces: RuntimeEffectTrace[];
+};
+
+export type RuntimeEffectTrace = {
+  effectId: string;
+  kind: RuntimeEffectKind;
+  status: 'ok' | 'skipped' | 'failed' | 'dropped';
+  durationMs: number;
+  errorJa?: string;
+};
+
+export type RuntimeEffectDispatchOptions = {
+  kernelState: RuntimeKernelState;
+  debounceMs?: number;
+};

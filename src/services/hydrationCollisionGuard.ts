@@ -5,6 +5,7 @@ import {
   noteHydrationStarted,
 } from './hydrationResumeTelemetry';
 import { resolveAsyncBudgetDecision } from './asyncBudgetSystem';
+import { getKernelGuardState } from '../runtime/kernel/runtimeKernelGuards';
 
 let hydrationInFlight = false;
 let orchestrationPausedUntil = 0;
@@ -19,6 +20,8 @@ export function resetHydrationCollisionGuardForTest(): void {
 }
 
 export function isOrchestrationPausedForHydration(): boolean {
+  const kg = getKernelGuardState();
+  if (kg?.hydrationPausedUntil) return Date.now() < kg.hydrationPausedUntil;
   return Date.now() < orchestrationPausedUntil;
 }
 

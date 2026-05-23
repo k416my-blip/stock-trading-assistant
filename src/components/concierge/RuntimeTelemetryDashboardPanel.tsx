@@ -6,6 +6,7 @@ import type { RuntimeTelemetryDashboardBundle } from '../../types/runtimeTelemet
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 import { bundlePropsEqual } from './memoDashboardProps';
+import { selectRuntimeKernelSnapshot } from '../../runtime/kernel/runtimeKernelSelectors';
 
 type Props = {
   bundle: RuntimeTelemetryDashboardBundle;
@@ -14,7 +15,8 @@ type Props = {
 function RuntimeTelemetryDashboardPanelInner({ bundle }: Props) {
   const ev = bundle.evaluation;
   const m = ev.metrics;
-  const orch = bundle.orchestrator;
+  const kernelSnap = selectRuntimeKernelSnapshot();
+  const orch = kernelSnap?.orchestrator ?? bundle.orchestrator;
   const nativeExt = bundle.nativeExtension;
   const compact = ev.compactDashboard || orch?.policy.minimalUiMode === true;
 

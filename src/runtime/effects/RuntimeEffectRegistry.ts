@@ -1,0 +1,24 @@
+import type { RuntimeEffectKind, RuntimeEffectPriority } from './RuntimeEffectTypes';
+
+export const EFFECT_PRIORITY_BY_KIND: Record<RuntimeEffectKind, RuntimeEffectPriority> = {
+  IMMINENT_KILL_MITIGATION: 'CRITICAL',
+  KERNEL_GUARD_SYNC: 'CRITICAL',
+  SURVIVAL_MINIMAL_UI: 'CRITICAL',
+  QUEUE_COMPACTION: 'HIGH',
+  WS_LIGHTWEIGHT_MODE: 'HIGH',
+  WS_HEARTBEAT_MS: 'HIGH',
+  WS_BATCH_MODE: 'HIGH',
+  PROACTIVE_PAUSE: 'HIGH',
+  HYDRATION_DEFER: 'HIGH',
+  DASHBOARD_POLICY: 'NORMAL',
+  PROACTIVE_COOLDOWN: 'NORMAL',
+  HYDRATION_SERIALIZE: 'NORMAL',
+  TELEMETRY_PERSIST: 'NORMAL',
+  MEMORY_PRESSURE_OBSERVE: 'NORMAL',
+  LONG_SESSION_PASS: 'NORMAL',
+  NATIVE_EXTENSION_BUILD: 'LOW',
+};
+
+export function priorityForEffectKind(kind: RuntimeEffectKind): RuntimeEffectPriority {
+  return EFFECT_PRIORITY_BY_KIND[kind];
+}

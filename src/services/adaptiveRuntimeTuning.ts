@@ -25,6 +25,7 @@ import {
 } from './dashboardFrameStabilizer';
 import { setWebsocketHeartbeatIntervalMs, setWebsocketLightweightMode } from './websocketStabilityGuard';
 import { DASHBOARD_MAX_FPS_COMPACT, DASHBOARD_MAX_FPS_STABLE } from '../constants/asyncRuntimeCoordinator';
+import { RUNTIME_KERNEL_OWNS_POLICY } from '../constants/runtimeKernel';
 
 export function resetAdaptiveRuntimeTuningForTest(): void {
   setDashboardFpsCap(null);
@@ -81,6 +82,7 @@ export function deriveAdaptiveRuntimeTuning(
 }
 
 export function applyAdaptiveRuntimeTuning(tuning: AdaptiveRuntimeTuningSnapshot): void {
+  if (RUNTIME_KERNEL_OWNS_POLICY) return;
   setDashboardCompactMode(tuning.dashboardCompact);
   setDashboardFpsCap(tuning.maxDashboardFps);
   setMetricsSamplingRate(tuning.explanationSamplingRate);
