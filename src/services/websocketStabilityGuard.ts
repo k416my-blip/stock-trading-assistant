@@ -56,6 +56,39 @@ export function isOfflineDebounced(): boolean {
   return Date.now() < offlineDebounceUntil;
 }
 
+export function executeWebsocketReconnectJitter(baseMs: number, maxMs: number): void {
+  const backoff = computeReconnectBackoffMs();
+  reconnectJitterMs = Math.min(maxMs, backoff + Math.floor(Math.random() * baseMs * 0.4));
+  recordReconnectTrace({
+    phase: 'schedule',
+    delayMs: reconnectJitterMs,
+    allowed: true,
+    storm: false,
+    detailJa: 'jitter scheduled',
+  });
+  scheduleDedupedTimer('ws-reconnect-jitter', () => {
+    if (!isOfflineDebounced()) {
+      recordReconnectTrace({
+        phase: 'execute',
+        delayMs: reconnectJitterMs,
+        allowed: true,
+        storm: false,
+        detailJa: 'reconnect execute',
+      });
+      noteRuntimeReconnect('ws-jitter');
+      noteWebsocketReconnect();
+      noteWebsocketReconnectAttempt();
+      noteWebsocketRtt(reconnectJitterMs);
+      void import('../native/runtime/miuiReclaimDetector').then(({ noteMiuiForcedReconnect }) => {
+        noteMiuiForcedReconnect();
+      });
+      void import('../native/runtime/lifecycleTimeline').then(({ recordLifecycleEvent }) => {
+        recordLifecycleEvent('reconnect_end', `jitter ${reconnectJitterMs}ms`, false);
+      });
+    }
+  }, reconnectJitterMs);
+}
+
 export function scheduleWebsocketReconnectWithJitter(baseMs: number, maxMs: number): void {
   const decision = resolveAsyncBudgetDecision('websocket');
   if (decision === 'idle_schedule' || decision === 'defer') {
@@ -83,36 +116,7 @@ export function scheduleWebsocketReconnectWithJitter(baseMs: number, maxMs: numb
     return;
   }
 
-  const backoff = Math.max(attempt.delayMs, computeReconnectBackoffMs());
-  reconnectJitterMs = Math.min(maxMs, backoff + Math.floor(Math.random() * baseMs * 0.4));
-  recordReconnectTrace({
-    phase: 'schedule',
-    delayMs: reconnectJitterMs,
-    allowed: true,
-    storm: attempt.storm,
-    detailJa: 'jitter scheduled',
-  });
-  scheduleDedupedTimer('ws-reconnect-jitter', () => {
-    if (!isOfflineDebounced()) {
-      recordReconnectTrace({
-        phase: 'execute',
-        delayMs: reconnectJitterMs,
-        allowed: true,
-        storm: attempt.storm,
-        detailJa: 'reconnect execute',
-      });
-      noteRuntimeReconnect('ws-jitter');
-      noteWebsocketReconnect();
-      noteWebsocketReconnectAttempt();
-      noteWebsocketRtt(reconnectJitterMs);
-      void import('../native/runtime/miuiReclaimDetector').then(({ noteMiuiForcedReconnect }) => {
-        noteMiuiForcedReconnect();
-      });
-      void import('../native/runtime/lifecycleTimeline').then(({ recordLifecycleEvent }) => {
-        recordLifecycleEvent('reconnect_end', `jitter ${reconnectJitterMs}ms`, false);
-      });
-    }
-  }, reconnectJitterMs);
+  executeWebsocketReconnectJitter(baseMs, maxMs);
 }
 
 export function noteWebsocketStableConnection(): void {

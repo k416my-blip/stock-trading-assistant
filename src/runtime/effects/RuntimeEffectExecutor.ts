@@ -50,8 +50,8 @@ import type {
 } from './RuntimeEffectTypes';
 import type { RuntimeOrchestratorPolicy } from '../../types/runtimeOrchestrator';
 import { setLastRuntimeStabilitySnapshot } from '../stability/RuntimeHealthMonitor';
-import { registerReconnectAttempt } from '../stability/reconnectStormGuard';
 import { tryAcquireHydrationLock } from '../stability/hydrationLock';
+import { requestReconnectSchedule } from '../stability/reconnectCoordinator';
 
 export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace {
   const started = Date.now();
@@ -171,9 +171,8 @@ export function executeRuntimeEffect(effect: RuntimeEffect): RuntimeEffectTrace 
         break;
       case 'STABILITY_RECONNECT_GUARD': {
         const p = effect.payload as StabilityReconnectGuardPayload;
-        registerReconnectAttempt();
+        requestReconnectSchedule(2500, 12_000, `stability · ${p.snapshot.websocketStatusJa}`);
         setWebsocketLightweightMode(true);
-        scheduleWebsocketReconnectWithJitter(2500, 12_000);
         noteOfflineForDebounce(Math.max(5000, p.delayMs > Date.now() ? p.delayMs - Date.now() : 5000));
         recordLifecycleEvent('reconnect_start', `stability guard · ${p.snapshot.websocketStatusJa}`, false);
         break;

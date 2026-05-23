@@ -33,6 +33,7 @@ import { getReducerTransitionHistory } from './RuntimeReducer';
 import { buildStabilityEffects } from '../stability/stabilityEffects';
 import type { RuntimeStabilitySnapshot } from '../../types/runtimeStability';
 import { shouldEmitMemoryPressureCleanup } from '../orchestrator/memoryPressureGuardian';
+import { coalesceRuntimeEffects } from './effectCoalescing';
 
 import type { RuntimeDecision } from '../../types/runtimeKernel';
 
@@ -255,13 +256,19 @@ export function assembleRuntimeDecision(params: {
 
   const stabilityEffects = buildStabilityEffects(params.stabilitySnapshot);
 
+  const allEffects = coalesceRuntimeEffects([
+    ...policyEffects,
+    ...auxEffects,
+    ...stabilityEffects,
+  ]);
+
   return {
     nextState: params.state,
     candidateState: params.candidate,
     flapSuppressed: params.flapSuppressed,
     snapshot,
     orchestratorEvaluation,
-    effects: [...policyEffects, ...auxEffects, ...stabilityEffects],
+    effects: allEffects,
     confidence: params.confidenceMap,
     transitions: getReducerTransitionHistory(),
   };

@@ -8,6 +8,7 @@ import { recordMemoryPressureSample } from '../orchestrator/memoryPressureGuardi
 import { noteRuntimeReconnect } from './RuntimeReconnectTracker';
 import { observeThermalLevel } from './RuntimeThermalTracker';
 import { noteAppBackground, noteAppForeground } from './miuiBatteryDiagnostics';
+import { noteResumeStormGate } from './reconnectCoordinator';
 import {
   evaluateRuntimeStabilitySnapshot,
   setLastRuntimeStabilitySnapshot,
@@ -29,7 +30,10 @@ export function observeRuntimeStabilityTick(
     noteRuntimeHeartbeat(Date.now() - metrics.websocket.heartbeatDelayMs);
   }
   if (!performance.appForeground) noteAppBackground();
-  else noteAppForeground();
+  else {
+    noteAppForeground();
+    noteResumeStormGate();
+  }
 
   const snapshot = evaluateRuntimeStabilitySnapshot(metrics, performance);
   setLastRuntimeStabilitySnapshot(snapshot);

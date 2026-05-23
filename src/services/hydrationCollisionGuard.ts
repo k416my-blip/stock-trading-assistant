@@ -1,5 +1,5 @@
 import { HYDRATION_PAUSE_WINDOW_MS } from '../constants/asyncRuntimeCoordinator';
-import { scheduleDedupedTimer, markHydrationComplete } from './mobileRedmiRuntime';
+import { markHydrationComplete } from './mobileRedmiRuntime';
 import {
   noteHydrationCompleted,
   noteHydrationStarted,
@@ -10,6 +10,12 @@ import {
   releaseHydrationLock,
   tryAcquireHydrationLock,
 } from '../runtime/stability/hydrationLock';
+import {
+  noteHydrationSequenceEnd,
+  noteHydrationSequenceStart,
+} from '../runtime/stability/hydrationRestoreSequencer';
+
+export { scheduleDelayedWebsocketRestore } from '../runtime/stability/hydrationRestoreSequencer';
 
 let hydrationInFlight = false;
 let orchestrationPausedUntil = 0;
@@ -53,6 +59,7 @@ export async function runSerializedHydration(
 
   hydrationInFlight = true;
   beginHydrationPauseWindow();
+  noteHydrationSequenceStart();
   lastHydrationKey = key;
   noteHydrationStarted(key);
   void import('../native/runtime/lifecycleTimeline').then(({ recordLifecycleEvent }) => {
@@ -80,11 +87,8 @@ export async function runSerializedHydration(
   } finally {
     hydrationInFlight = false;
     releaseHydrationLock();
+    noteHydrationSequenceEnd();
   }
-}
-
-export function scheduleDelayedWebsocketRestore(delayMs: number, onReady: () => void): void {
-  scheduleDedupedTimer('hydration-ws-restore', onReady, delayMs);
 }
 
 export function getHydrationCollisionRiskPct(queueSize: number, resumeSpike: boolean): number {

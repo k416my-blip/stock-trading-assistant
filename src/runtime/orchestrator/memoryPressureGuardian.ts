@@ -99,28 +99,6 @@ export function executeMemoryPressureCleanup(
   return { cleanupTriggered: true, slopePct: observation.slopePct };
 }
 
-/** @deprecated Use recordMemoryPressureSample + executeMemoryPressureCleanup via effects. */
-export function observeMemoryPressure(metrics: RuntimeTelemetryMetricsSnapshot): {
-  slopePct: number;
-  cleanupTriggered: boolean;
-  thresholdExceeded: boolean;
-} {
-  const observation = recordMemoryPressureSample(metrics);
-  if (!observation.cleanupRecommended) {
-    return {
-      slopePct: observation.slopePct,
-      cleanupTriggered: false,
-      thresholdExceeded: observation.thresholdExceeded,
-    };
-  }
-  const result = executeMemoryPressureCleanup(metrics);
-  return {
-    slopePct: result.slopePct,
-    cleanupTriggered: result.cleanupTriggered,
-    thresholdExceeded: observation.thresholdExceeded,
-  };
-}
-
 export function getMemoryGuardianStats(): {
   slopePct: number;
   staleTimers: number;
