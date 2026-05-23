@@ -21,6 +21,7 @@ import {
   recordCoordinatorReconnectTrace,
 } from '../../native/runtime/nativeBoundaryTrace';
 import { recordReconnectLatencyMs } from '../../native/runtime/nativeBoundaryHistograms';
+import { noteObservabilityReconnect } from '../observability/runtimeObservabilityIntegration';
 
 let reconnectTokenSeq = 0;
 let lastResumeGateUntil = 0;
@@ -183,6 +184,9 @@ export function requestReconnectSchedule(
       source,
       token,
     });
+    if (attempt.storm) {
+      noteObservabilityReconnect(`${reasonJa} · storm blocked`, true);
+    }
     return { scheduled: false, token, reasonJa: `${reasonJa} · budget`, source };
   }
 
@@ -203,6 +207,7 @@ export function requestReconnectSchedule(
     source,
     token: reconnectUuid,
   });
+  noteObservabilityReconnect(reasonJa, attempt.storm);
 
   executeWebsocketReconnectJitter(baseMs, maxMs, { token: reconnectUuid, source });
   return { scheduled: true, token, reasonJa, source };

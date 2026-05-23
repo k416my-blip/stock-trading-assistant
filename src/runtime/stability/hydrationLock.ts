@@ -1,3 +1,5 @@
+import { noteObservabilityHydration } from '../observability/runtimeObservabilityIntegration';
+
 let lockActive = false;
 let overlapCount = 0;
 let hydrationKey: string | null = null;
@@ -22,12 +24,15 @@ export function tryAcquireHydrationLock(key: string, at = Date.now()): boolean {
   lockActive = true;
   hydrationKey = key;
   lockSince = at;
+  noteObservabilityHydration('pause', `lock:${key}`);
   return true;
 }
 
 export function releaseHydrationLock(): void {
+  const key = hydrationKey;
   lockActive = false;
   hydrationKey = null;
+  if (key) noteObservabilityHydration('resume', `unlock:${key}`);
 }
 
 export function isHydrationLockActive(): boolean {

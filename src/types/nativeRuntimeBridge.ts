@@ -58,6 +58,13 @@ export type NativeRuntimeSnapshot = {
   miuiAggressiveReclaim: boolean;
   source: TelemetryMetricSource;
   confidence: number;
+  /** Android Debug.getNativeHeapAllocatedSize (MB). */
+  nativeHeapAllocatedMb: number;
+  javaHeapUsedMb: number;
+  availMemMb: number;
+  totalMemMb: number;
+  batteryLevelPct: number | null;
+  bridgePendingEstimate: number;
 };
 
 export type LifecycleTimelineEventKind =

@@ -37,6 +37,10 @@ import {
   shouldOrchestratorThrottleProactive,
   getRuntimeHealthSummaryJa,
 } from '../orchestrator/runtimeOrchestrator';
+import {
+  runUnifiedOrchestrationUxPhases,
+  shouldAllowUnifiedDashboardUpdate,
+} from '../unified/runtimeUnifiedOrchestratorIntegration';
 
 export function resetRuntimeKernelStackForTest(): void {
   const { resetRuntimeKernelForTest } = require('./RuntimeKernel') as typeof import('./RuntimeKernel');
@@ -51,6 +55,10 @@ export function evaluateAndApplyRuntimeKernel(
   const decision = evaluateRuntimeKernelPure(prepared);
   dispatchRuntimeEffects(decision.effects, {
     kernelState: decision.nextState,
+  });
+  runUnifiedOrchestrationUxPhases({
+    orchestrationRan: true,
+    gateAllowDashboard: shouldAllowUnifiedDashboardUpdate(),
   });
   return decision.orchestratorEvaluation;
 }

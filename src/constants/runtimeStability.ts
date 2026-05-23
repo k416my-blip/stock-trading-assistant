@@ -22,4 +22,5 @@ export const STABILITY_UI_LABELS_JA = {
   heartbeatAge: 'Heartbeat Age',
   anomalies: 'Anomalies',
   readonlyHint: '読取専用 — ランタイム操作は行いません',
+  nativeTelemetry: 'Native Telemetry',
 } as const;

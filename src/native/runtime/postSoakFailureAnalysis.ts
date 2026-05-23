@@ -15,6 +15,7 @@ import type {
   PostSoakVerdict,
 } from '../../types/postSoakAnalysis';
 import type { RedmiLongSoakExport } from '../../types/redmiLongSoakValidation';
+import { buildRuntimeCausalGraphBundleFromSoak } from '../../runtime/analysis/runtimeCausalGraph';
 import {
   POST_SOAK_ANALYSIS_VERSION,
   POST_SOAK_FAIL_DELAYED_RESUME_MS,
@@ -450,10 +451,12 @@ export function exportPostSoakAnalysisJson(report: PostSoakAnalysisReport): stri
 
 export function analyzeRedmiSoakReportBundle(input: PostSoakAnalysisInput): PostSoakAnalysisBundle {
   const report = analyzeRedmiSoakReport(input);
+  const causalGraphBundle = buildRuntimeCausalGraphBundleFromSoak(input);
   return {
     report,
     markdownReport: formatPostSoakAnalysisMarkdown(report),
     jsonReport: exportPostSoakAnalysisJson(report),
+    causalGraphBundle,
   };
 }
 

@@ -119,6 +119,12 @@ function heuristicSnapshot(): NativeRuntimeSnapshot {
     miuiAggressiveReclaim: trimBurstCount >= MIUI_RECLAIM_BURST_THRESHOLD,
     source: 'heuristic',
     confidence: 0.48,
+    nativeHeapAllocatedMb: Math.round(pressure * 0.4 + 40),
+    javaHeapUsedMb: Math.round(pressure * 0.3 + 30),
+    availMemMb: 2048,
+    totalMemMb: 8192,
+    batteryLevelPct: null,
+    bridgePendingEstimate: trimBurstCount * 2,
   };
 }
 
@@ -154,6 +160,12 @@ function parseSnapshot(raw: Record<string, unknown>): NativeRuntimeSnapshot {
     miuiAggressiveReclaim: Boolean(raw.miuiAggressiveReclaim),
     source: 'native',
     confidence: 0.92,
+    nativeHeapAllocatedMb: Number(raw.nativeHeapAllocatedMb ?? 0),
+    javaHeapUsedMb: Number(raw.javaHeapUsedMb ?? 0),
+    availMemMb: Number(raw.availMemMb ?? 0),
+    totalMemMb: Number(raw.totalMemMb ?? 0),
+    batteryLevelPct: raw.batteryLevelPct == null ? null : Number(raw.batteryLevelPct),
+    bridgePendingEstimate: Number(raw.bridgePendingEstimate ?? 0),
   };
 }
 
@@ -182,6 +194,9 @@ export async function fetchNativeRuntimeSnapshot(): Promise<NativeRuntimeSnapsho
     lastNativeSnapshot = snap;
     const durationMs = Date.now() - started;
     recordBridgeFetchMs(durationMs);
+    void import('../telemetry/bridgeCongestionMonitor').then(({ noteBridgeFetchDurationMs }) => {
+      noteBridgeFetchDurationMs(durationMs);
+    });
     if (durationMs > 250) {
       void import('./anrPreventionLayer').then(({ noteBridgeCongestion }) => {
         noteBridgeCongestion(Math.min(100, durationMs / 10));

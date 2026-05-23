@@ -69,10 +69,14 @@ export type PostSoakAnalysisReport = {
   elapsedHours: number;
 };
 
+import type { RuntimeCausalGraphBundle } from './runtimeCausalGraph';
+
 export type PostSoakAnalysisBundle = {
   report: PostSoakAnalysisReport;
   markdownReport: string;
   jsonReport: string;
+  /** Causal DAG (relation priority root, not timestamp-only). */
+  causalGraphBundle: RuntimeCausalGraphBundle;
 };
 
 export type PostSoakAnalysisInput = RedmiLongSoakExport;

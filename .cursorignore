@@ -6,23 +6,39 @@
 *.p12
 *.pfx
 
-# Heavy folders
+# Heavy / generated folders (reduce indexing & file watcher load)
 node_modules/
 dist/
 build/
 .expo/
+.expo-shared/
 web-build/
 coverage/
+.nyc_output/
+.next/
+.turbo/
+.cache/
+tmp/
+temp/
+logs/
+generated/
+android/app/build/
+android/.gradle/
+ios/build/
+ios/Pods/
 
 # Generated files
 expo-go-qr.png
 *.qr.png
 audit-out.txt
 *.log
+*.tmp
+*.tsbuildinfo
 
 # Git internals
 .git/
 .cursor/
+**/.cursor/projects/
 
 # Optional large logs
 agent-transcripts/

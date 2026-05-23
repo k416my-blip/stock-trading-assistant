@@ -1,0 +1,16 @@
+export {
+  resetTelemetryOverheadForTest,
+  gateTelemetryCycle,
+  wrapTelemetryCycle,
+  recordTelemetrySnapshotSample,
+  recordCoalescedTimelineEvent,
+  guardedAsyncStoragePersist,
+  buildOptimizedExportPayload,
+  buildDecimatedGraph,
+  shouldAllowHeavyTelemetryExport,
+  beginTelemetryDashboardRender,
+  consumeTelemetryDashboardRow,
+  virtualizeTelemetryDashboardRows,
+  getTelemetryOverheadDashboard,
+  noteTelemetryUserInteraction,
+} from './telemetryOverheadCoordinator';

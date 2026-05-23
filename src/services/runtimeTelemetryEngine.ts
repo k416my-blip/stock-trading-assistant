@@ -37,7 +37,10 @@ import {
   loadRuntimeTelemetryState,
   persistTelemetryCycle,
 } from './runtimeTelemetryStorage';
-import { getLastNativeDashboardExtension } from '../native/runtime/nativeRuntimeIntegration';
+import {
+  getLastNativeDashboardExtension,
+  observeNativeDeviceTelemetryFromMetrics,
+} from '../native/runtime/nativeRuntimeIntegration';
 
 type DurationMarks = {
   orchestrationMs: number | null;
@@ -178,6 +181,7 @@ export function evaluateRuntimeTelemetry(
   input: EvaluateRuntimeTelemetryInput,
 ): RuntimeTelemetryEvaluation {
   const metrics = buildMetrics(input);
+  observeNativeDeviceTelemetryFromMetrics(metrics, input.sessionMinutes);
   const state = classifyTelemetry(metrics);
   const tuning = deriveAdaptiveRuntimeTuning(state, metrics, input.cascadePressure);
   applyAdaptiveRuntimeTuning(tuning);

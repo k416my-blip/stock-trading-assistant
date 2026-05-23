@@ -148,6 +148,12 @@ describe('nativeRuntimeBridge', () => {
       miuiAggressiveReclaim: false,
       source: 'native',
       confidence: 0.92,
+      nativeHeapAllocatedMb: 88,
+      javaHeapUsedMb: 64,
+      availMemMb: 4096,
+      totalMemMb: 8192,
+      batteryLevelPct: 72,
+      bridgePendingEstimate: 4,
     });
     noteMiuiBackgroundStart();
     noteMiuiForegroundResume();

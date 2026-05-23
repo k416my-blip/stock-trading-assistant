@@ -61,3 +61,9 @@ export function getReconnectTraceTimeline(limit = MAX_EVENTS): ReconnectTraceEve
 export function getReconnectTraceBySource(source: ReconnectSource): ReconnectTraceEvent[] {
   return events.filter((e) => e.source === source);
 }
+
+export function trimReconnectSequenceTrace(keepCount: number): number {
+  const before = events.length;
+  while (events.length > keepCount) events.shift();
+  return before - events.length;
+}

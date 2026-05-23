@@ -5,8 +5,11 @@ import android.content.ComponentCallbacks2
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.BatteryManager
 import android.os.Build
+import android.os.Debug
 import android.os.PowerManager
+import android.view.Choreographer
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.util.concurrent.atomic.AtomicInteger
@@ -15,6 +18,9 @@ class StaNativeRuntimeModule : Module() {
   private val trimBurst = AtomicInteger(0)
   private var lastTrimAt = 0L
   private var callbacksRegistered = false
+  private var lastFrameNanos = 0L
+  private val droppedFrameEstimate = AtomicInteger(0)
+  private var choreographerRegistered = false
 
   override fun definition() = ModuleDefinition {
     Name("StaNativeRuntime")
@@ -23,6 +29,7 @@ class StaNativeRuntimeModule : Module() {
 
     OnCreate {
       registerTrimCallbacks()
+      registerChoreographerFrameObserver()
     }
 
     AsyncFunction("getSnapshot") {
@@ -130,6 +137,13 @@ class StaNativeRuntimeModule : Module() {
     val miuiReclaim = xiaomi && (trimBurst.get() >= 3 || mi.lowMemory)
 
     val anrRisk = (pressure / 4 + trimBurst.get() * 5).coerceIn(0, 100)
+    val nativeHeapMb = Debug.getNativeHeapAllocatedSize().toDouble() / (1024.0 * 1024.0)
+    val rt = Runtime.getRuntime()
+    val javaHeapMb = (rt.totalMemory() - rt.freeMemory()).toDouble() / (1024.0 * 1024.0)
+    val availMb = mi.availMem.toDouble() / (1024.0 * 1024.0)
+    val totalMb = mi.totalMem.toDouble() / (1024.0 * 1024.0)
+    val batteryLevel = readBatteryLevelPct(ctx)
+    val bridgePending = (trimBurst.get() * 3 + if (mi.lowMemory) 8 else 0).coerceIn(0, 100)
 
     return mapOf(
       "bridgeVersion" to 1,
@@ -141,7 +155,13 @@ class StaNativeRuntimeModule : Module() {
       "lowPowerMode" to batterySaver,
       "foreground" to foreground,
       "backgroundReclaimDetected" to (trimBurst.get() >= 2 || mi.lowMemory),
-      "droppedFramesEstimate" to 0,
+      "droppedFramesEstimate" to droppedFrameEstimate.get(),
+      "nativeHeapAllocatedMb" to nativeHeapMb,
+      "javaHeapUsedMb" to javaHeapMb,
+      "availMemMb" to availMb,
+      "totalMemMb" to totalMb,
+      "batteryLevelPct" to batteryLevel,
+      "bridgePendingEstimate" to bridgePending,
       "anrRiskScore" to anrRisk,
       "networkTransportQuality" to network,
       "memoryClassMb" to memClass["memoryClassMb"]!!,
@@ -200,6 +220,34 @@ class StaNativeRuntimeModule : Module() {
   private fun isXiaomiFamily(manufacturer: String, brand: String): Boolean {
     val m = "$manufacturer $brand".lowercase()
     return m.contains("xiaomi") || m.contains("redmi") || m.contains("poco")
+  }
+
+  private fun registerChoreographerFrameObserver() {
+    if (choreographerRegistered) return
+    choreographerRegistered = true
+    val callback = object : Choreographer.FrameCallback {
+      override fun doFrame(frameTimeNanos: Long) {
+        if (lastFrameNanos > 0L) {
+          val deltaMs = (frameTimeNanos - lastFrameNanos) / 1_000_000.0
+          if (deltaMs > 24.0) {
+            val skipped = (deltaMs / 16.67).toInt().coerceAtLeast(1) - 1
+            if (skipped > 0) droppedFrameEstimate.addAndGet(skipped)
+          }
+        }
+        lastFrameNanos = frameTimeNanos
+        Choreographer.getInstance().postFrameCallback(this)
+      }
+    }
+    Choreographer.getInstance().postFrameCallback(callback)
+  }
+
+  private fun readBatteryLevelPct(ctx: Context): Int? {
+    val bm = ctx.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).coerceIn(0, 100)
+    } else {
+      null
+    }
   }
 
   private fun trimPhaseLabel(level: Int): String = when {

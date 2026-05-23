@@ -15,6 +15,11 @@ import { predictRuntimeKill } from './runtimeKillPredictor';
 import { observeAnrRisk, initAnrPreventionLayer, pingEventLoop } from './anrPreventionLayer';
 import { detectMiuiAggressiveReclaim, getMiuiReclaimEventCount } from './miuiReclaimDetector';
 import {
+  getReconnectPerMin,
+  getWsDuplicateCount,
+} from '../../runtime/stability/RuntimeReconnectTracker';
+import { getHeartbeatAgeMs } from '../../runtime/stability/RuntimeHeartbeatTracker';
+import {
   formatLifecycleTimelineVisualization,
   getLifecycleTimeline,
 } from './lifecycleTimeline';
@@ -35,6 +40,31 @@ import {
   tickRedmiLongSoakValidation,
 } from './redmiLongSoakValidation';
 import { getPerformanceCostSnapshot } from '../../services/performanceCostRuntime';
+import {
+  initNativeDeviceTelemetry,
+  observeNativeDeviceTelemetryCycle,
+  getNativeDeviceTelemetryDashboard,
+  exportNativeDeviceTelemetryJson,
+  formatNativeDeviceTelemetryExportJson,
+} from '../telemetry';
+import { initAndroidLifecycleStressRunner } from '../soak/androidLifecycleStressRunner';
+import { isAutomatedSoakRunnerActive, tickAutomatedSoakRunner } from '../soak';
+import {
+  initJsThreadStabilization,
+  observeJsThreadStabilization,
+  shouldRunStabilizationSample,
+} from '../../scheduler/jsThreadStabilization';
+import {
+  initRnBridgeSurvivability,
+  observeRnBridgeSurvivability,
+  shouldRunRnSurvivabilitySample,
+  getLastRnBridgeSurvivabilityProfile,
+} from '../../rn/bridgeSurvivability';
+import {
+  initFailureRecovery,
+  observeFailureRecovery,
+  shouldRunFailureRecoverySample,
+} from '../../recovery/failureRecovery';
 
 let lastExtension: NativeRuntimeDashboardExtension | null = null;
 
@@ -45,8 +75,83 @@ export function resetNativeRuntimeIntegrationForTest(): void {
 export async function initNativeRuntimeLayer(): Promise<void> {
   initAnrPreventionLayer();
   initNativeRuntimeBridge();
+  initNativeDeviceTelemetry();
+  initAndroidLifecycleStressRunner();
+  initJsThreadStabilization();
+  initRnBridgeSurvivability();
+  initFailureRecovery();
   maybeAutoStartRedmiSoakValidation();
   await fetchNativeRuntimeSnapshot();
+}
+
+/** Read-only device telemetry — no runtime policy changes. */
+export function observeNativeDeviceTelemetryFromMetrics(
+  metrics: RuntimeTelemetryMetricsSnapshot,
+  sessionMinutes: number,
+  tickDurationMs?: number | null,
+): void {
+  const performance = getPerformanceCostSnapshot();
+  observeNativeDeviceTelemetryCycle({
+    metrics,
+    performance,
+    sessionMinutes,
+    tickDurationMs: tickDurationMs ?? null,
+  });
+  if (isAutomatedSoakRunnerActive()) {
+    void tickAutomatedSoakRunner(metrics, performance);
+  }
+
+  const stabInput = {
+    eventLoopLagMs: metrics.eventLoopLatencyMs,
+    renderFps: metrics.renderFPS,
+    jsHeapMb: metrics.jsHeapEstimateMb,
+    thermalState: metrics.thermalState,
+    appForeground: performance.appForeground,
+    screenOff: metrics.native.appState === 'inactive' || performance.appStateLabel === 'inactive',
+    batterySaver: performance.batterySaverActive || metrics.native.batterySaverActive,
+    memoryTrendPct: metrics.memoryTrendPct,
+  };
+  if (shouldRunStabilizationSample(stabInput)) {
+    observeJsThreadStabilization(stabInput);
+  }
+
+  const rnInput = {
+    renderFps: metrics.renderFPS,
+    renderBurstRate: metrics.render.renderBurstRate,
+    jsHeapMb: metrics.jsHeapEstimateMb,
+    memoryTrendPct: metrics.memoryTrendPct,
+    thermalState: metrics.thermalState,
+    appForeground: performance.appForeground,
+    screenOff: metrics.native.appState === 'inactive' || performance.appStateLabel === 'inactive',
+    batterySaver: performance.batterySaverActive,
+    asyncQueueDepth: metrics.asyncQueueDepth,
+  };
+  if (shouldRunRnSurvivabilitySample(rnInput)) {
+    observeRnBridgeSurvivability(rnInput);
+  }
+
+  const rnProfile = getLastRnBridgeSurvivabilityProfile();
+  const recoveryInput = {
+    eventLoopLagMs: metrics.eventLoopLatencyMs,
+    renderFps: metrics.renderFPS,
+    renderBurstRate: metrics.render.renderBurstRate,
+    jsHeapMb: metrics.jsHeapEstimateMb,
+    memoryTrendPct: metrics.memoryTrendPct,
+    thermalState: metrics.thermalState,
+    appForeground: performance.appForeground,
+    screenOff: metrics.native.appState === 'inactive' || performance.appStateLabel === 'inactive',
+    batterySaver: performance.batterySaverActive,
+    asyncQueueDepth: metrics.asyncQueueDepth,
+    reconnectPerMin: getReconnectPerMin(),
+    wsDuplicateCount: getWsDuplicateCount(),
+    heartbeatAgeMs: getHeartbeatAgeMs(),
+    bridgeTrafficRate: rnProfile?.bridgeTrafficRate ?? 0,
+    renderStormRisk: rnProfile?.renderStormRisk ?? 0,
+    miuiAggressiveReclaim: detectMiuiAggressiveReclaim().value,
+  };
+  if (shouldRunFailureRecoverySample(recoveryInput)) {
+    observeFailureRecovery(recoveryInput);
+  }
 }
 
 export function mergeNativeIntoTelemetryMetrics(
@@ -108,6 +213,10 @@ export function buildNativeDashboardExtension(
 
   if (isRedmiLongSoakActive()) {
     tickRedmiLongSoakValidation(metrics, getPerformanceCostSnapshot().appForeground);
+  }
+
+  if (isAutomatedSoakRunnerActive()) {
+    void tickAutomatedSoakRunner(metrics, getPerformanceCostSnapshot());
   }
 
   const ext: NativeRuntimeDashboardExtension = {
@@ -181,6 +290,188 @@ export {
   exportPostSoakAnalysisJson,
   findRootOwnershipEvent,
 } from './postSoakFailureAnalysis';
+
+export {
+  buildRuntimeCausalGraph,
+  buildRuntimeCausalGraphBundle,
+  buildRuntimeCausalGraphBundleFromSoak,
+  buildRuntimeCausalGraphFromSoak,
+  formatCausalGraphMarkdown,
+  formatCausalGraphMermaid,
+  exportCausalGraphJson,
+  causalGraphFromSoakExport,
+} from '../../runtime/analysis/runtimeCausalGraph';
+
+export {
+  computeTemporalEdgeWeight,
+  synthesizeEdgeConfidence,
+  collapseEventBursts,
+} from '../../runtime/analysis/runtimeTemporalCausality';
+
+export {
+  inferLatentRuntimeStates,
+  mergeLatentStatesIntoCausalGraph,
+  formatLatentStateMarkdown,
+} from '../../runtime/analysis/runtimeLatentStateInference';
+
+export {
+  buildHierarchicalLatentRuntimeGraph,
+  mergeHierarchicalLatentIntoGraph,
+  formatHierarchicalLatentMarkdown,
+  extractCriticalLatentChain,
+} from '../../runtime/analysis/hierarchicalLatentRuntimeGraph';
+
+export {
+  buildRuntimeCausalGraphWithAdaptive,
+  replaySoakExportForLearning,
+  buildAdaptiveRuntimeReport,
+  formatAdaptiveRuntimeReportMarkdown,
+} from '../../runtime/analysis/runtimeCausalGraphAdaptive';
+
+export {
+  createAdaptiveRuntimeContext,
+  resolveDeviceProfile,
+  learnFromInference,
+} from '../../runtime/analysis/adaptiveRuntimeLearningEngine';
+
+export {
+  runAdaptiveGovernance,
+  buildRedmiNote13ProLongTermGovernanceReport,
+  formatGovernanceDashboardMarkdown,
+  resetAdaptiveGovernanceForTest,
+} from '../../runtime/governance/adaptiveRuntimeGovernance';
+
+export {
+  buildRuntimeObservabilityBundle,
+  buildRedmiNote13ProObservabilityReport,
+  observeRuntimeObservabilityTick,
+  observeOrchestrationEvent,
+  noteObservabilityReconnect,
+  noteObservabilityHydration,
+  noteObservabilityRollback,
+  resetRuntimeObservabilityForTest,
+  formatObservabilityDashboardMarkdown,
+} from '../../runtime/observability/runtimeObservabilityIntegration';
+
+export {
+  runFailureReplay,
+} from '../../runtime/observability/failureReplayMode';
+
+export {
+  reconstructFailureTimeline,
+  deriveRootCauseCandidates,
+} from '../../runtime/observability/timelineReconstructionEngine';
+
+export { isObservabilityPayloadAllowed } from '../../runtime/observability/safeObservabilityConstraints';
+
+export {
+  observeRuntimeSelfHealingTick,
+  buildRuntimeSelfHealingBundle,
+  buildRedmiNote13ProSelfHealingReport,
+  resetRuntimeSelfHealingForTest,
+  formatRecoveryDashboardMarkdown,
+  getSelfHealingPhase,
+} from '../../runtime/selfHealing/runtimeSelfHealingIntegration';
+
+export {
+  observeRuntimeEvolutionTick,
+  buildRuntimeEvolutionBundle,
+  buildRedmiNote13ProEvolutionReport,
+  resetRuntimeEvolutionForTest,
+  runEvolutionSimulationSuite,
+  formatEvolutionDashboardMarkdown,
+  getLongTermEvolutionPhase,
+} from '../../runtime/evolution/runtimeEvolutionIntegration';
+
+export {
+  arbitrateRuntimeConstitution,
+  buildRedmiNote13ProConstitutionReport,
+  getConstitutionalDirectives,
+  resetRuntimeConstitutionForTest,
+  runConstitutionalSimulationSuite,
+  formatSenateDashboardMarkdown,
+  getConstitutionalState,
+} from '../../runtime/constitution/runtimeConstitutionIntegration';
+
+export {
+  tickRuntimeMetabolism,
+  getLastMetabolismBundle,
+  buildRedmiNote13ProMetabolismReport,
+  recoverFromTombstone,
+  resetRuntimeMetabolismForTest,
+} from '../../runtime/metabolism/runtimeMetabolismIntegration';
+
+export {
+  tickRuntimeCuriosity,
+  getLastCuriosityBundle,
+  buildRedmiNote13ProCuriosityReport,
+  resetRuntimeCuriosityForTest,
+  setLastCuriosityTickMsForTest,
+} from '../../runtime/curiosity/runtimeCuriosityIntegration';
+
+export {
+  runUnifiedRuntimeLayersTick,
+  getLastUnifiedOrchestratorBundle,
+  resetRuntimeUnifiedOrchestratorForTest,
+  shouldAllowUnifiedDashboardUpdate,
+  setLastUnifiedTickAtMsForTest,
+} from '../../runtime/unified/runtimeUnifiedOrchestratorIntegration';
+
+export {
+  tickRuntimeLongevity,
+  getLastLongevityBundle,
+  buildRedmiNote13ProLongevityReport,
+  resetRuntimeLongevityForTest,
+} from '../../runtime/longevity/runtimeLongevityIntegration';
+
+export {
+  runFullLongSessionStressSuite,
+  formatFinalSurvivalReportMarkdown,
+  resetRuntimeLongSessionStressHarness,
+} from '../../runtime/stress/runtimeLongSessionStressHarness';
+
+export {
+  initNativeDeviceTelemetry,
+  observeNativeDeviceTelemetryCycle,
+  getLastNativeDeviceTelemetrySnapshot,
+  getNativeDeviceTelemetryDashboard,
+  exportNativeDeviceTelemetryJson,
+  formatNativeDeviceTelemetryExportJson,
+  resetNativeDeviceTelemetryForTest,
+  exportMemorySnapshotsJson,
+} from '../telemetry';
+
+export {
+  startAutomatedSoakRunner,
+  stopAutomatedSoakRunner,
+  isAutomatedSoakRunnerActive,
+  getAutomatedSoakDashboard,
+  buildAutomatedSoakExportJson,
+  buildCompressedSoakBundle,
+  formatAutomatedSoakMarkdownReport,
+  formatAutomatedSoakExportJson,
+  resetAutomatedSoakRunnerForTest,
+} from '../soak';
+
+export {
+  getJsThreadStabilizationDashboard,
+  getLastJsThreadStabilizationProfile,
+  resetJsThreadStabilizationForTest,
+} from '../../scheduler/jsThreadStabilization';
+
+export {
+  getRnBridgeSurvivabilityDashboard,
+  getLastRnBridgeSurvivabilityProfile,
+  resetRnBridgeSurvivabilityForTest,
+} from '../../rn/bridgeSurvivability';
+
+export {
+  getFailureRecoveryDashboard,
+  getLastFailureRecoveryProfile,
+  resetFailureRecoveryForTest,
+  formatFailureRecoveryExportJson,
+  buildFailureRecoveryExportBundle,
+} from '../../recovery/failureRecovery';
 
 export async function analyzePersistedRedmiSoakExport(): Promise<
   ReturnType<typeof analyzeRedmiSoakReportBundle> | null
