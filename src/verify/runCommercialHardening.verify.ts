@@ -28,6 +28,10 @@ for (const script of scripts) {
     cwd: ROOT,
     stdio: 'inherit',
     shell: true,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require ${join(ROOT, 'scripts/react-native-stub-register.cjs')}`.trim(),
+    },
   });
   if (result.status !== 0) {
     failed += 1;

@@ -1,12 +1,19 @@
-import { describe, expect, it, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BURSA_MARKET_OPEN_INSTANT } from '../helpers/marketOpenTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { defaultPaperBrokerState, loadPaperBrokerState, savePaperBrokerState } from '../../src/services/paperBroker/paperBrokerStorage';
 import { getBrokerAdapter } from '../../src/services/paperBroker/brokerRegistry';
 
 describe('paper broker execution simulation', () => {
   beforeEach(async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(BURSA_MARKET_OPEN_INSTANT);
     await AsyncStorage.clear();
     await savePaperBrokerState(defaultPaperBrokerState());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('submits paper buy without real API', async () => {

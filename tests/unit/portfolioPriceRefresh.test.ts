@@ -71,11 +71,15 @@ describe('portfolio price refresh', () => {
 
   it('successful refresh clears pending flags', async () => {
     fetchQuoteViaProviderChain.mockResolvedValue({
-      price: 1.75,
-      symbol: '4707.KL',
-      exchange: '',
-      currency: 'MYR',
-      provider: 'yahoo_finance',
+      quote: {
+        price: 1.75,
+        symbol: '4707.KL',
+        exchange: '',
+        currency: 'MYR',
+        provider: 'yahoo_finance',
+      },
+      attempts: [],
+      usedFallback: false,
     });
     const before = [makePosition()];
     const { portfolio, result } = await syncPortfolioPrices('test-api-key-12345', before);
@@ -114,19 +118,43 @@ describe('portfolio price refresh', () => {
   });
 
   it('partial success updates available prices', async () => {
-    fetchQuoteViaProviderChain
-      .mockResolvedValueOnce({
-        price: 1.8,
-        symbol: '4707.KL',
-        exchange: '',
-        currency: 'MYR',
-        provider: 'yahoo_finance',
-      })
-      .mockRejectedValueOnce(new MarketDataError('symbol_invalid', BURSA_TWELVE_DATA_UNSUPPORTED));
+    fetchQuoteViaProviderChain.mockImplementation(async (input: { positionSymbol: string }) => {
+      if (input.positionSymbol === '4707') {
+        return {
+          quote: {
+            price: 1.8,
+            symbol: '4707.KL',
+            exchange: '',
+            currency: 'MYR',
+            provider: 'yahoo_finance',
+          },
+          attempts: [],
+          usedFallback: false,
+        };
+      }
+      return {
+        quote: null,
+        attempts: [
+          {
+            provider: 'yahoo_finance',
+            shortLabel: 'YF',
+            ok: false,
+            errorKind: 'symbol_invalid',
+          },
+        ],
+        usedFallback: false,
+      };
+    });
 
     const before = [
       makePosition({ symbol: '4707', currentPrice: 1.5 }),
-      makePosition({ id: 'pos-2', symbol: '0820EA', currentPrice: 0.9 }),
+      makePosition({
+        id: 'pos-2',
+        symbol: '0820EA',
+        currentPrice: null as unknown as number,
+        averageBuyPrice: 0,
+        priceFetchStatus: 'failed',
+      }),
     ];
     const { portfolio, result } = await syncPortfolioPrices('test-api-key-12345', before);
 
@@ -140,11 +168,15 @@ describe('portfolio price refresh', () => {
 
   it('empty Twelve Data key still attempts Yahoo provider chain', async () => {
     fetchQuoteViaProviderChain.mockResolvedValue({
-      price: 1.7,
-      symbol: '4707.KL',
-      exchange: '',
-      currency: 'MYR',
-      provider: 'yahoo_finance',
+      quote: {
+        price: 1.7,
+        symbol: '4707.KL',
+        exchange: '',
+        currency: 'MYR',
+        provider: 'yahoo_finance',
+      },
+      attempts: [],
+      usedFallback: false,
     });
     const { result } = await syncPortfolioPrices('', [makePosition()]);
     expect(fetchQuoteViaProviderChain).toHaveBeenCalled();

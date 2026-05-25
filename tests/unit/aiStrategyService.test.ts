@@ -1,6 +1,25 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../src/services/productionStability/productionStabilityRuntime', () => ({
+  shouldPauseConciergeAi: () => false,
+  shouldThrottleConciergeAi: () => false,
+  shouldAllowOpenAiRequest: () => true,
+  setOrchestratorProactiveGates: vi.fn(),
+}));
+
+vi.mock('../../src/services/productionStability/apiCircuitBreaker', () => ({
+  isCircuitOpen: () => false,
+  recordApiFailure: vi.fn(),
+  recordApiSuccess: vi.fn(),
+}));
+
+vi.mock('../../src/services/performanceCostRuntime', () => ({
+  shouldPauseApiRequests: () => false,
+  noteNetworkSuccess: vi.fn(),
+  noteNetworkFailure: vi.fn(),
+}));
 import {
   AI_API_CHAT_URL,
   AI_API_TIMEOUT_MS,

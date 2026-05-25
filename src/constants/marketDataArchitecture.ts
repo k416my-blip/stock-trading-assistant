@@ -18,6 +18,13 @@ export const MARKET_DATA_API_ALLOWED_IMPORTERS = [
   'src/screens/RealQuantValidationScreen.tsx',
   'src/verify/marketDataQueue.verify.ts',
   'src/services/marketDataRequestQueue.ts',
+  'src/services/quoteProviderChain.ts',
+  'src/services/quoteProviders/yahooFinanceBursa.ts',
+  'src/services/quoteProviders/yahooFinanceQuote.ts',
+  'src/services/twelveDataQuoteRetry.ts',
+  'src/services/yahooSymbolAliasCache.ts',
+  'src/utils/formatQuoteError.ts',
+  'src/utils/quoteFetchDebugLog.ts',
 ] as const;
 
 /** 分析層が使う読み取り専用 API */

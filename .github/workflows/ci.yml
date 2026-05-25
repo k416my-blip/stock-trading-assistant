@@ -34,6 +34,8 @@ jobs:
 
       - name: Commercial hardening verify
         run: npx tsx src/verify/runCommercialHardening.verify.ts
+        env:
+          NODE_OPTIONS: --require ./scripts/react-native-stub-register.cjs
 
       - name: Security verify
         run: npm run verify:security

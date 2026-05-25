@@ -134,8 +134,8 @@ describe('runtimeTelemetryEngine', () => {
     expect(['TELEMETRY_DEGRADED', 'TELEMETRY_CRITICAL']).toContain(ev.state);
   });
 
-  it('applies adaptive FPS cap when critical', () => {
-    evaluateRuntimeTelemetry(
+  it('derives aggressive tuning when critical (kernel owns apply path)', () => {
+    const ev = evaluateRuntimeTelemetry(
       baseInput({
         mobileMetrics: { ...baseInput().mobileMetrics, runtimeFPS: 8 },
         asyncMetrics: {
@@ -145,8 +145,9 @@ describe('runtimeTelemetryEngine', () => {
         },
       }),
     );
-    expect(getFpsCap()).toBeLessThanOrEqual(12);
-    expect(getAsyncConcurrentLimit()).toBeLessThanOrEqual(2);
+    expect(ev.tuning.maxDashboardFps).toBeLessThanOrEqual(12);
+    expect(ev.tuning.asyncConcurrency).toBeLessThanOrEqual(2);
+    expect(getFpsCap()).toBe(30);
   });
 
   it('records orchestration and hydration durations', () => {

@@ -71,7 +71,7 @@ import {
   sanitizeHoldingPosition,
 } from './holdingPriceCore';
 import { normalizeYahooSymbol } from '../utils/normalizeYahooSymbol';
-import { normalizeQuotePrice, safePrice, safeShares } from '../utils/safeNumeric';
+import { isValidQuotePrice, normalizeQuotePrice, safePrice, safeShares } from '../utils/safeNumeric';
 import { logMarketData, logMarketDataSuccess } from '../utils/marketDataLog';
 import { createRefreshDeadline } from '../utils/withTimeout';
 import { withTimeout } from '../utils/withTimeout';
@@ -825,6 +825,9 @@ export function mergePortfolioPriceUpdates(
   synced: PortfolioPosition[],
 ): PortfolioPosition[] {
   const safeCurrent = sanitizePortfolio(current);
+  const rawSyncedByKey = new Map(
+    synced.map((p) => [`${p.market}:${p.symbol}`, p] as const),
+  );
   const priceByKey = new Map(
     sanitizePortfolio(synced).map((p) => [`${p.market}:${p.symbol}`, p] as const),
   );
@@ -834,9 +837,11 @@ export function mergePortfolioPriceUpdates(
       if (safeShares(p.shares, 0) <= 0) return null;
 
       const updated = priceByKey.get(`${p.market}:${p.symbol}`);
+      const rawUpdated = rawSyncedByKey.get(`${p.market}:${p.symbol}`);
       if (!updated) return p;
 
       if (updated.priceFetchStatus === 'ok') {
+        if (rawUpdated && !isValidQuotePrice(rawUpdated.currentPrice)) return p;
         const nextPrice = normalizeQuotePrice(updated.currentPrice);
         if (nextPrice == null) return p;
         const fetchedAt = updated.currentPriceUpdatedAt ?? new Date().toISOString();

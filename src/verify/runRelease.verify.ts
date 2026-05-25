@@ -19,7 +19,15 @@ let failed = 0;
 
 for (const step of steps) {
   console.log(`\n── ${step.label} ──`);
-  const result = spawnSync(step.cmd, step.args, { cwd: ROOT, stdio: 'inherit', shell: true });
+  const result = spawnSync(step.cmd, step.args, {
+    cwd: ROOT,
+    stdio: 'inherit',
+    shell: true,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require ${join(ROOT, 'scripts/react-native-stub-register.cjs')}`.trim(),
+    },
+  });
   if (result.status !== 0) failed += 1;
 }
 

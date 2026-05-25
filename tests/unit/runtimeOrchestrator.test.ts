@@ -6,6 +6,9 @@ import {
 
 vi.mock('../../src/services/productionStability/productionStabilityRuntime', () => ({
   setOrchestratorProactiveGates: vi.fn(),
+  shouldPauseConciergeAi: () => false,
+  shouldThrottleConciergeAi: () => false,
+  shouldAllowOpenAiRequest: () => true,
 }));
 
 vi.mock('../../src/services/mobileRedmiRuntime', () => ({

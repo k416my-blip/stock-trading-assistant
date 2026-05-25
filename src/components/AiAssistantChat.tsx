@@ -870,7 +870,7 @@ export function AiAssistantChat({
     conciergeScrollRef.current?.scrollTo({ y: 0, animated: true });
   }, []);
 
-  const statusMetaBlock = (
+  const systemStatusLines = (
     <>
       <View style={styles.statusRow}>
         <SelectableText style={styles.statusLabel}>
@@ -913,6 +913,39 @@ export function AiAssistantChat({
         <SelectableText style={styles.mockBanner}>モックのみモード — 外部API未使用</SelectableText>
       ) : null}
     </>
+  );
+
+  const statusMetaBlock = systemStatusLines;
+
+  const conciergeSystemStatusBlock = (
+    <View style={styles.conciergeStatus}>
+      <View style={styles.statusRow}>
+        <SelectableText style={styles.conciergeStatusLabel}>
+          {AI_UI.apiStatus}: <SelectableText style={{ color: statusColor }}>{statusJa}</SelectableText>
+        </SelectableText>
+        {shouldShowApiSpinner(requestStatus, isCheckingConnection || isSending) ? (
+          <ActivityIndicator size="small" color={theme.colors.primary} />
+        ) : null}
+      </View>
+      {usedMockFallback ? (
+        <SelectableText style={styles.conciergeStatusLine}>{errorJa ?? AI_UI.mockFallback}</SelectableText>
+      ) : null}
+      {errorJa && !usedMockFallback ? (
+        <SelectableText style={styles.conciergeStatusLine}>{errorJa}</SelectableText>
+      ) : null}
+      {slowResponse && isSending ? (
+        <SelectableText style={styles.conciergeStatusWarn}>{PROACTIVE_UI.timeout}</SelectableText>
+      ) : null}
+      {staleWarning ? (
+        <SelectableText style={styles.conciergeStatusWarn}>{AI_UI.staleDataWarning}</SelectableText>
+      ) : null}
+      {!aiPreferences.aiEnabled ? (
+        <SelectableText style={styles.conciergeStatusLine}>AI機能オフ — モック応答のみ</SelectableText>
+      ) : null}
+      {aiPreferences.mockOnly ? (
+        <SelectableText style={styles.conciergeStatusLine}>モックのみモード — 外部API未使用</SelectableText>
+      ) : null}
+    </View>
   );
 
   const analysisModeBlock = isConcierge ? (
@@ -1452,7 +1485,7 @@ export function AiAssistantChat({
         {threadBlock}
         {aiPreferences.aiConciergeDebugMode ? <ConciergePromptDebugPanel /> : null}
         <View testID={CONCIERGE_SECTION_TEST_ID.footer_meta} style={styles.footerMeta}>
-          {statusMetaBlock}
+          {conciergeSystemStatusBlock}
         </View>
       </ScrollView>
     </View>

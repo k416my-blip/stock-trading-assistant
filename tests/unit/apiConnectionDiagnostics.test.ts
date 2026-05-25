@@ -1,4 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('../../src/services/productionStability/productionStabilityRuntime', () => ({
+  shouldPauseConciergeAi: () => false,
+  shouldThrottleConciergeAi: () => false,
+  shouldAllowOpenAiRequest: () => true,
+  setOrchestratorProactiveGates: vi.fn(),
+}));
+
+vi.mock('../../src/services/productionStability/apiCircuitBreaker', () => ({
+  isCircuitOpen: () => false,
+  recordApiFailure: vi.fn(),
+  recordApiSuccess: vi.fn(),
+}));
+
+vi.mock('../../src/services/performanceCostRuntime', () => ({
+  shouldPauseApiRequests: () => false,
+  noteNetworkSuccess: vi.fn(),
+  noteNetworkFailure: vi.fn(),
+}));
 import { statusLabelJa } from '../../src/services/apiConnectionStatusMapper';
 import {
   isMaskedOrEmptyApiKey,

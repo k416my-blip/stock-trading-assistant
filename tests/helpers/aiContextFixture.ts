@@ -122,7 +122,18 @@ export function minimalAiStrategyContext(
         cacheNotesJa: [],
       };
       const withGuide = { ...ev, actionGuide: buildConciergeActionGuide(ev) };
-      return { ...withGuide, riskControl: buildConciergeRiskControl({ evidence: withGuide }) };
+      const riskControl = buildConciergeRiskControl({ evidence: withGuide });
+      return {
+        ...withGuide,
+        riskControl: {
+          ...riskControl,
+          allowSpeculativeAi: true,
+          allowActionRecommendations: true,
+          confidenceGateOpen: true,
+          overallDataQualityScore: 85,
+          analysisBlockedJa: null,
+        },
+      };
     })(),
     analysisMode: 'balanced',
     globalMarketAnalysis: buildStubGlobalMarketAnalysis(),

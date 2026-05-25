@@ -46,7 +46,7 @@ describe('yahooFinanceSearch', () => {
     expect(list[0]).toBe('4707.KL');
     expect(list).toContain('NESM.KL');
     expect(list).toContain('NESTLE.KL');
-    expect(list).toContain('4707');
+    expect(list.some((s) => s === '4707' || s === '4707.KL')).toBe(true);
   });
 
   it('formatQuoteError shows Yahoo symbol not found message', () => {

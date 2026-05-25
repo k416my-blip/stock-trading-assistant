@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { BURSA_MARKET_OPEN_INSTANT } from '../helpers/marketOpenTime';
 import {
   buildDataReliabilityBundle,
   computeSymbolDataQualityScore,
@@ -61,6 +62,15 @@ function sym(overrides: Partial<ConciergeSymbolEvidence> = {}): ConciergeSymbolE
 }
 
 describe('dataReliabilityEngine', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(BURSA_MARKET_OPEN_INSTANT);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('computeSymbolDataQualityScore deducts for stale and invalid', () => {
     const good = computeSymbolDataQualityScore({
       priceValid: true,
