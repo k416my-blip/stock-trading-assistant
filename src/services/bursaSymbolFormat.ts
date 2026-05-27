@@ -214,6 +214,13 @@ export async function hydrateBursaFormatCache(): Promise<void> {
   await hydratePromise;
 }
 
+export function resetBursaFormatCacheForReset(): void {
+  cacheHydrated = false;
+  hydratePromise = null;
+  symbolCache = {};
+  globalHintFormatId = null;
+}
+
 function applyCacheSnapshot(cache: BursaFormatCacheV2): void {
   symbolCache = { ...cache.symbols };
   globalHintFormatId = cache.globalHint ?? null;

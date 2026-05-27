@@ -15,13 +15,14 @@ type Props = {
 type State = {
   hasError: boolean;
   message: string;
+  showLogs: boolean;
 };
 
 export class AppErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, message: '' };
+  state: State = { hasError: false, message: '', showLogs: false };
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, message: error.message || '不明なエラー' };
+    return { hasError: true, message: error.message || '不明なエラー', showLogs: false };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
@@ -31,12 +32,12 @@ export class AppErrorBoundary extends Component<Props, State> {
   }
 
   private handleRetry = (): void => {
-    this.setState({ hasError: false, message: '' });
+    this.setState({ hasError: false, message: '', showLogs: false });
   };
 
-  private handleSafeMode = (): void => {
+  private handleShowLogs = (): void => {
     this.props.onEnterSafeMode?.();
-    this.setState({ hasError: false, message: '' });
+    this.setState({ showLogs: true });
   };
 
   render(): ReactNode {
@@ -46,18 +47,18 @@ export class AppErrorBoundary extends Component<Props, State> {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>{this.props.fallbackTitle ?? 'アプリで問題が発生しました'}</Text>
+        <Text style={styles.title}>{this.props.fallbackTitle ?? '起動復旧モード'}</Text>
         <Text style={styles.message}>
-          データの読み込みまたは画面表示中にエラーが発生しました。再試行するか、安全モードで起動してください。
+          データは保持されています。起動または画面表示で問題が発生したため、復旧表示に切り替えました。
         </Text>
-        {this.state.message ? (
+        {this.state.showLogs && this.state.message ? (
           <Text style={styles.detail} numberOfLines={3}>
             {this.state.message}
           </Text>
         ) : null}
         <View style={styles.actions}>
-          <Button label="再試行" onPress={this.handleRetry} />
-          <Button label="安全モードで続行" onPress={this.handleSafeMode} variant="ghost" />
+          <Button label="再読み込み" onPress={this.handleRetry} />
+          <Button label="ログ確認" onPress={this.handleShowLogs} variant="ghost" />
         </View>
       </View>
     );

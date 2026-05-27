@@ -59,10 +59,20 @@ eas build --profile development --platform android
 ### 5. 品質チェック（コミット前）
 
 ```bash
-npm run typecheck
-npm run lint
-npm test
+npm run dev:check
+npm run test:unit
+npm run verify:quick
 ```
+
+重い runtime stack / soak / release 系の検証は通常開発では手動実行に分離しています。
+
+```bash
+npm run verify:runtime-full
+npm run verify:soak-runner
+npm run verify:full-release
+```
+
+`docs/review/*.md` の詳細レビュー文書は大きいため Cursor indexing から外し、必要なときだけ手動参照してください。
 
 ---
 

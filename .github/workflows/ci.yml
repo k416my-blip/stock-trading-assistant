@@ -1,13 +1,16 @@
 name: CI
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 20 * * 0'
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
 
 jobs:
-  verify:
+  quick-verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,22 +32,25 @@ jobs:
       - name: Unit tests
         run: npm run test:unit
 
-      - name: Integration tests
-        run: npm run verify:integration
+      - name: Quick verify
+        run: npm run verify:quick
 
-      - name: Commercial hardening verify
-        run: npx tsx src/verify/runCommercialHardening.verify.ts
-        env:
-          NODE_OPTIONS: --require ./scripts/react-native-stub-register.cjs
+  runtime-full-verify:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Security verify
-        run: npm run verify:security
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
 
-      - name: Diagnostics verify
-        run: npm run verify:diagnostics
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Release verify
-        run: npm run verify:release
+      - name: Runtime full verify
+        run: npm run verify:runtime-full
 
-      - name: Full test suite
-        run: npm test
+      - name: Full release verify
+        run: npm run verify:full-release

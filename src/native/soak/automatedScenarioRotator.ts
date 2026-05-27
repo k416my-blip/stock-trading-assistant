@@ -71,6 +71,23 @@ export async function tickAutomatedScenarioRotator(
       return runNativeKillRecoveryScenarioStep();
     case 'android_lifecycle_stress':
       return runAndroidLifecycleStressObserveStep();
+    case 'runtime_self_recursion_endurance':
+    case 'runtime_telemetry_entropy':
+    case 'runtime_cognitive_governance':
+    case 'runtime_civilization_topology':
+    case 'runtime_meta_limit_governance':
+    case 'runtime_federation_governance':
+    case 'runtime_ontology_stabilization':
+    case 'runtime_finite_boundary':
+    case 'runtime_semantic_compression':
+    case 'runtime_semantic_gravity':
+    case 'runtime_semantic_thermodynamics':
+    case 'runtime_semantic_phase_transition':
+    case 'runtime_adaptive_observation':
+    case 'runtime_observer_reality_selection':
+    case 'runtime_inter_civilization_resonance':
+    case 'runtime_governance_freeze':
+      return 'archived diagnostic scenario';
     default:
       return 'idle';
   }

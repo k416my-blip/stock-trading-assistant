@@ -147,10 +147,33 @@ export async function deleteSecret(keyId: SecretKeyId): Promise<void> {
   await removeLegacyPlainSecret(keyId);
 }
 
-export async function deleteAllSecrets(): Promise<void> {
+export type DeleteSecretsReport = {
+  deletedKeys: string[];
+  failedKeys: string[];
+};
+
+async function deleteSecretWithReport(keyId: SecretKeyId): Promise<DeleteSecretsReport> {
+  const key = SECRET_KEYS[keyId];
+  try {
+    await deleteSecret(keyId);
+    return { deletedKeys: [key], failedKeys: [] };
+  } catch {
+    return { deletedKeys: [], failedKeys: [key] };
+  }
+}
+
+export async function deleteAllSecretsWithReport(): Promise<DeleteSecretsReport> {
   const ids = Object.keys(SECRET_KEYS) as SecretKeyId[];
-  await Promise.all(ids.map((id) => deleteSecret(id)));
+  const reports = await Promise.all(ids.map((id) => deleteSecretWithReport(id)));
   memorySecrets.clear();
+  return {
+    deletedKeys: reports.flatMap((report) => report.deletedKeys),
+    failedKeys: reports.flatMap((report) => report.failedKeys),
+  };
+}
+
+export async function deleteAllSecrets(): Promise<void> {
+  await deleteAllSecretsWithReport();
 }
 
 async function readLegacyPlainSecret(keyId: SecretKeyId): Promise<string> {

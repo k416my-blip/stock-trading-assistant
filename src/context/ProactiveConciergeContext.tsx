@@ -1244,7 +1244,6 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       const ks = getPersonalKillSwitchesSnapshot();
       const priceStale =
         priceSync.displayStatus === 'cached' ||
-        priceSync.displayStatus === 'partial_failure' ||
         priceSync.displayStatus === 'connection_failed' ||
         priceSync.lastError != null ||
         (worldModel?.portfolioRisk.staleHoldingsCount ?? 0) > 0;
@@ -1371,7 +1370,7 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
             : priceSync.displayStatus === 'partial_failure'
               ? '一部失敗'
               : priceSync.displayStatus === 'connection_failed'
-                ? '接続失敗'
+                ? '通信エラー'
                 : priceSync.displayStatus === 'fetching'
                   ? '取得中'
                   : String(priceSync.displayStatus ?? 'idle');

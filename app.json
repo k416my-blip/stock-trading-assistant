@@ -6,7 +6,14 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "jsEngine": "hermes",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "enabled": false
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -18,6 +25,7 @@
         "backgroundColor": "#0f1419"
       },
       "package": "com.assistant.stocktrading",
+      "versionCode": 2,
       "edgeToEdgeEnabled": false
     },
     "web": {
@@ -34,6 +42,12 @@
           ]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "70000a9b-cffc-4738-b615-3e10edb0b865"
+      }
+    },
+    "owner": "k416my"
   }
 }

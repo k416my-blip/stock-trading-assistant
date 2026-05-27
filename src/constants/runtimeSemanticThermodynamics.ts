@@ -1,0 +1,55 @@
+export const RUNTIME_SEMANTIC_THERMODYNAMICS_VERSION = '1.0.0';
+export const RUNTIME_SEMANTIC_THERMODYNAMICS_POLL_MS = 50_000;
+export const RUNTIME_SEMANTIC_THERMODYNAMICS_TIMELINE_MAX = 360;
+
+export const SEMANTIC_THERMODYNAMIC_LAYERS = [
+  'meaning',
+  'ontology',
+  'observer',
+  'dashboard',
+  'replay',
+  'entropy',
+] as const;
+
+export const RUNTIME_SEMANTIC_THERMODYNAMICS_UI_JA = {
+  sectionTitle: 'Semantic Thermodynamics & Entropy Dissipation Stability',
+  safety:
+    'observe-only semantic thermodynamics — semantic cooling intervention/entropy suppression/automatic stabilization/observer throttling/semantic pruning/replay dampening/ontology normalization/runtime thermal balancing/forced entropy reduction 禁止',
+  semanticEntropyLevel: 'semanticEntropyLevel',
+  semanticHeatDensity: 'semanticHeatDensity',
+  ontologyThermalPressure: 'ontologyThermalPressure',
+  recursiveMeaningTemperature: 'recursiveMeaningTemperature',
+  semanticEnergyPropagation: 'semanticEnergyPropagation',
+  entropyAmplificationRisk: 'entropyAmplificationRisk',
+  semanticHeatAccumulation: 'semanticHeatAccumulation',
+  runtimeMeaningHeatIndex: 'runtimeMeaningHeatIndex',
+  semanticDissipationEfficiency: 'semanticDissipationEfficiency',
+  ontologyCoolingPotential: 'ontologyCoolingPotential',
+  observerEntropyDrain: 'observerEntropyDrain',
+  semanticThermalLeakage: 'semanticThermalLeakage',
+  replayEntropyPropagation: 'replayEntropyPropagation',
+  dashboardHeatRetention: 'dashboardHeatRetention',
+  semanticPressurePersistence: 'semanticPressurePersistence',
+  entropyContainmentStress: 'entropyContainmentStress',
+  ontologyTurbulenceIntensity: 'ontologyTurbulenceIntensity',
+  semanticVortexFormation: 'semanticVortexFormation',
+  recursiveMeaningTurbulence: 'recursiveMeaningTurbulence',
+  worldviewConvectionRisk: 'worldviewConvectionRisk',
+  observerInterpretationInstability: 'observerInterpretationInstability',
+  semanticPressureWaveRisk: 'semanticPressureWaveRisk',
+  ontologyFlowFragmentation: 'ontologyFlowFragmentation',
+  observerThermalFatigue: 'observerThermalFatigue',
+  cognitiveHeatOverload: 'cognitiveHeatOverload',
+  dashboardThermalSaturation: 'dashboardThermalSaturation',
+  semanticAttentionBurnout: 'semanticAttentionBurnout',
+  interpretationHeatStress: 'interpretationHeatStress',
+  replayObservationExhaustion: 'replayObservationExhaustion',
+  observerCoolingDeficit: 'observerCoolingDeficit',
+  semanticHeatDeathRisk: 'semanticHeatDeathRisk',
+  ontologySignalDecay: 'ontologySignalDecay',
+  meaningResolutionCollapse: 'meaningResolutionCollapse',
+  semanticNoiseDominance: 'semanticNoiseDominance',
+  metricThermalEquilibriumFailure: 'metricThermalEquilibriumFailure',
+  observerMeaningBlindness: 'observerMeaningBlindness',
+  semanticExhaustionPotential: 'semanticExhaustionPotential',
+} as const;

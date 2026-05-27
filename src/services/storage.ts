@@ -8,7 +8,8 @@ import {
   wrapAppStateForPersistence,
 } from './appStatePersistence';
 import { migratePersistedAppStateRaw } from './persistenceMigration';
-import { deleteAllSecrets } from './secretStorage';
+import { LEGACY_PLAIN_SECRET_KEYS } from '../constants/secretStorage';
+import { deleteAllSecretsWithReport } from './secretStorage';
 import { secureWarn } from './secureLogger';
 import { createDefaultPracticeState } from './practice';
 import { normalizePortfolioPosition } from './portfolio';
@@ -221,15 +222,69 @@ export function createDefaultAppState(): AppState {
   };
 }
 
-/** アプリデータを初期化（APIキーはオプションで削除） */
-export async function clearAllPersistedAppData(clearApiKeys: boolean): Promise<void> {
-  const fresh = createDefaultAppState();
-  await saveAppState(fresh);
-  await AsyncStorage.removeItem(STORAGE_KEYS.aiLearning);
-  await AsyncStorage.removeItem(STORAGE_KEYS.aiPreferences);
-  await AsyncStorage.removeItem(STORAGE_KEYS.aiChatHistory);
+export type ClearPersistedAppDataResult = {
+  deletedKeys: string[];
+  failedKeys: string[];
+};
 
-  if (clearApiKeys) {
-    await deleteAllSecrets();
+const ADDITIONAL_APP_STORAGE_KEYS = [
+  '@sta/safe_boot_attempts_v1',
+  '@sta/automated_soak_runner_v1',
+  '@sta/redmi_long_soak_v1',
+  '@sta/long_soak_records_v1',
+  '@sta/proactive_advisor_history_v1',
+  '@sta/personal_kill_switches_v1',
+  '@sta/sim_boot_interrupt_v1',
+] as const;
+
+function uniqueKeys(keys: string[]): string[] {
+  return [...new Set(keys.filter((key) => key.trim().length > 0))];
+}
+
+async function removeStorageKey(key: string): Promise<{ key: string; ok: boolean }> {
+  try {
+    await AsyncStorage.removeItem(key);
+    return { key, ok: true };
+  } catch {
+    return { key, ok: false };
   }
+}
+
+/**
+ * アプリユーザーデータを完全削除する。
+ * AsyncStorage.clear() は使わず、既知 key と実在する @sta/* key を明示的に削除する。
+ */
+export async function clearAllPersistedAppData(_clearApiKeys: boolean): Promise<ClearPersistedAppDataResult> {
+  const explicitKeys = uniqueKeys([
+    ...Object.values(STORAGE_KEYS),
+    ...Object.values(LEGACY_PLAIN_SECRET_KEYS),
+    ...ADDITIONAL_APP_STORAGE_KEYS,
+  ]);
+
+  let existingStaKeys: string[] = [];
+  try {
+    const existingKeys = await AsyncStorage.getAllKeys();
+    existingStaKeys = existingKeys.filter((key) => key.startsWith('@sta/'));
+  } catch {
+    secureWarn('[reset] failed to enumerate AsyncStorage keys');
+  }
+
+  const storageKeys = uniqueKeys([...explicitKeys, ...existingStaKeys]);
+  const storageReports = await Promise.all(storageKeys.map((key) => removeStorageKey(key)));
+  const secretsReport = await deleteAllSecretsWithReport();
+
+  const deletedKeys = [
+    ...storageReports.filter((report) => report.ok).map((report) => report.key),
+    ...secretsReport.deletedKeys,
+  ];
+  const failedKeys = [
+    ...storageReports.filter((report) => !report.ok).map((report) => report.key),
+    ...secretsReport.failedKeys,
+  ];
+
+  if (failedKeys.length > 0) {
+    secureWarn('[reset] failed to delete keys', failedKeys.join(', '));
+  }
+
+  return { deletedKeys, failedKeys };
 }

@@ -10,9 +10,17 @@ export type PriceSource = 'manual' | 'api';
 
 export type PriceFetchStatus = 'ok' | 'failed' | 'pending';
 
+export type PerSymbolPriceStatus =
+  | 'OK'
+  | 'PLAN_UNSUPPORTED'
+  | 'INVALID_SYMBOL'
+  | 'NETWORK_ERROR'
+  | 'TEMPORARY_FAILURE';
+
 /** Twelve Data / 通信エラーの分類 */
 export type MarketDataErrorKind =
   | 'rate_limit'
+  | 'plan_unsupported'
   | 'symbol_invalid'
   | 'empty_response'
   | 'market_closed'
@@ -97,6 +105,8 @@ export interface PriceSyncFailure {
   usedCache?: boolean;
   /** 分類（デバッグ・集計用） */
   errorKind?: MarketDataErrorKind;
+  /** 銘柄単位の価格取得状態 */
+  priceStatus?: PerSymbolPriceStatus;
   provider?: QuoteProviderId;
   httpStatus?: number;
   timedOut?: boolean;

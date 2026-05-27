@@ -80,7 +80,7 @@ function statusBadgeStyle(status: PriceSyncDisplayStatus) {
     case 'cached':
       return styles.badgeCached;
     case 'connection_failed':
-      return styles.badgeFailed;
+      return styles.badgePartial;
     case 'complete':
       return styles.badgeOk;
     default:
@@ -118,9 +118,6 @@ export function PriceSyncResultPanel({
   const successCount = result?.successCount ?? result?.updatedCount ?? 0;
   const failCount = result?.failedCount ?? result?.failures.length ?? 0;
   const isPartialSuccess = result?.partialFailure ?? (successCount > 0 && failCount > 0);
-  const isTotalFailure = result?.totalFailure ?? (successCount === 0 && failCount > 0);
-  const globalError = sanitizeErrorForUi(result?.error ?? lastError, '');
-  const showGlobalError = isTotalFailure && failCount > 0 && globalError.length > 0;
   const debugPrice = quoteFetchDebug?.price;
 
   return (
@@ -173,13 +170,6 @@ export function PriceSyncResultPanel({
         exploring={connectionPhase === 'symbol_exploring' && loading}
         currentSymbol={currentSymbol}
       />
-
-      {showGlobalError ? (
-        <View style={styles.errorBlock}>
-          <Text style={styles.errorTitle}>API失敗</Text>
-          <Text style={styles.errorText}>{globalError}</Text>
-        </View>
-      ) : null}
 
       {result ? (
         <>
@@ -310,7 +300,6 @@ const styles = StyleSheet.create({
   badgeFetching: { backgroundColor: theme.colors.primary + '33', color: theme.colors.primary },
   badgePartial: { backgroundColor: theme.colors.warning + '33', color: theme.colors.warning },
   badgeCached: { backgroundColor: theme.colors.textMuted + '33', color: theme.colors.textMuted },
-  badgeFailed: { backgroundColor: theme.colors.danger + '33', color: theme.colors.danger },
   badgeOk: { backgroundColor: '#22c55e33', color: '#16a34a' },
   badgeIdle: { backgroundColor: theme.colors.surfaceElevated, color: theme.colors.textMuted },
   apiStatusRow: { marginTop: theme.spacing.sm, gap: 2 },
@@ -326,15 +315,6 @@ const styles = StyleSheet.create({
   rowSuccess: { color: '#16a34a', fontSize: theme.fontSize.sm, marginTop: 2, fontWeight: '600' },
   rowMuted: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: 2, fontStyle: 'italic' },
   rowWarn: { color: theme.colors.warning, fontSize: theme.fontSize.sm, marginTop: 4 },
-  errorBlock: {
-    marginTop: theme.spacing.sm,
-    padding: theme.spacing.sm,
-    borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.surfaceElevated,
-    gap: 4,
-  },
-  errorTitle: { color: theme.colors.warning, fontWeight: '600', fontSize: theme.fontSize.sm },
-  errorText: { color: theme.colors.text, fontSize: theme.fontSize.sm, lineHeight: 18 },
   failBlock: { marginTop: theme.spacing.sm, gap: theme.spacing.sm },
   failTitle: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.sm },
   failItem: {

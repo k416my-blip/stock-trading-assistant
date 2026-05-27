@@ -11,6 +11,22 @@ export const AUTOMATED_SOAK_SCENARIO_IDS = [
   'dashboard_render_storm',
   'native_kill_recovery',
   'android_lifecycle_stress',
+  'runtime_self_recursion_endurance',
+  'runtime_telemetry_entropy',
+  'runtime_cognitive_governance',
+  'runtime_civilization_topology',
+  'runtime_meta_limit_governance',
+  'runtime_federation_governance',
+  'runtime_ontology_stabilization',
+  'runtime_finite_boundary',
+  'runtime_semantic_compression',
+  'runtime_semantic_gravity',
+  'runtime_semantic_thermodynamics',
+  'runtime_semantic_phase_transition',
+  'runtime_adaptive_observation',
+  'runtime_observer_reality_selection',
+  'runtime_inter_civilization_resonance',
+  'runtime_governance_freeze',
 ] as const;
 
 export type AutomatedSoakScenarioId = (typeof AUTOMATED_SOAK_SCENARIO_IDS)[number];

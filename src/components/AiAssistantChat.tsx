@@ -320,7 +320,7 @@ export function AiAssistantChat({
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
-  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey } = useApp();
+  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision } = useApp();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
   const unifiedCognitiveBundle = useUnifiedCognitiveDashboardBundle();
@@ -475,6 +475,20 @@ export function AiAssistantChat({
       void saveAiChatHistory(messages);
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (dataResetRevision <= 0) return;
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setMessages([]);
+    setInput('');
+    setIsSending(false);
+    setRetryPrompt(null);
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+    setSpeakingMessageId(null);
+    void stopVoiceOutput();
+  }, [dataResetRevision]);
 
   const applyResult = useCallback((result: AiStrategyChatResult) => {
     setRequestStatus(result.requestStatus);

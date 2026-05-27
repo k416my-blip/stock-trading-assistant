@@ -1,7 +1,8 @@
-import type { MarketDataErrorKind } from '../types/marketData';
+import type { MarketDataErrorKind, PerSymbolPriceStatus } from '../types/marketData';
 
 export const MARKET_DATA_ERROR_LABEL: Record<MarketDataErrorKind, string> = {
   rate_limit: 'API制限',
+  plan_unsupported: 'プラン未対応',
   symbol_invalid: '銘柄コード不正',
   empty_response: '価格データ空',
   market_closed: '市場休場',
@@ -14,6 +15,7 @@ export const MARKET_DATA_ERROR_LABEL: Record<MarketDataErrorKind, string> = {
 
 const USER_MESSAGES: Record<MarketDataErrorKind, string> = {
   rate_limit: 'API制限に達した可能性があります（429）',
+  plan_unsupported: '現在の Twelve Data プランでは未対応',
   symbol_invalid: '銘柄コードまたは市場設定が正しくない可能性があります',
   empty_response: '価格データが空でした（休場・未配信の可能性があります）',
   market_closed: '市場が閉まっているため価格が更新されない場合があります',
@@ -34,6 +36,9 @@ export function classifyMarketDataError(
   if (httpStatus === 429) return 'rate_limit';
   if (httpStatus === 401 || httpStatus === 403) return 'api_key';
   if (/apikey|api key|unauthorized|not authorized/.test(m)) return 'api_key';
+  if (/available starting with the pro or venture plan|consider upgrading/.test(m)) {
+    return 'plan_unsupported';
+  }
   if (httpStatus != null && httpStatus >= 500) return 'server_error';
 
   if (/\b429\b/.test(m) || /too many requests/.test(m)) return 'rate_limit';
@@ -101,4 +106,21 @@ export function toUserFriendlyPriceError(
 
 export function priceErrorCategory(kind: MarketDataErrorKind): string {
   return kind;
+}
+
+export function priceStatusFromMarketDataError(
+  kind: MarketDataErrorKind,
+  message = '',
+): PerSymbolPriceStatus {
+  const m = message.toLowerCase();
+  if (/available starting with the pro or venture plan|consider upgrading/.test(m)) {
+    return 'PLAN_UNSUPPORTED';
+  }
+  if (/symbol.*figi.*missing.*invalid|symbol.*missing.*invalid|figi.*missing.*invalid/.test(m)) {
+    return 'INVALID_SYMBOL';
+  }
+  if (kind === 'plan_unsupported') return 'PLAN_UNSUPPORTED';
+  if (kind === 'symbol_invalid' || kind === 'unsupported_exchange') return 'INVALID_SYMBOL';
+  if (kind === 'network_timeout' || kind === 'server_error') return 'NETWORK_ERROR';
+  return 'TEMPORARY_FAILURE';
 }

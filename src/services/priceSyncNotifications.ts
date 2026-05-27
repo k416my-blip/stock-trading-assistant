@@ -60,6 +60,7 @@ export function attachPriceSyncUxState<T extends Omit<PriceSyncResult, 'successC
 export function shouldShowPriceRefreshErrorDialog(result: PriceSyncResult): boolean {
   const { totalFailure, failedCount } = derivePriceSyncUxCounts(result);
   if (!totalFailure || failedCount === 0) return false;
+  if (result.failures.every(isPerSymbolUnsupportedFailure)) return false;
   return result.failures.some((f) => !failureHasDisplayablePrice(f));
 }
 
@@ -93,4 +94,8 @@ export function formatPriceRefreshErrorDialogMessage(_result: PriceSyncResult): 
 
 export function totalFailureAlertTitle(): string {
   return MARKET_DATA_MESSAGES.totalFailureAlertTitle;
+}
+
+function isPerSymbolUnsupportedFailure(f: PriceSyncFailure): boolean {
+  return f.priceStatus === 'PLAN_UNSUPPORTED' || f.priceStatus === 'INVALID_SYMBOL';
 }

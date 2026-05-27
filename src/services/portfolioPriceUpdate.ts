@@ -55,6 +55,7 @@ import { delayMs } from './twelveDataQuoteRetry';
 import { logHoldingQuoteDiagnostic, logQuoteFetchFailure } from './quoteFetchDiagnostics';
 import { formatQuoteErrorForUser } from '../utils/formatQuoteError';
 import { isDev } from '../utils/isDev';
+import { priceStatusFromMarketDataError } from './marketDataErrors';
 import {
   logPortfolioSymbolBatch,
   logTwelveDataApiKeyDiagnostic,
@@ -685,6 +686,7 @@ export async function syncPortfolioPrices(
 
     const reason = failureReasonFromError(mdErr, position.market);
     const errorKind = mdErr.kind;
+    const priceStatus = priceStatusFromMarketDataError(errorKind, mdErr.rawMessage ?? mdErr.message);
 
     if (errorKind === 'market_closed') {
       marketClosedHint = true;
@@ -709,6 +711,13 @@ export async function syncPortfolioPrices(
       : providerAttempts?.map((a) => formatProviderAttemptLine(a.provider, a.shortLabel)).join('\n') ||
         reason;
 
+    console.log('[PRICE_STATUS]', {
+      symbol: position.symbol,
+      provider: failureProvider,
+      status: priceStatus,
+      responseMessage: mdErr.rawMessage ?? mdErr.message,
+    });
+
     if (!usedSavedPrice) {
       logQuoteFetchFailure({
         provider: failureProvider,
@@ -727,6 +736,7 @@ export async function syncPortfolioPrices(
 
     recordPositionFailure(failures, position, name, failureReason, {
       errorKind,
+      priceStatus,
       provider: failureProvider,
       httpStatus: mdErr.httpStatus,
       timedOut: errorKind === 'network_timeout',

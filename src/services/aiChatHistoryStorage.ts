@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AI_CHAT_HISTORY_MAX_UI_MESSAGES } from '../constants/aiPersonalityGuardrails';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import type { AiChatMessage } from '../types/aiChat';
-import { getInitialAiChatMessages } from '../data/mockAiChat';
 import { normalizeChatHistory } from '../utils/chatTimestamp';
 import { getChatHistoryScopeNotice } from './aiPersonalityGuard';
 
@@ -18,14 +17,14 @@ export function getAiChatHistoryStoragePurpose(): string {
 export async function loadAiChatHistory(): Promise<AiChatMessage[]> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.aiChatHistory);
-    if (!raw) return getInitialAiChatMessages();
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as AiChatMessage[];
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      return getInitialAiChatMessages();
+      return [];
     }
     return normalizeChatHistory(parsed);
   } catch {
-    return getInitialAiChatMessages();
+    return [];
   }
 }
 

@@ -50,6 +50,30 @@ function formatMYR(amount: number): string {
   return `RM${amount.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+function priceFailureStatusLabel(failure: PriceSyncFailure | undefined): string | null {
+  switch (failure?.priceStatus) {
+    case 'PLAN_UNSUPPORTED':
+      return MARKET_DATA_MESSAGES.planUnsupported;
+    case 'INVALID_SYMBOL':
+      return MARKET_DATA_MESSAGES.invalidSymbol;
+    case 'NETWORK_ERROR':
+      return MARKET_DATA_MESSAGES.networkError;
+    case 'TEMPORARY_FAILURE':
+      return MARKET_DATA_MESSAGES.temporaryPriceFailure;
+    default:
+      if (failure?.timedOut || failure?.errorKind === 'network_timeout') {
+        return MARKET_DATA_MESSAGES.networkError;
+      }
+      if (failure?.errorKind === 'symbol_invalid' || failure?.errorKind === 'unsupported_exchange') {
+        return MARKET_DATA_MESSAGES.invalidSymbol;
+      }
+      if (failure?.errorKind === 'plan_unsupported') {
+        return MARKET_DATA_MESSAGES.planUnsupported;
+      }
+      return failure ? MARKET_DATA_MESSAGES.temporaryPriceFailure : null;
+  }
+}
+
 export function HoldingCard({
   holding,
   position,
@@ -84,6 +108,7 @@ export function HoldingCard({
   const quoteProviderLabel = holding.lastQuoteProviderLabel ?? priceMeta.quoteProviderLabel;
   const yahooSymbolLabel = holding.normalizedYahooSymbol ?? priceMeta.normalizedYahooSymbol;
   const showStaleBadge = resolved.showStaleBadge && !priceExploring;
+  const priceFailureStatus = priceFailureStatusLabel(priceFailure);
 
   const startEditPrice = () => {
     setPriceInput(String(displayCurrentPrice));
@@ -220,6 +245,9 @@ export function HoldingCard({
 
       {priceFailure ? (
         <View style={styles.failureBox}>
+          {priceFailureStatus ? (
+            <Text style={styles.failureStatus}>{priceFailureStatus}</Text>
+          ) : null}
           <Pressable
             onPress={() => setFailureExpanded((v) => !v)}
             accessibilityRole="button"
@@ -243,7 +271,8 @@ export function HoldingCard({
                   価格取得元: {QUOTE_PROVIDER_LABELS[priceFailure.provider]}
                 </Text>
               ) : null}
-              <Text style={styles.failureReason}>エラー: {priceFailure.reason}</Text>
+              <Text style={styles.failureReason}>状態: {priceFailureStatus ?? priceFailure.reason}</Text>
+              <Text style={styles.failureMeta}>詳細: {priceFailure.reason}</Text>
               {priceFailure.providerAttempts?.length ? (
                 <View style={styles.providerAttempts}>
                   {priceFailure.providerAttempts.map((a) => (
@@ -413,6 +442,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceElevated,
     gap: theme.spacing.xs,
   },
+  failureStatus: { color: theme.colors.warning, fontWeight: '700', fontSize: theme.fontSize.sm },
   failureTitle: { color: theme.colors.warning, fontWeight: '600', fontSize: theme.fontSize.sm },
   failureBody: { gap: 4, marginTop: 4 },
   failureMeta: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },

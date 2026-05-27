@@ -101,6 +101,10 @@ export async function hydrateYahooSymbolAliasCache(): Promise<void> {
   await loadStore();
 }
 
+export function resetYahooSymbolAliasCacheForReset(): void {
+  memoryStore = null;
+}
+
 export function getYahooSymbolAlias(coreSymbol: string): YahooSymbolAliasEntry | undefined {
   const core = normalizeBursaCoreSymbol(coreSymbol);
   return memoryStore?.aliases[core];

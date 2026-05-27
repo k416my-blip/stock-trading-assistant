@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SettingsMenuRow } from '../components/ApiKeyPromoCard';
@@ -22,7 +22,6 @@ import { theme } from '../theme';
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, isPractice, resetAllAppData } = useApp();
-  const [clearApiKeys, setClearApiKeys] = useState(false);
   const [resetting, setResetting] = useState(false);
 
   const refreshLabel =
@@ -32,14 +31,18 @@ export function SettingsScreen() {
   const runReset = async () => {
     setResetting(true);
     try {
-      await resetAllAppData(clearApiKeys);
+      const result = await resetAllAppData(true);
       stackNav.dispatch(
         CommonActions.reset({
           index: 0,
           routes: [{ name: 'MainTabs', state: { routes: [{ name: 'Home' }], index: 0 } }],
         }),
       );
-      Alert.alert('リセットが完了しました');
+      if (result.failedKeys.length > 0) {
+        Alert.alert('リセットが完了しました', `削除できなかったキー: ${result.failedKeys.join(', ')}`);
+      } else {
+        Alert.alert('リセットが完了しました');
+      }
     } finally {
       setResetting(false);
     }
@@ -277,16 +280,8 @@ export function SettingsScreen() {
       <Card style={styles.resetCard}>
         <Text style={styles.resetTitle}>すべてリセット</Text>
         <Text style={styles.resetHint}>
-          仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定を初期化します。
+          仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定・APIキー・キャッシュを削除します。
         </Text>
-        <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>APIキーも削除する</Text>
-          <Switch
-            value={clearApiKeys}
-            onValueChange={setClearApiKeys}
-            trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-          />
-        </View>
         <Button
           label="すべてのデータをリセット"
           onPress={onResetPress}
@@ -314,12 +309,4 @@ const styles = StyleSheet.create({
   resetCard: { borderColor: theme.colors.danger, borderWidth: 1 },
   resetTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.md },
   resetHint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18, marginTop: theme.spacing.sm },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
-  },
-  switchLabel: { color: theme.colors.text, fontSize: theme.fontSize.sm, flex: 1, marginRight: theme.spacing.sm },
 });

@@ -47,3 +47,15 @@ agent-transcripts/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+reports/
+artifacts/
+screenshots/
+playwright-report/
+test-results/
+src/native/soak/generated/
+android/build/
+*.bak
+*.backup
+*.orig
+*~
+docs/review/*.md

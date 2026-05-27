@@ -1,9 +1,33 @@
 import { getSecret, setSecret } from './secretStorage';
 import { isUsableApiKey, normalizeStoredApiKey } from './apiKeyValidation';
 
+const AI_ENV_KEY_NAMES = [
+  'EXPO_PUBLIC_OPENAI_API_KEY',
+  'OPENAI_API_KEY',
+] as const;
+
+function readAiKeyFromEnv(): string {
+  if (typeof process === 'undefined' || !process.env) return '';
+  for (const name of AI_ENV_KEY_NAMES) {
+    const value = process.env[name];
+    if (typeof value === 'string' && isUsableApiKey(value)) {
+      return normalizeStoredApiKey(value);
+    }
+  }
+  return '';
+}
+
 export async function loadAiApiKey(): Promise<string> {
   const raw = await getSecret('aiApiKey');
-  return isUsableApiKey(raw) ? normalizeStoredApiKey(raw) : '';
+  if (isUsableApiKey(raw)) return normalizeStoredApiKey(raw);
+
+  const fromEnv = readAiKeyFromEnv();
+  if (fromEnv) {
+    await setSecret('aiApiKey', fromEnv);
+    return fromEnv;
+  }
+
+  return '';
 }
 
 export async function saveAiApiKey(apiKey: string): Promise<void> {
@@ -23,7 +47,7 @@ export type LoadAiApiKeyResult = {
 export async function loadAiApiKeyWithTimeout(timeoutMs: number): Promise<LoadAiApiKeyResult> {
   try {
     const key = await Promise.race([
-      getSecret('aiApiKey'),
+      loadAiApiKey(),
       new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('timeout')), timeoutMs);
       }),

@@ -108,9 +108,10 @@ export function PortfolioScreen() {
   const resolvedSellsRef = useRef<ResolvedSell[]>([]);
   const skippedItemsRef = useRef<SellAllLineItem[]>([]);
 
-  const positions = isPractice
-    ? calculatePositionsPnLFromList(portfolio)
-    : calculatePositionsPnL(state);
+  const positions = useMemo(
+    () => (isPractice ? calculatePositionsPnLFromList(portfolio) : calculatePositionsPnL(state)),
+    [isPractice, portfolio, state],
+  );
 
   const totalPortfolioValueMYR = useMemo(() => {
     if (isPractice) return practiceStats.portfolioValueMYR;
@@ -200,8 +201,14 @@ export function PortfolioScreen() {
     return map;
   }, [priceSync.lastResult]);
 
-  const unrealizedMYR = isPractice ? practiceStats.unrealizedPnLMYR : totalUnrealizedPnLMYR(positions);
-  const dividendsMYR = isPractice ? 0 : totalDividendsMYR(state.dividends);
+  const unrealizedMYR = useMemo(
+    () => (isPractice ? practiceStats.unrealizedPnLMYR : totalUnrealizedPnLMYR(positions)),
+    [isPractice, practiceStats.unrealizedPnLMYR, positions],
+  );
+  const dividendsMYR = useMemo(
+    () => (isPractice ? 0 : totalDividendsMYR(state.dividends)),
+    [isPractice, state.dividends],
+  );
 
   const onAutoRefresh = async () => {
     if (!twelveDataApiKey.trim()) {

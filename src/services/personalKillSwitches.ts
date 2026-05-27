@@ -74,3 +74,8 @@ export function resetMarketDataRequestQueue(): void {
 export function resetPersonalKillSwitchesForTest(): void {
   memoryCache = { ...DEFAULT };
 }
+
+export function resetPersonalKillSwitchesForReset(): PersonalKillSwitches {
+  memoryCache = { ...DEFAULT };
+  return { ...memoryCache };
+}

@@ -104,6 +104,7 @@ import { runDailyHealthCheck, type HealthCheckReport } from '../services/dailyHe
 import {
   appendExecutionJournalEntry,
   loadExecutionJournal,
+  resetExecutionJournalMemoryForTest,
 } from '../services/executionJournalStorage';
 import {
   applyPersonalBackupToState,
@@ -113,6 +114,7 @@ import {
 import {
   getPersonalKillSwitchesSnapshot,
   loadPersonalKillSwitches,
+  resetPersonalKillSwitchesForReset,
   resetMarketDataRequestQueue,
   savePersonalKillSwitches,
   type PersonalKillSwitches,
@@ -128,19 +130,21 @@ import { loadModelStabilityState } from '../services/modelStabilityStorage';
 import { buildInstitutionalRiskInputFromApp } from '../services/institutionalRiskControlEngine';
 import { evaluateMarketRegime } from '../services/marketRegimeEngine';
 import { validateTradeIntent } from '../services/tradeExecutionGate';
-import { hydrateBursaFormatCache } from '../services/bursaSymbolFormat';
+import { hydrateBursaFormatCache, resetBursaFormatCacheForReset } from '../services/bursaSymbolFormat';
 import {
   hydrateMarketDataDiagnostics,
   recordRefreshSessionEnd,
   recordRefreshSessionStart,
+  resetMarketDataDiagnostics,
 } from '../services/marketDataDiagnostics';
 import { backupPortfolioIfNonEmpty, restorePortfolioFromBackup } from '../services/portfolioBackup';
-import { guardAppStateForPersistence } from '../services/portfolioPersistenceGuard';
+import { countActiveHoldings, guardAppStateForPersistence } from '../services/portfolioPersistenceGuard';
 import {
   recoverPortfolioFromHealthySnapshot,
   saveHealthyPortfolioSnapshot,
 } from '../services/portfolioSnapshot';
-import { hydrateQuoteCache } from '../services/quoteCache';
+import { hydrateQuoteCache, resetQuoteCacheForReset } from '../services/quoteCache';
+import { resetYahooSymbolAliasCacheForReset } from '../services/yahooSymbolAliasCache';
 import {
   createDefaultExecutionHandlers,
   submitExecutionOrder,
@@ -161,6 +165,7 @@ import {
 } from '../services/safeBoot';
 import {
   countDiagnosticsBySeverity,
+  clearDiagnosticEvents,
   exportDiagnosticsReport,
   exportDiagnosticsReportJson,
   hasDegradedDiagnostics,
@@ -289,7 +294,7 @@ interface AppContextValue {
   testTwelveDataConnection: () => Promise<{ ok: boolean; message: string }>;
   refreshPortfolioPrices: (options?: PriceRefreshOptions) => Promise<PriceSyncResult>;
   refresh: () => Promise<void>;
-  resetAllAppData: (clearApiKeys: boolean) => Promise<void>;
+  resetAllAppData: (clearApiKeys: boolean) => Promise<{ failedKeys: string[] }>;
   addScreenerCandidateToManualList: (stock: RankedStock) => { ok: boolean; error?: string };
   marketRegime: MarketRegimeResult;
   crossAssetFlow: CrossAssetFlowSnapshot;
@@ -327,6 +332,7 @@ interface AppContextValue {
     },
   ) => Promise<AiStrategyChatResult>;
   clearAiChatHistory: () => Promise<void>;
+  dataResetRevision: number;
   apiHealthDashboard: ApiHealthDashboard;
   refreshApiHealth: () => Promise<void>;
   saveWizardApiKeyAndVerify: (providerId: ApiProviderId, apiKey: string) => Promise<ApiProviderHealth>;
@@ -364,6 +370,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [securityWarnings, setSecurityWarnings] = useState<string[]>([]);
   const [recoveryRecommendations, setRecoveryRecommendations] = useState<string[]>([]);
   const [environmentIssues, setEnvironmentIssues] = useState<EnvironmentIssue[]>([]);
+  const [dataResetRevision, setDataResetRevision] = useState(0);
   const [killSwitches, setKillSwitchesState] = useState<PersonalKillSwitches>({
     version: 1,
     readOnlyMode: false,
@@ -379,13 +386,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   } | null>(null);
   const stateRef = useRef(state);
   const lastPersistedRef = useRef<AppState | null>(null);
+  const blockEmptyBootPersistenceRef = useRef<string | null>(null);
   const initialPriceRefreshDone = useRef(false);
   stateRef.current = state;
 
   const enterSafeBootMode = useCallback(() => {
     setBootMode('safe');
     const fresh = createDefaultAppState();
-    lastPersistedRef.current = fresh;
+    blockEmptyBootPersistenceRef.current = 'safe_boot_default_state';
     setState(fresh);
     setSecurityWarnings((prev) =>
       prev.includes('安全モードで起動しています') ? prev : [...prev, '安全モードで起動しています'],
@@ -405,45 +413,57 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const safeBoot = await shouldEnterSafeBootMode();
       if (safeBoot) {
-        enterSafeBootMode();
-        const [apiKey, analysisKeys, aiState, attempts, loadedSwitches, loadedAiKey, loadedAiPrefs] =
-          await Promise.all([
-            loadTwelveDataApiKey().then(async (key) => {
-          if (key.trim()) return key;
-          const resolved = await resolveTwelveDataApiKey();
-          return resolved.key;
-        }),
-            loadAnalysisApiKeys(),
-            loadAiLearningState(),
-            readRecoveryAttemptCount(),
-            loadPersonalKillSwitches(),
-            loadAiApiKey(),
-            loadAiPreferences(),
-          ]);
-        setKillSwitchesState(loadedSwitches);
-        setTwelveDataApiKey(apiKey);
-        setAnalysisApiKeys(analysisKeys);
-        setAiLearningState(aiState);
-        setAiApiKey(loadedAiKey);
-        setAiPreferences(loadedAiPrefs);
-        void logApiKeyLoadAudit('safe_boot');
-        recordDiagnosticEvent({
-          type: 'safe_boot',
-          severity: 'critical',
-          module: 'AppContext',
-          message: 'Safe boot mode active after repeated recovery failures',
-          recoveryAction: 'Open Startup Diagnostics and review persisted data',
-        });
-        const env = validateEnvironmentForBoot({
-          bootMode: 'safe',
-          recoveryAttempts: attempts,
-          maxRecoveryAttempts: SAFE_BOOT_MAX_ATTEMPTS,
-          hasMarketDataApiKey: Boolean(apiKey.trim()),
-        });
-        setEnvironmentIssues(env.issues);
-        setRecoveryRecommendations(getRecoveryRecommendations(env.issues, ['安全モードで起動しています']));
-        setLoading(false);
-        return;
+        const [tamperProbe, loadProbe] = await Promise.all([
+          assessPersistedTamper(),
+          loadAppStateTrusted(),
+        ]);
+        const persistedStateRecovered =
+          loadProbe.trusted &&
+          tamperProbe.trustAppState;
+
+        if (persistedStateRecovered) {
+          await resetRecoveryAttemptCount();
+        } else {
+          enterSafeBootMode();
+          const [apiKey, analysisKeys, aiState, attempts, loadedSwitches, loadedAiKey, loadedAiPrefs] =
+            await Promise.all([
+              loadTwelveDataApiKey().then(async (key) => {
+                if (key.trim()) return key;
+                const resolved = await resolveTwelveDataApiKey();
+                return resolved.key;
+              }),
+              loadAnalysisApiKeys(),
+              loadAiLearningState(),
+              readRecoveryAttemptCount(),
+              loadPersonalKillSwitches(),
+              loadAiApiKey(),
+              loadAiPreferences(),
+            ]);
+          setKillSwitchesState(loadedSwitches);
+          setTwelveDataApiKey(apiKey);
+          setAnalysisApiKeys(analysisKeys);
+          setAiLearningState(aiState);
+          setAiApiKey(loadedAiKey);
+          setAiPreferences(loadedAiPrefs);
+          void logApiKeyLoadAudit('safe_boot');
+          recordDiagnosticEvent({
+            type: 'safe_boot',
+            severity: 'critical',
+            module: 'AppContext',
+            message: 'Safe boot mode active after repeated recovery failures',
+            recoveryAction: 'Open Startup Diagnostics and review persisted data',
+          });
+          const env = validateEnvironmentForBoot({
+            bootMode: 'safe',
+            recoveryAttempts: attempts,
+            maxRecoveryAttempts: SAFE_BOOT_MAX_ATTEMPTS,
+            hasMarketDataApiKey: Boolean(apiKey.trim()),
+          });
+          setEnvironmentIssues(env.issues);
+          setRecoveryRecommendations(getRecoveryRecommendations(env.issues, ['安全モードで起動しています']));
+          setLoading(false);
+          return;
+        }
       }
 
       const [
@@ -491,7 +511,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       let loaded = loadResult.state;
       const trustPersisted =
-        loadResult.trusted && tamper.trustAppState && tamper.severity !== 'critical';
+        loadResult.trusted && tamper.trustAppState;
 
       if (!trustPersisted) {
         secureWarn('[boot] refusing untrusted persisted app state');
@@ -499,6 +519,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         loaded = createDefaultAppState();
         if (tamper.trustHealthySnapshot) {
           loaded = await recoverPortfolioFromHealthySnapshot(loaded);
+        }
+        if (
+          countActiveHoldings(loaded.portfolio) === 0 &&
+          countActiveHoldings(loaded.practice.portfolio) === 0
+        ) {
+          blockEmptyBootPersistenceRef.current = 'untrusted_boot_default_state';
         }
       } else {
         await resetRecoveryAttemptCount();
@@ -553,6 +579,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         message: err instanceof Error ? err.message : 'Boot refresh failed',
         recoveryAction: 'Retry or use safe boot mode',
       });
+      blockEmptyBootPersistenceRef.current = 'boot_failure_default_state';
       enterSafeBootMode();
     } finally {
       setLoading(false);
@@ -575,6 +602,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (guarded !== state) {
       setState(guarded);
     }
+    const blockReason = blockEmptyBootPersistenceRef.current;
+    const activeHoldings =
+      countActiveHoldings(guarded.portfolio) +
+      countActiveHoldings(guarded.practice.portfolio);
+    if (blockReason && activeHoldings === 0) {
+      if (isDev) {
+        console.log('[portfolio-hydration] skipped empty boot persistence', {
+          reason: blockReason,
+          previousManual: countActiveHoldings(previous.portfolio),
+          previousPractice: countActiveHoldings(previous.practice.portfolio),
+        });
+      }
+      lastPersistedRef.current = guarded;
+      return;
+    }
+    blockEmptyBootPersistenceRef.current = null;
     void saveAppState(guarded);
     void backupPortfolioIfNonEmpty(guarded);
     void saveHealthyPortfolioSnapshot(guarded);
@@ -1690,7 +1733,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           staleHoldingsCount: context.staleHoldingsCount,
           priceSyncStale:
             priceSync.displayStatus === 'cached' ||
-            priceSync.displayStatus === 'partial_failure' ||
             priceSync.displayStatus === 'connection_failed' ||
             priceSync.lastError != null,
           readOnlyMode: ks.readOnlyMode,
@@ -1775,7 +1817,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               : priceSync.displayStatus === 'partial_failure'
                 ? '一部失敗'
                 : priceSync.displayStatus === 'connection_failed'
-                  ? '接続失敗'
+                  ? '通信エラー'
                   : priceSync.displayStatus === 'fetching'
                     ? '取得中'
                     : String(priceSync.displayStatus ?? 'idle');
@@ -2434,38 +2476,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetAllAppData = useCallback(async (clearApiKeys: boolean) => {
-    await clearAllPersistedAppData(clearApiKeys);
+    void clearApiKeys;
+    blockEmptyBootPersistenceRef.current = 'user_reset';
+    const clearResult = await clearAllPersistedAppData(true);
     await clearAiChatHistory();
+    await resetMarketDataDiagnostics();
+    resetQuoteCacheForReset();
+    resetBursaFormatCacheForReset();
+    resetYahooSymbolAliasCacheForReset();
+    resetExecutionJournalMemoryForTest();
+    clearDiagnosticEvents();
     const fresh = createDefaultAppState();
     const aiFresh = await resetAiLearningStorage();
+    const resetKillSwitches = resetPersonalKillSwitchesForReset();
     setState(fresh);
+    stateRef.current = fresh;
+    lastPersistedRef.current = fresh;
     setAiLearningState(aiFresh);
     initialPriceRefreshDone.current = false;
     resetPortfolioRefreshCoordinator();
     setPriceSync({ loading: false, marketClosedHint: false });
     setAiPreferences({ ...DEFAULT_AI_PREFERENCES });
-
-    if (clearApiKeys) {
-      setTwelveDataApiKey('');
-      setAnalysisApiKeys({ newsApiKey: '', snsApiKey: '', earningsApiKey: '', redditApiKey: '', xApiKey: '' });
+    setTwelveDataApiKey('');
+    setAnalysisApiKeys({ newsApiKey: '', snsApiKey: '', earningsApiKey: '', redditApiKey: '', xApiKey: '' });
     setApiHealthDashboard(buildApiHealthDashboard(createEmptyHealthSnapshot()));
-      setAiApiKey('');
-    } else {
-      const [key, analysis, loadedAiKey, loadedAiPrefs] = await Promise.all([
-        loadTwelveDataApiKey().then(async (key) => {
-          if (key.trim()) return key;
-          const resolved = await resolveTwelveDataApiKey();
-          return resolved.key;
-        }),
-        loadAnalysisApiKeys(),
-        loadAiApiKey(),
-        loadAiPreferences(),
-      ]);
-      setTwelveDataApiKey(key);
-      setAnalysisApiKeys(analysis);
-      setAiApiKey(loadedAiKey);
-      setAiPreferences(loadedAiPrefs);
-    }
+    setAiApiKey('');
+    setKillSwitchesState(resetKillSwitches);
+    setBootMode('normal');
+    setSecurityWarnings([]);
+    setRecoveryRecommendations([]);
+    setEnvironmentIssues([]);
+    setHealthReport(null);
+    setPortfolioRevision((v) => v + 1);
+    setRegimeRevision((v) => v + 1);
+    setDataResetRevision((v) => v + 1);
+    return { failedKeys: clearResult.failedKeys };
   }, []);
 
   const addScreenerCandidateToManualList = useCallback((stock: RankedStock) => {
@@ -2651,6 +2696,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saveAiPreferences,
       sendAiStrategyMessage,
       clearAiChatHistory: clearAiChatHistoryHandler,
+      dataResetRevision,
       apiHealthDashboard,
       refreshApiHealth,
       saveWizardApiKeyAndVerify,
@@ -2733,6 +2779,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saveAiPreferences,
       sendAiStrategyMessage,
       clearAiChatHistoryHandler,
+      dataResetRevision,
       apiHealthDashboard,
       refreshApiHealth,
       saveWizardApiKeyAndVerify,

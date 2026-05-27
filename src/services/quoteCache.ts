@@ -116,3 +116,7 @@ export async function getEmergencyCachedQuote(
 export async function hydrateQuoteCache(): Promise<void> {
   await loadQuoteCache();
 }
+
+export function resetQuoteCacheForReset(): void {
+  memoryCache = defaultStore();
+}

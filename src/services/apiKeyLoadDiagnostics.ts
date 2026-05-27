@@ -57,8 +57,9 @@ export async function auditApiKeyLoad(): Promise<ApiKeyLoadAudit> {
     secureStoreBackend: isUsingSecureStoreBackend(),
     quoteProvider,
     analysisKeys,
-    processEnvOpenAi: envHasKey('OPENAI_API_KEY'),
-    processEnvTwelveData: envHasKey('TWELVE_DATA_API_KEY'),
+    processEnvOpenAi: envHasKey('EXPO_PUBLIC_OPENAI_API_KEY') || envHasKey('OPENAI_API_KEY'),
+    processEnvTwelveData:
+      envHasKey('EXPO_PUBLIC_TWELVE_DATA_API_KEY') || envHasKey('TWELVE_DATA_API_KEY'),
   };
 
   return audit;
@@ -73,7 +74,7 @@ export async function logApiKeyLoadAudit(context: string): Promise<ApiKeyLoadAud
       twelveDataConfigured: false,
       hint: 'Set Twelve Data key in APIキー設定 (SecureStore). Alpha Vantage/Polygon are not wired for quotes.',
       processEnvTwelveData: audit.processEnvTwelveData,
-      note: 'App does not use process.env for quote keys in Expo Go — use in-app settings.',
+      note: 'Expo public env keys are used as fallback when SecureStore is empty.',
     });
   } else {
     secureLog(`[api-keys] ${context}: quote provider ready`, {
@@ -90,7 +91,7 @@ export async function logApiKeyLoadAudit(context: string): Promise<ApiKeyLoadAud
   });
 
   if (audit.processEnvOpenAi || audit.processEnvTwelveData) {
-    secureLog(`[api-keys] ${context}: process.env keys present (ignored for RN runtime)`, {
+    secureLog(`[api-keys] ${context}: process.env fallback keys present`, {
       OPENAI_API_KEY: audit.processEnvOpenAi,
       TWELVE_DATA_API_KEY: audit.processEnvTwelveData,
     });

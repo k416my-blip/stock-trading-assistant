@@ -192,7 +192,13 @@ export function getMarketDataDiagnosticsSnapshot(): MarketDataDiagnosticsSnapsho
 }
 
 export async function resetMarketDataDiagnostics(): Promise<void> {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
   state = { ...EMPTY, dayKey: todayKey() };
+  hydrated = true;
+  hydratePromise = null;
   refreshSessionActive = false;
   refreshSessionApiCalls = 0;
   try {

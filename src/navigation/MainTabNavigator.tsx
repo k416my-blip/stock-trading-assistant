@@ -1,20 +1,30 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PlatformPressable } from '@react-navigation/elements';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { StyleSheet } from 'react-native';
+import { lazy, Suspense, type ComponentType } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AllocationPlanScreen } from '../screens/AllocationPlanScreen';
-import { BeginnerGuideScreen } from '../screens/BeginnerGuideScreen';
-import { HomeScreen } from '../screens/HomeScreen';
-import { PortfolioScreen } from '../screens/PortfolioScreen';
-import { ScreenerScreen } from '../screens/ScreenerScreen';
-import { TradeHistoryScreen } from '../screens/TradeHistoryScreen';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { theme } from '../theme';
 import { TabBarIcon } from './tabIcons';
 import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const LazyHomeScreen = lazy(() => import('../screens/HomeScreen').then((m) => ({ default: m.HomeScreen })));
+const LazyAllocationPlanScreen = lazy(() =>
+  import('../screens/AllocationPlanScreen').then((m) => ({ default: m.AllocationPlanScreen })),
+);
+const LazyScreenerScreen = lazy(() => import('../screens/ScreenerScreen').then((m) => ({ default: m.ScreenerScreen })));
+const LazyPortfolioScreen = lazy(() =>
+  import('../screens/PortfolioScreen').then((m) => ({ default: m.PortfolioScreen })),
+);
+const LazyTradeHistoryScreen = lazy(() =>
+  import('../screens/TradeHistoryScreen').then((m) => ({ default: m.TradeHistoryScreen })),
+);
+const LazyBeginnerGuideScreen = lazy(() =>
+  import('../screens/BeginnerGuideScreen').then((m) => ({ default: m.BeginnerGuideScreen })),
+);
 
 const TAB_TITLES: Record<keyof MainTabParamList, string> = {
   Home: 'ホーム',
@@ -35,6 +45,31 @@ function TabBarButton(props: BottomTabBarButtonProps) {
     />
   );
 }
+
+function TabScreenFallback({ title }: { title: string }) {
+  return (
+    <View style={styles.fallback}>
+      <Text style={styles.fallbackTitle}>{title}</Text>
+    </View>
+  );
+}
+
+function lazyScreen(Component: ComponentType, title: string) {
+  return function LazyTabScreen() {
+    return (
+      <Suspense fallback={<TabScreenFallback title={title} />}>
+        <Component />
+      </Suspense>
+    );
+  };
+}
+
+const HomeTabScreen = lazyScreen(LazyHomeScreen, TAB_TITLES.Home);
+const AllocationPlanTabScreen = lazyScreen(LazyAllocationPlanScreen, TAB_TITLES.AllocationPlan);
+const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, TAB_TITLES.Screener);
+const PortfolioTabScreen = lazyScreen(LazyPortfolioScreen, TAB_TITLES.Portfolio);
+const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
+const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
 
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
@@ -75,12 +110,12 @@ export function MainTabNavigator() {
         sceneStyle: { backgroundColor: theme.colors.background },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="AllocationPlan" component={AllocationPlanScreen} />
-      <Tab.Screen name="Screener" component={ScreenerScreen} />
-      <Tab.Screen name="Portfolio" component={PortfolioScreen} />
-      <Tab.Screen name="History" component={TradeHistoryScreen} />
-      <Tab.Screen name="BeginnerGuide" component={BeginnerGuideScreen} />
+      <Tab.Screen name="Home" component={HomeTabScreen} />
+      <Tab.Screen name="AllocationPlan" component={AllocationPlanTabScreen} />
+      <Tab.Screen name="Screener" component={ScreenerTabScreen} />
+      <Tab.Screen name="Portfolio" component={PortfolioTabScreen} />
+      <Tab.Screen name="History" component={HistoryTabScreen} />
+      <Tab.Screen name="BeginnerGuide" component={BeginnerGuideTabScreen} />
     </Tab.Navigator>
   );
 }
@@ -96,5 +131,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     marginTop: 2,
+  },
+  fallback: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  fallbackTitle: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.lg,
+    fontWeight: '700',
   },
 });

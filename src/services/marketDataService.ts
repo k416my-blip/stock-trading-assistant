@@ -139,6 +139,34 @@ export function buildSafeMarketDataUrl(path: string, params: Record<string, stri
   return buildDebugUrl(path, params);
 }
 
+function buildRequestUrlWithoutKey(path: string, params: Record<string, string>): string {
+  const safeParams = { ...params };
+  delete safeParams.apikey;
+  return buildRequestUrl(path, safeParams);
+}
+
+function logTwelveDataRequestDiagnostic(input: {
+  symbol: string;
+  endpoint: string;
+  apiKey: string;
+  requestUrlWithoutKey: string;
+  responseStatus?: number;
+  responseErrorMessage?: string;
+  responseErrorBody?: unknown;
+}): void {
+  console.log('[TwelveData] REQUEST_DIAGNOSTIC', {
+    provider: 'TwelveData',
+    symbol: input.symbol,
+    endpoint: input.endpoint,
+    apiKeyPresent: input.apiKey.trim().length > 0,
+    apiKeyPrefix: input.apiKey.trim() ? input.apiKey.trim().slice(0, 4) : '(none)',
+    requestUrlWithoutKey: input.requestUrlWithoutKey,
+    responseStatus: input.responseStatus,
+    responseErrorMessage: input.responseErrorMessage,
+    responseErrorBody: input.responseErrorBody,
+  });
+}
+
 function resolveEffectiveHttpStatus(
   response: Response,
   data: TwelveDataErrorBody,
@@ -425,6 +453,14 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
 
   throwIfProbeAborted(options?.probe);
   const url = buildRequestUrl(path, params);
+  const requestUrlWithoutKey = buildRequestUrlWithoutKey(path, params);
+  const apiKeyForDiagnostic = params.apikey ?? '';
+  logTwelveDataRequestDiagnostic({
+    symbol: params.symbol ?? 'unknown',
+    endpoint: path,
+    apiKey: apiKeyForDiagnostic,
+    requestUrlWithoutKey,
+  });
   logTwelveDataRequestUrl({
     ticker: params.symbol ?? 'unknown',
     path,
@@ -460,6 +496,15 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
       elapsedMs: Date.now() - startedAt,
       errorMessage: raw,
     });
+    logTwelveDataRequestDiagnostic({
+      symbol: params.symbol ?? 'unknown',
+      endpoint: path,
+      apiKey: apiKeyForDiagnostic,
+      requestUrlWithoutKey,
+      responseStatus: 0,
+      responseErrorMessage: raw,
+      responseErrorBody: { networkError: raw },
+    });
     logQuoteFetchFailure({
       provider: 'twelve_data',
       ticker: params.symbol ?? 'unknown',
@@ -482,6 +527,15 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
     data = (await response.json()) as T & TwelveDataErrorBody;
   } catch {
     const err = createMarketDataError('APIから空の応答が返されました', response.status, 'empty_response');
+    logTwelveDataRequestDiagnostic({
+      symbol: params.symbol ?? 'unknown',
+      endpoint: path,
+      apiKey: apiKeyForDiagnostic,
+      requestUrlWithoutKey,
+      responseStatus: response.status,
+      responseErrorMessage: err.rawMessage,
+      responseErrorBody: '(invalid JSON)',
+    });
     logQuoteFetchFailure({
       provider: 'twelve_data',
       ticker: params.symbol ?? 'unknown',
@@ -511,6 +565,15 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
     const message = data.message ?? `HTTP ${response.status}`;
     const effectiveStatus = resolveEffectiveHttpStatus(response, data);
     const err = createMarketDataError(message, effectiveStatus);
+    logTwelveDataRequestDiagnostic({
+      symbol: params.symbol ?? 'unknown',
+      endpoint: path,
+      apiKey: apiKeyForDiagnostic,
+      requestUrlWithoutKey,
+      responseStatus: response.status,
+      responseErrorMessage: message,
+      responseErrorBody: data,
+    });
     logQuoteFetchFailure({
       provider: 'twelve_data',
       ticker: params.symbol ?? 'unknown',
@@ -530,6 +593,13 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
 
   finishApiCall();
   marketDataRequestQueue.noteSuccess();
+  logTwelveDataRequestDiagnostic({
+    symbol: params.symbol ?? 'unknown',
+    endpoint: path,
+    apiKey: apiKeyForDiagnostic,
+    requestUrlWithoutKey,
+    responseStatus: response.status,
+  });
   return data;
 }
 

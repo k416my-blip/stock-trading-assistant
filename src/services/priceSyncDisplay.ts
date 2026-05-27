@@ -4,7 +4,12 @@ import {
   derivePriceSyncUxCounts,
   failureHasDisplayablePrice,
 } from './priceSyncNotifications';
-import type { ApiConnectionPhase, PriceSyncDisplayStatus, PriceSyncResult } from '../types/marketData';
+import type {
+  ApiConnectionPhase,
+  PriceSyncDisplayStatus,
+  PriceSyncFailure,
+  PriceSyncResult,
+} from '../types/marketData';
 
 export function apiConnectionPhaseLabel(phase: ApiConnectionPhase | undefined): string {
   switch (phase) {
@@ -23,7 +28,7 @@ export function apiConnectionPhaseLabel(phase: ApiConnectionPhase | undefined): 
     case 'cached':
       return MARKET_DATA_MESSAGES.showingCache;
     case 'error':
-      return MARKET_DATA_MESSAGES.connectionFailed;
+      return MARKET_DATA_MESSAGES.networkError;
     default:
       return '';
   }
@@ -41,6 +46,7 @@ export function derivePriceSyncDisplayStatus(
   if (result.timedOut && successCount === 0) return 'connection_failed';
   if (partialFailure) return 'partial_failure';
   if (totalFailure && failedCount > 0) {
+    if (result.failures.every(isPerSymbolUnsupportedFailure)) return 'partial_failure';
     const allHaveFallback = result.failures.every((f) => failureHasDisplayablePrice(f));
     if (allHaveFallback) return 'cached';
     const anyCache = result.failures.some((f) => f.usedCache || f.usedSavedPrice);
@@ -60,12 +66,16 @@ export function priceSyncStatusLabel(status: PriceSyncDisplayStatus): string {
     case 'mock':
       return MARKET_DATA_MESSAGES.usingMock;
     case 'connection_failed':
-      return MARKET_DATA_MESSAGES.connectionFailed;
+      return '';
     case 'complete':
       return MARKET_DATA_MESSAGES.refreshComplete;
     default:
       return '';
   }
+}
+
+function isPerSymbolUnsupportedFailure(failure: PriceSyncFailure): boolean {
+  return failure.priceStatus === 'PLAN_UNSUPPORTED' || failure.priceStatus === 'INVALID_SYMBOL';
 }
 
 export function finalizePriceSyncResult(

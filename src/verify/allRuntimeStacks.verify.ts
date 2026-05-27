@@ -1,0 +1,50 @@
+import { execSync } from 'node:child_process';
+
+const scripts = [
+  'verify:js-thread-stabilization',
+  'verify:rn-bridge-survivability',
+  'verify:failure-recovery',
+  'verify:process-continuity',
+  'verify:autonomous-stability-governance',
+  'verify:trading-survivability',
+  'verify:causal-intelligence',
+  'verify:meta-orchestration',
+  'verify:trading-safety-governance',
+  'verify:amplification-suppression',
+  'verify:survivability-audit-validation',
+  'verify:complexity-compression',
+  'verify:runtime-homeostasis',
+  'verify:strategic-coherence',
+  'verify:runtime-self-limitation',
+  'verify:runtime-purpose-integrity',
+  'verify:runtime-unified-utility',
+  'verify:runtime-civilizational-resilience',
+  'verify:runtime-epistemic-integrity',
+  'verify:runtime-agency-integrity',
+  'verify:runtime-meta-cognition',
+  'verify:runtime-narrative-integrity',
+  'verify:observer-recursion',
+  'verify:runtime-resource-stability',
+  'verify:runtime-cross-stack-compression',
+  'verify:runtime-self-recursion-endurance',
+  'verify:runtime-telemetry-entropy',
+  'verify:runtime-cognitive-governance',
+  'verify:runtime-civilization-topology',
+  'verify:runtime-meta-limit',
+  'verify:runtime-federation',
+  'verify:runtime-ontology',
+  'verify:runtime-finite-boundary',
+  'verify:runtime-semantic-compression',
+  'verify:runtime-semantic-gravity',
+  'verify:runtime-semantic-thermodynamics',
+  'verify:runtime-semantic-phase-transition',
+  'verify:runtime-adaptive-observation',
+  'verify:runtime-observer-reality',
+  'verify:runtime-inter-civilization',
+  'verify:runtime-governance-freeze',
+];
+
+for (const script of scripts) {
+  execSync(`npm run ${script}`, { stdio: 'inherit' });
+}
+console.log('verify:all-runtime-stacks: OK');

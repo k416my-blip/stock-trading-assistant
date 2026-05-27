@@ -117,7 +117,7 @@ export const MARKET_DATA_MESSAGES = {
   totalFailureAlertBody: '最後に取得した価格を表示しています',
   showingCache: 'キャッシュ表示中',
   usingMock: 'モック使用中',
-  connectionFailed: '接続失敗',
+  connectionFailed: '通信エラー',
   refreshComplete: '更新完了',
   apiConnecting: 'API接続中',
   symbolExploring: 'symbol探索中...',
@@ -135,6 +135,10 @@ export const MARKET_DATA_MESSAGES = {
   manualPriceButton: '現在株価を手動入力',
   fixSymbolButton: '銘柄コードを修正',
   fixMarketButton: '市場を修正',
+  planUnsupported: '現在の Twelve Data プランでは未対応',
+  invalidSymbol: '銘柄コード未対応',
+  networkError: '通信エラー',
+  temporaryPriceFailure: '一時取得失敗',
   aggregatedFetchFailed: (count: number) =>
     `株価取得に失敗: ${count}件\n詳細は更新結果を確認してください`,
   partialRefreshSummary: (successCount: number, failCount: number) =>
