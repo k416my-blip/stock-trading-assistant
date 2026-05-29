@@ -2,6 +2,8 @@ export type SmokeTestItem = {
   id: string;
   titleJa: string;
   stepsJa: string;
+  /** Expo Go 等向けの補足（完全オフライン起動の制約など） */
+  noteJa?: string;
 };
 
 /** 実機での手動スモークテスト（docs/DEVICE_SMOKE_TEST_CHECKLIST.md と同期） */
@@ -19,7 +21,10 @@ export const DEVICE_SMOKE_TEST_CHECKLIST: SmokeTestItem[] = [
   {
     id: 'phone_offline',
     titleJa: 'オフライン',
-    stepsJa: '機内モード → 起動 → 保有が表示され STALE 表示で落ちないこと',
+    stepsJa:
+      'オンライン起動 → データ表示 → 機内モードON → キャッシュ表示・AsyncStorage復元・オフラインバナーを確認',
+    noteJa:
+      'Expo Goでは完全オフライン起動はMetro bundle取得が必要なため失敗する場合があります。本番ビルドで確認してください。',
   },
   {
     id: 'api_key_missing',
