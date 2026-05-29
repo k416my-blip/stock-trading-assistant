@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { getMockAiTradeQueue } from '../data/mockAiStrategyBriefing';
+import { useAiTradeQueue } from './AiTradeQueueContext';
 import {
   acknowledgeSystemSignal,
   acknowledgeTradeQueueItem,
@@ -40,7 +40,8 @@ type UrgencySignalContextValue = {
   highlightedSignalId: string | null;
   showDisabledItems: boolean;
   setShowDisabledItems: (value: boolean) => void;
-  refreshSignals: () => Promise<void>;
+  ackSignals: () => Promise<void>;
+  refreshPrices: () => Promise<unknown>;
   acknowledgeSignal: (signalId: string) => Promise<void>;
   acknowledgeQueueItem: (itemId: string) => Promise<void>;
   getQueueAckStatus: (itemId: string) => TradeQueueAckStatus;
@@ -57,6 +58,7 @@ const UrgencySignalContext = createContext<UrgencySignalContextValue | null>(nul
 
 export function UrgencySignalProvider({ children }: { children: ReactNode }) {
   const { degradedMode, killSwitches, aiPreferences } = useApp();
+  const { queue: baseQueue, refreshPrices } = useAiTradeQueue();
   const { worldModel } = useCentralIntelligence();
   const [itemAckMap, setItemAckMap] = useState<Record<string, TradeQueueAckRecord>>({});
   const [systemAckMap, setSystemAckMap] = useState<Record<string, TradeQueueAckRecord>>({});
@@ -67,8 +69,6 @@ export function UrgencySignalProvider({ children }: { children: ReactNode }) {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const focusHandlerRef = useRef<SignalFocusHandler | null>(null);
   const lastAlertedSignalIdRef = useRef<string | null>(null);
-
-  const baseQueue = useMemo(() => getMockAiTradeQueue(), []);
 
   const reloadAck = useCallback(async () => {
     const [items, system] = await Promise.all([loadTradeQueueAckMap(), loadSystemAckMap()]);
@@ -210,7 +210,8 @@ export function UrgencySignalProvider({ children }: { children: ReactNode }) {
       highlightedSignalId,
       showDisabledItems,
       setShowDisabledItems,
-      refreshSignals: reloadAck,
+      ackSignals: reloadAck,
+      refreshPrices,
       acknowledgeSignal,
       acknowledgeQueueItem,
       getQueueAckStatus,
@@ -230,6 +231,7 @@ export function UrgencySignalProvider({ children }: { children: ReactNode }) {
       highlightedSignalId,
       showDisabledItems,
       reloadAck,
+      refreshPrices,
       acknowledgeSignal,
       acknowledgeQueueItem,
       getQueueAckStatus,

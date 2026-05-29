@@ -40,20 +40,20 @@ export function formatSignalTimeJa(iso: string | undefined): string {
 }
 
 export function formatResponseDeadlineJa(iso: string | undefined, nowMs = Date.now()): string {
-  if (!iso) return '—';
+  if (!iso) return '期限なし';
   const deadlineMs = new Date(iso).getTime();
-  if (Number.isNaN(deadlineMs)) return '—';
+  if (Number.isNaN(deadlineMs)) return '期限なし';
   const diffMin = Math.round((deadlineMs - nowMs) / 60_000);
   if (diffMin <= 0) return '期限切れ';
   if (diffMin < 60) return `${diffMin}分以内`;
   return `${Math.round(diffMin / 60)}時間以内`;
 }
 
-/** Header-friendly countdown, e.g. 「残り: 4分」 */
+/** Header-friendly countdown, e.g. 「残り: 4分」。期限なしは空文字（UIで非表示） */
 export function formatRemainingMinutesJa(iso: string | undefined, nowMs = Date.now()): string {
-  if (!iso) return '残り: —';
+  if (!iso) return '';
   const deadlineMs = new Date(iso).getTime();
-  if (Number.isNaN(deadlineMs)) return '残り: —';
+  if (Number.isNaN(deadlineMs)) return '';
   const diffMin = Math.ceil((deadlineMs - nowMs) / 60_000);
   if (diffMin <= 0) return '期限切れ';
   if (diffMin < 60) return `残り: ${diffMin}分`;

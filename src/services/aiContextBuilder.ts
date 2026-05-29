@@ -25,6 +25,8 @@ import type { DiagnosticSeverity } from './structuredDiagnostics';
 import type { PortfolioPriceSyncState } from '../types/marketData';
 import type { MarketRegimeResult } from '../types/marketRegime';
 import { buildCentralIntelligenceWorldModel } from './centralIntelligenceContext';
+import { getAiTradeQueueSnapshot } from './aiTradeQueueService';
+import type { AiStrategyBriefing, AiTradeQueueItem } from '../types/aiStrategyBriefing';
 import { buildExplanationLevelContextBlock } from './aiExplanationLevel';
 import {
   assertAiPayloadGuardrails,
@@ -93,12 +95,32 @@ export type BuildAiStrategyContextInput = {
   portfolioIntelligence?: PortfolioIntelligenceBundle;
   aiAnalysisMode?: AiAnalysisMode;
   dataReliability?: DataReliabilityBundle;
+  tradeQueue?: AiTradeQueueItem[];
+  briefing?: AiStrategyBriefing;
 };
 
 export async function buildAiStrategyContext(
   input: BuildAiStrategyContextInput,
 ): Promise<AiStrategyContextPayload> {
-  const world = await buildCentralIntelligenceWorldModel(input);
+  const snap = getAiTradeQueueSnapshot();
+  const world = await buildCentralIntelligenceWorldModel({
+    state: input.state,
+    appMode: input.appMode,
+    marketRegime: input.marketRegime,
+    healthReport: input.healthReport,
+    degradedMode: input.degradedMode,
+    bootMode: input.bootMode,
+    securityWarnings: input.securityWarnings,
+    recoveryRecommendations: input.recoveryRecommendations,
+    killSwitches: input.killSwitches,
+    priceSync: input.priceSync,
+    diagnosticsSummary: input.diagnosticsSummary,
+    diagnosticsSeverity: input.diagnosticsSeverity,
+    apiHealthSummaryJa: input.apiHealthSummaryJa,
+    apiHealthDegraded: input.apiHealthDegraded,
+    tradeQueue: input.tradeQueue ?? snap?.queue,
+    briefing: input.briefing ?? snap?.briefing,
+  });
   const conciergeMode = input.userMessage ? detectConciergeMode(input.userMessage) : 'general';
   const responseIntent = input.userMessage
     ? classifyConciergeResponseIntent(input.userMessage)

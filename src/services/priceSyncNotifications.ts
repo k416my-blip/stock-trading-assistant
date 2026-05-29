@@ -88,6 +88,30 @@ export function formatPartialPriceRefreshToast(result: PriceSyncResult): string 
   return MARKET_DATA_MESSAGES.partialRefreshSummary(successCount, failedCount);
 }
 
+export function formatPriceRefreshCompleteToast(
+  result: PriceSyncResult,
+  holdingsCount: number,
+): string {
+  if (holdingsCount === 0) {
+    return `${MARKET_DATA_MESSAGES.noHoldingsUpdateBlocked} — ${MARKET_DATA_MESSAGES.noHoldingsFetchSkipped}`;
+  }
+  const { successCount, failedCount, partialFailure, totalFailure } = derivePriceSyncUxCounts(result);
+  if (totalFailure && failedCount > 0) {
+    return result.error ?? MARKET_DATA_MESSAGES.fetchFailed;
+  }
+  if (partialFailure) {
+    return formatPartialPriceRefreshToast(result);
+  }
+  if (successCount === 0) {
+    return MARKET_DATA_MESSAGES.refreshCompleteZero;
+  }
+  return `${MARKET_DATA_MESSAGES.refreshComplete}（${successCount}件更新）`;
+}
+
+export function formatApiKeyVerifiedToast(): string {
+  return MARKET_DATA_MESSAGES.apiConnectionOk;
+}
+
 export function formatPriceRefreshErrorDialogMessage(_result: PriceSyncResult): string {
   return MARKET_DATA_MESSAGES.totalFailureAlertBody;
 }

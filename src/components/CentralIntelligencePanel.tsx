@@ -6,6 +6,7 @@ import { AI_CONCIERGE_UI } from '../constants/aiConcierge';
 import { useAiConcierge } from '../context/AiConciergeContext';
 import { useCentralIntelligence } from '../hooks/useCentralIntelligence';
 import { useApp } from '../context/AppContext';
+import { isDevLightweightNotice } from '../services/degradedModePresentation';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { theme } from '../theme';
@@ -23,6 +24,9 @@ function ConfidencePill({ label, value }: { label: string; value: number }) {
 
 export function CentralIntelligencePanel() {
   const { degradedMode } = useApp();
+  const devLightweight = isDevLightweightNotice({
+    operationalDegraded: degradedMode,
+  });
   const { openPanel } = useAiConcierge();
   const { worldModel, loading } = useCentralIntelligence();
 
@@ -56,9 +60,13 @@ export function CentralIntelligencePanel() {
             {worldModel.operations.healthSummaryJa ??
               `ヘルス: ${worldModel.operations.healthOverall ?? '未実行'}`}
           </Text>
-          {degradedMode || worldModel.operations.degradedReasonsJa.length > 0 ? (
-            <View style={styles.warningBox}>
-              <Text style={styles.warningTitle}>{AI_UI.degradedWarning}</Text>
+          {degradedMode || devLightweight || worldModel.operations.degradedReasonsJa.length > 0 ? (
+            <View style={[styles.warningBox, devLightweight && !degradedMode && styles.infoBox]}>
+              <Text style={styles.warningTitle}>
+                {devLightweight && !degradedMode
+                  ? AI_UI.devLightweightWarning
+                  : AI_UI.degradedWarning}
+              </Text>
               {worldModel.operations.degradedReasonsJa.map((r) => (
                 <Text key={r} style={styles.warningLine}>
                   · {r}
@@ -178,6 +186,11 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     padding: theme.spacing.sm,
     marginTop: theme.spacing.sm,
+  },
+  infoBox: {
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
   },
   warningTitle: {
     color: theme.colors.warning,

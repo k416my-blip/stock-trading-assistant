@@ -77,7 +77,7 @@ mustExist(P2, 'src/services/marketDataService.ts');
 mustExist(P2, 'src/constants/marketData.ts');
 mustExist(P2, 'src/services/staleDataMetadata.ts');
 mustExist(P2, 'src/services/quoteCache.ts');
-mustInclude(P2, 'src/constants/marketData.ts', 'MARKET_DATA_MAX_CONCURRENT = 2');
+mustInclude(P2, 'src/constants/marketData.ts', 'MARKET_DATA_MAX_CONCURRENT = 1');
 mustInclude(P2, 'src/constants/marketData.ts', 'MARKET_DATA_SYMBOL_COOLDOWN_MS');
 mustInclude(P2, 'src/services/marketDataService.ts', 'MARKET_DATA_MAX_CONCURRENT');
 mustInclude(P2, 'src/services/marketDataService.ts', 'rateLimitUntil');

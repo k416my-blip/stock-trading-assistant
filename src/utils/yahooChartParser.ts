@@ -1,5 +1,6 @@
 /** Yahoo Finance chart API レスポンスから最新価格を抽出 */
 
+import type { PriceBar } from '../types';
 import { normalizeQuotePrice } from './safeNumeric';
 
 export type YahooChartJson = {
@@ -14,9 +15,14 @@ export type YahooChartJson = {
         longName?: string;
         regularMarketTime?: number;
       };
+      timestamp?: number[];
       indicators?: {
         quote?: Array<{
+          open?: Array<number | null>;
+          high?: Array<number | null>;
+          low?: Array<number | null>;
           close?: Array<number | null>;
+          volume?: Array<number | null>;
         }>;
       };
     }>;
@@ -64,6 +70,36 @@ export const parseYahooChartPrice = parseYahooPrice;
 
 export function getYahooChartResult(json: unknown) {
   return (json as YahooChartJson)?.chart?.result?.[0];
+}
+
+/** 日足 OHLCV 配列（RSI 等のテクニカル用） */
+export function parseYahooChartBars(json: unknown): PriceBar[] {
+  const result = getYahooChartResult(json);
+  if (!result) return [];
+
+  const timestamps = result.timestamp ?? [];
+  const quote = result.indicators?.quote?.[0];
+  if (!quote || timestamps.length === 0) return [];
+
+  const bars: PriceBar[] = [];
+  for (let i = 0; i < timestamps.length; i++) {
+    const close = normalizeQuotePrice(quote.close?.[i]);
+    if (close == null) continue;
+    const ts = timestamps[i];
+    const open = normalizeQuotePrice(quote.open?.[i]) ?? close;
+    const high = normalizeQuotePrice(quote.high?.[i]) ?? close;
+    const low = normalizeQuotePrice(quote.low?.[i]) ?? close;
+    const volume = quote.volume?.[i];
+    bars.push({
+      date: new Date(ts * 1000).toISOString().slice(0, 10),
+      open,
+      high,
+      low,
+      close,
+      volume: typeof volume === 'number' && Number.isFinite(volume) ? volume : 0,
+    });
+  }
+  return bars;
 }
 
 /** 前日比%（meta の regularMarketPrice / previousClose） */

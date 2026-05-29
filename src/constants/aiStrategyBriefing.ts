@@ -40,6 +40,7 @@ export const AI_UI = {
   topRecommendations: '優先提案',
   systemHealth: 'システムヘルス',
   degradedWarning: '劣化モード — 信頼度は制限されています',
+  devLightweightWarning: '開発モード — 一部機能を軽量化中です',
   briefingTitle: 'AI戦略ブリーフィング',
   briefingSubtitle: '個人利用 · 閲覧専用モック',
   marketRegime: 'マーケットレジーム',

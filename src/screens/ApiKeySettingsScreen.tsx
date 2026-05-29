@@ -8,11 +8,12 @@ import { Screen } from '../components/ui/Screen';
 import { API_KEY_SETTINGS } from '../constants/apiSettings';
 import { MARKET_DATA_MESSAGES } from '../constants/marketData';
 import { useApp } from '../context/AppContext';
+import { usePriceSyncActions } from '../context/PriceSyncContext';
 import { theme } from '../theme';
 
 export function ApiKeySettingsScreen() {
-  const { twelveDataApiKey, saveTwelveDataApiKey, testTwelveDataConnection, analysisApiKeys, saveAnalysisApiKeys } =
-    useApp();
+  const { twelveDataApiKey, analysisApiKeys, saveAnalysisApiKeys } = useApp();
+  const { saveTwelveDataApiKey, testTwelveDataConnection } = usePriceSyncActions();
   const [input, setInput] = useState(twelveDataApiKey);
   const [newsKey, setNewsKey] = useState(analysisApiKeys.newsApiKey);
   const [snsKey, setSnsKey] = useState(analysisApiKeys.snsApiKey);

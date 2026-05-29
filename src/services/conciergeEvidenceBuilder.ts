@@ -348,7 +348,7 @@ export async function buildConciergeEvidenceForProactive(
   analysisMode: AiAnalysisMode,
 ): Promise<ConciergeEvidenceBundle> {
   const holdings = getActivePortfolio(state).filter((p) => (p.shares ?? 0) > 0);
-  const targets = holdings.slice(0, 5).map((p) => ({
+  const targets = holdings.map((p) => ({
     symbol: p.symbol,
     market: p.market,
     position: p,

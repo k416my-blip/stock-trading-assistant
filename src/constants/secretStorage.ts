@@ -7,6 +7,10 @@ export const SECRET_KEYS = {
   xApiKey: 'sta.secret.x_api_key',
   earningsApiKey: 'sta.secret.earnings_api_key',
   aiApiKey: 'sta.secret.ai_api_key',
+  alphaVantageApiKey: 'sta.secret.alpha_vantage_api_key',
+  finnhubApiKey: 'sta.secret.finnhub_api_key',
+  polygonApiKey: 'sta.secret.polygon_api_key',
+  fmpApiKey: 'sta.secret.fmp_api_key',
 } as const;
 
 export type SecretKeyId = keyof typeof SECRET_KEYS;
@@ -20,4 +24,8 @@ export const LEGACY_PLAIN_SECRET_KEYS = {
   xApiKey: '@sta/x_api_key',
   earningsApiKey: '@sta/earnings_api_key',
   aiApiKey: '@sta/ai_api_key',
+  alphaVantageApiKey: '@sta/alpha_vantage_api_key',
+  finnhubApiKey: '@sta/finnhub_api_key',
+  polygonApiKey: '@sta/polygon_api_key',
+  fmpApiKey: '@sta/fmp_api_key',
 } as const;

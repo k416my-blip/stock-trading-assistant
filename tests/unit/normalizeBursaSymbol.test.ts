@@ -49,9 +49,10 @@ describe('normalizeBursaSymbol', () => {
     expect(isMalaysiaMarket('us')).toBe(false);
   });
 
-  it('getTwelveDataQuoteAttempts sends only .KL for bursa', () => {
+  it('getTwelveDataQuoteAttempts tries .KL variants for bursa', () => {
     const attempts = getTwelveDataQuoteAttempts('bursa', '4707');
-    expect(attempts).toHaveLength(1);
+    expect(attempts.length).toBeGreaterThanOrEqual(1);
     expect(attempts[0]?.symbol).toBe('4707.KL');
+    expect(attempts.map((a) => a.symbol)).toContain('4707.KL');
   });
 });

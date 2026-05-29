@@ -1,4 +1,6 @@
 import { getSecret, setSecret } from './secretStorage';
+import { isUsableApiKey } from './apiKeyValidation';
+import { readXBearerFromEnv } from './xBearerToken';
 
 export interface AnalysisApiKeys {
   newsApiKey: string;
@@ -16,6 +18,17 @@ const EMPTY: AnalysisApiKeys = {
   xApiKey: '',
 };
 
+const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY'] as const;
+
+function readEnvKey(names: readonly string[]): string {
+  if (typeof process === 'undefined' || !process.env) return '';
+  for (const name of names) {
+    const v = process.env[name]?.trim();
+    if (v && isUsableApiKey(v)) return v;
+  }
+  return '';
+}
+
 export async function loadAnalysisApiKeys(): Promise<AnalysisApiKeys> {
   try {
     const [news, sns, earnings, reddit, x] = await Promise.all([
@@ -25,12 +38,17 @@ export async function loadAnalysisApiKeys(): Promise<AnalysisApiKeys> {
       getSecret('redditApiKey'),
       getSecret('xApiKey'),
     ]);
+    const newsApiKey = isUsableApiKey(news) ? news.trim() : readEnvKey(NEWS_ENV);
+    const xFromStore = isUsableApiKey(x) ? x.trim() : '';
+    const xFromEnv = readXBearerFromEnv();
+    const xApiKey = xFromStore || xFromEnv;
+    const snsApiKey = isUsableApiKey(sns) ? sns.trim() : xApiKey;
     return {
-      newsApiKey: news,
-      snsApiKey: sns,
-      earningsApiKey: earnings,
-      redditApiKey: reddit.trim() || sns.trim(),
-      xApiKey: x,
+      newsApiKey,
+      snsApiKey,
+      earningsApiKey: isUsableApiKey(earnings) ? earnings.trim() : '',
+      redditApiKey: isUsableApiKey(reddit) ? reddit.trim() : snsApiKey,
+      xApiKey,
     };
   } catch {
     return { ...EMPTY };

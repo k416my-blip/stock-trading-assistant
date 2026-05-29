@@ -64,9 +64,11 @@ export function HeaderUrgencyBadge() {
         <Text style={styles.actionLine} numberOfLines={1}>
           {display.actionLine}
         </Text>
-        <Text style={[styles.remainingLine, { color }]} numberOfLines={1}>
-          {display.remainingLine}
-        </Text>
+        {display.remainingLine ? (
+          <Text style={[styles.remainingLine, { color }]} numberOfLines={1}>
+            {display.remainingLine}
+          </Text>
+        ) : null}
       </View>
     </Pressable>
   );

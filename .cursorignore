@@ -6,56 +6,61 @@
 *.p12
 *.pfx
 
-# Heavy / generated folders (reduce indexing & file watcher load)
+# Heavy / generated (Cursor indexing & file watchers)
 node_modules/
-dist/
-build/
 .expo/
 .expo-shared/
-web-build/
+dist/
+build/
 coverage/
-.nyc_output/
-.next/
-.turbo/
 .cache/
+.turbo/
+.next/
+logs/
 tmp/
 temp/
-logs/
 generated/
-android/app/build/
-android/.gradle/
-ios/build/
-ios/Pods/
-
-# Generated files
-expo-go-qr.png
-*.qr.png
-audit-out.txt
-*.log
-*.tmp
-*.tsbuildinfo
-
-# Git internals
-.git/
-.cursor/
-**/.cursor/projects/
-
-# Optional large logs
-agent-transcripts/
-
-# Lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+web-build/
+.nyc_output/
 reports/
 artifacts/
 screenshots/
 playwright-report/
 test-results/
+agent-tools/
+agent-transcripts/
+
+# Native / platform trees
+android/
+ios/
+
+# Logs & debug artifacts
+*.log
+*.tmp
+*.map
+*.tsbuildinfo
+audit-out.txt
+.verify-*
+*.qr.png
+expo-go-qr.png
+
+# Git / IDE internals
+.git/
+.cursor/
+**/.cursor/projects/
+
+# Lock files (large, rarely edited)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Offline verify / tooling scripts (not app runtime; run via tsx)
+src/verify/
+src/tooling/
 src/native/soak/generated/
-android/build/
+
+# Misc backups
 *.bak
 *.backup
 *.orig
 *~
-docs/review/*.md

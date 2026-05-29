@@ -5,6 +5,8 @@ import { lazy, Suspense, type ComponentType } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
+import { AllocationPlanScreen } from '../screens/AllocationPlanScreen';
+import PortfolioScreen from '../screens/PortfolioScreen';
 import { theme } from '../theme';
 import { TabBarIcon } from './tabIcons';
 import type { MainTabParamList } from './types';
@@ -12,13 +14,7 @@ import type { MainTabParamList } from './types';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const LazyHomeScreen = lazy(() => import('../screens/HomeScreen').then((m) => ({ default: m.HomeScreen })));
-const LazyAllocationPlanScreen = lazy(() =>
-  import('../screens/AllocationPlanScreen').then((m) => ({ default: m.AllocationPlanScreen })),
-);
 const LazyScreenerScreen = lazy(() => import('../screens/ScreenerScreen').then((m) => ({ default: m.ScreenerScreen })));
-const LazyPortfolioScreen = lazy(() =>
-  import('../screens/PortfolioScreen').then((m) => ({ default: m.PortfolioScreen })),
-);
 const LazyTradeHistoryScreen = lazy(() =>
   import('../screens/TradeHistoryScreen').then((m) => ({ default: m.TradeHistoryScreen })),
 );
@@ -65,9 +61,9 @@ function lazyScreen(Component: ComponentType, title: string) {
 }
 
 const HomeTabScreen = lazyScreen(LazyHomeScreen, TAB_TITLES.Home);
-const AllocationPlanTabScreen = lazyScreen(LazyAllocationPlanScreen, TAB_TITLES.AllocationPlan);
+const AllocationPlanTabScreen = AllocationPlanScreen;
 const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, TAB_TITLES.Screener);
-const PortfolioTabScreen = lazyScreen(LazyPortfolioScreen, TAB_TITLES.Portfolio);
+const PortfolioTabScreen = PortfolioScreen;
 const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
 const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
 

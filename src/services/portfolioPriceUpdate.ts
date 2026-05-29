@@ -24,6 +24,7 @@ import {
   type FetchQuoteChainResult,
 } from './quoteProviderChain';
 import { formatProviderAttemptLine } from '../utils/providerAttemptLabel';
+import { logPriceSourceSuccess } from './priceSourceLog';
 import { hydrateYahooSymbolAliasCache } from './yahooSymbolAliasCache';
 import {
   logQuoteProviderSuccessRates,
@@ -274,6 +275,7 @@ async function fetchOnePositionQuote(
     }
 
     const quote = chainResult.quote;
+    logPriceSourceSuccess(quote.provider, position.symbol, quote.price);
     logHoldingQuoteDiagnostic({
       symbol: position.symbol,
       normalizedSymbol: apiSymbol,
@@ -513,6 +515,23 @@ export async function syncPortfolioPrices(
   if (only && only.length > 0) {
     const keys = new Set(only.map((s) => `${s.market}:${s.symbol}`));
     positions = positions.filter((p) => keys.has(`${p.market}:${p.symbol}`));
+  }
+
+  const holdings = positions.filter((p) => safeShares(p.shares, 0) > 0);
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    console.log(
+      '[HOLDING SYMBOLS]',
+      holdings.map((h) => {
+        const v = validatePositionSymbol(h.market, h.symbol);
+        return {
+          name: positionDisplayName(h),
+          symbol: h.symbol,
+          exchange: TWELVE_DATA_EXCHANGE[h.market] ?? (h.market === 'us' ? '(us)' : undefined),
+          apiSymbol: v.ok ? v.apiSymbol : undefined,
+          normalized: v.ok ? v.normalizedSymbol : undefined,
+        };
+      }),
+    );
   }
 
   logPortfolioSymbolBatch(
@@ -786,14 +805,17 @@ export async function syncPortfolioPrices(
     timedOut,
     lastPriceProvider,
   });
+  const primaryFailureReason = failures.find(
+    (f) => f.reason && f.reason !== MARKET_DATA_MESSAGES.offlineBanner,
+  )?.reason;
   const globalError =
     baseResult.totalFailure && baseResult.failedCount > 0
       ? timedOut
-        ? firstFailureDetail ?? MARKET_DATA_MESSAGES.refreshTimeout
+        ? MARKET_DATA_MESSAGES.networkError
         : !allFailuresHaveFallback
-          ? failures.some((f) => f.errorKind === 'api_key')
-            ? MARKET_DATA_MESSAGES.apiKeyInvalid
-            : firstFailureDetail ?? `価格取得に失敗: ${baseResult.failedCount}件`
+          ? primaryFailureReason ??
+            firstFailureDetail ??
+            MARKET_DATA_MESSAGES.connectionFailed
           : undefined
       : undefined;
 

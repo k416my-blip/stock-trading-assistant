@@ -1,6 +1,6 @@
 import type { Market } from '../types';
 import type { QuoteProviderId } from '../types/quoteProvider';
-import { isMalaysiaMarket } from '../utils/normalizeBursaSymbol';
+import { isUsableApiKey } from '../services/apiKeyValidation';
 
 export const QUOTE_PROVIDER_LABELS: Record<QuoteProviderId, string> = {
   yahoo_finance: 'Yahoo Finance',
@@ -10,22 +10,32 @@ export const QUOTE_PROVIDER_LABELS: Record<QuoteProviderId, string> = {
   twelve_data: 'Twelve Data',
 };
 
-/** Bursa: Yahoo → Alpha Vantage → Twelve Data */
-export const BURSA_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
+/** Twelve Data APIキーあり: Twelve → Yahoo → Alpha */
+export const TWELVE_FIRST_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
+  'twelve_data',
   'yahoo_finance',
   'alpha_vantage',
-  'twelve_data',
 ];
 
-/** その他市場: Yahoo → Alpha Vantage → Twelve Data */
-export const DEFAULT_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
+/** APIキーなし: Yahoo → Alpha */
+export const NO_TWELVE_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
   'yahoo_finance',
   'alpha_vantage',
-  'twelve_data',
 ];
 
-export function getQuoteProviderOrder(market: Market): QuoteProviderId[] {
-  return isMalaysiaMarket(market) ? [...BURSA_QUOTE_PROVIDER_ORDER] : [...DEFAULT_QUOTE_PROVIDER_ORDER];
+/** @deprecated 互換用 — getQuoteProviderOrder を使用 */
+export const BURSA_QUOTE_PROVIDER_ORDER = TWELVE_FIRST_QUOTE_PROVIDER_ORDER;
+/** @deprecated 互換用 — getQuoteProviderOrder を使用 */
+export const DEFAULT_QUOTE_PROVIDER_ORDER = TWELVE_FIRST_QUOTE_PROVIDER_ORDER;
+
+export function getQuoteProviderOrder(
+  _market: Market,
+  twelveDataApiKey?: string,
+): QuoteProviderId[] {
+  if (isUsableApiKey(twelveDataApiKey)) {
+    return [...TWELVE_FIRST_QUOTE_PROVIDER_ORDER];
+  }
+  return [...NO_TWELVE_QUOTE_PROVIDER_ORDER];
 }
 
 /** テスト用 Bursa 銘柄（Yahoo 形式） */

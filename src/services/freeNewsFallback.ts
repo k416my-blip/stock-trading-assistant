@@ -69,7 +69,7 @@ function yahooSymbol(stock: StockFundamentals): string {
   return `${stock.symbol.replace(/\.KL$/i, '')}.KL`;
 }
 
-async function fetchYahooFinanceRss(stock: StockFundamentals): Promise<FreeNewsHeadline[]> {
+export async function fetchYahooFinanceRss(stock: StockFundamentals): Promise<FreeNewsHeadline[]> {
   const sym = encodeURIComponent(yahooSymbol(stock));
   const url = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${sym}&region=US&lang=en-US`;
   const xml = await fetchTextWithTimeout(url);
@@ -81,7 +81,7 @@ async function fetchYahooFinanceRss(stock: StockFundamentals): Promise<FreeNewsH
   }));
 }
 
-async function fetchGoogleNewsRss(stock: StockFundamentals): Promise<FreeNewsHeadline[]> {
+export async function fetchGoogleNewsRss(stock: StockFundamentals): Promise<FreeNewsHeadline[]> {
   const q = encodeURIComponent(`${stock.name} ${stock.symbol} stock`);
   const url = `https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en`;
   const xml = await fetchTextWithTimeout(url);

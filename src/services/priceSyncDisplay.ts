@@ -28,7 +28,7 @@ export function apiConnectionPhaseLabel(phase: ApiConnectionPhase | undefined): 
     case 'cached':
       return MARKET_DATA_MESSAGES.showingCache;
     case 'error':
-      return MARKET_DATA_MESSAGES.networkError;
+      return MARKET_DATA_MESSAGES.connectionFailed;
     default:
       return '';
   }

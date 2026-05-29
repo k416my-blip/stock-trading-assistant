@@ -1,8 +1,7 @@
-import { Alert, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { HoldingCard } from '../components/HoldingCard';
 import { PracticeModeBadge } from '../components/PracticeModeBadge';
 import { SellAllMissingPriceModal } from '../components/SellAllMissingPriceModal';
 import { LabeledValue, TermHint } from '../components/TermHint';
@@ -10,19 +9,21 @@ import { PracticeSummaryCard } from '../components/PracticeSummaryCard';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
-import { MARKET_DATA_MESSAGES } from '../constants/marketData';
-import { PortfolioConstructionPanel } from '../components/PortfolioConstructionPanel';
-import { PriceSyncResultPanel } from '../components/PriceSyncResultPanel';
-import { useApp } from '../context/AppContext';
-import { confirmDestructiveAction } from '../utils/confirmDestructive';
-import { computePortfolioDrawdownPct } from '../services/crossAssetLiquidityFlowEngine';
-import { InstitutionalRiskPanel } from '../components/InstitutionalRiskPanel';
+import { logFocusRefresh } from '../services/productionOpsLog';
 import {
-  buildInstitutionalRiskInputFromApp,
-  buildInstitutionalRiskReport,
-} from '../services/institutionalRiskControlEngine';
-import { analyzePortfolioConstruction } from '../services/portfolioConstructionEngine';
+  usePortfolioHoldingsListModel,
+  type PortfolioHoldingActionsRef,
+} from '../components/portfolio/PortfolioHoldingsList';
+import { PortfolioPriceSyncCard } from '../components/portfolio/PortfolioPriceSyncCard';
+import { useApp } from '../context/AppContext';
+import { usePriceSyncActions } from '../context/PriceSyncContext';
+import { useRenderTrace } from '../utils/renderDiagnostics';
+
 import { usePortfolioPriceAutoRefresh } from '../hooks/usePortfolioPriceAutoRefresh';
+
+const LazyPortfolioAnalytics = lazy(
+  () => import('../components/portfolio/PortfolioAnalyticsSection'),
+);
 import {
   buildHoldingDetails,
   calculatePositionsPnL,
@@ -45,23 +46,15 @@ import {
 } from '../services/sellAllHoldings';
 import type { RootStackParamList } from '../navigation/types';
 import type { PortfolioPosition, SellAllLineItem } from '../types';
-import type { PriceSyncFailure } from '../types/marketData';
 import { positionDisplayPrice } from '../utils/positionPrice';
-import { positionKey } from '../utils/reactKeys';
-import { formatIsoDateTimeJa } from '../utils/formatDateTimeJa';
 import { safeNumber } from '../utils/safeNumeric';
-import {
-  formatPartialPriceRefreshBanner,
-  formatPriceRefreshErrorDialogMessage,
-  shouldShowPriceRefreshErrorDialog,
-  shouldShowPriceRefreshPartialBanner,
-  totalFailureAlertTitle,
-} from '../services/holdingPriceCore';
 import { theme } from '../theme';
 
 type ResolvedSell = { position: PortfolioPosition; name: string; sellPrice: number };
 
 export function PortfolioScreen() {
+  useRenderTrace('PortfolioScreen', ['portfolio', 'state']);
+
   const {
     state,
     isPractice,
@@ -75,9 +68,6 @@ export function PortfolioScreen() {
     updateHoldingSymbol,
     updateHoldingMarket,
     dispatchAlert,
-    twelveDataApiKey,
-    priceSync,
-    refreshPortfolioPrices,
     reloadHoldingsFromStorage,
     portfolioRevision,
     marketRegime,
@@ -85,6 +75,8 @@ export function PortfolioScreen() {
     undoLastHoldingRemoval,
     killSwitches,
   } = useApp();
+  const { reloadTwelveDataApiKeyFromStorage, syncPriceSyncForEmptyHoldings, refreshPortfolioPrices } =
+    usePriceSyncActions();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const portfolio = useMemo(() => {
@@ -94,8 +86,11 @@ export function PortfolioScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      logFocusRefresh({ screen: 'Portfolio', fetchPrices: false });
       void reloadHoldingsFromStorage();
-    }, [reloadHoldingsFromStorage]),
+      void reloadTwelveDataApiKeyFromStorage();
+      syncPriceSyncForEmptyHoldings();
+    }, [reloadHoldingsFromStorage, reloadTwelveDataApiKeyFromStorage, syncPriceSyncForEmptyHoldings]),
   );
 
   usePortfolioPriceAutoRefresh(true);
@@ -107,10 +102,26 @@ export function PortfolioScreen() {
   const priceQueueRef = useRef<PortfolioPosition[]>([]);
   const resolvedSellsRef = useRef<ResolvedSell[]>([]);
   const skippedItemsRef = useRef<SellAllLineItem[]>([]);
+  const holdingActionsRef = useRef<PortfolioHoldingActionsRef>({
+    sellPractice: () => {},
+    addSellChecklist: () => {},
+    updateHoldingCurrentPrice: () => ({ ok: false }),
+    updateHoldingSymbol: () => ({ ok: false }),
+    updateHoldingMarket: () => ({ ok: false }),
+    removeHolding: async () => ({ ok: false }),
+    undoLastHoldingRemoval: () => {},
+    onRetryFailedPrices: () => {},
+  });
+
+  const portfolioById = useMemo(() => {
+    const map = new Map<string, PortfolioPosition>();
+    for (const p of portfolio) map.set(p.id, p);
+    return map;
+  }, [portfolio]);
 
   const positions = useMemo(
     () => (isPractice ? calculatePositionsPnLFromList(portfolio) : calculatePositionsPnL(state)),
-    [isPractice, portfolio, state],
+    [isPractice, portfolio, state.portfolio, state.practice.portfolio],
   );
 
   const totalPortfolioValueMYR = useMemo(() => {
@@ -125,60 +136,6 @@ export function PortfolioScreen() {
     [portfolio, totalPortfolioValueMYR],
   );
 
-  const portfolioDrawdownPct = useMemo(() => {
-    if (isPractice) {
-      return computePortfolioDrawdownPct(
-        state.practice.performanceHistory,
-        practiceStats.portfolioValueMYR,
-      );
-    }
-    const capital = state.settings.totalCapitalMYR;
-    if (capital > 0 && totalPortfolioValueMYR < capital) {
-      return ((capital - totalPortfolioValueMYR) / capital) * 100;
-    }
-    return 0;
-  }, [
-    isPractice,
-    state.practice.performanceHistory,
-    state.settings.totalCapitalMYR,
-    practiceStats.portfolioValueMYR,
-    totalPortfolioValueMYR,
-  ]);
-
-  const constructionReport = useMemo(
-    () =>
-      analyzePortfolioConstruction({
-        portfolio,
-        totalPortfolioValueMYR,
-        regime: marketRegime,
-        portfolioDrawdownPct,
-      }),
-    [portfolio, totalPortfolioValueMYR, marketRegime, portfolioDrawdownPct],
-  );
-
-  const institutionalRisk = useMemo(() => {
-    if (holdings.length === 0) return null;
-    const base = buildInstitutionalRiskInputFromApp({
-      state,
-      isPractice,
-      practiceStats,
-      buyingPower,
-      regime: marketRegime,
-      portfolioDrawdownPct,
-      constructionReport,
-    });
-    return buildInstitutionalRiskReport(base);
-  }, [
-    holdings.length,
-    state,
-    isPractice,
-    practiceStats,
-    buyingPower,
-    marketRegime,
-    portfolioDrawdownPct,
-    constructionReport,
-  ]);
-
   const sellablePositions = useMemo(() => filterSellablePositions(portfolio), [portfolio]);
 
   const holdingsLastPriceAt = useMemo(() => {
@@ -191,16 +148,6 @@ export function PortfolioScreen() {
     return latest;
   }, [portfolio]);
 
-  const displayLastUpdatedAt = priceSync.lastSuccessAt ?? holdingsLastPriceAt;
-
-  const failureByPositionId = useMemo(() => {
-    const map = new Map<string, PriceSyncFailure>();
-    for (const f of priceSync.lastResult?.failures ?? []) {
-      map.set(f.positionId, f);
-    }
-    return map;
-  }, [priceSync.lastResult]);
-
   const unrealizedMYR = useMemo(
     () => (isPractice ? practiceStats.unrealizedPnLMYR : totalUnrealizedPnLMYR(positions)),
     [isPractice, practiceStats.unrealizedPnLMYR, positions],
@@ -209,44 +156,6 @@ export function PortfolioScreen() {
     () => (isPractice ? 0 : totalDividendsMYR(state.dividends)),
     [isPractice, state.dividends],
   );
-
-  const onAutoRefresh = async () => {
-    if (!twelveDataApiKey.trim()) {
-      Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey, [
-        { text: 'APIキー設定', onPress: () => navigation.navigate('ApiKeySettings') },
-        { text: '了解' },
-      ]);
-      return;
-    }
-    const result = await refreshPortfolioPrices({ silent: false });
-
-    if (shouldShowPriceRefreshErrorDialog(result)) {
-      Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
-      return;
-    }
-  };
-
-  const onRetryFailedPrices = async (targets?: PriceSyncFailure[]) => {
-    const failures = targets ?? priceSync.lastResult?.failures ?? [];
-    if (failures.length === 0) return;
-    if (!twelveDataApiKey.trim()) {
-      Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey);
-      return;
-    }
-    const result = await refreshPortfolioPrices({
-      silent: false,
-      symbolsOnly: failures.map((f) => ({ market: f.market, symbol: f.symbol })),
-    });
-    if (shouldShowPriceRefreshErrorDialog(result)) {
-      Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
-      return;
-    }
-  };
-
-  const partialFailureBanner =
-    priceSync.lastResult && shouldShowPriceRefreshPartialBanner(priceSync.lastResult)
-      ? formatPartialPriceRefreshBanner()
-      : null;
 
   const sellPractice = (position: PortfolioPosition, name: string, currentPrice: number) => {
     Alert.alert('仮想売却', `${name}を${position.shares}株、仮想売却しますか？`, [
@@ -422,265 +331,185 @@ export function PortfolioScreen() {
     setPriceModalHolding(null);
   };
 
+  holdingActionsRef.current = {
+    sellPractice,
+    addSellChecklist,
+    updateHoldingCurrentPrice,
+    updateHoldingSymbol,
+    updateHoldingMarket,
+    removeHolding,
+    undoLastHoldingRemoval,
+    onRetryFailedPrices: (targets) => {
+      void refreshPortfolioPrices({
+        silent: false,
+        trigger: 'retry',
+        symbolsOnly: (targets ?? []).map((f) => ({ market: f.market, symbol: f.symbol })),
+      });
+    },
+  };
+
+  const { renderItem, keyExtractor, extraData } = usePortfolioHoldingsListModel({
+    holdings,
+    portfolioById,
+    isPractice,
+    readOnly: killSwitches.readOnlyMode,
+    actionsRef: holdingActionsRef,
+  });
+
+  const listHeader = useMemo(
+    () => (
+      <View style={styles.listHeader}>
+        <PortfolioPriceSyncCard
+          holdingsCount={portfolio.length}
+          displayLastUpdatedAt={holdingsLastPriceAt}
+        />
+
+        {isPractice ? (
+          <>
+            <PracticeModeBadge />
+            <PracticeSummaryCard stats={practiceStats} />
+          </>
+        ) : (
+          <Card>
+            <TermHint term="portfolioHoldings" />
+            <TermHint term="sellAll" />
+            <LabeledValue term="holdingsValue" value={`RM${formatMYR(totalPortfolioValueMYR)}`} />
+            <LabeledValue
+              term="unrealizedPnL"
+              value={`${unrealizedMYR >= 0 ? '+' : ''}RM${safeNumber(unrealizedMYR, 0).toFixed(2)}`}
+              valueStyle={unrealizedMYR >= 0 ? styles.profit : styles.loss}
+            />
+            <LabeledValue term="dividend" value={`RM${formatMYR(dividendsMYR)}`} />
+          </Card>
+        )}
+
+        {isPractice ? (
+          <Card>
+            <TermHint term="sellAll" />
+            <TermHint term="realizedPnL" />
+          </Card>
+        ) : null}
+
+        {holdings.length > 0 ? (
+          <Suspense fallback={null}>
+            <LazyPortfolioAnalytics
+              portfolio={portfolio}
+              holdingsCount={holdings.length}
+              totalPortfolioValueMYR={totalPortfolioValueMYR}
+              isPractice={isPractice}
+              state={state}
+              practiceStats={practiceStats}
+              buyingPower={buyingPower}
+              marketRegime={marketRegime}
+            />
+          </Suspense>
+        ) : null}
+
+        {sellablePositions.length > 0 ? (
+          <Button label="すべて売却" onPress={onSellAll} variant="ghost" />
+        ) : null}
+
+        {!isPractice ? (
+          <>
+            <Button
+              label="手動で保有銘柄に追加"
+              onPress={() => navigation.navigate('ManualAddHolding')}
+            />
+            <Button label="配当を記録" onPress={() => navigation.navigate('AddDividend')} variant="ghost" />
+            <Button
+              label="手動注文リスト"
+              onPress={() => navigation.navigate('ManualOrderList')}
+              variant="ghost"
+            />
+          </>
+        ) : null}
+      </View>
+    ),
+    [
+      buyingPower,
+      dividendsMYR,
+      holdings.length,
+      holdingsLastPriceAt,
+      isPractice,
+      marketRegime,
+      navigation,
+      onSellAll,
+      portfolio,
+      practiceStats,
+      state,
+      totalPortfolioValueMYR,
+      unrealizedMYR,
+      sellablePositions.length,
+    ],
+  );
+
+  const listEmpty = useMemo(
+    () => (
+      <Card style={styles.emptyCard}>
+        <Text style={styles.emptyTitle}>現在保有銘柄はありません</Text>
+        <Text style={styles.muted}>
+          {isPractice
+            ? '「おすすめ配分」または「仮想買付」から取引してください。'
+            : '銘柄検索から追加してください。'}
+        </Text>
+        {!isPractice ? (
+          <Button
+            label="銘柄検索へ"
+            onPress={() => navigation.getParent()?.navigate('Screener')}
+          />
+        ) : null}
+      </Card>
+    ),
+    [isPractice, navigation],
+  );
+
+  const listFooter = useMemo(() => {
+    if (isPractice || state.dividends.length === 0) return null;
+    return (
+      <View style={styles.listFooter}>
+        <Text style={styles.section}>配当履歴</Text>
+        {state.dividends.map((d, index) => (
+          <Card key={`dividend-${d.id}-${index}`}>
+            <Text style={styles.symbol}>{d.symbol}</Text>
+            <Text style={styles.muted}>
+              {d.amount} · {d.receivedAt}
+            </Text>
+          </Card>
+        ))}
+      </View>
+    );
+  }, [isPractice, state.dividends]);
+
   return (
     <>
-    <Screen
-      title="保有銘柄"
-      subtitle={isPractice ? '練習モードの仮想ポジション' : '実運用分析 — 証券会社で約定後に記録したポジション'}
-    >
-      <Card>
-        <Text style={styles.note}>{MARKET_DATA_MESSAGES.autoPriceNote}</Text>
-        {priceSync.loading ? (
-          <View style={styles.loadingRow}>
-            <ActivityIndicator color={theme.colors.primary} />
-            <Text style={styles.loadingText}>
-              {priceSync.displayStatus === 'fetching'
-                ? MARKET_DATA_MESSAGES.loading
-                : '株価を取得中です'}
-            </Text>
-          </View>
-        ) : null}
-        {displayLastUpdatedAt && !priceSync.lastResult ? (
-          <Text style={styles.metaText}>
-            保存済み価格の最終更新: {formatIsoDateTimeJa(displayLastUpdatedAt) ?? displayLastUpdatedAt}
-          </Text>
-        ) : null}
-        {partialFailureBanner
-          ? partialFailureBanner.split('\n').map((line) => (
-              <Text key={line} style={styles.warnText}>
-                {line}
-              </Text>
-            ))
-          : null}
-        {priceSync.marketClosedHint ? (
-          <Text style={styles.warnText}>{MARKET_DATA_MESSAGES.marketClosed}</Text>
-        ) : null}
-        <PriceSyncResultPanel
-          result={priceSync.lastResult}
-          lastSuccessAt={displayLastUpdatedAt}
-          lastError={priceSync.lastError}
-          loading={priceSync.loading}
-          displayStatus={priceSync.displayStatus}
-          connectionPhase={priceSync.connectionPhase}
-          connectionDetail={priceSync.connectionDetail}
-          currentSymbol={priceSync.currentSymbol}
-          activeProvider={priceSync.activeProvider}
-          lastPriceProvider={priceSync.lastPriceProvider}
-          quoteFetchDebug={priceSync.quoteFetchDebug}
-          resolvedSymbol={priceSync.resolvedSymbol}
-          onRetry={onAutoRefresh}
-          onRetryFailed={
-            (priceSync.lastResult?.failures.length ?? 0) > 0
-              ? () => onRetryFailedPrices()
-              : undefined
-          }
-          retryFailedLoading={priceSync.loading}
+      <Screen
+        scrollable={false}
+        title="保有銘柄"
+        subtitle={
+          isPractice ? '練習モードの仮想ポジション' : '実運用分析 — 証券会社で約定後に記録したポジション'
+        }
+      >
+        <FlatList
+          style={styles.list}
+          data={holdings}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          extraData={extraData}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={listEmpty}
+          ListFooterComponent={listFooter}
+          contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
+          nestedScrollEnabled
+          scrollEnabled
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
+          overScrollMode="always"
+          initialNumToRender={6}
+          maxToRenderPerBatch={8}
+          windowSize={7}
         />
-        <Button
-          label="株価を自動更新"
-          onPress={onAutoRefresh}
-          disabled={priceSync.loading}
-        />
-        <Button
-          label="APIキー設定"
-          onPress={() => navigation.navigate('ApiKeySettings')}
-          variant="ghost"
-        />
-      </Card>
-
-      {isPractice ? (
-        <>
-          <PracticeModeBadge />
-          <PracticeSummaryCard stats={practiceStats} />
-        </>
-      ) : (
-        <Card>
-          <TermHint term="portfolioHoldings" />
-          <TermHint term="sellAll" />
-          <LabeledValue term="holdingsValue" value={`RM${formatMYR(totalPortfolioValueMYR)}`} />
-          <LabeledValue
-            term="unrealizedPnL"
-            value={`${unrealizedMYR >= 0 ? '+' : ''}RM${safeNumber(unrealizedMYR, 0).toFixed(2)}`}
-            valueStyle={unrealizedMYR >= 0 ? styles.profit : styles.loss}
-          />
-          <LabeledValue term="dividend" value={`RM${formatMYR(dividendsMYR)}`} />
-        </Card>
-      )}
-
-      {isPractice ? (
-        <Card>
-          <TermHint term="sellAll" />
-          <TermHint term="realizedPnL" />
-        </Card>
-      ) : null}
-
-      {holdings.length > 0 ? (
-        <>
-          <PortfolioConstructionPanel report={constructionReport} />
-          {institutionalRisk ? <InstitutionalRiskPanel report={institutionalRisk} compact /> : null}
-          <Card style={styles.optimizeCard}>
-            <Text style={styles.optimizeTitle}>機関ポートフォリオ最適化</Text>
-            <Text style={styles.optimizeHint}>
-              収縮共分散 · リスクパリティ · CVaR · Kelly · レジーム · ターンオーバー制約
-            </Text>
-            <Button
-              label="最適化レポートを開く"
-              onPress={() => navigation.navigate('PortfolioOptimization')}
-              variant="ghost"
-            />
-            <Button
-              label="ベイズ動的配分"
-              onPress={() => navigation.navigate('BayesianAllocation')}
-              variant="ghost"
-            />
-            <Button
-              label="メタ配分・アンサンブル"
-              onPress={() => navigation.navigate('MetaAllocation')}
-              variant="ghost"
-            />
-            <Button
-              label="ガバナンス・説明"
-              onPress={() => navigation.navigate('Governance')}
-              variant="ghost"
-            />
-            <Button
-              label="可視化・モニタリング"
-              onPress={() => navigation.navigate('Monitoring')}
-              variant="ghost"
-            />
-            <Button
-              label="適応執行・アルファ"
-              onPress={() => navigation.navigate('AdaptiveExecution')}
-              variant="ghost"
-            />
-            <Button
-              label="マーケット・インテリジェンス"
-              onPress={() => navigation.navigate('MarketIntelligence')}
-              variant="ghost"
-            />
-            <Button
-              label="ストレス・テールリスク"
-              onPress={() => navigation.navigate('PortfolioStress')}
-              variant="ghost"
-            />
-            <Button
-              label="行動・オペレーターリスク"
-              onPress={() => navigation.navigate('BehavioralRisk')}
-              variant="ghost"
-            />
-            <Button
-              label="モデル安定性"
-              onPress={() => navigation.navigate('ModelStability')}
-              variant="ghost"
-            />
-            <Button
-              label="メタ資本配分"
-              onPress={() => navigation.navigate('MetaCapital')}
-              variant="ghost"
-            />
-          </Card>
-        </>
-      ) : null}
-
-      {sellablePositions.length > 0 ? (
-        <Button label="すべて売却" onPress={onSellAll} variant="ghost" />
-      ) : null}
-
-      {!isPractice ? (
-        <>
-          <Button
-            label="手動で保有銘柄に追加"
-            onPress={() => navigation.navigate('ManualAddHolding')}
-          />
-          <Button label="配当を記録" onPress={() => navigation.navigate('AddDividend')} variant="ghost" />
-          <Button
-            label="手動注文リスト"
-            onPress={() => navigation.navigate('ManualOrderList')}
-            variant="ghost"
-          />
-        </>
-      ) : null}
-
-      {holdings.length === 0 ? (
-        <Card>
-          <Text style={styles.muted}>
-            {isPractice
-              ? '仮想保有はありません。「おすすめ配分」または「仮想買付」から取引してください。'
-              : '保有銘柄はありません。「手動で保有銘柄に追加」から約定後の買付を記録してください。'}
-          </Text>
-        </Card>
-      ) : (
-        holdings.map((h) => {
-          const position = portfolio.find((x) => x.id === h.positionId)!;
-          return (
-            <HoldingCard
-              key={positionKey(h.positionId)}
-              holding={h}
-              position={position}
-              priceExploring={
-                priceSync.loading &&
-                priceSync.connectionPhase === 'symbol_exploring' &&
-                priceSync.currentSymbol === h.symbol
-              }
-              resolvedYahooSymbol={priceSync.resolvedSymbol}
-              priceFailure={failureByPositionId.get(h.positionId)}
-              onRetryPrice={
-                failureByPositionId.has(h.positionId)
-                  ? () => {
-                      const f = failureByPositionId.get(h.positionId);
-                      if (f) void onRetryFailedPrices([f]);
-                    }
-                  : undefined
-              }
-              priceRetrying={priceSync.loading}
-              isPractice={isPractice}
-              onPracticeSell={() => sellPractice(position, h.name, positionDisplayPrice(position))}
-              onManualSellChecklist={() =>
-                addSellChecklist(position, h.name, positionDisplayPrice(position))
-              }
-              onUpdateCurrentPrice={(price) => updateHoldingCurrentPrice(h.positionId, price)}
-              onUpdateSymbol={(symbol) => updateHoldingSymbol(h.positionId, symbol)}
-              onUpdateMarket={(market) => updateHoldingMarket(h.positionId, market)}
-              readOnly={killSwitches.readOnlyMode}
-              onDeleteHolding={() =>
-                confirmDestructiveAction({
-                  title: '保有を削除',
-                  message: `${h.symbol} を保有一覧から削除します。売買履歴は残ります。`,
-                  confirmLabel: '削除',
-                  onConfirm: () => {
-                    void removeHolding(h.positionId).then((r) => {
-                      if (!r.ok) {
-                        Alert.alert('削除できません', r.error ?? '');
-                        return;
-                      }
-                      if (r.canUndo) {
-                        Alert.alert('削除しました', undefined, [
-                          { text: '元に戻す', onPress: () => undoLastHoldingRemoval() },
-                          { text: '了解' },
-                        ]);
-                      }
-                    });
-                  },
-                })
-              }
-            />
-          );
-        })
-      )}
-
-      {!isPractice && state.dividends.length > 0 ? (
-        <>
-          <Text style={styles.section}>配当履歴</Text>
-          {state.dividends.map((d, index) => (
-            <Card key={`dividend-${d.id}-${index}`}>
-              <Text style={styles.symbol}>{d.symbol}</Text>
-              <Text style={styles.muted}>
-                {d.amount} · {d.receivedAt}
-              </Text>
-            </Card>
-          ))}
-        </>
-      ) : null}
+      </Screen>
 
       <SellAllMissingPriceModal
         visible={priceModalVisible}
@@ -691,10 +520,11 @@ export function PortfolioScreen() {
         onSkip={skipMissingPrice}
         onCancel={cancelSellAll}
       />
-    </Screen>
     </>
   );
 }
+
+export default PortfolioScreen;
 
 function formatMYR(v: number) {
   const n = Number.isFinite(v) ? v : 0;
@@ -702,22 +532,15 @@ function formatMYR(v: number) {
 }
 
 const styles = StyleSheet.create({
-  note: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18 },
-  loadingRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
-  loadingText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
-  metaText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm },
-  warnText: { color: theme.colors.warning, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm, lineHeight: 18 },
+  list: { flex: 1 },
+  listContent: { paddingBottom: 140, flexGrow: 1 },
+  listHeader: { gap: theme.spacing.md, paddingBottom: theme.spacing.sm },
+  listFooter: { gap: theme.spacing.md, paddingTop: theme.spacing.md },
+  emptyCard: { gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  emptyTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.md },
   profit: { color: theme.colors.success },
   loss: { color: theme.colors.danger },
   section: { color: theme.colors.text, fontWeight: '600', marginTop: theme.spacing.md },
   symbol: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.lg },
-  muted: { color: theme.colors.textMuted, marginTop: 4 },
-  optimizeCard: { marginTop: theme.spacing.sm },
-  optimizeTitle: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md },
-  optimizeHint: {
-    color: theme.colors.textMuted,
-    fontSize: theme.fontSize.sm,
-    marginTop: 4,
-    marginBottom: theme.spacing.sm,
-  },
+  muted: { color: theme.colors.textMuted, marginTop: 4, lineHeight: 20 },
 });

@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { HeaderProactiveBadge } from '../components/proactive/HeaderProactiveBadge';
+import { DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST } from '../constants/aiConciergeDevFlags';
 import { ProactiveSuggestionsHomeCard } from '../components/proactive/ProactiveSuggestionsHomeCard';
 import { CentralIntelligencePanel } from '../components/CentralIntelligencePanel';
 import { AiTradeQueueSection } from '../components/AiTradeQueueSection';
@@ -64,7 +65,7 @@ export function HomeScreen() {
       subtitle={isPractice ? PRACTICE_SUBTITLE : PLATFORM_POSITIONING_SUBTITLE_JA}
     >
       <DegradedModeBanner />
-      <ProactiveSuggestionsHomeCard />
+      {!DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST ? <ProactiveSuggestionsHomeCard /> : null}
       <CentralIntelligencePanel />
       {isPractice ? (
         <>

@@ -5,8 +5,8 @@ export const TWELVE_DATA_BASE_URL = 'https://api.twelvedata.com';
 /** API呼び出しの最小間隔（レート制限対策・キュー内ギャップ） */
 export const MARKET_DATA_MIN_INTERVAL_MS = 1_500;
 
-/** グローバル市場データキュー同時実行上限 */
-export const MARKET_DATA_MAX_CONCURRENT = 2;
+/** グローバル市場データキュー同時実行上限（実運用: 1本化） */
+export const MARKET_DATA_MAX_CONCURRENT = 1;
 
 /** 同一銘柄の再リクエスト最短間隔 */
 export const MARKET_DATA_SYMBOL_COOLDOWN_MS = 60_000;
@@ -23,6 +23,9 @@ export const EMERGENCY_QUOTE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** 1回の quote 試行タイムアウト（ミリ秒） */
 export const QUOTE_ATTEMPT_TIMEOUT_MS = 15_000;
+
+/** プロバイダーチェーン内の Twelve Data 合計上限（超過で Yahoo へ切替） */
+export const TWELVE_DATA_QUOTE_TIMEOUT_MS = 5_000;
 
 /** ポートフォリオ全体の株価更新タイムアウト（ミリ秒・リトライ込み） */
 export const PORTFOLIO_REFRESH_TIMEOUT_MS = 120_000;
@@ -109,7 +112,7 @@ export const BURSA_TWELVE_DATA_UNSUPPORTED =
 export const MARKET_DATA_MESSAGES = {
   loading: '取得中',
   refreshTimeout: '株価取得がタイムアウトしました',
-  apiKeyInvalid: 'Twelve Data APIキーが未設定または無効です',
+  apiKeyInvalid: 'APIキーエラー',
   partialFailure: '一部失敗',
   partialFailureBanner: '一部銘柄の価格取得に失敗しました',
   partialFailureSavedHint: '最後に保存した価格を表示しています',
@@ -117,7 +120,7 @@ export const MARKET_DATA_MESSAGES = {
   totalFailureAlertBody: '最後に取得した価格を表示しています',
   showingCache: 'キャッシュ表示中',
   usingMock: 'モック使用中',
-  connectionFailed: '通信エラー',
+  connectionFailed: 'Twelve Data応答エラー',
   refreshComplete: '更新完了',
   apiConnecting: 'API接続中',
   symbolExploring: 'symbol探索中...',
@@ -132,6 +135,16 @@ export const MARKET_DATA_MESSAGES = {
   priceUnavailableHint: 'APIキー・銘柄コード・市場を確認してください',
   autoPriceNote: '自動取得価格は参考値です。実際の注文前にRakuten Tradeの価格を必ず確認してください。',
   noApiKey: 'Twelve Data APIキーが未設定です。「APIキー設定」から登録してください。',
+  noHoldings: '保有銘柄がありません',
+  noHoldingsTitle: '現在保有銘柄はありません',
+  noHoldingsHint: '銘柄追加後に株価更新できます',
+  noFetchTargets: '更新対象なし',
+  noHoldingsUpdateBlocked: '保有銘柄が0件です',
+  noHoldingsFetchSkipped: '取得対象がありません',
+  zeroHoldingsUpdated: '0件更新',
+  refreshInProgress: '更新中...',
+  refreshCompleteZero: '更新完了（0件更新）',
+  apiConnectionOk: 'API接続成功',
   manualPriceButton: '現在株価を手動入力',
   fixSymbolButton: '銘柄コードを修正',
   fixMarketButton: '市場を修正',

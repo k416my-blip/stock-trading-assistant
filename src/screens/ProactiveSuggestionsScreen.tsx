@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { ProactiveSuggestionCard } from '../components/proactive/ProactiveSuggestionCard';
 import { Screen } from '../components/ui/Screen';
+import { DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST } from '../constants/aiConciergeDevFlags';
 import { PROACTIVE_UI } from '../constants/proactiveConcierge';
 import { useProactiveConcierge } from '../context/ProactiveConciergeContext';
 import { useAiConcierge } from '../context/AiConciergeContext';
@@ -8,6 +9,17 @@ import { isUnhandledProactiveStatus } from '../types/proactiveSuggestion';
 import { theme } from '../theme';
 
 export function ProactiveSuggestionsScreen() {
+  if (DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST) {
+    return (
+      <Screen title={PROACTIVE_UI.listTitle} subtitle="開発中は AI Concierge を無効化しています">
+        <Text style={styles.empty}>表示できません</Text>
+      </Screen>
+    );
+  }
+  return <ProactiveSuggestionsScreenContent />;
+}
+
+function ProactiveSuggestionsScreenContent() {
   const { suggestions, acknowledge, seeLater, openDetail } = useProactiveConcierge();
   const { openPanel } = useAiConcierge();
 

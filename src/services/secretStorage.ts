@@ -54,7 +54,19 @@ async function purgeCorruptedSecureKey(
 
 async function safeGetSecureItem(store: SecureStoreModule, key: string): Promise<string | null> {
   try {
-    return await store.getItemAsync(key);
+    const value = await store.getItemAsync(key);
+    if (
+      typeof __DEV__ !== 'undefined' &&
+      __DEV__ &&
+      key === SECRET_KEYS.twelveDataApiKey
+    ) {
+      console.log('[TWELVE SECURE]', {
+        op: 'getItemAsync',
+        storageKey: key,
+        hit: value != null && value.length > 0,
+      });
+    }
+    return value;
   } catch (err) {
     if (isSecureStoreCorruptionError(err)) {
       await purgeCorruptedSecureKey(store, key);
@@ -71,6 +83,17 @@ async function safeSetSecureItem(
   try {
     if (value) {
       await store.setItemAsync(key, value);
+      if (
+        typeof __DEV__ !== 'undefined' &&
+        __DEV__ &&
+        key === SECRET_KEYS.twelveDataApiKey
+      ) {
+        console.log('[TWELVE SECURE]', {
+          op: 'setItemAsync',
+          storageKey: key,
+          length: value.length,
+        });
+      }
     } else {
       await store.deleteItemAsync(key);
     }
@@ -180,6 +203,15 @@ async function readLegacyPlainSecret(keyId: SecretKeyId): Promise<string> {
   try {
     const legacyKey = LEGACY_PLAIN_SECRET_KEYS[keyId];
     const raw = await AsyncStorage.getItem(legacyKey);
+    if (keyId === 'twelveDataApiKey') {
+      const state =
+        raw === null ? 'null' : raw === undefined ? 'undefined' : raw.length === 0 ? 'empty' : 'value';
+      console.log('[ASYNCSTORAGE GET twelveDataApiKey]', {
+        key: legacyKey,
+        state,
+        length: typeof raw === 'string' ? raw.length : 0,
+      });
+    }
     return raw?.trim() ?? '';
   } catch {
     return '';

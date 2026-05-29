@@ -7,6 +7,8 @@ import {
 import type { PerformanceCostRuntimeSnapshot } from '../types/performanceCost';
 import { priceRefreshMs } from '../constants/marketData';
 import type { PriceRefreshMinutes } from '../types';
+import { logAppStateChange } from './productionOpsLog';
+import { bindPortfolioRefreshApiPause } from './portfolioRefreshCoordinator';
 
 type Listener = (snap: PerformanceCostRuntimeSnapshot) => void;
 
@@ -121,8 +123,17 @@ let appStateSub: { remove: () => void } | null = null;
 
 export function initPerformanceCostRuntime(): void {
   if (appStateSub) return;
+  bindPortfolioRefreshApiPause(shouldPauseApiRequests);
   appStateSub = AppState.addEventListener('change', (next) => {
+    const prev = appState;
     appState = next;
+    logAppStateChange({
+      from: prev,
+      to: next,
+      pauseApi: shouldPauseApiRequests(),
+      offline: offlineMode,
+      batterySaver,
+    });
     emit();
   });
 }

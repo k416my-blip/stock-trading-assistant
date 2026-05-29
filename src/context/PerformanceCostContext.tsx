@@ -37,6 +37,9 @@ export function PerformanceCostProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     initPerformanceCostRuntime();
+    void import('../services/networkReachability').then(({ initNetworkReachability }) => {
+      initNetworkReachability();
+    });
     void import('../services/mobileRedmiRuntime').then(({ initMobileRedmiRuntime }) => {
       initMobileRedmiRuntime();
     });

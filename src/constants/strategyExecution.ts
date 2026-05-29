@@ -29,6 +29,13 @@ export const STRATEGY_AI_PROMPT_JA = `
 
 export const STRATEGY_UI_LABELS_JA = {
   panelTitle: 'AI Action Center',
+  portfolioScore: 'ポートフォリオ全体スコア',
+  evaluatedAt: '評価更新',
+  dataSources: '取得元',
+  ranking: 'おすすめ順ランキング（全保有）',
+  bestToday: '本日のベスト銘柄',
+  worstToday: '本日のワースト銘柄',
+  riskWarnings: 'リスク警告',
   today: '今日の推奨',
   danger: '危険回避',
   watch: '様子見',

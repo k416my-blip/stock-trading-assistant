@@ -8,6 +8,7 @@ describe('Bursa Twelve Data symbol format', () => {
     expect(normalizeBursaSymbol('0820EA')).toBe('0820EA.KL');
 
     const attempts = getTwelveDataQuoteAttempts('bursa', '4707');
-    expect(attempts.map((a) => a.symbol)).toEqual(['4707.KL']);
+    expect(attempts.map((a) => a.symbol)).toContain('4707.KL');
+    expect(attempts[0]?.symbol).toBe('4707.KL');
   });
 });

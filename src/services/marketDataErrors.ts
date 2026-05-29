@@ -14,16 +14,16 @@ export const MARKET_DATA_ERROR_LABEL: Record<MarketDataErrorKind, string> = {
 };
 
 const USER_MESSAGES: Record<MarketDataErrorKind, string> = {
-  rate_limit: 'API制限に達した可能性があります（429）',
+  rate_limit: '無料枠制限',
   plan_unsupported: '現在の Twelve Data プランでは未対応',
-  symbol_invalid: '銘柄コードまたは市場設定が正しくない可能性があります',
+  symbol_invalid: '銘柄コード不正',
   empty_response: '価格データが空でした（休場・未配信の可能性があります）',
   market_closed: '市場が閉まっているため価格が更新されない場合があります',
-  network_timeout: 'ネットワーク接続がタイムアウトしました',
-  server_error: 'データ提供側のサーバーエラーが発生しました',
-  unsupported_exchange: 'この取引所はAPIでサポートされていない可能性があります',
-  api_key: 'APIキーを確認してください',
-  unknown: '価格を取得できませんでした。しばらくしてから再試行してください',
+  network_timeout: 'ネットワークエラー',
+  server_error: 'Twelve Data応答エラー',
+  unsupported_exchange: '銘柄コード不正',
+  api_key: 'APIキーエラー',
+  unknown: 'Twelve Data応答エラー',
 };
 
 /** HTTP ステータスとメッセージからエラー種別を判定（汎用 "limit" には反応しない） */
@@ -42,7 +42,11 @@ export function classifyMarketDataError(
   if (httpStatus != null && httpStatus >= 500) return 'server_error';
 
   if (/\b429\b/.test(m) || /too many requests/.test(m)) return 'rate_limit';
-  if (/api credit|run out of|credits per|quota exceeded|maximum number of requests/.test(m)) {
+  if (
+    /api credit|run out of|credits per|quota exceeded|maximum number of requests|credits exceeded|credit limit/.test(
+      m,
+    )
+  ) {
     return 'rate_limit';
   }
 

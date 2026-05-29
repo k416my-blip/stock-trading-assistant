@@ -5,6 +5,7 @@ import type { PortfolioPriceSyncState } from './marketData';
 import type { MarketRegimeResult } from './marketRegime';
 import type { AppState } from './index';
 import type { AiNormalizedHolding, AiNormalizedRecommendation, AiNormalizedWatchItem } from './aiStrategy';
+import type { AiStrategyBriefing, AiTradeQueueItem } from './aiStrategyBriefing';
 
 /** AI internal confidence model (0–100). */
 export type AiSystemAwareness = {
@@ -89,4 +90,6 @@ export type BuildCentralIntelligenceInput = {
   diagnosticsSeverity: Record<DiagnosticSeverity, number>;
   apiHealthSummaryJa?: string;
   apiHealthDegraded?: boolean;
+  tradeQueue?: AiTradeQueueItem[];
+  briefing?: AiStrategyBriefing;
 };

@@ -45,12 +45,17 @@ describe('quoteProviderChain', () => {
     resetProviderRateLimits();
   });
 
-  it('Bursa order prioritizes Yahoo then Alpha Vantage then Twelve Data', () => {
-    const order = getQuoteProviderOrder('bursa');
-    expect(order).toEqual(['yahoo_finance', 'alpha_vantage', 'twelve_data']);
+  it('order is Twelve then Yahoo then Alpha when API key is set', () => {
+    const order = getQuoteProviderOrder('bursa', 'test-key-12345678');
+    expect(order).toEqual(['twelve_data', 'yahoo_finance', 'alpha_vantage']);
   });
 
-  it('falls back from Yahoo to Twelve Data on failure', async () => {
+  it('order is Yahoo then Alpha when API key is missing', () => {
+    const order = getQuoteProviderOrder('us', '');
+    expect(order).toEqual(['yahoo_finance', 'alpha_vantage']);
+  });
+
+  it('uses Twelve Data first when key is set and earlier providers fail', async () => {
     vi.mocked(alpha.fetchAlphaVantageQuote).mockRejectedValue({
       kind: 'symbol_invalid',
       message: 'alpha skip',
@@ -107,7 +112,7 @@ describe('quoteProviderChain', () => {
     expect(result.attempts.length).toBeGreaterThan(0);
   });
 
-  it('skips rate-limited provider', async () => {
+  it('skips rate-limited Yahoo when key is missing', async () => {
     noteProviderRateLimit('yahoo_finance');
     expect(isProviderRateLimited('yahoo_finance')).toBe(true);
 

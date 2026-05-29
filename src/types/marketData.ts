@@ -149,6 +149,8 @@ export interface PriceRefreshOptions {
   debounceMs?: number;
   /** 指定銘柄のみ再取得（失敗銘柄リトライ） */
   symbolsOnly?: Array<{ market: Market; symbol: string }>;
+  /** 診断ログ用 */
+  trigger?: 'manual' | 'auto' | 'recovery' | 'retry';
 }
 
 export type PortfolioSyncProgress = {

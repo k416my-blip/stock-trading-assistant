@@ -1,7 +1,7 @@
 /**
  * 唯一の外部市場データ API ゲートウェイ（Twelve Data）。
  * 外部 HTTP はこのファイル内の fetchTwelveData のみ。
- * FIFO リクエストキュー・同時実行2・銘柄60秒間隔・429グローバルバックオフは本モジュール末尾の marketDataRequestQueue。
+ * FIFO リクエストキュー・同時実行1・銘柄60秒間隔・429グローバルバックオフは本モジュール末尾の marketDataRequestQueue。
  * 分析・インテリジェンス層は normalizedMarketData 経由のキャッシュ読み取りのみ。
  */
 import {
@@ -11,6 +11,7 @@ import {
   MARKET_DATA_RATE_LIMIT_BACKOFF_MAX_MS,
   MARKET_DATA_SYMBOL_COOLDOWN_MS,
   QUOTE_ATTEMPT_TIMEOUT_MS,
+  TWELVE_DATA_QUOTE_TIMEOUT_MS,
   TWELVE_DATA_BASE_URL,
 } from '../constants/marketData';
 import {
@@ -18,6 +19,7 @@ import {
   OHLCV_OUTPUT_SIZE,
 } from '../constants/quantValidation';
 import { SAMPLE_STOCKS } from '../data/sampleStocks';
+import { devLog } from '../utils/devLog';
 import type { Currency, Market } from '../types';
 import type { QuoteProviderId } from '../types/quoteProvider';
 import type {
@@ -60,10 +62,17 @@ import {
   logTwelveDataRequestUrl,
 } from '../utils/quoteFetchDebugLog';
 import { logTwelveDataApiResponse } from '../utils/twelveDataResponseLog';
+import {
+  logPriceFetchDuplicateBlocked,
+  logQueueActive,
+  logQueueFinished,
+} from './productionOpsLog';
 
 export type GetQuoteForMarketOptions = {
   probe?: QuoteProbeSession;
   timeoutMs?: number;
+  /** 全 symbol 形式試行の合計上限（プロバイダーチェーン用） */
+  maxTotalMs?: number;
 };
 
 export type MarketDataErrorOptions = {
@@ -116,6 +125,15 @@ function createMarketDataError(
 const fxCache: Partial<Record<string, { rate: number; at: number }>> = {};
 const FX_CACHE_TTL_MS = 15 * 60 * 1000;
 
+let lastTwelveQuoteResponseStatus: number | undefined;
+
+/** 直近 Twelve Data quote 成功時の HTTP ステータス（ログ用・1回消費） */
+export function takeLastTwelveQuoteResponseStatus(): number | undefined {
+  const status = lastTwelveQuoteResponseStatus;
+  lastTwelveQuoteResponseStatus = undefined;
+  return status;
+}
+
 type TwelveDataErrorBody = {
   status?: string;
   message?: string;
@@ -154,7 +172,7 @@ function logTwelveDataRequestDiagnostic(input: {
   responseErrorMessage?: string;
   responseErrorBody?: unknown;
 }): void {
-  console.log('[TwelveData] REQUEST_DIAGNOSTIC', {
+  devLog('[TwelveData] REQUEST_DIAGNOSTIC', {
     provider: 'TwelveData',
     symbol: input.symbol,
     endpoint: input.endpoint,
@@ -217,7 +235,7 @@ type PendingQueueGroup = {
   running: boolean;
 };
 
-/** FIFO／同時最大2／銘柄60秒クール／429時グローバル待機／pending同一キーデデュープ／競合時は旧ペンディングをキャンセル */
+/** FIFO／同時最大1／銘柄60秒クール／429時グローバル待機／pending同一キーデデュープ／競合時は旧ペンディングをキャンセル */
 class InternalMarketDataRequestQueue {
   private fifo: PendingQueueGroup[] = [];
   private pendingByKey = new Map<string, PendingQueueGroup>();
@@ -238,6 +256,11 @@ class InternalMarketDataRequestQueue {
 
       const existing = this.pendingByKey.get(key);
       if (existing && !existing.running) {
+        logPriceFetchDuplicateBlocked('queue_key_pending', {
+          key,
+          waiters: existing.waiters.length + 1,
+          ...this.getSnapshot(),
+        });
         existing.run = task as () => Promise<unknown>;
         existing.waiters.push(waiter as QueueWaiter<unknown>);
         void this.pump();
@@ -245,6 +268,10 @@ class InternalMarketDataRequestQueue {
       }
 
       if (existing?.running) {
+        logPriceFetchDuplicateBlocked('queue_key_in_flight', {
+          key,
+          ...this.getSnapshot(),
+        });
         for (const w of existing.waiters) {
           w.reject(new MarketDataStaleRequestError());
         }
@@ -341,6 +368,13 @@ class InternalMarketDataRequestQueue {
     this.removeGroup(group);
   }
 
+  private logQueueFinishedIfIdle(): void {
+    const snap = this.getSnapshot();
+    if (snap.inFlight === 0 && snap.uniqueKeys === 0) {
+      logQueueFinished(snap);
+    }
+  }
+
   private async pump(): Promise<void> {
     if (this.pumpActive) return;
     this.pumpActive = true;
@@ -356,6 +390,7 @@ class InternalMarketDataRequestQueue {
         group.running = true;
         group.dispatchGeneration = group.generation;
         this.inFlight += 1;
+        logQueueActive({ key: group.key, ...this.getSnapshot() });
         this.symbolLastAt.set(group.key, Date.now());
         this.fifo.shift();
 
@@ -380,6 +415,7 @@ class InternalMarketDataRequestQueue {
           .finally(() => {
             group.running = false;
             this.inFlight -= 1;
+            this.logQueueFinishedIfIdle();
             void this.pump();
           });
       }
@@ -387,6 +423,8 @@ class InternalMarketDataRequestQueue {
       this.pumpActive = false;
       if (this.fifo.length > 0 && this.inFlight < MARKET_DATA_MAX_CONCURRENT) {
         void this.pump();
+      } else {
+        this.logQueueFinishedIfIdle();
       }
     }
   }
@@ -454,7 +492,13 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
   throwIfProbeAborted(options?.probe);
   const url = buildRequestUrl(path, params);
   const requestUrlWithoutKey = buildRequestUrlWithoutKey(path, params);
-  const apiKeyForDiagnostic = params.apikey ?? '';
+  const apiKeyForDiagnostic = (params.apikey ?? '').trim();
+  if (!apiKeyForDiagnostic) {
+    throw new MarketDataError('api_key', userMessageForErrorKind('api_key'), {
+      rawMessage: 'apikey is empty before fetch',
+      requestUrl: requestUrlWithoutKey,
+    });
+  }
   logTwelveDataRequestDiagnostic({
     symbol: params.symbol ?? 'unknown',
     endpoint: path,
@@ -475,9 +519,23 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  devLog('[TWELVE REQUEST]', {
+    exists: Boolean(apiKeyForDiagnostic?.trim()),
+    url: requestUrlWithoutKey,
+  });
+  devLog('FETCH URL', url);
+  devLog('[FETCH URL CHECK]', {
+    hasApiKey: /apikey=[^&]+/.test(url),
+    apiKeyEmpty: /apikey=&|apikey=$/.test(url),
+  });
+
   let response: Response;
   try {
     response = await fetch(url, { signal: controller.signal });
+    devLog('[TWELVE RESPONSE]', {
+      status: response.status,
+      ok: response.ok,
+    });
   } catch (networkErr) {
     const isAbort =
       networkErr instanceof Error &&
@@ -522,9 +580,13 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
     clearTimeout(timeoutId);
   }
 
+  const responseText = await response.text();
+  devLog('[TWELVE STATUS]', response.status);
+  devLog('[TWELVE BODY]', responseText.slice(0, 200));
+
   let data: T & TwelveDataErrorBody;
   try {
-    data = (await response.json()) as T & TwelveDataErrorBody;
+    data = JSON.parse(responseText) as T & TwelveDataErrorBody;
   } catch {
     const err = createMarketDataError('APIから空の応答が返されました', response.status, 'empty_response');
     logTwelveDataRequestDiagnostic({
@@ -593,6 +655,7 @@ async function fetchTwelveDataCore<T extends Record<string, unknown>>(
 
   finishApiCall();
   marketDataRequestQueue.noteSuccess();
+  lastTwelveQuoteResponseStatus = response.status;
   logTwelveDataRequestDiagnostic({
     symbol: params.symbol ?? 'unknown',
     endpoint: path,
@@ -729,15 +792,34 @@ async function tryQuoteAttempts(
   attempts: TwelveDataQuoteAttempt[],
   probe?: QuoteProbeSession,
   timeoutMs?: number,
+  maxTotalMs?: number,
 ): Promise<MarketQuote> {
   let lastError: MarketDataError | null = null;
   let lastSymbolInvalid: MarketDataError | null = null;
+  const startedAt = Date.now();
 
   for (const attempt of attempts) {
     throwIfProbeAborted(probe);
 
+    const elapsed = Date.now() - startedAt;
+    if (maxTotalMs != null && elapsed >= maxTotalMs) {
+      throw new MarketDataError('network_timeout', userMessageForErrorKind('network_timeout'), {
+        rawMessage: 'Twelve Data がタイムアウトしました',
+      });
+    }
+
+    const perAttemptCap =
+      maxTotalMs != null
+        ? Math.min(timeoutMs ?? TWELVE_DATA_QUOTE_TIMEOUT_MS, maxTotalMs - elapsed)
+        : timeoutMs;
+    if (perAttemptCap != null && perAttemptCap <= 0) {
+      throw new MarketDataError('network_timeout', userMessageForErrorKind('network_timeout'), {
+        rawMessage: 'Twelve Data がタイムアウトしました',
+      });
+    }
+
     try {
-      console.log('[TwelveData] QUOTE_SYMBOL_ATTEMPT', {
+      devLog('[TwelveData] QUOTE_SYMBOL_ATTEMPT', {
         market,
         inputSymbol: symbol,
         attempt: attempt.attempt,
@@ -829,6 +911,7 @@ export async function getQuoteForMarket(
     attempts,
     probe,
     options?.timeoutMs,
+    options?.maxTotalMs,
   );
 }
 
@@ -962,7 +1045,16 @@ export async function getDailyOHLCV(
 }
 
 export async function testTwelveDataConnection(apiKey: string): Promise<MarketQuote> {
-  return getQuote(apiKey, { symbol: 'AAPL' }, 'USD', 'us');
+  const trimmed = apiKey.trim();
+  if (!trimmed) {
+    throw new MarketDataError('api_key', userMessageForErrorKind('api_key'));
+  }
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    devLog('[TWELVE AAPL TEST]', {
+      url: 'https://api.twelvedata.com/quote?symbol=AAPL&apikey=****',
+    });
+  }
+  return getQuote(trimmed, { symbol: 'AAPL' }, 'USD', 'us');
 }
 
 /** OHLCV キャッシュを API から更新（分析層は呼ばない — UI / 運用層のみ） */

@@ -55,6 +55,18 @@ npm-debug.*
 audit-out.txt
 expo-go-qr.png
 *.qr.png
+agent-tools/
+.expo-start-log.txt
+.expo-tunnel-log.txt
+scripts/device-screenshot*.png
+scripts/device-ui*.xml
+scripts/uih.xml
+scripts/0820ea-report.json
+scripts/0820ea-last-eval.txt
+scripts/0820ea-ui-preview.html
+scripts/extract-device-secrets.py
+scripts/pull-rkstorage.mjs
+scripts/_probe-rkstorage.py
 
 # Editor / agent (optional local)
 .cursor/

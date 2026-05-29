@@ -1,10 +1,9 @@
 /**
- * why-did-you-render — 開発ビルドのみ
- * 依存が無い場合はスキップ（CI/本番に影響なし）
+ * why-did-you-render — EXPO_PUBLIC_WDYR=1 のときのみ
  */
-import { isDev } from './utils/isDev';
+import { WDYR_ENABLED } from './utils/devLog';
 
-if (isDev) {
+if (WDYR_ENABLED) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const whyDidYouRender = require('@welldone-software/why-did-you-render');
@@ -17,6 +16,6 @@ if (isDev) {
       collapseGroups: true,
     });
   } catch {
-    // optional devDependency — install with: npm i -D @welldone-software/why-did-you-render
+    // optional devDependency
   }
 }

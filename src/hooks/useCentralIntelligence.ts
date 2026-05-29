@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { usePriceSyncState } from '../context/PriceSyncContext';
+import { useAiTradeQueue } from '../context/AiTradeQueueContext';
 import { buildCentralIntelligenceWorldModel } from '../services/centralIntelligenceContext';
 import {
   countDiagnosticsBySeverity,
@@ -21,8 +23,9 @@ export function useCentralIntelligence(): {
     securityWarnings,
     recoveryRecommendations,
     killSwitches,
-    priceSync,
   } = useApp();
+  const { priceSync } = usePriceSyncState();
+  const { queue: tradeQueue, briefing } = useAiTradeQueue();
 
   const [worldModel, setWorldModel] = useState<CentralIntelligenceWorldModel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -45,12 +48,25 @@ export function useCentralIntelligence(): {
       priceSync,
       diagnosticsSummary: diagReport.summary,
       diagnosticsSeverity: countDiagnosticsBySeverity(),
-    }).then((model) => {
-      if (!cancelled) {
-        setWorldModel(model);
-        setLoading(false);
-      }
-    });
+      tradeQueue,
+      briefing: briefing ?? undefined,
+    })
+      .then((model) => {
+        if (!cancelled) {
+          setWorldModel(model);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.warn(
+          '[central-intelligence] build failed (non-fatal)',
+          err instanceof Error ? err.message : String(err),
+        );
+        if (!cancelled) {
+          setWorldModel(null);
+          setLoading(false);
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -64,6 +80,8 @@ export function useCentralIntelligence(): {
     recoveryRecommendations,
     killSwitches,
     priceSync,
+    tradeQueue,
+    briefing,
     tick,
   ]);
 

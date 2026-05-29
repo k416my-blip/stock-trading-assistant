@@ -108,6 +108,10 @@ import { ConciergePrioritySection } from './concierge/ConciergePrioritySection';
 import { ConciergeUxAdvancedStrip } from './concierge/ConciergeUxAdvancedStrip';
 import { usePerformanceCostOptional } from '../context/PerformanceCostContext';
 import {
+  AI_ACTION_CENTER_DEBUG_LOG,
+  FORCE_SHOW_AI_ACTION_CENTER,
+} from '../constants/aiConciergeDevFlags';
+import {
   LazyAiActionCenterPanel,
   LazyAiPerformanceCenterPanel,
   LazyAutonomousMonitoringPanel,
@@ -982,14 +986,28 @@ export function AiAssistantChat({
     </View>
   ) : null;
 
+  const showAiActionCenter =
+    !!proactive?.strategyBundle &&
+    (FORCE_SHOW_AI_ACTION_CENTER || aiPreferences.strategyExecutionEnabled);
+
+  if (AI_ACTION_CENTER_DEBUG_LOG && isConcierge) {
+    console.log('[AI Action Center gate]', {
+      strategyBundle: proactive?.strategyBundle ?? null,
+      strategyExecutionEnabled: aiPreferences.strategyExecutionEnabled,
+      forceShow: FORCE_SHOW_AI_ACTION_CENTER,
+      willRender: showAiActionCenter,
+      hybridSecondEvaluator: proactive?.strategyBundle?.hybridSecondEvaluator ?? null,
+    });
+  }
+
   const conciergeUxDashboardBlock = (
     <View testID={CONCIERGE_SECTION_TEST_ID.status_card}>
       <Suspense fallback={<ActivityIndicator color={theme.colors.primary} />}>
+        {showAiActionCenter ? (
+          <LazyAiActionCenterPanel bundle={proactive!.strategyBundle!} />
+        ) : null}
         {proactive?.metaBundle && aiPreferences.metaDecisionEnabled ? (
           <LazyMetaTopPrioritiesPanel bundle={proactive.metaBundle} />
-        ) : null}
-        {proactive?.strategyBundle && aiPreferences.strategyExecutionEnabled ? (
-          <LazyAiActionCenterPanel bundle={proactive.strategyBundle} />
         ) : null}
         {proactive?.realityBundle && aiPreferences.realityValidationEnabled ? (
           <LazyAiPerformanceCenterPanel bundle={proactive.realityBundle} />

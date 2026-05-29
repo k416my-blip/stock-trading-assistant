@@ -1,6 +1,13 @@
+/** JSON 往復で undefined 欠落などの差分を吸収 */
+export function canonicalizeIntegrityPayload<T>(payload: T): T {
+  return JSON.parse(JSON.stringify(payload)) as T;
+}
+
 /** 永続化ペイロードの簡易整合性ハッシュ */
 export function computeIntegrityHash(payload: unknown): string {
-  const canonical = typeof payload === 'string' ? payload : stableStringify(payload);
+  const normalized =
+    typeof payload === 'string' ? payload : canonicalizeIntegrityPayload(payload);
+  const canonical = typeof normalized === 'string' ? normalized : stableStringify(normalized);
   let hash = 5381;
   for (let i = 0; i < canonical.length; i += 1) {
     hash = (hash * 33) ^ canonical.charCodeAt(i);

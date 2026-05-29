@@ -10,6 +10,8 @@ export type SymbolValidationResult =
 const US_TICKER = /^[A-Z][A-Z0-9.-]{0,9}$/;
 /** 4707 / 1023 / 7103 / 0820EA など（4桁+英字サフィックス最大3・ETF対応） */
 const BURSA_CORE_TICKER = /^(?:KLSE|BURSA:)?[0-9]{3,4}[A-Z]{0,3}$/i;
+/** MAYBANK / CIMB など英字ティッカー */
+const BURSA_ALPHA_TICKER = /^[A-Z]{2,12}$/i;
 const HK_TICKER = /^[0-9]{1,5}(\.HK)?$/i;
 
 function looksLikeCompanyName(symbol: string): boolean {
@@ -34,7 +36,9 @@ function normalizeForStorage(market: Market, symbol: string): string {
 
 function matchesMarketTicker(market: Market, normalized: string): boolean {
   if (market === 'us') return US_TICKER.test(normalized);
-  if (isMalaysiaMarket(market)) return BURSA_CORE_TICKER.test(normalized);
+  if (isMalaysiaMarket(market)) {
+    return BURSA_CORE_TICKER.test(normalized) || BURSA_ALPHA_TICKER.test(normalized);
+  }
   if (market === 'hk') return HK_TICKER.test(normalized) || HK_TICKER.test(`${normalized}.HK`);
   return false;
 }

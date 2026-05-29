@@ -18,7 +18,8 @@ export function buildHeaderSignalDisplay(
       ? `${signal.ticker} ${signal.displayName}`
       : signal.ticker ?? signal.displayName ?? signal.actionLabel;
   const actionLine = signal.ticker ? signal.actionLabel : signal.reason.slice(0, 40);
-  const remainingLine = formatRemainingMinutesJa(signal.responseDeadlineAt, nowMs);
+  const remainingRaw = formatRemainingMinutesJa(signal.responseDeadlineAt, nowMs);
+  const remainingLine = remainingRaw || '';
 
   return { levelLabel, titleLine, actionLine, remainingLine };
 }

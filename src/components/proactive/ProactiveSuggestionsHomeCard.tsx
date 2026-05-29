@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST } from '../../constants/aiConciergeDevFlags';
 import { PROACTIVE_UI } from '../../constants/proactiveConcierge';
 import { useProactiveConcierge } from '../../context/ProactiveConciergeContext';
 import { useAiConcierge } from '../../context/AiConciergeContext';
@@ -12,6 +13,11 @@ import { ProactiveSuggestionCard } from './ProactiveSuggestionCard';
 import { theme } from '../../theme';
 
 export function ProactiveSuggestionsHomeCard() {
+  if (DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST) return null;
+  return <ProactiveSuggestionsHomeCardContent />;
+}
+
+function ProactiveSuggestionsHomeCardContent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {
     suggestions,

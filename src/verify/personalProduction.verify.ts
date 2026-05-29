@@ -68,6 +68,11 @@ async function main() {
     pass('PersonalProductionScreen exists');
   } else fail('PersonalProductionScreen incomplete');
 
+  const smokePanel = readFileSync(join(process.cwd(), 'src/components/DeviceSmokeTestPanel.tsx'), 'utf8');
+  if (smokePanel.includes('全テスト実行') && smokePanel.includes('PASS')) {
+    pass('device smoke test diagnostic panel');
+  } else fail('DeviceSmokeTestPanel incomplete');
+
   readFileSync(join(process.cwd(), 'src/utils/confirmDestructive.ts'), 'utf8');
   pass('destructive confirmation helper');
 

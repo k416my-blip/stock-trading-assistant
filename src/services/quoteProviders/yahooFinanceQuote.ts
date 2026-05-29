@@ -19,6 +19,15 @@ import {
   type ProviderFetchError,
 } from './providerFetchUtil';
 
+let lastYahooQuoteResponseStatus: number | undefined;
+
+/** 直近 Yahoo quote 成功時の HTTP ステータス（ログ用・1回消費） */
+export function takeLastYahooQuoteResponseStatus(): number | undefined {
+  const status = lastYahooQuoteResponseStatus;
+  lastYahooQuoteResponseStatus = undefined;
+  return status;
+}
+
 export function buildYahooChartUrl(yahooSymbol: string): string {
   return `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}`;
 }
@@ -179,6 +188,7 @@ export async function fetchYahooFinanceQuote(
       ? new Date(meta.regularMarketTime * 1000).toISOString()
       : undefined;
 
+  lastYahooQuoteResponseStatus = response.status;
   onAttempt?.({
     yahooSymbol,
     requestUrl: url,

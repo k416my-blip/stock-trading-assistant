@@ -1,3 +1,4 @@
+import { TWELVE_DATA_QUOTE_TIMEOUT_MS } from '../constants/marketData';
 import { getQuoteProviderOrder, QUOTE_PROVIDER_LABELS } from '../constants/quoteProviders';
 import type { Currency, Market } from '../types';
 import type { ProviderQuoteAttempt } from '../types/marketData';
@@ -23,6 +24,14 @@ import { fetchYahooFinanceQuote } from './quoteProviders/yahooFinanceQuote';
 import { isMalaysiaMarket } from '../utils/normalizeBursaSymbol';
 import { logQuoteFetchFailure } from './quoteFetchDiagnostics';
 import { recordProviderAttempt } from './quoteProviderStats';
+import { logPriceSourceSuccess, logProviderSwitch } from './priceSourceLog';
+import {
+  logProviderFailed,
+  logProviderStart,
+  logProviderSuccess,
+} from './productionOpsLog';
+import { takeLastTwelveQuoteResponseStatus } from './marketDataService';
+import { takeLastYahooQuoteResponseStatus } from './quoteProviders/yahooFinanceQuote';
 
 const rateLimitUntil = new Map<QuoteProviderId, number>();
 const RATE_LIMIT_COOLDOWN_MS = 90_000;
@@ -77,18 +86,29 @@ async function fetchFromProvider(
       if (!twelveDataApiKey.trim()) {
         throw new ProviderSkippedError('twelve_data', 'Twelve Data APIキー未設定');
       }
+      const twelveTimeoutMs = Math.min(timeoutMs, TWELVE_DATA_QUOTE_TIMEOUT_MS);
       const quote = await getQuoteForMarket(
         twelveDataApiKey,
         market,
         yahooSymbol,
         currency,
-        { probe, timeoutMs },
+        {
+          probe,
+          timeoutMs: twelveTimeoutMs,
+          maxTotalMs: TWELVE_DATA_QUOTE_TIMEOUT_MS,
+        },
       );
       return { ...quote, provider: 'twelve_data' };
     }
     default:
       throw new ProviderSkippedError(provider, 'unknown provider');
   }
+}
+
+function isTwelveDataTimeoutError(mdErr: MarketDataError): boolean {
+  if (mdErr.kind === 'network_timeout') return true;
+  const m = (mdErr.rawMessage ?? mdErr.message).toLowerCase();
+  return /timeout|timed out|aborted|タイムアウト/.test(m);
 }
 
 function providerErrorToMarketData(err: ProviderFetchError, provider: QuoteProviderId): MarketDataError {
@@ -137,7 +157,8 @@ export type FetchQuoteChainResult = {
 };
 
 /**
- * Yahoo → Alpha Vantage → Twelve Data。throw せず結果を返す（fallbackPrice あり）。
+ * Twelve Data（キーあり）→ Yahoo → Alpha。キーなしは Yahoo → Alpha。
+ * throw せず結果を返す（fallbackPrice あり）。
  */
 export async function fetchQuoteViaProviderChain(
   params: FetchQuoteChainParams,
@@ -146,8 +167,16 @@ export async function fetchQuoteViaProviderChain(
     params.apiSymbol || params.positionSymbol,
     params.market,
   );
-  const order = getQuoteProviderOrder(params.market);
+  const order = getQuoteProviderOrder(params.market, params.twelveDataApiKey);
   const attempts: ProviderQuoteAttempt[] = [];
+
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    console.log('[quote-provider] ORDER', {
+      market: params.market,
+      hasTwelveKey: Boolean(params.twelveDataApiKey?.trim()),
+      order: order.map((p) => QUOTE_PROVIDER_LABELS[p]),
+    });
+  }
 
   for (const provider of order) {
     if (isProviderRateLimited(provider)) {
@@ -160,6 +189,11 @@ export async function fetchQuoteViaProviderChain(
     }
 
     params.onProviderTry?.(provider, yahooSymbol);
+    logProviderStart(provider, {
+      label: QUOTE_PROVIDER_LABELS[provider],
+      yahooSymbol,
+      market: params.market,
+    });
     console.log('[quote-provider] TRY', {
       provider,
       label: QUOTE_PROVIDER_LABELS[provider],
@@ -179,11 +213,30 @@ export async function fetchQuoteViaProviderChain(
         params,
       );
       recordProviderAttempt(provider, true);
+      const responseStatus =
+        provider === 'twelve_data'
+          ? takeLastTwelveQuoteResponseStatus()
+          : provider === 'yahoo_finance'
+            ? takeLastYahooQuoteResponseStatus()
+            : undefined;
+      logPriceSourceSuccess(
+        provider,
+        quote.symbol ?? yahooSymbol,
+        quote.price,
+        responseStatus,
+      );
+      logProviderSuccess(provider, {
+        label: QUOTE_PROVIDER_LABELS[provider],
+        yahooSymbol,
+        price: quote.price,
+        responseStatus,
+      });
       console.log('[quote-provider] SUCCESS', {
         provider,
         label: QUOTE_PROVIDER_LABELS[provider],
         yahooSymbol,
         price: quote.price,
+        responseStatus,
       });
       return { quote, attempts, usedFallback: false };
     } catch (err) {
@@ -241,6 +294,18 @@ export async function fetchQuoteViaProviderChain(
         continue;
       }
 
+      if (provider === 'twelve_data' && isTwelveDataTimeoutError(mdErr)) {
+        logProviderSwitch('twelve', 'yahoo_fallback', 'timeout');
+      }
+
+      logProviderFailed(provider, {
+        label: QUOTE_PROVIDER_LABELS[provider],
+        originalSymbol: params.positionSymbol,
+        normalizedSymbol: yahooSymbol,
+        requestUrl,
+        httpStatus: mdErr.httpStatus,
+        errorKind: mdErr.kind,
+      });
       console.log('[quote-provider] FAIL_DETAIL', {
         provider,
         label: QUOTE_PROVIDER_LABELS[provider],

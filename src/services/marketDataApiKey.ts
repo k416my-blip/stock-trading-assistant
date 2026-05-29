@@ -1,5 +1,12 @@
+import { TWELVE_DATA_BASE_URL } from '../constants/marketData';
+import { devLog } from '../utils/devLog';
 import { isUsableApiKey } from './apiKeyValidation';
 import { getSecret, setSecret } from './secretStorage';
+
+const TWELVE_DATA_STORAGE_KEYS = {
+  secureStore: 'sta.secret.twelve_data_api_key',
+  legacyAsyncStorage: '@sta/twelve_data_api_key',
+};
 
 const ENV_KEY_NAMES = [
   'EXPO_PUBLIC_TWELVE_DATA_API_KEY',
@@ -19,7 +26,64 @@ function readTwelveDataKeyFromEnv(): string {
   return '';
 }
 
-/** モック値は使用しない。SecureStore 優先、未設定時のみ .env を参照 */
+/** 接続テスト・株価更新の共通取得（SecureStore 優先 → .env） */
+export async function getTwelveDataApiKey(): Promise<{
+  key: string;
+  source: TwelveDataKeySource;
+}> {
+  const resolved = await resolveTwelveDataApiKey();
+  return { key: resolved.key.trim(), source: resolved.source };
+}
+
+export function logTwelveDataKeyForTest(key: string): void {
+  devLog('[TEST KEY]', {
+    exists: Boolean(key),
+    length: key?.length ?? 0,
+    head: key?.slice(0, 4) ?? '',
+    source: 'api-test',
+  });
+}
+
+export function logTwelveDataKeyForPriceUpdate(key: string): void {
+  devLog('[PRICE UPDATE KEY]', {
+    exists: Boolean(key),
+    length: key?.length ?? 0,
+    head: key?.slice(0, 4) ?? '',
+    source: 'holdings-update',
+  });
+}
+
+/** Twelve Data キー検証 — 無効 env キーを RSI/quote に使わない */
+export async function validateTwelveDataApiKey(key: string): Promise<{
+  ok: boolean;
+  httpStatus: number;
+  barCount: number;
+}> {
+  const trimmed = key.trim();
+  if (!isUsableApiKey(trimmed)) {
+    return { ok: false, httpStatus: 0, barCount: 0 };
+  }
+  const url = new URL(`${TWELVE_DATA_BASE_URL}/time_series`);
+  url.searchParams.set('symbol', 'AAPL');
+  url.searchParams.set('interval', '1day');
+  url.searchParams.set('outputsize', '30');
+  url.searchParams.set('apikey', trimmed);
+  url.searchParams.set('order', 'ASC');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const res = await fetch(url.toString(), { signal: controller.signal });
+    const json = (await res.json()) as { values?: unknown[] };
+    const bars = Array.isArray(json.values) ? json.values.length : 0;
+    return { ok: res.ok && bars > 0, httpStatus: res.status, barCount: bars };
+  } catch {
+    return { ok: false, httpStatus: 0, barCount: 0 };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** モック値は使用しない。SecureStore 優先、未設定時のみ検証済み .env を参照 */
 export async function resolveTwelveDataApiKey(): Promise<{
   key: string;
   source: TwelveDataKeySource;
@@ -31,16 +95,27 @@ export async function resolveTwelveDataApiKey(): Promise<{
 
   const fromEnv = readTwelveDataKeyFromEnv();
   if (fromEnv) {
-    await setSecret('twelveDataApiKey', fromEnv);
-    return { key: fromEnv, source: 'env' };
+    const check = await validateTwelveDataApiKey(fromEnv);
+    if (check.ok) {
+      await setSecret('twelveDataApiKey', fromEnv);
+      return { key: fromEnv, source: 'env' };
+    }
+    return { key: '', source: 'none' };
   }
 
   return { key: '', source: 'none' };
 }
 
 export async function loadTwelveDataApiKey(): Promise<string> {
-  const { key } = await resolveTwelveDataApiKey();
-  return key;
+  const { key } = await getTwelveDataApiKey();
+  const apiKey = key.trim();
+  devLog('LOADED API KEY', {
+    storageKeys: TWELVE_DATA_STORAGE_KEYS,
+    source: apiKey ? 'resolved' : 'none',
+    keyPresent: apiKey.length > 0,
+    keyLength: apiKey.length,
+  });
+  return apiKey;
 }
 
 /** 起動時: .env の TWELVE_DATA_API_KEY が読み込まれたか（値は出さない） */
@@ -51,7 +126,7 @@ export function logTwelveDataEnvKeyAtStartup(resolved: {
   const envOnly = readTwelveDataKeyFromEnv();
   const hasEnv = Boolean(envOnly);
   const hasKey = Boolean(resolved.key.trim());
-  console.log('[TwelveData] ENV_KEY_AT_STARTUP', {
+  devLog('[TwelveData] ENV_KEY_AT_STARTUP', {
     envVarNames: ENV_KEY_NAMES,
     envKeyPresent: hasEnv,
     envKeyLength: envOnly.length,
@@ -64,5 +139,17 @@ export function logTwelveDataEnvKeyAtStartup(resolved: {
 }
 
 export async function saveTwelveDataApiKey(apiKey: string): Promise<void> {
-  await setSecret('twelveDataApiKey', apiKey);
+  const trimmed = apiKey.trim();
+  await setSecret('twelveDataApiKey', trimmed);
+  devLog('SAVED API KEY', {
+    storageKeys: TWELVE_DATA_STORAGE_KEYS,
+    keyPresent: trimmed.length > 0,
+    keyLength: trimmed.length,
+  });
+  const reloaded = (await getSecret('twelveDataApiKey')).trim();
+  devLog('[API KEY ROUNDTRIP]', {
+    keyPresent: reloaded.length > 0,
+    keyLength: reloaded.length,
+    matchedAfterSave: reloaded === trimmed,
+  });
 }

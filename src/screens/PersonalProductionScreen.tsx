@@ -3,7 +3,7 @@ import { Alert, ScrollView, Share, StyleSheet, Switch, Text, TextInput, View } f
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
-import { DEVICE_SMOKE_TEST_CHECKLIST } from '../constants/deviceSmokeTestChecklist';
+import { DeviceSmokeTestPanel } from '../components/DeviceSmokeTestPanel';
 import { PlatformClarificationCard } from '../components/PlatformClarificationCard';
 import { useApp } from '../context/AppContext';
 import type { HealthLevel } from '../services/dailyHealthCheckService';
@@ -165,13 +165,7 @@ export function PersonalProductionScreen() {
         </Card>
 
         <Card>
-          <Text style={styles.sectionTitle}>実機スモークテスト</Text>
-          {DEVICE_SMOKE_TEST_CHECKLIST.map((item) => (
-            <View key={item.id} style={styles.checkItem}>
-              <Text style={styles.checkTitle}>{item.titleJa}</Text>
-              <Text style={styles.body}>{item.stepsJa}</Text>
-            </View>
-          ))}
+          <DeviceSmokeTestPanel />
         </Card>
       </ScrollView>
     </Screen>
@@ -222,8 +216,6 @@ const styles = StyleSheet.create({
   switchLabel: { color: theme.colors.text, fontSize: theme.fontSize.sm },
   hint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: 2 },
   warn: { color: theme.colors.warning, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm },
-  checkItem: { marginBottom: theme.spacing.md, paddingBottom: theme.spacing.sm, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
-  checkTitle: { color: theme.colors.text, fontWeight: '600', marginBottom: 4 },
   importInput: {
     borderWidth: 1,
     borderColor: theme.colors.border,

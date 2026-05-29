@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+import { usePriceSyncActions } from '../context/PriceSyncContext';
 import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import {
   effectivePriceRefreshMs,
@@ -16,9 +17,12 @@ const PROACTIVE_EVAL_BATTERY_MS = 10 * 60 * 1000;
 
 /**
  * アプリ全体: 株価更新 → 自発提案（フォアグラウンド時のみ）
+ * 注意: usePortfolioPriceAutoRefresh と同時に有効化すると二重タイマーになる。
+ * 現状ルート未接続。実運用では Portfolio 画面の単一 interval のみを使うこと。
  */
 export function useProactiveBackgroundMonitor(enabled: boolean) {
-  const { refreshPortfolioPrices, state, killSwitches, aiPreferences } = useApp();
+  const { state, killSwitches, aiPreferences } = useApp();
+  const { refreshPortfolioPrices } = usePriceSyncActions();
   const proactive = useProactiveConciergeOptional();
   const appForeground = useAppForeground();
   const refreshPricesRef = useRef(refreshPortfolioPrices);

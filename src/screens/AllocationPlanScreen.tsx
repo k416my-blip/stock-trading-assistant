@@ -324,6 +324,8 @@ export function AllocationPlanScreen() {
   );
 }
 
+export default AllocationPlanScreen;
+
 const styles = StyleSheet.create({
   section: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md, marginTop: theme.spacing.sm },
   input: {

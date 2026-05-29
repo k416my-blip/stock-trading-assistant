@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { getActivePortfolio } from '../services/portfolioPriceUpdate';
 import { useApp } from './AppContext';
+import { usePriceSyncState } from './PriceSyncContext';
 import { useCentralIntelligence } from '../hooks/useCentralIntelligence';
 import { useUrgencySignals } from './UrgencySignalContext';
 import { useAppResume } from '../hooks/useAppForeground';
@@ -30,7 +31,7 @@ import { buildProactiveResumeSummaryJa } from '../services/proactiveResumeSummar
 import { deliverProactiveLocalPush } from '../services/proactiveNotificationDelivery';
 import { speakVoiceOutput } from '../services/aiVoiceOutputService';
 import { areNotificationsSupported } from '../utils/runtimeEnvironment';
-import { getMockAiTradeQueue } from '../data/mockAiStrategyBriefing';
+import { useAiTradeQueue } from './AiTradeQueueContext';
 import {
   recordProactiveAdvisorEvent,
   statusToAdvisorEventKind,
@@ -178,8 +179,10 @@ type ProactiveConciergeContextValue = {
 const ProactiveConciergeContext = createContext<ProactiveConciergeContextValue | null>(null);
 
 export function ProactiveConciergeProvider({ children }: { children: ReactNode }) {
-  const { state, priceSync, aiPreferences, marketRegime } = useApp();
+  const { state, aiPreferences, marketRegime } = useApp();
+  const { priceSync } = usePriceSyncState();
   const { worldModel } = useCentralIntelligence();
+  const { queue: tradeQueueFromProvider } = useAiTradeQueue();
   const { allSignals } = useUrgencySignals();
   const [suggestions, setSuggestions] = useState<ProactiveSuggestion[]>([]);
   const [suppressUntil, setSuppressUntil] = useState<Record<string, number>>({});
@@ -853,7 +856,7 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
 
     const { buildGlobalMarketAnalysis } = await import('../services/marketRegimeConciergeEngine');
     const globalMarketAnalysis = await buildGlobalMarketAnalysis();
-    const queue = getMockAiTradeQueue();
+    const queue = tradeQueueFromProvider;
     const buyCandidateTickers = queue
       .filter((q) => q.suggestedAction === 'suggested_buy')
       .map((q) => q.ticker);
@@ -1030,7 +1033,15 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
 
     let strategy: StrategyExecutionBundle | null = null;
     let strategyTacticalMode: import('../types/strategyExecution').TacticalMode | undefined;
-    if (aiPreferences.strategyExecutionEnabled && layerOn('strategy')) {
+    const { FORCE_SHOW_AI_ACTION_CENTER: forceStrategyLayer } = await import(
+      '../constants/aiConciergeDevFlags'
+    );
+    const strategyLayerActive =
+      layerOn('strategy') || (__DEV__ && forceStrategyLayer);
+    if (
+      (aiPreferences.strategyExecutionEnabled || (__DEV__ && forceStrategyLayer)) &&
+      strategyLayerActive
+    ) {
       const { loadStrategyExecutionState, appendStrategyJournalEntry, recordStrategyCooldownProposal } =
         await import('../services/strategyExecutionStorage');
       const { buildStrategyExecutionBundle } = await import('../services/strategyExecutionEngine');
@@ -1062,6 +1073,51 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
         },
         stratState,
       );
+      if (
+        aiPreferences.aiEnabled &&
+        !aiPreferences.mockOnly
+      ) {
+        const { shouldPauseConciergeAi: pauseConciergeAi } = await import(
+          '../services/productionStability/productionStabilityRuntime'
+        );
+        if (!pauseConciergeAi()) {
+          try {
+            const { enhanceStrategyBundleWithHybridEvaluator } = await import(
+              '../services/strategyHybridEnhancement'
+            );
+            strategy = await enhanceStrategyBundleWithHybridEvaluator(
+              strategy,
+              proactiveEvidence.symbols,
+              {
+                degradedMode: worldModel?.operations.degradedMode ?? false,
+                symbolWeightPct,
+              },
+            );
+          } catch (hybridErr) {
+            console.warn(
+              '[proactive-strategy] hybrid enhancement failed — showing rule bundle',
+              hybridErr instanceof Error ? hybridErr.message : String(hybridErr),
+            );
+          }
+        }
+      }
+      if (__DEV__) {
+        const allRecs = [
+          ...strategy.todayRecommendations,
+          ...strategy.dangerAvoid,
+          ...strategy.watchList,
+          ...strategy.highExpectancy,
+        ];
+        const sample = allRecs.find((r) => r.symbol.toUpperCase() === '0820EA') ?? allRecs[0];
+        console.log('[proactive-strategy] setStrategyBundle', {
+          strategyBundle: strategy,
+          hybridSecondEvaluator: strategy.hybridSecondEvaluator ?? null,
+          action: sample?.hybrid?.aiAction ?? sample?.action ?? null,
+          confidence: sample?.hybrid?.aiConfidencePct ?? sample?.confidencePct ?? null,
+          rationaleJa: sample?.hybrid?.rationaleJa ?? null,
+          rsiValue: sample?.hybrid?.rsi14 ?? null,
+        });
+      }
       setStrategyBundle(strategy);
       if (!strategy.cooldownActive) {
         for (const r of strategy.todayRecommendations.filter((x) => x.intent === 'action')) {
@@ -1370,7 +1426,7 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
             : priceSync.displayStatus === 'partial_failure'
               ? '一部失敗'
               : priceSync.displayStatus === 'connection_failed'
-                ? '通信エラー'
+                ? priceSync.connectionDetail ?? 'Twelve Data応答エラー'
                 : priceSync.displayStatus === 'fetching'
                   ? '取得中'
                   : String(priceSync.displayStatus ?? 'idle');
@@ -2685,6 +2741,11 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       lastPushRef.current = result.nextLastPushByKey;
     }
     noteProactiveRefreshForMetrics(Date.now() - refreshStartedAt);
+    } catch (err) {
+      console.warn(
+        '[proactive-refresh] failed (non-fatal)',
+        err instanceof Error ? err.message : String(err),
+      );
     } finally {
       releaseRenderBudget();
     }
@@ -2722,7 +2783,10 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     allSignals,
     marketRegime,
     persist,
-    priceSync,
+    priceSync.displayStatus,
+    priceSync.lastError,
+    priceSync.lastSuccessAt,
+    tradeQueueFromProvider,
     worldModel,
   ]);
 
@@ -2737,14 +2801,19 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     void import('../services/runtimeTelemetryEngine').then(({ initRuntimeTelemetryEngine }) => {
       void initRuntimeTelemetryEngine();
     });
-    void import('../native/runtime/nativeRuntimeIntegration').then(({ initNativeRuntimeLayer }) => {
-      void initNativeRuntimeLayer();
-    });
-    void import('../services/mobileRedmiRuntime').then(({ initMobileRedmiRuntime }) => {
-      initMobileRedmiRuntime(() => {
-        void refreshProactiveCoreRef.current();
+    /** 株価タップ直後の Metro OOM 回避: 重い cognitive / native 層は起動後に遅延 */
+    const heavyDeferMs = 25_000;
+    const heavyTimer = setTimeout(() => {
+      void import('../native/runtime/nativeRuntimeIntegration').then(({ initNativeRuntimeLayer }) => {
+        void initNativeRuntimeLayer();
       });
-    });
+      void import('../services/mobileRedmiRuntime').then(({ initMobileRedmiRuntime }) => {
+        initMobileRedmiRuntime(() => {
+          void refreshProactiveCoreRef.current();
+        });
+      });
+    }, heavyDeferMs);
+    return () => clearTimeout(heavyTimer);
   }, []);
 
   const refreshProactive = useCallback(async () => {
@@ -2786,15 +2855,33 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     };
   }, []);
 
+  const priceSyncMarketUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!loadedRef.current) return;
-    void import('../services/reactiveEventOrchestrationIntegration').then((m) => {
-      m.dispatchConciergeEvent({
-        type: 'market_update',
-        priority: 'normal',
-        dedupeKey: `sync:${priceSync.lastSuccessAt ?? ''}:${allSignals.length}:${marketRegime?.regimeId ?? ''}`,
+    const activeHoldings = state.portfolio.filter((p) => (p.shares ?? 0) > 0).length;
+    if (activeHoldings === 0 && !priceSync.lastSuccessAt) {
+      return;
+    }
+    if (priceSyncMarketUpdateTimerRef.current) {
+      clearTimeout(priceSyncMarketUpdateTimerRef.current);
+    }
+    priceSyncMarketUpdateTimerRef.current = setTimeout(() => {
+      priceSyncMarketUpdateTimerRef.current = null;
+      void import('../services/reactiveEventOrchestrationIntegration').then((m) => {
+        m.dispatchConciergeEvent({
+          type: 'market_update',
+          priority: 'normal',
+          dedupeKey: `sync:${priceSync.lastSuccessAt ?? ''}:${allSignals.length}:${marketRegime?.regimeId ?? ''}`,
+        });
       });
-    });
+    }, 3_000);
+    return () => {
+      if (priceSyncMarketUpdateTimerRef.current) {
+        clearTimeout(priceSyncMarketUpdateTimerRef.current);
+        priceSyncMarketUpdateTimerRef.current = null;
+      }
+    };
   }, [
     priceSync.lastResult,
     priceSync.lastError,

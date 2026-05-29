@@ -170,8 +170,9 @@ export async function buildCentralIntelligenceWorldModel(
 ): Promise<CentralIntelligenceWorldModel> {
   const portfolio =
     input.appMode === 'practice' ? input.state.practice.portfolio : input.state.portfolio;
-  const briefing = buildMockAiStrategyBriefing(input.marketRegime);
-  const tradeQueue = getMockAiTradeQueue();
+  const briefing =
+    input.briefing ?? buildMockAiStrategyBriefing(input.marketRegime);
+  const tradeQueue = input.tradeQueue ?? getMockAiTradeQueue();
 
   const holdings: AiNormalizedHolding[] = portfolio
     .filter((p) => (p.shares ?? 0) > 0)

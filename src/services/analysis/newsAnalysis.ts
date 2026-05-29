@@ -103,10 +103,42 @@ export function analyzeNewsSync(stock: StockFundamentals): NewsAnalysisResult {
   };
 }
 
+const NEWS_API_TIMEOUT_MS = 10_000;
+
+function titleSentiment(title: string): NewsSentimentLabel {
+  const POSITIVE = /\b(surge|rally|beat|growth|profit|upgrade|record|strong|上昇|好調|増益)\b/i;
+  const NEGATIVE = /\b(fall|drop|miss|loss|downgrade|weak|lawsuit|cut|下落|減益|訴訟)\b/i;
+  if (POSITIVE.test(title)) return 'ポジティブ';
+  if (NEGATIVE.test(title)) return 'ネガティブ';
+  return '中立';
+}
+
 async function fetchNewsFromApi(
-  _stock: StockFundamentals,
-  _apiKey: string,
+  stock: StockFundamentals,
+  apiKey: string,
 ): Promise<NewsHeadline[] | null> {
-  // 将来のニュースAPI接続用プレースホルダー
-  return null;
+  const trimmed = apiKey.trim();
+  if (!trimmed) return null;
+  const q = encodeURIComponent(`${stock.symbol} ${stock.name}`.trim());
+  const url = `https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&pageSize=6&apiKey=${encodeURIComponent(trimmed)}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), NEWS_API_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { articles?: Array<{ title?: string }> };
+    const headlines = (json.articles ?? [])
+      .map((a) => a.title?.trim())
+      .filter((t): t is string => Boolean(t))
+      .slice(0, 6)
+      .map((title) => ({
+        title,
+        sentiment: titleSentiment(title),
+      }));
+    return headlines.length > 0 ? headlines : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }

@@ -102,7 +102,14 @@ export function exportDiagnosticsReport(limit = 200): DiagnosticsReport {
   };
 }
 
+export function hasCriticalDegradedDiagnostics(): boolean {
+  return events.some((e) => e.severity === 'critical');
+}
+
 export function hasDegradedDiagnostics(): boolean {
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    return events.some((e) => e.severity === 'error' || e.severity === 'critical');
+  }
   return events.some((e) => e.severity === 'warning' || e.severity === 'error' || e.severity === 'critical');
 }
 

@@ -141,7 +141,7 @@ export function PriceSyncResultPanel({
         </Text>
       ) : null}
 
-      {apiLabel || connectionPhase === 'symbol_exploring' ? (
+      {apiLabel || connectionPhase === 'symbol_exploring' || connectionDetail ? (
         <View style={styles.apiStatusRow}>
           {apiLabel ? (
             <Text style={[styles.apiStatusLabel, apiStatusStyle(connectionPhase)]}>{apiLabel}</Text>

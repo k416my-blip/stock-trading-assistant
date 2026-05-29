@@ -6,7 +6,9 @@ import {
   isPersistedAppStateEnvelope,
   verifyPersistedAppStateChecksum,
 } from './appStatePersistence';
+import { isPersistedStorageAvailable } from '../utils/storageAvailability';
 import { computeIntegrityHash, verifyIntegrityHash } from './integrityHash';
+import { probeNetworkReachable } from './networkReachability';
 import {
   loadHealthyPortfolioSnapshot,
   verifyPortfolioChecksum,
@@ -38,11 +40,13 @@ type JournalEnvelopeV2 = {
   entries: ExecutionJournalStore['entries'];
 };
 
-function canReadStorage(): boolean {
-  return typeof globalThis !== 'undefined' && 'window' in globalThis;
-}
+export type AssessPersistedTamperOptions = {
+  networkOffline?: boolean;
+};
 
-export async function assessPersistedTamper(): Promise<TamperAssessment> {
+export async function assessPersistedTamper(
+  options: AssessPersistedTamperOptions = {},
+): Promise<TamperAssessment> {
   const findings: TamperFinding[] = [];
   let severity: TamperSeverity = 'none';
   let trustAppState = true;
@@ -55,9 +59,22 @@ export async function assessPersistedTamper(): Promise<TamperAssessment> {
     else if (level === 'warning' && severity === 'none') severity = 'warning';
   };
 
-  if (!canReadStorage()) {
+  if (!isPersistedStorageAvailable()) {
     return { severity: 'none', findings, trustAppState: true, trustJournal: true, trustHealthySnapshot: true };
   }
+
+  const networkOffline =
+    options.networkOffline ?? !(await probeNetworkReachable().catch(() => false));
+  if (networkOffline) {
+    bump('warning', {
+      id: 'network-offline',
+      severity: 'warning',
+      messageJa: 'ネットワーク未接続 — キャッシュデータで起動しています',
+    });
+  }
+
+  const { repairExecutionJournalIntegrity } = await import('./executionJournalStorage');
+  await repairExecutionJournalIntegrity();
 
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.appState);
@@ -114,12 +131,26 @@ export async function assessPersistedTamper(): Promise<TamperAssessment> {
         const body = { entries: journalEntries };
         const integrityHash = typeof parsed.integrityHash === 'string' ? parsed.integrityHash : '';
         if (!verifyIntegrityHash(body, integrityHash)) {
-          trustJournal = false;
-          bump('critical', {
-            id: 'journal-integrity',
-            severity: 'critical',
-            messageJa: '執行ジャーナルの整合性検証に失敗しました。',
-          });
+          const repaired = await repairExecutionJournalIntegrity();
+          if (repaired) {
+            bump('warning', {
+              id: 'journal-integrity-repaired',
+              severity: 'warning',
+              messageJa: '執行ジャーナルの整合性を自動修復しました。',
+            });
+          } else {
+            trustJournal = false;
+            bump('warning', {
+              id: 'journal-integrity',
+              severity: 'warning',
+              messageJa:
+                '執行ジャーナルの整合性検証に失敗しました。設定のバックアップ復元を検討してください。',
+            });
+            console.warn('[tamper] journal integrity hash mismatch', {
+              entryCount: journalEntries.length,
+              integrityHashPresent: Boolean(integrityHash),
+            });
+          }
         }
       } else if (journalVersion === 1 || Array.isArray(journalEntries)) {
         bump('warning', {

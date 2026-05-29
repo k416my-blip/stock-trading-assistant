@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { theme } from '../../theme';
 
@@ -9,9 +10,19 @@ type Props = {
 };
 
 export function Button({ label, onPress, variant = 'primary', disabled = false }: Props) {
+  const handlePress = useCallback(() => {
+    if (disabled) return;
+    try {
+      onPress();
+    } catch (error) {
+      console.error('[BUTTON PRESS ERROR]', { label, variant, error });
+      throw error;
+    }
+  }, [disabled, label, onPress, variant]);
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.base,

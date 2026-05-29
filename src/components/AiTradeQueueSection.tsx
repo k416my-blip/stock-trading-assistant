@@ -11,9 +11,10 @@ import type { MarketRegimeResult } from '../types/marketRegime';
 import type { AiTradeQueueItem } from '../types/aiStrategyBriefing';
 import type { UrgencySignal } from '../types/urgencySignal';
 import { AI_UI } from '../constants/aiStrategyBriefing';
-import { buildMockAiStrategyBriefing } from '../data/mockAiStrategyBriefing';
 import { sortQueueIntoSections } from '../services/queueSortService';
+import { useAiTradeQueue } from '../context/AiTradeQueueContext';
 import { useUrgencySignals } from '../context/UrgencySignalContext';
+import { buildMockAiStrategyBriefing } from '../data/mockAiStrategyBriefing';
 import { AiStrategyBriefingCard } from './AiStrategyBriefingCard';
 import { AiSystemSignalCard } from './AiSystemSignalCard';
 import { AiTradeQueueCard } from './AiTradeQueueCard';
@@ -27,7 +28,11 @@ type Props = {
 };
 
 export function AiTradeQueueSection({ marketRegime, scrollRef }: Props) {
-  const briefing = useMemo(() => buildMockAiStrategyBriefing(marketRegime), [marketRegime]);
+  const { briefing: queueBriefing } = useAiTradeQueue();
+  const briefing = useMemo(
+    () => queueBriefing ?? buildMockAiStrategyBriefing(marketRegime),
+    [queueBriefing, marketRegime],
+  );
   const {
     queueWithAck,
     systemSignals,

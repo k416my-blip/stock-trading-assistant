@@ -13,6 +13,10 @@ import type { Market } from '../types';
 export function formatQuoteErrorForUser(err: unknown, market?: Market): string {
   if (err instanceof MarketDataError) {
     const kind = err.kind;
+    const raw = (err.rawMessage ?? err.message).toLowerCase();
+    if (/network request failed|failed to fetch|econnrefused|enotfound/.test(raw)) {
+      return 'ネットワークエラー';
+    }
     const friendly = sanitizeErrorForUi(toUserFriendlyPriceError(err), err.message);
 
     if (

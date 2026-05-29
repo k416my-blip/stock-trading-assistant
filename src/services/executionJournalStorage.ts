@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import type { ExecutionJournalEntry, OrderStatus } from '../types/execution';
+import { isPersistedStorageAvailable } from '../utils/storageAvailability';
 import { secureWarn } from './secureLogger';
 import { parseJournalEnvelope, wrapJournalWithIntegrity } from './tamperDetection';
 
@@ -11,17 +12,13 @@ export type ExecutionJournalStore = {
 
 let memoryStore: ExecutionJournalStore | null = null;
 
-function canUseAsyncStorage(): boolean {
-  return typeof globalThis !== 'undefined' && 'window' in globalThis;
-}
-
 function defaultStore(): ExecutionJournalStore {
   return { version: 1, entries: [] };
 }
 
 export async function loadExecutionJournal(): Promise<ExecutionJournalStore> {
   if (memoryStore) return memoryStore;
-  if (!canUseAsyncStorage()) {
+  if (!isPersistedStorageAvailable()) {
     memoryStore = defaultStore();
     return memoryStore;
   }
@@ -47,7 +44,7 @@ export async function loadExecutionJournal(): Promise<ExecutionJournalStore> {
 
 async function persistStore(store: ExecutionJournalStore): Promise<void> {
   memoryStore = store;
-  if (!canUseAsyncStorage()) return;
+  if (!isPersistedStorageAvailable()) return;
   const envelope = wrapJournalWithIntegrity(store.entries);
   await AsyncStorage.setItem(STORAGE_KEYS.executionJournal, JSON.stringify(envelope));
 }
@@ -89,6 +86,29 @@ export async function getExecutionJournalEntry(
 ): Promise<ExecutionJournalEntry | null> {
   const store = await loadExecutionJournal();
   return store.entries.find((e) => e.orderId === orderId) ?? null;
+}
+
+/** 整合性ハッシュ不一致時にエントリを再保存して修復 */
+export async function repairExecutionJournalIntegrity(): Promise<boolean> {
+  if (!isPersistedStorageAvailable()) return false;
+  try {
+    const raw = await AsyncStorage.getItem(STORAGE_KEYS.executionJournal);
+    if (!raw) return false;
+    const { store, integrityOk } = parseJournalEnvelope(raw);
+    if (integrityOk) return false;
+    if (!Array.isArray(store.entries)) return false;
+    const envelope = wrapJournalWithIntegrity(store.entries);
+    await AsyncStorage.setItem(STORAGE_KEYS.executionJournal, JSON.stringify(envelope));
+    memoryStore = { version: 1, entries: envelope.entries };
+    console.log('[execution-journal] integrity repaired', { entries: envelope.entries.length });
+    return true;
+  } catch (err) {
+    secureWarn(
+      '[execution-journal] repair failed',
+      err instanceof Error ? err.message : String(err),
+    );
+    return false;
+  }
 }
 
 /** テスト用 — メモリのみリセット */

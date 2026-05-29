@@ -42,6 +42,33 @@ export type StrategySymbolRecommendation = {
   positionSizePct: { conservative: number; standard: number; aggressive: number };
   opportunityScore: number;
   threatScore: number;
+  /** Phase B — ルール×AI 統合スコア（ルール action は維持） */
+  hybrid?: StrategySymbolHybridScore;
+  fusedDisplayAction?: StrategyAction;
+  fusedDisplayConfidencePct?: number;
+};
+
+/** Phase B — OpenAI 第二評価 + ルール統合 */
+export type StrategySymbolHybridScore = {
+  ruleScore: number;
+  aiScore: number;
+  finalScore: number;
+  ruleAction: StrategyAction;
+  aiAction: import('./aiSecondEvaluator').AiSecondEvaluatorAction;
+  aiConfidencePct: number;
+  fusedAction: import('./aiSecondEvaluator').AiSecondEvaluatorAction;
+  fusedConfidencePct: number;
+  rationaleJa?: string;
+  rsi14?: number | null;
+  rsiSource?: string;
+};
+
+export type HybridSecondEvaluatorSummary = {
+  generatedAt: string;
+  source: 'openai' | 'cache' | 'mock_fallback' | 'skipped';
+  symbolCount: number;
+  ruleWeightPct: number;
+  aiWeightPct: number;
 };
 
 export type PortfolioAllocationAdvice = {
@@ -91,6 +118,10 @@ export type StrategyExecutionBundle = {
   journalRecent: StrategyJournalEntry[];
   cooldownActive: boolean;
   cooldownNoteJa: string | null;
+  /** Phase B — OpenAI 第二評価者メタデータ */
+  hybridSecondEvaluator?: HybridSecondEvaluatorSummary | null;
+  /** 全保有銘柄 AI 評価ランキング */
+  portfolioAiEvaluation?: import('./portfolioAiEvaluation').PortfolioAiEvaluationBundle | null;
 };
 
 export type BuildStrategyExecutionInput = {

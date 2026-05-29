@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SettingsMenuRow } from '../components/ApiKeyPromoCard';
@@ -18,11 +18,76 @@ import { MARKET_LABEL } from '../constants/rakutenTrade';
 import { useApp } from '../context/AppContext';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
+import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
+import { deleteApiKey, hasUsableKey, loadAllApiKeys, maskApiKey, saveApiKey } from '../services/apiKeys';
+import { testApiConnection, type ApiConnectionState } from '../services/apiHealth';
+import { runOperationalApiTest, type OperationalApiTestReport } from '../services/operationalApiTest';
 
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, isPractice, resetAllAppData } = useApp();
   const [resetting, setResetting] = useState(false);
+  const [apiKeyInputs, setApiKeyInputs] = useState<Record<SupportedApiProviderId, string>>({
+    openai: '',
+    twelve_data: '',
+    newsapi: '',
+    x: '',
+    alpha_vantage: '',
+    finnhub: '',
+    polygon: '',
+    fmp: '',
+  });
+  const [apiConnectionStates, setApiConnectionStates] = useState<Record<SupportedApiProviderId, ApiConnectionState>>({
+    openai: 'idle',
+    twelve_data: 'idle',
+    newsapi: 'idle',
+    x: 'idle',
+    alpha_vantage: 'idle',
+    finnhub: 'idle',
+    polygon: 'idle',
+    fmp: 'idle',
+  });
+  const [apiConnectionMessages, setApiConnectionMessages] = useState<Record<SupportedApiProviderId, string>>({
+    openai: '未確認',
+    twelve_data: '未確認',
+    newsapi: '未確認',
+    x: '未確認',
+    alpha_vantage: '未確認',
+    finnhub: '未確認',
+    polygon: '未確認',
+    fmp: '未確認',
+  });
+  const [operationalRunning, setOperationalRunning] = useState(false);
+  const [operationalReport, setOperationalReport] = useState<OperationalApiTestReport | null>(null);
+  const [apiBusy, setApiBusy] = useState<Record<SupportedApiProviderId, boolean>>({
+    openai: false,
+    twelve_data: false,
+    newsapi: false,
+    x: false,
+    alpha_vantage: false,
+    finnhub: false,
+    polygon: false,
+    fmp: false,
+  });
+
+  useEffect(() => {
+    let mounted = true;
+    void (async () => {
+      const loaded = await loadAllApiKeys();
+      if (!mounted) return;
+      setApiKeyInputs(loaded);
+      setApiConnectionMessages((prev) => {
+        const next = { ...prev };
+        API_PROVIDERS.forEach((provider) => {
+          next[provider.id] = hasUsableKey(loaded[provider.id]) ? 'キー保存済み（未テスト）' : '未登録';
+        });
+        return next;
+      });
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const refreshLabel =
     PRICE_REFRESH_OPTIONS.find((o) => o.minutes === state.settings.priceRefreshMinutes)?.label ??
@@ -76,9 +141,173 @@ export function SettingsScreen() {
     );
   };
 
+  const updateKeyInput = (providerId: SupportedApiProviderId, value: string) => {
+    setApiKeyInputs((prev) => ({ ...prev, [providerId]: value }));
+  };
+
+  const onSaveApiKey = async (providerId: SupportedApiProviderId) => {
+    setApiBusy((prev) => ({ ...prev, [providerId]: true }));
+    try {
+      await saveApiKey(providerId, apiKeyInputs[providerId]);
+      const normalized = apiKeyInputs[providerId].trim();
+      setApiConnectionMessages((prev) => ({
+        ...prev,
+        [providerId]: normalized ? '保存しました' : '未登録',
+      }));
+      Alert.alert('保存しました', 'APIキーを安全に保存しました。');
+    } finally {
+      setApiBusy((prev) => ({ ...prev, [providerId]: false }));
+    }
+  };
+
+  const onDeleteApiKey = async (providerId: SupportedApiProviderId) => {
+    setApiBusy((prev) => ({ ...prev, [providerId]: true }));
+    try {
+      await deleteApiKey(providerId);
+      setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
+      setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
+      setApiConnectionMessages((prev) => ({ ...prev, [providerId]: '削除しました' }));
+      Alert.alert('削除しました', 'APIキーを削除しました。');
+    } finally {
+      setApiBusy((prev) => ({ ...prev, [providerId]: false }));
+    }
+  };
+
+  const onTestApiConnection = async (providerId: SupportedApiProviderId) => {
+    setApiBusy((prev) => ({ ...prev, [providerId]: true }));
+    setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'testing' }));
+    try {
+      const testResult = await testApiConnection(providerId, apiKeyInputs[providerId]);
+      setApiConnectionStates((prev) => ({ ...prev, [providerId]: testResult.ok ? 'ok' : 'error' }));
+      setApiConnectionMessages((prev) => ({ ...prev, [providerId]: testResult.message }));
+      Alert.alert(testResult.ok ? '接続テスト成功' : '接続テスト失敗', testResult.message);
+    } finally {
+      setApiBusy((prev) => ({ ...prev, [providerId]: false }));
+    }
+  };
+
+  const onRunOperationalTest = async () => {
+    setOperationalRunning(true);
+    setOperationalReport(null);
+    try {
+      const report = await runOperationalApiTest();
+      setOperationalReport(report);
+    } catch (e) {
+      Alert.alert('実運用テスト失敗', e instanceof Error ? e.message : String(e));
+    } finally {
+      setOperationalRunning(false);
+    }
+  };
+
   return (
     <Screen title="設定" subtitle="API・通知・市場など">
       <Card>
+        <Text style={styles.sectionTitle}>APIキー管理（設定に集約）</Text>
+        <Text style={styles.sectionHint}>
+          すべて端末内の SecureStore に保存します。未登録APIがあってもアプリは動作します。
+        </Text>
+        {API_PROVIDERS.map((provider) => {
+          const masked = maskApiKey(apiKeyInputs[provider.id]);
+          const state = apiConnectionStates[provider.id];
+          const stateColor =
+            state === 'ok'
+              ? theme.colors.success
+              : state === 'error'
+                ? theme.colors.danger
+                : state === 'testing'
+                  ? theme.colors.warning
+                  : theme.colors.textMuted;
+          const busy = apiBusy[provider.id];
+          return (
+            <View key={provider.id} style={styles.apiProviderBlock}>
+              <Text style={styles.apiProviderTitle}>{provider.label}</Text>
+              <Text style={styles.apiHelpText}>{provider.helpText}</Text>
+              <Text style={styles.apiMaskText}>保存状態: {masked}</Text>
+              <Text style={[styles.apiStatusText, { color: stateColor }]}>
+                接続状態: {apiConnectionMessages[provider.id]}
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={apiKeyInputs[provider.id]}
+                onChangeText={(value) => updateKeyInput(provider.id, value)}
+                placeholder={provider.placeholder}
+                placeholderTextColor={theme.colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry
+              />
+              <View style={styles.apiActionsRow}>
+                <Button label={busy ? '処理中…' : '保存'} onPress={() => void onSaveApiKey(provider.id)} disabled={busy} />
+                <Button
+                  label={busy ? '処理中…' : '削除'}
+                  onPress={() => void onDeleteApiKey(provider.id)}
+                  disabled={busy}
+                  variant="ghost"
+                />
+                <Button
+                  label={busy ? '処理中…' : '接続テスト'}
+                  onPress={() => void onTestApiConnection(provider.id)}
+                  disabled={busy}
+                  variant="ghost"
+                />
+              </View>
+            </View>
+          );
+        })}
+
+        <View style={styles.operationalBlock}>
+          <Text style={styles.sectionTitle}>実運用テスト</Text>
+          <Text style={styles.sectionHint}>
+            SecureStore のキーで株価・ニュース・OpenAI・X を一括取得します。結果は Metro にも出力されます。
+          </Text>
+          <Button
+            label={operationalRunning ? 'テスト実行中…' : '実運用テスト実行'}
+            onPress={() => void onRunOperationalTest()}
+            disabled={operationalRunning}
+          />
+          {operationalReport ? (
+            <View style={styles.operationalResults}>
+              <Text style={styles.operationalSummary}>
+                {operationalReport.displayRows.filter((r) => r.ok).length}/{operationalReport.displayRows.length} 成功
+                {' · '}
+                {new Date(operationalReport.generatedAt).toLocaleString('ja-JP')}
+              </Text>
+              <View style={styles.operationalTableHeader}>
+                <Text style={[styles.operationalColApi, styles.operationalHeaderText]}>API名</Text>
+                <Text style={[styles.operationalColStatus, styles.operationalHeaderText]}>結果</Text>
+                <Text style={[styles.operationalColMs, styles.operationalHeaderText]}>応答(ms)</Text>
+              </View>
+              {operationalReport.displayRows.map((row, index) => (
+                <View key={`${row.apiName}-${index}`} style={styles.operationalTableRow}>
+                  <Text style={styles.operationalColApi} numberOfLines={2}>
+                    {row.apiName}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.operationalColStatus,
+                      { color: row.ok ? theme.colors.success : theme.colors.danger },
+                    ]}
+                  >
+                    {row.ok ? '成功' : '失敗'}
+                  </Text>
+                  <Text style={styles.operationalColMs}>{row.elapsedMs}</Text>
+                </View>
+              ))}
+              {operationalReport.displayRows.some((r) => r.detail) ? (
+                <View style={styles.operationalDetails}>
+                  {operationalReport.displayRows
+                    .filter((r) => r.detail)
+                    .map((row, index) => (
+                      <Text key={`detail-${row.apiName}-${index}`} style={styles.operationalDetailLine} selectable>
+                        {row.apiName}: {row.detail}
+                      </Text>
+                    ))}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+
         <SettingsMenuRow
           icon="key"
           title="APIキー設定"
@@ -309,4 +538,88 @@ const styles = StyleSheet.create({
   resetCard: { borderColor: theme.colors.danger, borderWidth: 1 },
   resetTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.md },
   resetHint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18, marginTop: theme.spacing.sm },
+  apiProviderBlock: {
+    marginTop: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.border,
+    gap: theme.spacing.xs,
+  },
+  apiProviderTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.md },
+  apiHelpText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
+  apiMaskText: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
+  apiStatusText: { fontSize: theme.fontSize.sm, fontWeight: '600' },
+  apiActionsRow: { marginTop: theme.spacing.xs, gap: theme.spacing.xs },
+  operationalBlock: {
+    marginTop: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.border,
+    gap: theme.spacing.sm,
+  },
+  operationalResults: {
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.xs,
+  },
+  operationalSummary: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    marginBottom: theme.spacing.xs,
+  },
+  operationalTableHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xs,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.border,
+  },
+  operationalTableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xs,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.border,
+  },
+  operationalHeaderText: {
+    color: theme.colors.textMuted,
+    fontWeight: '700',
+    fontSize: theme.fontSize.sm,
+  },
+  operationalColApi: {
+    flex: 1,
+    color: theme.colors.text,
+    fontSize: theme.fontSize.sm,
+    paddingRight: theme.spacing.xs,
+  },
+  operationalColStatus: {
+    width: 52,
+    textAlign: 'center',
+    fontSize: theme.fontSize.sm,
+    fontWeight: '600',
+  },
+  operationalColMs: {
+    width: 72,
+    textAlign: 'right',
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    fontVariant: ['tabular-nums'],
+  },
+  operationalDetails: {
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.xs,
+  },
+  operationalDetailLine: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.sm,
+    padding: theme.spacing.sm,
+    color: theme.colors.text,
+    fontSize: theme.fontSize.md,
+    marginTop: theme.spacing.xs,
+  },
 });

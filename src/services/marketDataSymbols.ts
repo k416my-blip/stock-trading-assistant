@@ -1,6 +1,7 @@
 import { TWELVE_DATA_EXCHANGE, TWELVE_DATA_MIC } from '../constants/marketData';
 import type { Market } from '../types';
 import type { TwelveDataSymbolParams } from '../types/marketData';
+import { normalizeBursaCoreSymbol } from './bursaSymbolFormat';
 import { isMalaysiaMarket, normalizeBursaSymbol } from '../utils/normalizeBursaSymbol';
 
 export type TwelveDataQuoteAttempt = TwelveDataSymbolParams & {
@@ -27,16 +28,59 @@ export function getTwelveDataQuoteAttempts(market: Market, symbol: string): Twel
   }
 
   if (isMalaysiaMarket(market)) {
-    const apiSymbol = normalizeBursaSymbol(symbol);
+    const core = normalizeBursaCoreSymbol(symbol);
     const exchange = TWELVE_DATA_EXCHANGE.bursa;
     const mic = TWELVE_DATA_MIC.bursa;
+    const isNumeric = /^[0-9]{3,4}[A-Z]{0,3}$/i.test(core);
+    const isAlphaName = /^[A-Z]{2,12}$/i.test(core) && !isNumeric;
+
+    if (isAlphaName) {
+      return [
+        {
+          symbol: `${core}:KL`,
+          exchange,
+          mic_code: mic,
+          attempt: 'bursa-name-colonkl-xkls',
+          formatId: 'colonkl-xkls',
+        },
+        {
+          symbol: `${core}.KL`,
+          exchange,
+          mic_code: mic,
+          attempt: 'bursa-name-dotkl-xkls',
+          formatId: 'dotkl-xkls',
+        },
+        {
+          symbol: core,
+          exchange,
+          mic_code: mic,
+          attempt: 'bursa-name-plain-xkls',
+          formatId: 'numeric-xkls',
+        },
+      ];
+    }
+
     return [
       {
-        symbol: apiSymbol,
+        symbol: `${core}.KL`,
         exchange,
         mic_code: mic,
         attempt: 'bursa-dotkl-xkls',
         formatId: 'dotkl-xkls',
+      },
+      {
+        symbol: `${core}:KL`,
+        exchange,
+        mic_code: mic,
+        attempt: 'bursa-colonkl-xkls',
+        formatId: 'colonkl-xkls',
+      },
+      {
+        symbol: core,
+        exchange,
+        mic_code: mic,
+        attempt: 'bursa-numeric-xkls',
+        formatId: 'numeric-xkls',
       },
     ];
   }
