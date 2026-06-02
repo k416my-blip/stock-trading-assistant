@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <text x="60" y="24" fill="#e2e8f0" font-size="16" font-family="sans-serif">triple:dist+macd+adx MaxDD window (2025-02-03 -> 2025-03-26)</text>
+  <polyline fill="none" stroke="#38bdf8" stroke-width="2" points="60.0,40.0 118.9,90.1 177.9,125.0 236.8,154.4 295.8,186.6 354.7,230.4 413.7,256.1 472.6,281.3 531.6,287.5 590.5,297.9 649.5,308.9 708.4,319.9 767.4,325.0 826.3,338.1 885.3,345.4 944.2,354.1 1003.2,361.7 1062.1,363.7 1121.1,366.3 1180.0,370.0"/>
+  <text x="60" y="408" fill="#94a3b8" font-size="11" font-family="sans-serif">2025-02-03</text>
+  <text x="1090" y="408" fill="#94a3b8" font-size="11" font-family="sans-serif">2025-03-26</text>
+  <text x="8" y="52" fill="#94a3b8" font-size="11" font-family="sans-serif">7.23</text>
+  <text x="8" y="370" fill="#94a3b8" font-size="11" font-family="sans-serif">2.05</text>
+</svg>

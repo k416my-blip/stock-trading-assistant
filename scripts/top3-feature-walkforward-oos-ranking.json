@@ -1,0 +1,1560 @@
+{
+  "methodologyJa": {
+    "featureFreeze": "ATR_ratio/RSI/出来高系は凍結し未使用",
+    "featuresUsed": [
+      {
+        "key": "distFrom52wHighPct",
+        "labelJa": "52週高値からの距離"
+      },
+      {
+        "key": "macdHistPct",
+        "labelJa": "MACD"
+      },
+      {
+        "key": "adx14",
+        "labelJa": "ADX"
+      }
+    ],
+    "ruleGroups": {
+      "single": 3,
+      "pair": 3,
+      "triple": 1
+    },
+    "walkforward": "過去6ヶ月学習→翌1ヶ月検証を月次ローリング",
+    "target": "翌日終値エントリー後20営業日の期待値",
+    "noOpenAiBuy": true
+  },
+  "sampleMeta": {
+    "symbols": [
+      "1023",
+      "1295",
+      "1155",
+      "SPY",
+      "QQQ",
+      "SCHD",
+      "JEPI",
+      "VYM"
+    ],
+    "totalRows": 3802,
+    "monthRange": {
+      "start": "2024-06",
+      "end": "2026-04"
+    }
+  },
+  "oosRanking": [
+    {
+      "ruleName": "pair:dist+adx",
+      "featureKeys": [
+        "distFrom52wHighPct",
+        "adx14"
+      ],
+      "oosTradeCount": 648,
+      "oosMonths": 296,
+      "expectancyPct": 1.652,
+      "sharpe": 0.321,
+      "profitFactor": 2.37,
+      "maxDrawdownPct": -95.83,
+      "winRate": 0.606,
+      "rank": 1
+    },
+    {
+      "ruleName": "single:distFrom52wHighPct",
+      "featureKeys": [
+        "distFrom52wHighPct"
+      ],
+      "oosTradeCount": 780,
+      "oosMonths": 339,
+      "expectancyPct": 1.375,
+      "sharpe": 0.277,
+      "profitFactor": 2.101,
+      "maxDrawdownPct": -99.24,
+      "winRate": 0.603,
+      "rank": 2
+    },
+    {
+      "ruleName": "single:adx14",
+      "featureKeys": [
+        "adx14"
+      ],
+      "oosTradeCount": 949,
+      "oosMonths": 295,
+      "expectancyPct": 1.092,
+      "sharpe": 0.231,
+      "profitFactor": 1.895,
+      "maxDrawdownPct": -99.89,
+      "winRate": 0.604,
+      "rank": 3
+    },
+    {
+      "ruleName": "triple:dist+macd+adx",
+      "featureKeys": [
+        "distFrom52wHighPct",
+        "macdHistPct",
+        "adx14"
+      ],
+      "oosTradeCount": 727,
+      "oosMonths": 321,
+      "expectancyPct": 1.079,
+      "sharpe": 0.22,
+      "profitFactor": 1.815,
+      "maxDrawdownPct": -98.97,
+      "winRate": 0.568,
+      "rank": 4
+    },
+    {
+      "ruleName": "single:macdHistPct",
+      "featureKeys": [
+        "macdHistPct"
+      ],
+      "oosTradeCount": 830,
+      "oosMonths": 261,
+      "expectancyPct": 0.921,
+      "sharpe": 0.197,
+      "profitFactor": 1.685,
+      "maxDrawdownPct": -99.93,
+      "winRate": 0.608,
+      "rank": 5
+    },
+    {
+      "ruleName": "pair:dist+macd",
+      "featureKeys": [
+        "distFrom52wHighPct",
+        "macdHistPct"
+      ],
+      "oosTradeCount": 835,
+      "oosMonths": 337,
+      "expectancyPct": 0.704,
+      "sharpe": 0.14,
+      "profitFactor": 1.457,
+      "maxDrawdownPct": -99.64,
+      "winRate": 0.526,
+      "rank": 6
+    },
+    {
+      "ruleName": "pair:macd+adx",
+      "featureKeys": [
+        "macdHistPct",
+        "adx14"
+      ],
+      "oosTradeCount": 913,
+      "oosMonths": 305,
+      "expectancyPct": 0.639,
+      "sharpe": 0.148,
+      "profitFactor": 1.477,
+      "maxDrawdownPct": -99.94,
+      "winRate": 0.579,
+      "rank": 7
+    }
+  ],
+  "perRuleWindowDiagnostics": {
+    "single:distFrom52wHighPct": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.0554,
+        "selectedCount": 42,
+        "selectedExpectancyPct": 4.226
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.133,
+        "selectedCount": 50,
+        "selectedExpectancyPct": 5.116
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.1548,
+        "selectedCount": 17,
+        "selectedExpectancyPct": 3.01
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.3767,
+        "selectedCount": 9,
+        "selectedExpectancyPct": 0.054
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.2602,
+        "selectedCount": 34,
+        "selectedExpectancyPct": 0.895
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.2785,
+        "selectedCount": 34,
+        "selectedExpectancyPct": 0.906
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.2547,
+        "selectedCount": 38,
+        "selectedExpectancyPct": 2.736
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.2668,
+        "selectedCount": 9,
+        "selectedExpectancyPct": -0.169
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.9,
+        "thresholdScore": 0.371,
+        "selectedCount": 60,
+        "selectedExpectancyPct": -4.7
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.0201,
+        "selectedCount": 153,
+        "selectedExpectancyPct": 4.809
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.5842,
+        "selectedCount": 30,
+        "selectedExpectancyPct": -1.243
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.9,
+        "thresholdScore": 0.5588,
+        "selectedCount": 19,
+        "selectedExpectancyPct": -2.028
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.8,
+        "thresholdScore": 0.2092,
+        "selectedCount": 53,
+        "selectedExpectancyPct": 3.913
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.2338,
+        "selectedCount": 23,
+        "selectedExpectancyPct": 3.127
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.2412,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.1453,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.7,
+        "thresholdScore": 0.0302,
+        "selectedCount": 39,
+        "selectedExpectancyPct": 1.87
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.0582,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.1721,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.6,
+        "thresholdScore": 0.0407,
+        "selectedCount": 102,
+        "selectedExpectancyPct": -3.486
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.9,
+        "thresholdScore": 0.1303,
+        "selectedCount": 23,
+        "selectedExpectancyPct": -1.674
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.1836,
+        "selectedCount": 45,
+        "selectedExpectancyPct": 1.956
+      }
+    ],
+    "single:macdHistPct": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2131,
+        "selectedCount": 20,
+        "selectedExpectancyPct": 2.09
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.04,
+        "selectedCount": 34,
+        "selectedExpectancyPct": 3.727
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.1615,
+        "selectedCount": 36,
+        "selectedExpectancyPct": -0.556
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.7,
+        "thresholdScore": 0.0223,
+        "selectedCount": 74,
+        "selectedExpectancyPct": 1.438
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.6,
+        "thresholdScore": 0.0072,
+        "selectedCount": 55,
+        "selectedExpectancyPct": 0.6
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.7,
+        "thresholdScore": 0.0233,
+        "selectedCount": 87,
+        "selectedExpectancyPct": 0.27
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.0426,
+        "selectedCount": 20,
+        "selectedExpectancyPct": 2.656
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.6,
+        "thresholdScore": 0.0232,
+        "selectedCount": 29,
+        "selectedExpectancyPct": -4.21
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.8,
+        "thresholdScore": 0.146,
+        "selectedCount": 76,
+        "selectedExpectancyPct": -5.884
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.7,
+        "thresholdScore": 0.0156,
+        "selectedCount": 88,
+        "selectedExpectancyPct": 4.011
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.022,
+        "selectedCount": 70,
+        "selectedExpectancyPct": 2.099
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.9,
+        "thresholdScore": 0.1052,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.9,
+        "thresholdScore": 0.1142,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.1133,
+        "selectedCount": 15,
+        "selectedExpectancyPct": -1.206
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.1283,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.1171,
+        "selectedCount": 12,
+        "selectedExpectancyPct": 2.173
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.6,
+        "thresholdScore": 0.0318,
+        "selectedCount": 60,
+        "selectedExpectancyPct": 2.895
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2486,
+        "selectedCount": 6,
+        "selectedExpectancyPct": 1.241
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.1761,
+        "selectedCount": 5,
+        "selectedExpectancyPct": 4.445
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.9,
+        "thresholdScore": 0.0543,
+        "selectedCount": 27,
+        "selectedExpectancyPct": -4.486
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.7,
+        "thresholdScore": 0.0452,
+        "selectedCount": 6,
+        "selectedExpectancyPct": -2.114
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.7,
+        "thresholdScore": 0.0628,
+        "selectedCount": 110,
+        "selectedExpectancyPct": 3.562
+      }
+    ],
+    "single:adx14": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.0312,
+        "selectedCount": 16,
+        "selectedExpectancyPct": 1.942
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.1324,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.1741,
+        "selectedCount": 21,
+        "selectedExpectancyPct": -2.259
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.0025,
+        "selectedCount": 53,
+        "selectedExpectancyPct": 0.827
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.0106,
+        "selectedCount": 13,
+        "selectedExpectancyPct": 1.737
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.1157,
+        "selectedCount": 1,
+        "selectedExpectancyPct": 0.665
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.1707,
+        "selectedCount": 25,
+        "selectedExpectancyPct": 2.139
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.2467,
+        "selectedCount": 2,
+        "selectedExpectancyPct": -9.727
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.6,
+        "thresholdScore": -0.0043,
+        "selectedCount": 100,
+        "selectedExpectancyPct": -5.318
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.6,
+        "thresholdScore": -0.0037,
+        "selectedCount": 140,
+        "selectedExpectancyPct": 4.713
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.7,
+        "thresholdScore": 0.1087,
+        "selectedCount": 43,
+        "selectedExpectancyPct": 1.073
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.7,
+        "thresholdScore": 0.1098,
+        "selectedCount": 37,
+        "selectedExpectancyPct": 2.731
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.7,
+        "thresholdScore": 0.1061,
+        "selectedCount": 25,
+        "selectedExpectancyPct": 1.879
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.6,
+        "thresholdScore": 0.0293,
+        "selectedCount": 33,
+        "selectedExpectancyPct": 0.872
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.6,
+        "thresholdScore": 0.0048,
+        "selectedCount": 70,
+        "selectedExpectancyPct": 0.199
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.7,
+        "thresholdScore": 0.059,
+        "selectedCount": 12,
+        "selectedExpectancyPct": 1.323
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.9,
+        "thresholdScore": 0.0268,
+        "selectedCount": 6,
+        "selectedExpectancyPct": 4.229
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.6,
+        "thresholdScore": 0.0075,
+        "selectedCount": 69,
+        "selectedExpectancyPct": 1.47
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.119,
+        "selectedCount": 35,
+        "selectedExpectancyPct": 5.119
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.9,
+        "thresholdScore": 0.2517,
+        "selectedCount": 48,
+        "selectedExpectancyPct": -3.354
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.6,
+        "thresholdScore": -0.0024,
+        "selectedCount": 128,
+        "selectedExpectancyPct": 0.901
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.7,
+        "thresholdScore": 0.0119,
+        "selectedCount": 72,
+        "selectedExpectancyPct": 4.318
+      }
+    ],
+    "pair:dist+macd": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.4616,
+        "selectedCount": 16,
+        "selectedExpectancyPct": 2.101
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.1734,
+        "selectedCount": 45,
+        "selectedExpectancyPct": 5.908
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.2558,
+        "selectedCount": 27,
+        "selectedExpectancyPct": 0.091
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.8,
+        "thresholdScore": 0.1831,
+        "selectedCount": 45,
+        "selectedExpectancyPct": -0.284
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.2833,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 1.095
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.165,
+        "selectedCount": 78,
+        "selectedExpectancyPct": 0.542
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.2804,
+        "selectedCount": 30,
+        "selectedExpectancyPct": 2.772
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.3102,
+        "selectedCount": 5,
+        "selectedExpectancyPct": -3.13
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.9,
+        "thresholdScore": 0.4324,
+        "selectedCount": 79,
+        "selectedExpectancyPct": -5.055
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.0237,
+        "selectedCount": 106,
+        "selectedExpectancyPct": 4.48
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.5747,
+        "selectedCount": 32,
+        "selectedExpectancyPct": -1.064
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.9,
+        "thresholdScore": 0.5461,
+        "selectedCount": 19,
+        "selectedExpectancyPct": -2.028
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.8,
+        "thresholdScore": 0.2066,
+        "selectedCount": 55,
+        "selectedExpectancyPct": 3.61
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.2348,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 2.158
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.2805,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.2214,
+        "selectedCount": 7,
+        "selectedExpectancyPct": 2.426
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.9,
+        "thresholdScore": 0.1166,
+        "selectedCount": 24,
+        "selectedExpectancyPct": 2.062
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2677,
+        "selectedCount": 2,
+        "selectedExpectancyPct": -0.149
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.2715,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.6,
+        "thresholdScore": 0.0324,
+        "selectedCount": 111,
+        "selectedExpectancyPct": -3.874
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.7,
+        "thresholdScore": 0.0544,
+        "selectedCount": 21,
+        "selectedExpectancyPct": -1.703
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.2099,
+        "selectedCount": 69,
+        "selectedExpectancyPct": 4.097
+      }
+    ],
+    "pair:dist+adx": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.0708,
+        "selectedCount": 35,
+        "selectedExpectancyPct": 4.761
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.1701,
+        "selectedCount": 36,
+        "selectedExpectancyPct": 5.436
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.2296,
+        "selectedCount": 17,
+        "selectedExpectancyPct": 1.749
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.3712,
+        "selectedCount": 10,
+        "selectedExpectancyPct": 0.139
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.2572,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 1.095
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.1405,
+        "selectedCount": 73,
+        "selectedExpectancyPct": 0.145
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.3264,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 2.586
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.397,
+        "selectedCount": 6,
+        "selectedExpectancyPct": -0.259
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.9,
+        "thresholdScore": 0.4511,
+        "selectedCount": 54,
+        "selectedExpectancyPct": -4.944
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.6,
+        "thresholdScore": -0.0035,
+        "selectedCount": 150,
+        "selectedExpectancyPct": 4.676
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.7998,
+        "selectedCount": 19,
+        "selectedExpectancyPct": -0.305
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.9,
+        "thresholdScore": 0.7358,
+        "selectedCount": 16,
+        "selectedExpectancyPct": -1.529
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.9,
+        "thresholdScore": 0.5178,
+        "selectedCount": 19,
+        "selectedExpectancyPct": 8.594
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.53,
+        "selectedCount": 10,
+        "selectedExpectancyPct": 3.952
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.2479,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.1882,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.9,
+        "thresholdScore": 0.0574,
+        "selectedCount": 2,
+        "selectedExpectancyPct": 3.793
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.0652,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.1985,
+        "selectedCount": 5,
+        "selectedExpectancyPct": 5.169
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.9,
+        "thresholdScore": 0.2766,
+        "selectedCount": 53,
+        "selectedExpectancyPct": -3.49
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.9,
+        "thresholdScore": 0.1235,
+        "selectedCount": 36,
+        "selectedExpectancyPct": 0.161
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.1838,
+        "selectedCount": 43,
+        "selectedExpectancyPct": 2.078
+      }
+    ],
+    "pair:macd+adx": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2166,
+        "selectedCount": 18,
+        "selectedExpectancyPct": 2.224
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.1512,
+        "selectedCount": 5,
+        "selectedExpectancyPct": 4.554
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.1662,
+        "selectedCount": 42,
+        "selectedExpectancyPct": -1.364
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.6,
+        "thresholdScore": 0.0137,
+        "selectedCount": 97,
+        "selectedExpectancyPct": 1.326
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.6,
+        "thresholdScore": 0.0057,
+        "selectedCount": 55,
+        "selectedExpectancyPct": 1.104
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.8,
+        "thresholdScore": 0.0874,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 1.048
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.9,
+        "thresholdScore": 0.1921,
+        "selectedCount": 20,
+        "selectedExpectancyPct": 2.375
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.2835,
+        "selectedCount": 2,
+        "selectedExpectancyPct": -9.727
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.6,
+        "thresholdScore": 0.0521,
+        "selectedCount": 104,
+        "selectedExpectancyPct": -5.376
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.1236,
+        "selectedCount": 60,
+        "selectedExpectancyPct": 1.932
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.6,
+        "thresholdScore": 0.0058,
+        "selectedCount": 75,
+        "selectedExpectancyPct": 0.997
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.6,
+        "thresholdScore": 0.0286,
+        "selectedCount": 54,
+        "selectedExpectancyPct": 2.544
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.6,
+        "thresholdScore": 0.0476,
+        "selectedCount": 35,
+        "selectedExpectancyPct": 1.241
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.7,
+        "thresholdScore": 0.0882,
+        "selectedCount": 30,
+        "selectedExpectancyPct": -0.108
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.1494,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.2138,
+        "selectedCount": 2,
+        "selectedExpectancyPct": 3.15
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.7,
+        "thresholdScore": 0.051,
+        "selectedCount": 44,
+        "selectedExpectancyPct": 2.744
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2459,
+        "selectedCount": 6,
+        "selectedExpectancyPct": 1.241
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.6,
+        "thresholdScore": 0.0308,
+        "selectedCount": 49,
+        "selectedExpectancyPct": 4.653
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.8,
+        "thresholdScore": 0.1377,
+        "selectedCount": 62,
+        "selectedExpectancyPct": -3.646
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.7,
+        "thresholdScore": 0.0523,
+        "selectedCount": 11,
+        "selectedExpectancyPct": -0.392
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.7,
+        "thresholdScore": 0.0614,
+        "selectedCount": 110,
+        "selectedExpectancyPct": 3.505
+      }
+    ],
+    "triple:dist+macd+adx": [
+      {
+        "testMonth": "2024-07",
+        "trainCount": 149,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.4853,
+        "selectedCount": 15,
+        "selectedExpectancyPct": 2.312
+      },
+      {
+        "testMonth": "2024-08",
+        "trainCount": 325,
+        "testCount": 176,
+        "quantile": 0.8,
+        "thresholdScore": 0.1976,
+        "selectedCount": 39,
+        "selectedExpectancyPct": 5.462
+      },
+      {
+        "testMonth": "2024-09",
+        "trainCount": 501,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.2669,
+        "selectedCount": 36,
+        "selectedExpectancyPct": -0.68
+      },
+      {
+        "testMonth": "2024-10",
+        "trainCount": 661,
+        "testCount": 181,
+        "quantile": 0.8,
+        "thresholdScore": 0.1854,
+        "selectedCount": 45,
+        "selectedExpectancyPct": -0.284
+      },
+      {
+        "testMonth": "2024-11",
+        "trainCount": 842,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.282,
+        "selectedCount": 32,
+        "selectedExpectancyPct": 1.095
+      },
+      {
+        "testMonth": "2024-12",
+        "trainCount": 1005,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.353,
+        "selectedCount": 29,
+        "selectedExpectancyPct": 1.355
+      },
+      {
+        "testMonth": "2025-01",
+        "trainCount": 1024,
+        "testCount": 160,
+        "quantile": 0.8,
+        "thresholdScore": 0.2066,
+        "selectedCount": 58,
+        "selectedExpectancyPct": 2.386
+      },
+      {
+        "testMonth": "2025-02",
+        "trainCount": 1008,
+        "testCount": 152,
+        "quantile": 0.9,
+        "thresholdScore": 0.4445,
+        "selectedCount": 2,
+        "selectedExpectancyPct": -2.824
+      },
+      {
+        "testMonth": "2025-03",
+        "trainCount": 984,
+        "testCount": 162,
+        "quantile": 0.9,
+        "thresholdScore": 0.5343,
+        "selectedCount": 70,
+        "selectedExpectancyPct": -5.371
+      },
+      {
+        "testMonth": "2025-04",
+        "trainCount": 986,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.1372,
+        "selectedCount": 91,
+        "selectedExpectancyPct": 3.561
+      },
+      {
+        "testMonth": "2025-05",
+        "trainCount": 973,
+        "testCount": 165,
+        "quantile": 0.9,
+        "thresholdScore": 0.7868,
+        "selectedCount": 21,
+        "selectedExpectancyPct": -0.438
+      },
+      {
+        "testMonth": "2025-06",
+        "trainCount": 975,
+        "testCount": 157,
+        "quantile": 0.9,
+        "thresholdScore": 0.7255,
+        "selectedCount": 16,
+        "selectedExpectancyPct": -1.409
+      },
+      {
+        "testMonth": "2025-07",
+        "trainCount": 964,
+        "testCount": 179,
+        "quantile": 0.9,
+        "thresholdScore": 0.4966,
+        "selectedCount": 23,
+        "selectedExpectancyPct": 7.051
+      },
+      {
+        "testMonth": "2025-08",
+        "trainCount": 983,
+        "testCount": 168,
+        "quantile": 0.9,
+        "thresholdScore": 0.5398,
+        "selectedCount": 19,
+        "selectedExpectancyPct": 1.967
+      },
+      {
+        "testMonth": "2025-09",
+        "trainCount": 999,
+        "testCount": 159,
+        "quantile": 0.9,
+        "thresholdScore": 0.2909,
+        "selectedCount": 0,
+        "selectedExpectancyPct": null
+      },
+      {
+        "testMonth": "2025-10",
+        "trainCount": 996,
+        "testCount": 181,
+        "quantile": 0.9,
+        "thresholdScore": 0.2543,
+        "selectedCount": 1,
+        "selectedExpectancyPct": 2.729
+      },
+      {
+        "testMonth": "2025-11",
+        "trainCount": 1009,
+        "testCount": 155,
+        "quantile": 0.9,
+        "thresholdScore": 0.1255,
+        "selectedCount": 18,
+        "selectedExpectancyPct": 2.19
+      },
+      {
+        "testMonth": "2025-12",
+        "trainCount": 999,
+        "testCount": 176,
+        "quantile": 0.9,
+        "thresholdScore": 0.2671,
+        "selectedCount": 2,
+        "selectedExpectancyPct": -0.149
+      },
+      {
+        "testMonth": "2026-01",
+        "trainCount": 1018,
+        "testCount": 163,
+        "quantile": 0.9,
+        "thresholdScore": 0.2593,
+        "selectedCount": 4,
+        "selectedExpectancyPct": 4.93
+      },
+      {
+        "testMonth": "2026-02",
+        "trainCount": 1002,
+        "testCount": 146,
+        "quantile": 0.9,
+        "thresholdScore": 0.2734,
+        "selectedCount": 54,
+        "selectedExpectancyPct": -3.59
+      },
+      {
+        "testMonth": "2026-03",
+        "trainCount": 980,
+        "testCount": 173,
+        "quantile": 0.6,
+        "thresholdScore": 0.0251,
+        "selectedCount": 36,
+        "selectedExpectancyPct": -0.77
+      },
+      {
+        "testMonth": "2026-04",
+        "trainCount": 994,
+        "testCount": 165,
+        "quantile": 0.7,
+        "thresholdScore": 0.0835,
+        "selectedCount": 116,
+        "selectedExpectancyPct": 3.545
+      }
+    ]
+  },
+  "summaryJa": [
+    "#1 pair:dist+adx: 期待値1.652 Sharpe=0.321 PF=2.37 MaxDD=-95.83% 件数648",
+    "#2 single:distFrom52wHighPct: 期待値1.375 Sharpe=0.277 PF=2.101 MaxDD=-99.24% 件数780",
+    "#3 single:adx14: 期待値1.092 Sharpe=0.231 PF=1.895 MaxDD=-99.89% 件数949",
+    "#4 triple:dist+macd+adx: 期待値1.079 Sharpe=0.22 PF=1.815 MaxDD=-98.97% 件数727",
+    "#5 single:macdHistPct: 期待値0.921 Sharpe=0.197 PF=1.685 MaxDD=-99.93% 件数830",
+    "#6 pair:dist+macd: 期待値0.704 Sharpe=0.14 PF=1.457 MaxDD=-99.64% 件数835",
+    "#7 pair:macd+adx: 期待値0.639 Sharpe=0.148 PF=1.477 MaxDD=-99.94% 件数913"
+  ]
+}

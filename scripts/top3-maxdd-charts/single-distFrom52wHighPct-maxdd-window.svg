@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420">
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <text x="60" y="24" fill="#e2e8f0" font-size="16" font-family="sans-serif">single:distFrom52wHighPct MaxDD window (2026-02-02 -> 2026-03-25)</text>
+  <polyline fill="none" stroke="#38bdf8" stroke-width="2" points="60.0,40.0 91.1,41.8 122.2,47.9 153.3,55.9 184.4,67.5 215.6,80.2 246.7,98.8 277.8,113.0 308.9,123.7 340.0,131.1 371.1,143.5 402.2,156.4 433.3,168.6 464.4,183.4 495.6,196.4 526.7,208.9 557.8,220.5 588.9,232.2 620.0,246.5 651.1,259.8 682.2,267.5 713.3,276.3 744.4,288.9 775.6,301.2 806.7,309.8 837.8,315.4 868.9,325.4 900.0,333.4 931.1,343.1 962.2,346.9 993.3,352.1 1024.4,358.9 1055.6,364.1 1086.7,367.5 1117.8,367.9 1148.9,369.7 1180.0,370.0"/>
+  <text x="60" y="408" fill="#94a3b8" font-size="11" font-family="sans-serif">2026-02-02</text>
+  <text x="1090" y="408" fill="#94a3b8" font-size="11" font-family="sans-serif">2026-03-25</text>
+  <text x="8" y="52" fill="#94a3b8" font-size="11" font-family="sans-serif">45.03</text>
+  <text x="8" y="370" fill="#94a3b8" font-size="11" font-family="sans-serif">9.71</text>
+</svg>
