@@ -1,0 +1,138 @@
+# 最重要監査その76 Malaysia v4候補 2016-06-05〜2026-06-05
+# MY v4候補 · GAMUDA15% · Phase2第4銘柄総当たり · YTL4政策 · 累積37.7%目標 · 月次RM1500 · ルール変更なし
+# A 即採用 — IJM·③ YTL上限15% · 累積38.36% · 廃止MC4.4%
+
+section,rowId,candidate,symbol,ytlPolicy,ytlCap,cumulative,sharpe,maxDD,minEquity,delistMC,delistP5,candDep,ytlDep,meetsTarget,fetchOk
+row,v4_misc_ytl_exclude,MISC,3816,① YTL完全除外,0,27.869,1.598,-6.118,3000,0,3000,28.723,0,false,true
+row,v4_misc_ytl_cap_20,MISC,3816,② YTL上限20%,20,39.224,1.765,-7.053,3000,59.24,380.539,11.922,41.74,true,true
+row,v4_misc_ytl_cap_15,MISC,3816,③ YTL上限15%,15,36.813,1.768,-7.053,3000,17.1,921.891,12.953,38.224,false,true
+row,v4_misc_ytl_cap_10,MISC,3816,④ YTL上限10%,10,31.626,1.72,-7.053,3000,0,3000,15.169,29.101,false,true
+row,v4_maybank_ytl_exclude,MAYBANK,1155,① YTL完全除外,0,21.493,0.921,-10.055,3000,0,3000,-5.719,0,false,true
+row,v4_maybank_ytl_cap_20,MAYBANK,1155,② YTL上限20%,20,38.734,1.308,-7.73,3000,74.08,242.559,-1.586,55.578,true,true
+row,v4_maybank_ytl_cap_15,MAYBANK,1155,③ YTL上限15%,15,35.533,1.313,-7.731,3000,25.05,739.72,-1.702,52.148,false,true
+row,v4_maybank_ytl_cap_10,MAYBANK,1155,④ YTL上限10%,10,28.652,1.266,-7.731,3000,0,3000,-2.035,41.996,false,true
+row,v4_celcomdigi_ytl_exclude,CELCOMDIGI,6947,① YTL完全除外,0,27.202,1.213,-8.143,3000,0,3000,18.508,0,false,true
+row,v4_celcomdigi_ytl_cap_20,CELCOMDIGI,6947,② YTL上限20%,20,46.796,1.536,-7.735,3000,72.48,243.398,10.599,46.712,true,true
+row,v4_celcomdigi_ytl_cap_15,CELCOMDIGI,6947,③ YTL上限15%,15,43.592,1.558,-7.735,3000,24.09,747.615,11.357,43.2,true,true
+row,v4_celcomdigi_ytl_cap_10,CELCOMDIGI,6947,④ YTL上限10%,10,36.62,1.545,-7.736,3000,0,3000,13.452,33.474,false,true
+row,v4_pbbank_ytl_exclude,PBBANK,1295,① YTL完全除外,0,19.75,0.733,-8.65,3000,0,3000,-10.464,0,false,true
+row,v4_pbbank_ytl_cap_20,PBBANK,1295,② YTL上限20%,20,33.194,0.928,-8.052,3000,69.79,251.278,-2.124,53.814,false,true
+row,v4_pbbank_ytl_cap_15,PBBANK,1295,③ YTL上限15%,15,30.53,0.919,-8.053,3000,21.86,783.887,-2.368,50.317,false,true
+row,v4_pbbank_ytl_cap_10,PBBANK,1295,④ YTL上限10%,10,24.932,0.87,-8.054,3000,0,3000,-3.068,40.282,false,true
+row,v4_sunway_ytl_exclude,SUNWAY,5211,① YTL完全除外,0,18.693,0.788,-9.409,3000,0,3000,-16.676,0,false,true
+row,v4_sunway_ytl_cap_20,SUNWAY,5211,② YTL上限20%,20,37.861,1.241,-7.727,3000,72.11,240.512,-1.789,55.24,true,true
+row,v4_sunway_ytl_cap_15,SUNWAY,5211,③ YTL上限15%,15,34.716,1.243,-7.728,3000,24.15,762.055,-1.943,51.769,false,true
+row,v4_sunway_ytl_cap_10,SUNWAY,5211,④ YTL上限10%,10,28.057,1.195,-7.729,3000,0,3000,-2.375,41.642,false,true
+row,v4_genting_ytl_exclude,GENTING,3182,① YTL完全除外,0,13.774,0.289,-13.786,3000,0,3000,21.493,0,false,true
+row,v4_genting_ytl_cap_20,GENTING,3182,② YTL上限20%,20,32.772,0.686,-12.564,3000,64.71,276.632,7.972,51.801,false,true
+row,v4_genting_ytl_cap_15,GENTING,3182,③ YTL上限15%,15,30.157,0.662,-12.71,3000,20.02,818.139,8.333,48.387,false,true
+row,v4_genting_ytl_cap_10,GENTING,3182,④ YTL上限10%,10,24.773,0.596,-13.06,3000,0,3000,9.616,38.532,false,true
+row,v4_ijm_ytl_exclude,IJM,3336,① YTL完全除外,0,24.215,0.852,-11.471,3000,0,3000,43.844,0,false,true
+row,v4_ijm_ytl_cap_20,IJM,3336,② YTL上限20%,20,40.619,1.236,-7.184,3000,17.62,535.359,33.116,35.978,true,true
+row,v4_ijm_ytl_cap_15,IJM,3336,③ YTL上限15%,15,38.36,1.231,-7.512,3000,4.4,1596.112,34.566,32.815,true,true
+row,v4_ijm_ytl_cap_10,IJM,3336,④ YTL上限10%,10,33.871,1.236,-7.537,3000,0,3000,38.793,24.461,false,true
+row,v4_inari_ytl_exclude,INARI,0166,① YTL完全除外,0,15.042,0.688,-11.154,3000,0,3000,-0.994,0,false,true
+row,v4_inari_ytl_cap_20,INARI,0166,② YTL上限20%,20,38.013,1.16,-8.594,3000,64.71,259.911,11.896,51.964,true,true
+row,v4_inari_ytl_cap_15,INARI,0166,③ YTL上限15%,15,35.096,1.147,-8.175,3000,21.26,796.371,12.81,48.513,false,true
+row,v4_inari_ytl_cap_10,INARI,0166,④ YTL上限10%,10,29.123,1.102,-6.813,3000,0,3000,16.066,38.196,false,true
+row,v4_axiata_ytl_exclude,AXIATA,6888,① YTL完全除外,0,23.811,0.822,-10.472,3000,0,3000,32.599,0,false,true
+row,v4_axiata_ytl_cap_20,AXIATA,6888,② YTL上限20%,20,43.028,1.216,-7.038,3000,85.72,199.602,4.057,55.01,true,true
+row,v4_axiata_ytl_cap_15,AXIATA,6888,③ YTL上限15%,15,39.649,1.203,-7.039,3000,46.73,654.659,4.594,51.432,true,true
+row,v4_axiata_ytl_cap_10,AXIATA,6888,④ YTL上限10%,10,31.949,1.113,-7.039,3000,0,3000,5.452,41.322,false,true
+row,v4_tm_ytl_exclude,TM,5031,① YTL完全除外,0,19.106,0.807,-8.644,3000,0,3000,-16.685,0,false,true
+row,v4_tm_ytl_cap_20,TM,5031,② YTL上限20%,20,40.152,1.328,-7.73,3000,75.93,239.255,-0.064,53.297,true,true
+row,v4_tm_ytl_cap_15,TM,5031,③ YTL上限15%,15,37.004,1.343,-7.731,3000,25.88,740.404,-0.095,49.717,false,true
+row,v4_tm_ytl_cap_10,TM,5031,④ YTL上限10%,10,30.17,1.316,-7.731,3000,0,3000,-0.073,39.64,false,true
+
+section,rank,rowId,candidate,ytlPolicy,value,label
+topCum,1,v4_celcomdigi_ytl_cap_20,CELCOMDIGI,② YTL上限20%,46.796,累積46.796%
+topCum,2,v4_celcomdigi_ytl_cap_15,CELCOMDIGI,③ YTL上限15%,43.592,累積43.592%
+topCum,3,v4_axiata_ytl_cap_20,AXIATA,② YTL上限20%,43.028,累積43.028%
+topCum,4,v4_ijm_ytl_cap_20,IJM,② YTL上限20%,40.619,累積40.619%
+topCum,5,v4_tm_ytl_cap_20,TM,② YTL上限20%,40.152,累積40.152%
+topCum,6,v4_axiata_ytl_cap_15,AXIATA,③ YTL上限15%,39.649,累積39.649%
+topCum,7,v4_misc_ytl_cap_20,MISC,② YTL上限20%,39.224,累積39.224%
+topCum,8,v4_maybank_ytl_cap_20,MAYBANK,② YTL上限20%,38.734,累積38.734%
+topCum,9,v4_ijm_ytl_cap_15,IJM,③ YTL上限15%,38.36,累積38.36%
+topCum,10,v4_inari_ytl_cap_20,INARI,② YTL上限20%,38.013,累積38.013%
+topSharpe,1,v4_misc_ytl_cap_15,MISC,③ YTL上限15%,1.768,Sharpe1.768
+topSharpe,2,v4_misc_ytl_cap_20,MISC,② YTL上限20%,1.765,Sharpe1.765
+topSharpe,3,v4_misc_ytl_cap_10,MISC,④ YTL上限10%,1.72,Sharpe1.72
+topSharpe,4,v4_misc_ytl_exclude,MISC,① YTL完全除外,1.598,Sharpe1.598
+topSharpe,5,v4_celcomdigi_ytl_cap_15,CELCOMDIGI,③ YTL上限15%,1.558,Sharpe1.558
+topSharpe,6,v4_celcomdigi_ytl_cap_10,CELCOMDIGI,④ YTL上限10%,1.545,Sharpe1.545
+topSharpe,7,v4_celcomdigi_ytl_cap_20,CELCOMDIGI,② YTL上限20%,1.536,Sharpe1.536
+topSharpe,8,v4_tm_ytl_cap_15,TM,③ YTL上限15%,1.343,Sharpe1.343
+topSharpe,9,v4_tm_ytl_cap_20,TM,② YTL上限20%,1.328,Sharpe1.328
+topSharpe,10,v4_tm_ytl_cap_10,TM,④ YTL上限10%,1.316,Sharpe1.316
+topMaxDd,1,v4_misc_ytl_exclude,MISC,① YTL完全除外,-6.118,MaxDD-6.118%
+topMaxDd,2,v4_inari_ytl_cap_10,INARI,④ YTL上限10%,-6.813,MaxDD-6.813%
+topMaxDd,3,v4_axiata_ytl_cap_20,AXIATA,② YTL上限20%,-7.038,MaxDD-7.038%
+topMaxDd,4,v4_axiata_ytl_cap_15,AXIATA,③ YTL上限15%,-7.039,MaxDD-7.039%
+topMaxDd,5,v4_axiata_ytl_cap_10,AXIATA,④ YTL上限10%,-7.039,MaxDD-7.039%
+topMaxDd,6,v4_misc_ytl_cap_20,MISC,② YTL上限20%,-7.053,MaxDD-7.053%
+topMaxDd,7,v4_misc_ytl_cap_15,MISC,③ YTL上限15%,-7.053,MaxDD-7.053%
+topMaxDd,8,v4_misc_ytl_cap_10,MISC,④ YTL上限10%,-7.053,MaxDD-7.053%
+topMaxDd,9,v4_ijm_ytl_cap_20,IJM,② YTL上限20%,-7.184,MaxDD-7.184%
+topMaxDd,10,v4_ijm_ytl_cap_15,IJM,③ YTL上限15%,-7.512,MaxDD-7.512%
+topMc,1,v4_misc_ytl_exclude,MISC,① YTL完全除外,0,廃止MC0%
+topMc,2,v4_misc_ytl_cap_10,MISC,④ YTL上限10%,0,廃止MC0%
+topMc,3,v4_maybank_ytl_exclude,MAYBANK,① YTL完全除外,0,廃止MC0%
+topMc,4,v4_maybank_ytl_cap_10,MAYBANK,④ YTL上限10%,0,廃止MC0%
+topMc,5,v4_celcomdigi_ytl_exclude,CELCOMDIGI,① YTL完全除外,0,廃止MC0%
+topMc,6,v4_celcomdigi_ytl_cap_10,CELCOMDIGI,④ YTL上限10%,0,廃止MC0%
+topMc,7,v4_pbbank_ytl_exclude,PBBANK,① YTL完全除外,0,廃止MC0%
+topMc,8,v4_pbbank_ytl_cap_10,PBBANK,④ YTL上限10%,0,廃止MC0%
+topMc,9,v4_sunway_ytl_exclude,SUNWAY,① YTL完全除外,0,廃止MC0%
+topMc,10,v4_sunway_ytl_cap_10,SUNWAY,④ YTL上限10%,0,廃止MC0%
+composite,1,v4_ijm_ytl_cap_15,IJM,③ YTL上限15%,124.536,総合124.536
+composite,2,v4_ijm_ytl_cap_20,IJM,② YTL上限20%,89.618,総合89.618
+composite,3,v4_celcomdigi_ytl_cap_10,CELCOMDIGI,④ YTL上限10%,87.912,総合87.912
+composite,4,v4_misc_ytl_cap_10,MISC,④ YTL上限10%,80.366,総合80.366
+composite,5,v4_celcomdigi_ytl_cap_15,CELCOMDIGI,③ YTL上限15%,79.742,総合79.742
+composite,6,v4_ijm_ytl_cap_10,IJM,④ YTL上限10%,78.806,総合78.806
+composite,7,v4_axiata_ytl_cap_10,AXIATA,④ YTL上限10%,73.735,総合73.735
+composite,8,v4_tm_ytl_cap_10,TM,④ YTL上限10%,72.267,総合72.267
+composite,9,v4_misc_ytl_exclude,MISC,① YTL完全除外,71.855,総合71.855
+composite,10,v4_maybank_ytl_cap_10,MAYBANK,④ YTL上限10%,68.631,総合68.631
+composite,11,v4_inari_ytl_cap_10,INARI,④ YTL上限10%,68.064,総合68.064
+composite,12,v4_sunway_ytl_cap_10,SUNWAY,④ YTL上限10%,66.589,総合66.589
+composite,13,v4_celcomdigi_ytl_exclude,CELCOMDIGI,① YTL完全除外,64.889,総合64.889
+composite,14,v4_pbbank_ytl_cap_10,PBBANK,④ YTL上限10%,56.277,総合56.277
+composite,15,v4_ijm_ytl_exclude,IJM,① YTL完全除外,52.918,総合52.918
+composite,16,v4_axiata_ytl_exclude,AXIATA,① YTL完全除外,52.25,総合52.25
+composite,17,v4_genting_ytl_cap_10,GENTING,④ YTL上限10%,50.168,総合50.168
+composite,18,v4_maybank_ytl_exclude,MAYBANK,① YTL完全除外,49.01,総合49.01
+composite,19,v4_pbbank_ytl_exclude,PBBANK,① YTL完全除外,43.971,総合43.971
+composite,20,v4_tm_ytl_exclude,TM,① YTL完全除外,43.574,総合43.574
+composite,21,v4_sunway_ytl_exclude,SUNWAY,① YTL完全除外,42.137,総合42.137
+composite,22,v4_misc_ytl_cap_15,MISC,③ YTL上限15%,40.016,総合40.016
+composite,23,v4_inari_ytl_exclude,INARI,① YTL完全除外,32.763,総合32.763
+composite,24,v4_genting_ytl_exclude,GENTING,① YTL完全除外,24.123,総合24.123
+composite,25,v4_inari_ytl_cap_15,INARI,③ YTL上限15%,16.088,総合16.088
+composite,26,v4_tm_ytl_cap_15,TM,③ YTL上限15%,8.618,総合8.618
+composite,27,v4_sunway_ytl_cap_15,SUNWAY,③ YTL上限15%,8.034,総合8.034
+composite,28,v4_maybank_ytl_cap_15,MAYBANK,③ YTL上限15%,7.807,総合7.807
+composite,29,v4_pbbank_ytl_cap_15,PBBANK,③ YTL上限15%,2.482,総合2.482
+composite,30,v4_genting_ytl_cap_15,GENTING,③ YTL上限15%,1.843,総合1.843
+composite,31,v4_axiata_ytl_cap_15,AXIATA,③ YTL上限15%,0.025,総合0.025
+composite,32,v4_misc_ytl_cap_20,MISC,② YTL上限20%,-31.619,総合-31.619
+composite,33,v4_inari_ytl_cap_20,INARI,② YTL上限20%,-58.481,総合-58.481
+composite,34,v4_celcomdigi_ytl_cap_20,CELCOMDIGI,② YTL上限20%,-59.283,総合-59.283
+composite,35,v4_sunway_ytl_cap_20,SUNWAY,② YTL上限20%,-79.579,総合-79.579
+composite,36,v4_maybank_ytl_cap_20,MAYBANK,② YTL上限20%,-82.941,総合-82.941
+composite,37,v4_tm_ytl_cap_20,TM,② YTL上限20%,-85.415,総合-85.415
+composite,38,v4_axiata_ytl_cap_20,AXIATA,② YTL上限20%,-110.031,総合-110.031
+composite,39,v4_genting_ytl_cap_20,GENTING,② YTL上限20%,-126.636,総合-126.636
+composite,40,v4_pbbank_ytl_cap_20,PBBANK,② YTL上限20%,-135.872,総合-135.872
+
+section,answer,content
+answer,A,"A 累積トップ10: 1.CELCOMDIGI·② YTL上限20%(累積46.796%) · 2.CELCOMDIGI·③ YTL上限15%(累積43.592%) · 3.AXIATA·② YTL上限20%(累積43.028%) · 4.IJM·② YTL上限20%(累積40.619%) · 5.TM·② YTL上限20%(累積40.152%) · 6.AXIATA·③ YTL上限15%(累積39.649%) · 7.MISC·② YTL上限20%(累積39.224%) · 8.MAYBANK·② YTL上限20%(累積38.734%) · 9.IJM·③ YTL上限15%(累積38.36%) · 10.INARI·② YTL上限20%(累積38.013%)"
+answer,B,"B Sharpeトップ10: 1.MISC·③ YTL上限15%(Sharpe1.768) · 2.MISC·② YTL上限20%(Sharpe1.765) · 3.MISC·④ YTL上限10%(Sharpe1.72) · 4.MISC·① YTL完全除外(Sharpe1.598) · 5.CELCOMDIGI·③ YTL上限15%(Sharpe1.558) · 6.CELCOMDIGI·④ YTL上限10%(Sharpe1.545) · 7.CELCOMDIGI·② YTL上限20%(Sharpe1.536) · 8.TM·③ YTL上限15%(Sharpe1.343) · 9.TM·② YTL上限20%(Sharpe1.328) · 10.TM·④ YTL上限10%(Sharpe1.316)"
+answer,C,"C MaxDDトップ10: 1.MISC·① YTL完全除外(MaxDD-6.118%) · 2.INARI·④ YTL上限10%(MaxDD-6.813%) · 3.AXIATA·② YTL上限20%(MaxDD-7.038%) · 4.AXIATA·③ YTL上限15%(MaxDD-7.039%) · 5.AXIATA·④ YTL上限10%(MaxDD-7.039%) · 6.MISC·② YTL上限20%(MaxDD-7.053%) · 7.MISC·③ YTL上限15%(MaxDD-7.053%) · 8.MISC·④ YTL上限10%(MaxDD-7.053%) · 9.IJM·② YTL上限20%(MaxDD-7.184%) · 10.IJM·③ YTL上限15%(MaxDD-7.512%)"
+answer,D,"D MC破産率トップ10: 1.MISC·① YTL完全除外(廃止MC0%) · 2.MISC·④ YTL上限10%(廃止MC0%) · 3.MAYBANK·① YTL完全除外(廃止MC0%) · 4.MAYBANK·④ YTL上限10%(廃止MC0%) · 5.CELCOMDIGI·① YTL完全除外(廃止MC0%) · 6.CELCOMDIGI·④ YTL上限10%(廃止MC0%) · 7.PBBANK·① YTL完全除外(廃止MC0%) · 8.PBBANK·④ YTL上限10%(廃止MC0%) · 9.SUNWAY·① YTL完全除外(廃止MC0%) · 10.SUNWAY·④ YTL上限10%(廃止MC0%)"
+answer,E,"E 総合ランキング: 1.IJM·③ YTL上限15%(総合124.536) · 2.IJM·② YTL上限20%(総合89.618) · 3.CELCOMDIGI·④ YTL上限10%(総合87.912) · 4.MISC·④ YTL上限10%(総合80.366) · 5.CELCOMDIGI·③ YTL上限15%(総合79.742) · 6.IJM·④ YTL上限10%(総合78.806) · 7.AXIATA·④ YTL上限10%(総合73.735) · 8.TM·④ YTL上限10%(総合72.267) · 9.MISC·① YTL完全除外(総合71.855) · 10.MAYBANK·④ YTL上限10%(総合68.631)"
+answer,F,"F Malaysia v4候補: IJM · ③ YTL上限15% · 累積38.36% · 廃止MC4.4% · A"
+verdict,grade,A
+verdict,v4Candidate,IJM
+verdict,v4Policy,ytl_cap_15

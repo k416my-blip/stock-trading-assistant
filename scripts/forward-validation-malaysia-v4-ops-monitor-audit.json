@@ -1,0 +1,779 @@
+{
+  "auditedAt": "2026-06-05T07:30:54.916Z",
+  "fromDate": "2016-06-05",
+  "toDate": "2026-06-05",
+  "riskLevel": "yellow",
+  "ytlDependencyPct": 32.815,
+  "ytlWarningLevel": "none",
+  "concentration": {
+    "hhi": 0.284,
+    "top1ProfitContributionPct": 34.566,
+    "top2ProfitContributionPct": 67.381,
+    "effectiveN": 3.521
+  },
+  "symbolSnapshots": [
+    {
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "profitContributionPct": 2.053,
+      "winRatePct": 50,
+      "profitFactor": 1.402,
+      "maxDrawdownPct": -305.795,
+      "cumulativePnlMYR": 1440.931,
+      "tradeCount": 6
+    },
+    {
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "profitContributionPct": 22.323,
+      "winRatePct": 85.714,
+      "profitFactor": 9.531,
+      "maxDrawdownPct": -31.44,
+      "cumulativePnlMYR": 15670.583,
+      "tradeCount": 14
+    },
+    {
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "profitContributionPct": 8.243,
+      "winRatePct": 66.667,
+      "profitFactor": 1.893,
+      "maxDrawdownPct": -200.444,
+      "cumulativePnlMYR": 5786.235,
+      "tradeCount": 12
+    },
+    {
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "profitContributionPct": 32.815,
+      "winRatePct": 77.778,
+      "profitFactor": 3.253,
+      "maxDrawdownPct": -109.886,
+      "cumulativePnlMYR": 23035.571,
+      "tradeCount": 27
+    },
+    {
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "profitContributionPct": 34.566,
+      "winRatePct": 82.222,
+      "profitFactor": 2.083,
+      "maxDrawdownPct": -101.612,
+      "cumulativePnlMYR": 24264.628,
+      "tradeCount": 45
+    }
+  ],
+  "monthlyRows": [
+    {
+      "yearMonth": "2018-02",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 385
+    },
+    {
+      "yearMonth": "2018-04",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1427.145
+    },
+    {
+      "yearMonth": "2018-10",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 512.85
+    },
+    {
+      "yearMonth": "2018-11",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 46.153,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 439.579
+    },
+    {
+      "yearMonth": "2018-11",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 53.847,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 512.85
+    },
+    {
+      "yearMonth": "2019-01",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 484.231
+    },
+    {
+      "yearMonth": "2019-02",
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -792.201
+    },
+    {
+      "yearMonth": "2020-03",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 45.906,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 706.152
+    },
+    {
+      "yearMonth": "2020-03",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 54.094,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 832.1
+    },
+    {
+      "yearMonth": "2020-04",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 3,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 2504.216
+    },
+    {
+      "yearMonth": "2020-05",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 2,
+      "profitContributionPct": 48.517,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1700.859
+    },
+    {
+      "yearMonth": "2020-05",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 51.483,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1804.85
+    },
+    {
+      "yearMonth": "2020-06",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 3,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 2832.093
+    },
+    {
+      "yearMonth": "2020-07",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": -14.883,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 854.954
+    },
+    {
+      "yearMonth": "2020-07",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 114.883,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -6599.441
+    },
+    {
+      "yearMonth": "2020-08",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1711.976
+    },
+    {
+      "yearMonth": "2020-09",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": -28.233,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -858.213
+    },
+    {
+      "yearMonth": "2020-09",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 4,
+      "profitContributionPct": 128.233,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 3898.01
+    },
+    {
+      "yearMonth": "2020-10",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": -130.747,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1008.623
+    },
+    {
+      "yearMonth": "2020-10",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 230.747,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1780.054
+    },
+    {
+      "yearMonth": "2020-11",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": -256.128,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1554.232
+    },
+    {
+      "yearMonth": "2020-11",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 356.128,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 2161.05
+    },
+    {
+      "yearMonth": "2020-12",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 45.907,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 948.81
+    },
+    {
+      "yearMonth": "2020-12",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 54.093,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1118
+    },
+    {
+      "yearMonth": "2021-02",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -3768.498
+    },
+    {
+      "yearMonth": "2021-03",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 15.26,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1021.606
+    },
+    {
+      "yearMonth": "2021-03",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 5,
+      "profitContributionPct": 84.74,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 5673.197
+    },
+    {
+      "yearMonth": "2021-06",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1252.7
+    },
+    {
+      "yearMonth": "2022-02",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 6,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 8460.37
+    },
+    {
+      "yearMonth": "2022-03",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 5,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 7677.763
+    },
+    {
+      "yearMonth": "2022-04",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 3296.2
+    },
+    {
+      "yearMonth": "2022-05",
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1704.05
+    },
+    {
+      "yearMonth": "2022-06",
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "tradeCount": 1,
+      "profitContributionPct": 65.009,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -2788.391
+    },
+    {
+      "yearMonth": "2022-06",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 1,
+      "profitContributionPct": 34.991,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1500.842
+    },
+    {
+      "yearMonth": "2022-07",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 1,
+      "profitContributionPct": -7.702,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -336.1
+    },
+    {
+      "yearMonth": "2022-07",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 33.487,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1461.398
+    },
+    {
+      "yearMonth": "2022-07",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 74.214,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 3238.732
+    },
+    {
+      "yearMonth": "2022-09",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1794.488
+    },
+    {
+      "yearMonth": "2022-10",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 1,
+      "profitContributionPct": -28.814,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1757.9
+    },
+    {
+      "yearMonth": "2022-10",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 22.953,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1400.321
+    },
+    {
+      "yearMonth": "2022-10",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 105.861,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -6458.445
+    },
+    {
+      "yearMonth": "2022-11",
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 3317.473
+    },
+    {
+      "yearMonth": "2022-12",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -1343.123
+    },
+    {
+      "yearMonth": "2023-01",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -785.11
+    },
+    {
+      "yearMonth": "2023-03",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 3210.429
+    },
+    {
+      "yearMonth": "2023-04",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -3364.459
+    },
+    {
+      "yearMonth": "2024-12",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 49.751,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1910.688
+    },
+    {
+      "yearMonth": "2024-12",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 50.249,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1929.795
+    },
+    {
+      "yearMonth": "2025-03",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 1,
+      "profitContributionPct": 30,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 1994.093
+    },
+    {
+      "yearMonth": "2025-03",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 2,
+      "profitContributionPct": 70,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 4652.9
+    },
+    {
+      "yearMonth": "2025-04",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 2,
+      "profitContributionPct": 59.689,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 4919.95
+    },
+    {
+      "yearMonth": "2025-04",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 2,
+      "profitContributionPct": 50.362,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 4151.126
+    },
+    {
+      "yearMonth": "2025-04",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": -10.051,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -828.467
+    },
+    {
+      "yearMonth": "2025-05",
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "tradeCount": 2,
+      "profitContributionPct": 100,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 4986.9
+    },
+    {
+      "yearMonth": "2025-12",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 33.068,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -3212.559
+    },
+    {
+      "yearMonth": "2025-12",
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "tradeCount": 1,
+      "profitContributionPct": 66.932,
+      "winRatePct": 0,
+      "profitFactor": 0,
+      "maxDrawdownPct": -100,
+      "cumulativePnlMYR": -6502.349
+    },
+    {
+      "yearMonth": "2026-03",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 33.113,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 2275.709
+    },
+    {
+      "yearMonth": "2026-03",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 2,
+      "profitContributionPct": 66.887,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 4596.932
+    },
+    {
+      "yearMonth": "2026-04",
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "tradeCount": 1,
+      "profitContributionPct": 16.125,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 2298.466
+    },
+    {
+      "yearMonth": "2026-04",
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "tradeCount": 5,
+      "profitContributionPct": 83.875,
+      "winRatePct": 100,
+      "profitFactor": null,
+      "maxDrawdownPct": 0,
+      "cumulativePnlMYR": 11955.968
+    }
+  ],
+  "allocationRows": [
+    {
+      "symbol": "5347",
+      "symbolNameJa": "TENAGA",
+      "recommendedWeightPct": 23.3,
+      "currentWeightPct": 5.205,
+      "deltaWeightPct": -18.095,
+      "action": "buy"
+    },
+    {
+      "symbol": "1023",
+      "symbolNameJa": "CIMB",
+      "recommendedWeightPct": 23.3,
+      "currentWeightPct": 14.145,
+      "deltaWeightPct": -9.155,
+      "action": "buy"
+    },
+    {
+      "symbol": "5398",
+      "symbolNameJa": "GAMUDA",
+      "recommendedWeightPct": 15,
+      "currentWeightPct": 12.042,
+      "deltaWeightPct": -2.958,
+      "action": "hold"
+    },
+    {
+      "symbol": "6742",
+      "symbolNameJa": "YTL",
+      "recommendedWeightPct": 15,
+      "currentWeightPct": 27.898,
+      "deltaWeightPct": 12.898,
+      "action": "sell"
+    },
+    {
+      "symbol": "3336",
+      "symbolNameJa": "IJM",
+      "recommendedWeightPct": 23.3,
+      "currentWeightPct": 40.71,
+      "deltaWeightPct": 17.41,
+      "action": "sell"
+    }
+  ],
+  "sellCandidates": [
+    "YTL",
+    "IJM"
+  ],
+  "buyCandidates": [
+    "TENAGA",
+    "CIMB"
+  ],
+  "portfolioCumulativeReturnPct": 38.36
+}

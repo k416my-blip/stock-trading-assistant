@@ -1,0 +1,113 @@
+# 最重要監査その75 YTL廃止MC検証 2016-06-05〜2026-06-05
+# MY v3 YTL廃止検証 · GAMUDA15% · 全トレード履歴比較 · 月次RM1500 · ルール変更なし
+# B 実装バグ — 廃止でYTL取引1件消失 · 要修正
+
+section,scenarioId,label,trades,ytlTrades,disappeared,disYtl,cumulative,cumDelta,maxDD,ddDelta,minEquity,bankruptcy,bkDelta
+scenario,baseline_cap15,"⓪ ベースライン cap15",88,37,0,0,37.716,37.716,-6.66,-6.66,3000,0,0
+scenario,ytl_trade_ban,"① YTL取引禁止",51,0,37,37,17.35,-20.366,-7.613,-0.953,3000,0,0
+scenario,ytl_profit_zero,"② YTL利益ゼロ",88,37,0,0,16.057,-21.659,-6.661,-0.001,3000,0,0
+scenario,ytl_price_fixed,"③ YTL価格固定",88,37,0,0,16.057,-21.659,-6.661,-0.001,3000,0,0
+scenario,ytl_trades_removed,"④ YTL全取引削除",51,0,37,37,16.033,-21.683,-6.661,-0.001,3000,0,0
+scenario,ytl_delist,"⑤ YTL上場廃止",87,36,1,1,-93.135,-130.851,-98.661,-92.001,820.832,73.9,73.9
+scenario,ytl_minus70,"⑥ YTL-70%",87,36,1,1,-90.857,-128.573,-94.336,-87.676,3000,0.14,0.14
+
+section,rank,id,symbol,entry,exit,notional,return,pnl
+top10,1,2026-04-06_6742,YTL POWER,2026-04-07,2026-04-10,70458.75,4,2818.35
+top10,2,2026-04-07_6742,YTL POWER,2026-04-08,2026-04-15,70458.75,4,2818.35
+top10,3,2026-04-01_6742,YTL POWER,2026-04-02,2026-04-03,69645,4,2785.8
+top10,4,2026-03-18_6742,YTL POWER,2026-03-19,2026-04-01,67630,4,2705.2
+top10,5,2026-03-19_6742,YTL POWER,2026-03-20,2026-04-01,67630,4,2705.2
+top10,6,2026-03-13_6742,YTL POWER,2026-03-16,2026-03-17,66087.5,4,2643.5
+top10,7,2026-03-12_6742,YTL POWER,2026-03-13,2026-03-18,66087.5,4,2643.5
+top10,8,2025-03-10_6742,YTL POWER,2025-03-11,2025-03-17,56047.5,4,2241.9
+top10,9,2024-12-19_6742,YTL POWER,2024-12-20,2024-12-26,54103.75,4,2164.15
+top10,10,2023-03-17_6742,YTL POWER,2023-03-20,2023-03-22,43973.75,4,1758.95
+
+section,scenarioId,disappearedId
+disappeared,ytl_trade_ban,2018-03-23_6742
+disappeared,ytl_trade_ban,2020-03-26_6742
+disappeared,ytl_trade_ban,2020-07-10_6742
+disappeared,ytl_trade_ban,2020-07-13_6742
+disappeared,ytl_trade_ban,2020-07-14_6742
+disappeared,ytl_trade_ban,2020-09-17_6742
+disappeared,ytl_trade_ban,2020-10-19_6742
+disappeared,ytl_trade_ban,2020-10-22_6742
+disappeared,ytl_trade_ban,2020-12-14_6742
+disappeared,ytl_trade_ban,2021-03-02_6742
+disappeared,ytl_trade_ban,2021-02-25_6742
+disappeared,ytl_trade_ban,2022-02-16_6742
+disappeared,ytl_trade_ban,2022-02-22_6742
+disappeared,ytl_trade_ban,2022-04-12_6742
+disappeared,ytl_trade_ban,2022-04-11_6742
+disappeared,ytl_trade_ban,2022-07-08_6742
+disappeared,ytl_trade_ban,2022-07-12_6742
+disappeared,ytl_trade_ban,2022-06-30_6742
+disappeared,ytl_trade_ban,2022-07-26_6742
+disappeared,ytl_trade_ban,2022-09-02_6742
+disappeared,ytl_trade_ban,2022-08-30_6742
+disappeared,ytl_trade_ban,2022-09-01_6742
+disappeared,ytl_trade_ban,2022-10-27_6742
+disappeared,ytl_trade_ban,2022-12-12_6742
+disappeared,ytl_trade_ban,2023-03-13_6742
+disappeared,ytl_trade_ban,2023-03-15_6742
+disappeared,ytl_trade_ban,2023-03-10_6742
+disappeared,ytl_trade_ban,2023-03-17_6742
+disappeared,ytl_trade_ban,2024-12-19_6742
+disappeared,ytl_trade_ban,2025-03-10_6742
+disappeared,ytl_trade_ban,2026-03-13_6742
+disappeared,ytl_trade_ban,2026-03-12_6742
+disappeared,ytl_trade_ban,2026-03-18_6742
+disappeared,ytl_trade_ban,2026-03-19_6742
+disappeared,ytl_trade_ban,2026-04-01_6742
+disappeared,ytl_trade_ban,2026-04-06_6742
+disappeared,ytl_trade_ban,2026-04-07_6742
+disappeared,ytl_trades_removed,2018-03-23_6742
+disappeared,ytl_trades_removed,2020-03-26_6742
+disappeared,ytl_trades_removed,2020-07-10_6742
+disappeared,ytl_trades_removed,2020-07-13_6742
+disappeared,ytl_trades_removed,2020-07-14_6742
+disappeared,ytl_trades_removed,2020-09-17_6742
+disappeared,ytl_trades_removed,2020-10-19_6742
+disappeared,ytl_trades_removed,2020-10-22_6742
+disappeared,ytl_trades_removed,2020-12-14_6742
+disappeared,ytl_trades_removed,2021-03-02_6742
+disappeared,ytl_trades_removed,2021-02-25_6742
+disappeared,ytl_trades_removed,2022-02-16_6742
+disappeared,ytl_trades_removed,2022-02-22_6742
+disappeared,ytl_trades_removed,2022-04-12_6742
+disappeared,ytl_trades_removed,2022-04-11_6742
+disappeared,ytl_trades_removed,2022-07-08_6742
+disappeared,ytl_trades_removed,2022-07-12_6742
+disappeared,ytl_trades_removed,2022-06-30_6742
+disappeared,ytl_trades_removed,2022-07-26_6742
+disappeared,ytl_trades_removed,2022-09-02_6742
+disappeared,ytl_trades_removed,2022-08-30_6742
+disappeared,ytl_trades_removed,2022-09-01_6742
+disappeared,ytl_trades_removed,2022-10-27_6742
+disappeared,ytl_trades_removed,2022-12-12_6742
+disappeared,ytl_trades_removed,2023-03-13_6742
+disappeared,ytl_trades_removed,2023-03-15_6742
+disappeared,ytl_trades_removed,2023-03-10_6742
+disappeared,ytl_trades_removed,2023-03-17_6742
+disappeared,ytl_trades_removed,2024-12-19_6742
+disappeared,ytl_trades_removed,2025-03-10_6742
+disappeared,ytl_trades_removed,2026-03-13_6742
+disappeared,ytl_trades_removed,2026-03-12_6742
+disappeared,ytl_trades_removed,2026-03-18_6742
+disappeared,ytl_trades_removed,2026-03-19_6742
+disappeared,ytl_trades_removed,2026-04-01_6742
+disappeared,ytl_trades_removed,2026-04-06_6742
+disappeared,ytl_trades_removed,2026-04-07_6742
+disappeared,ytl_delist,2026-04-07_6742
+disappeared,ytl_minus70,2026-04-07_6742
+
+section,answer,content
+answer,A,"A 廃止で消える取引: 1件（YTL1件）· ベースYTL37件 → 廃止後YTL36件"
+answer,B,"B 利益寄与トップ10: 2026-04-06_6742(+2818.35MYR) · 2026-04-07_6742(+2818.35MYR) · 2026-04-01_6742(+2785.8MYR) · 2026-03-18_6742(+2705.2MYR) · 2026-03-19_6742(+2705.2MYR) · 2026-03-13_6742(+2643.5MYR) · 2026-03-12_6742(+2643.5MYR) · 2025-03-10_6742(+2241.9MYR) · 2024-12-19_6742(+2164.15MYR) · 2023-03-17_6742(+1758.95MYR)"
+answer,C,"C 上位5取引利益合計: 13832.9MYR（全YTL利益37613.626MYR）"
+answer,D,"D 74.32%原因: YTL36件が-100%実行（損失-174855.888MYR）· 取引禁止17.35%/MC0% vs 廃止-93.135%/MC73.9% · 消失あり"
+answer,E,"E 実装バグ: あり — 廃止でYTL1件が履歴から消失"
+answer,F,"F 真のYTL依存率: ネット54.497% · 取引禁止時16.057%（-21.659pt）"
+verdict,grade,B
+verdict,bug,true
+consistency,note,"監査74整合: 廃止MC74.32% · cap15累積37.716% · YTL37件 · ルール変更なし"

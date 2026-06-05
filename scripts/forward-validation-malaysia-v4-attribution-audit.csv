@@ -1,0 +1,51 @@
+# 最重要監査その77 YTL依存率変化 2016-06-05〜2026-06-05
+# MY v4帰属 · IJM+YTL15% · 実取引/OOS/Bootstrap分離 · 監査73–76整合 · ルール変更なし
+# A 即確定 — 依存率変化はウェイト縮小+IJM追加で説明 · v4累積38.36%
+
+section,portfolio,basis,symbol,name,trades,pnl,contribPct,avgNotional,cumulative,totalPnl
+attrib,v3,actual,5347,TENAGA,4,2186.366,3.168,25392.981,37.716,69020.119
+attrib,v3,actual,5398,GAMUDA,27,10639.498,15.415,22315.276,37.716,69020.119
+attrib,v3,actual,1023,CIMB,20,18580.629,26.921,34056.504,37.716,69020.119
+attrib,v3,actual,6742,YTL,37,37613.626,54.497,40488.162,37.716,69020.119
+attrib,v3,oos,5347,TENAGA,0,0,0,0,22.401,40993.159
+attrib,v3,oos,5398,GAMUDA,6,5759.209,14.049,41615.395,22.401,40993.159
+attrib,v3,oos,1023,CIMB,5,11708,28.561,58540,22.401,40993.159
+attrib,v3,oos,6742,YTL,9,23525.95,57.39,65349.861,22.401,40993.159
+attrib,v3,bootstrap,5347,TENAGA,0,1345.508,2.713,0,27.647,50593.553
+attrib,v3,bootstrap,5398,GAMUDA,0,9228.913,18.582,0,27.647,50593.553
+attrib,v3,bootstrap,1023,CIMB,0,13646.597,27.454,0,27.647,50593.553
+attrib,v3,bootstrap,6742,YTL,0,26372.535,51.25,0,27.647,50593.553
+attrib,v4,actual,5347,TENAGA,6,1440.931,2.053,32122.505,38.36,70197.948
+attrib,v4,actual,1023,CIMB,14,15670.583,22.323,37416.117,38.36,70197.948
+attrib,v4,actual,5398,GAMUDA,12,5786.235,8.243,37161.851,38.36,70197.948
+attrib,v4,actual,6742,YTL,27,23035.571,32.815,38263.709,38.36,70197.948
+attrib,v4,actual,3336,IJM,45,24264.628,34.566,33501.647,38.36,70197.948
+attrib,v4,oos,5347,TENAGA,0,0,0,0,19.196,35129.152
+attrib,v4,oos,1023,CIMB,4,9906.85,28.201,61917.813,19.196,35129.152
+attrib,v4,oos,5398,GAMUDA,6,7423.43,21.132,53953.524,19.196,35129.152
+attrib,v4,oos,6742,YTL,9,20476.788,58.29,56879.966,19.196,35129.152
+attrib,v4,oos,3336,IJM,4,-2677.916,-7.623,60655.313,19.196,35129.152
+attrib,v4,bootstrap,5347,TENAGA,0,1314.533,2.324,0,28.212,51627.05
+attrib,v4,bootstrap,1023,CIMB,0,10934.51,22.368,0,28.212,51627.05
+attrib,v4,bootstrap,5398,GAMUDA,0,5144.64,10.219,0,28.212,51627.05
+attrib,v4,bootstrap,6742,YTL,0,14177.714,26.948,0,28.212,51627.05
+attrib,v4,bootstrap,3336,IJM,0,20055.653,38.141,0,28.212,51627.05
+
+section,metric,value
+shift,audit73YtlPct,54.497
+shift,audit76YtlPct,32.815
+shift,ijmAddedMYR,24264.628
+shift,ytlProfitDeltaMYR,14578.055
+shift,ytlToIjmShiftMYR,14578.055
+shift,v3Cumulative,37.716
+shift,v4Cumulative,38.36
+
+section,answer,content
+answer,A,"A 利益寄与率ランキング(v4実取引): 1.IJM34.566% · 2.YTL32.815% · 3.CIMB22.323% · 4.GAMUDA8.243% · 5.TENAGA2.053%"
+answer,B,"B 利益額ランキング(v4実取引): 1.IJM24264.628MYR · 2.YTL23035.571MYR · 3.CIMB15670.583MYR · 4.GAMUDA5786.235MYR · 5.TENAGA1440.931MYR"
+answer,C,"C IJM追加効果: +24264.628MYR · 累積37.716%→38.36%(+0.644pt) · 45件"
+answer,D,"D YTL依存率変化: 54.497%→32.815% · 原因:YTLウェイト28.333%→15%（52.942%） · YTL平均ノーショナル94.506% · YTL利益37613.626→23035.571MYR（-14578.055MYR） · IJM新規+24264.628MYRが分母拡大 · 寄与率54.497%→32.815%（-21.682pt）"
+answer,E,"E 真の最大依存銘柄: IJM(34.566% · 24264.628MYR)"
+answer,F,"F Malaysia v4確定: 即確定可 · IJM+YTL15% · 廃止MC4.4%（監査76）"
+verdict,grade,A
+verdict,weightAttrib,"YTLウェイト28.333%→15%（52.942%） · YTL平均ノーショナル94.506% · YTL利益37613.626→23035.571MYR（-14578.055MYR） · IJM新規+24264.628MYRが分母拡大 · 寄与率54.497%→32.815%（-21.682pt）"

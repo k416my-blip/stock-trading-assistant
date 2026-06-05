@@ -1,0 +1,39 @@
+# 最重要監査その74 Malaysia v3 YTL依存 2016-06-05〜2026-06-05
+# MY v3 YTL依存 · GAMUDA15% · P1 TENAGA42.5/CIMB42.5/GAMUDA15 · P2 4銘柄28.3/15 · 月次RM1500 · ルール変更なし
+# C 要改善 — YTL依存54.497% · 消失累積-93.135% · MC74.32% · 代替検討
+
+section,metric,value
+summary,baselineCumulative,37.716
+summary,ytlNetDep,54.497
+summary,ytlPosDep,52.758
+summary,worstScenario,ytl_delist
+
+section,scenarioId,label,cumulative,maxDD,minEquity,ytlNetDep,ytlPosDep,bankruptcy,p5,worstMin,survived
+scenario,baseline,"⓪ ベースライン cap15",37.716,-6.66,3000,54.497,52.758,0,3000,3000,true
+scenario,ytl_delist,"① YTL POWER上場廃止",-93.135,-98.661,820.832,102.593,0,74.32,228.831,46.201,false
+scenario,ytl_minus70,"② YTL POWER -70%",-90.857,-94.336,3000,103.718,0,0.09,2585.506,1293.318,true
+scenario,ytl_minus50,"③ YTL POWER -50%",-86.541,-87.918,3000,105.116,0,0,3000,3000,true
+scenario,ytl_trade_ban,"④ YTL POWER取引禁止",17.35,-7.613,3000,0,0,0,3000,3000,true
+scenario,ytl_profit_zero,"⑤ YTL POWER利益ゼロ化",16.057,-6.661,3000,0,0,0,3000,3000,true
+
+section,symbol,contributionPct
+contribution,CIMB,26.921
+contribution,TENAGA,3.168
+contribution,GAMUDA,15.415
+contribution,YTL POWER,54.497
+
+section,replacementId,label,symbol,cumulative,sharpe,maxDD,replacementDep,fetchOk
+replacement,r_misc,"MISC",3816,27.869,1.598,-6.118,28.723,true
+replacement,r_celcomdigi,"CELCOMDIGI",6947,27.202,1.213,-8.143,18.508,true
+replacement,r_maybank,"MAYBANK",1155,21.493,0.921,-10.055,-5.719,true
+replacement,r_public,"PUBLIC BANK",1295,19.75,0.733,-8.65,-10.464,true
+
+section,answer,content
+answer,A,"A 最大利益源: YTL POWER(+37613.626MYR · 寄与54.497%) · 2位CIMB · 3位GAMUDA"
+answer,B,"B YTL依存率: ネット寄与54.497% · 正の利益依存52.758% · 50%超"
+answer,C,"C YTL消失時累積: 廃止-93.135% · 取引禁止17.35% · 利益ゼロ16.057%"
+answer,D,"D MC破産率: 廃止74.32% · -70%0.09% · 最悪① YTL POWER上場廃止74.32%"
+answer,E,"E 代替候補トップ3: MISC(累積27.869% · Sharpe1.598 · 寄与28.723%) · CELCOMDIGI(累積27.202% · Sharpe1.213 · 寄与18.508%) · MAYBANK(累積21.493% · Sharpe0.921 · 寄与-5.719%)"
+answer,F,"F 最終採用案: YTL→MISC置換検討 · 現行累積37.716% · 廃止時-93.135%"
+verdict,grade,C
+consistency,note,"監査73整合: cap15累積37.716% · YTL寄与54.5% · GAMUDA15% · 月次RM1500 · ルール変更なし"

@@ -1,0 +1,96 @@
+# 最重要監査その80 v4運用監視 2016-06-05〜2026-06-05
+# MY v4運用監視 · TENAGA23.3/CIMB23.3/GAMUDA15/YTL15/IJM23.3 · 監査79確定 · ルール変更なし
+# Yellow — 監視強化（閾値接近）
+
+section,metric,value
+summary,ytlDependencyPct,32.815
+summary,ytlWarning,none
+summary,hhi,0.284
+summary,top1Pct,34.566
+summary,top2Pct,67.381
+summary,riskLevel,yellow
+summary,cumulativePct,38.36
+
+section,symbol,contrib,winRate,pf,maxDD,cumPnl,trades
+symbol,TENAGA,2.053,50,1.402,-305.795,1440.931,6
+symbol,CIMB,22.323,85.714,9.531,-31.44,15670.583,14
+symbol,GAMUDA,8.243,66.667,1.893,-200.444,5786.235,12
+symbol,YTL,32.815,77.778,3.253,-109.886,23035.571,27
+symbol,IJM,34.566,82.222,2.083,-101.612,24264.628,45
+
+section,month,symbol,contrib,winRate,pf,maxDD,cumPnl,trades
+monthly,2018-02,CIMB,100,100,,0,385,1
+monthly,2018-04,YTL,100,0,0,-100,-1427.145,1
+monthly,2018-10,IJM,100,100,,0,512.85,1
+monthly,2018-11,GAMUDA,46.153,100,,0,439.579,1
+monthly,2018-11,IJM,53.847,100,,0,512.85,1
+monthly,2019-01,GAMUDA,100,100,,0,484.231,1
+monthly,2019-02,TENAGA,100,0,0,-100,-792.201,2
+monthly,2020-03,GAMUDA,45.906,100,,0,706.152,1
+monthly,2020-03,IJM,54.094,100,,0,832.1,1
+monthly,2020-04,CIMB,100,100,,0,2504.216,3
+monthly,2020-05,CIMB,48.517,100,,0,1700.859,2
+monthly,2020-05,IJM,51.483,100,,0,1804.85,2
+monthly,2020-06,IJM,100,100,,0,2832.093,3
+monthly,2020-07,YTL,-14.883,100,,0,854.954,1
+monthly,2020-07,IJM,114.883,0,0,-100,-6599.441,2
+monthly,2020-08,YTL,100,100,,0,1711.976,2
+monthly,2020-09,GAMUDA,-28.233,0,0,-100,-858.213,1
+monthly,2020-09,IJM,128.233,100,,0,3898.01,4
+monthly,2020-10,GAMUDA,-130.747,0,0,-100,-1008.623,1
+monthly,2020-10,YTL,230.747,100,,0,1780.054,2
+monthly,2020-11,YTL,-256.128,0,0,-100,-1554.232,2
+monthly,2020-11,IJM,356.128,100,,0,2161.05,2
+monthly,2020-12,YTL,45.907,100,,0,948.81,1
+monthly,2020-12,IJM,54.093,100,,0,1118,1
+monthly,2021-02,IJM,100,0,0,-100,-3768.498,1
+monthly,2021-03,YTL,15.26,100,,0,1021.606,1
+monthly,2021-03,IJM,84.74,100,,0,5673.197,5
+monthly,2021-06,CIMB,100,100,,0,1252.7,1
+monthly,2022-02,IJM,100,100,,0,8460.37,6
+monthly,2022-03,IJM,100,100,,0,7677.763,5
+monthly,2022-04,IJM,100,100,,0,3296.2,2
+monthly,2022-05,TENAGA,100,100,,0,1704.05,1
+monthly,2022-06,TENAGA,65.009,0,0,-100,-2788.391,1
+monthly,2022-06,CIMB,34.991,0,0,-100,-1500.842,1
+monthly,2022-07,CIMB,-7.702,0,0,-100,-336.1,1
+monthly,2022-07,YTL,33.487,100,,0,1461.398,1
+monthly,2022-07,IJM,74.214,100,,0,3238.732,2
+monthly,2022-09,YTL,100,100,,0,1794.488,2
+monthly,2022-10,CIMB,-28.814,100,,0,1757.9,1
+monthly,2022-10,GAMUDA,22.953,0,0,-100,-1400.321,1
+monthly,2022-10,YTL,105.861,0,0,-100,-6458.445,2
+monthly,2022-11,TENAGA,100,100,,0,3317.473,2
+monthly,2022-12,IJM,100,0,0,-100,-1343.123,1
+monthly,2023-01,YTL,100,0,0,-100,-785.11,1
+monthly,2023-03,YTL,100,100,,0,3210.429,2
+monthly,2023-04,IJM,100,0,0,-100,-3364.459,2
+monthly,2024-12,GAMUDA,49.751,100,,0,1910.688,1
+monthly,2024-12,YTL,50.249,100,,0,1929.795,1
+monthly,2025-03,YTL,30,100,,0,1994.093,1
+monthly,2025-03,IJM,70,100,,0,4652.9,2
+monthly,2025-04,CIMB,59.689,100,,0,4919.95,2
+monthly,2025-04,GAMUDA,50.362,100,,0,4151.126,2
+monthly,2025-04,IJM,-10.051,0,0,-100,-828.467,1
+monthly,2025-05,CIMB,100,100,,0,4986.9,2
+monthly,2025-12,GAMUDA,33.068,0,0,-100,-3212.559,1
+monthly,2025-12,IJM,66.932,0,0,-100,-6502.349,1
+monthly,2026-03,GAMUDA,33.113,100,,0,2275.709,1
+monthly,2026-03,YTL,66.887,100,,0,4596.932,2
+monthly,2026-04,GAMUDA,16.125,100,,0,2298.466,1
+monthly,2026-04,YTL,83.875,100,,0,11955.968,5
+
+section,symbol,recommended,current,delta,action
+alloc,TENAGA,23.3,5.205,-18.095,buy
+alloc,CIMB,23.3,14.145,-9.155,buy
+alloc,GAMUDA,15,12.042,-2.958,hold
+alloc,YTL,15,27.898,12.898,sell
+alloc,IJM,23.3,40.71,17.41,sell
+
+section,answer,content
+answer,A,"A YTL依存監視: 32.815% · 正常 — YTL依存35%未満"
+answer,B,"B 集中度: HHI0.284 · 上位134.566% · 上位267.381% · 実効N3.521"
+answer,C,"C 銘柄別: TENAGA寄与2.053%/勝率50%/PF1.402 · CIMB寄与22.323%/勝率85.714%/PF9.531 · GAMUDA寄与8.243%/勝率66.667%/PF1.893 · YTL寄与32.815%/勝率77.778%/PF3.253 · IJM寄与34.566%/勝率82.222%/PF2.083"
+answer,D,"D リスク判定: Yellow — 監視強化（閾値接近） (YELLOW)"
+answer,E,"E 月次集計: 60行 · 直近月2026-04"
+answer,F,"F 配分比較: ledger想定比率(Phase4平均): 売却候補[YTL・IJM] · 購入候補[TENAGA・CIMB] · ±3%超の銘柄を調整"

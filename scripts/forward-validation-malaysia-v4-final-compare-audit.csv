@@ -1,0 +1,43 @@
+# 最重要監査その79 v4最終候補比較 2016-06-05〜2026-06-05
+# MY v4最終比較 · YTL15% · GAMUDA15% · TENAGA23.3% · CIMB23.3% · 候補23.3% · ルール変更なし
+# 累積40% · 廃止MC30% · MaxDD20% · OOS10%
+# A 即採用 — IJM+YTL15% 最終確定 · 累積38.36% · 廃止MC4.79% · 総合62.776
+
+section,candidate,symbol,cum,sharpe,pf,maxDD,delistMC,oosCum,oosCandPnl,oosTrades,composite,rank
+row,IJM,3336,38.36,1.231,2.576,-7.512,4.79,12.894,-751.74,4,62.776,1
+row,CELCOMDIGI,6947,43.592,1.558,3.798,-7.735,23.9,14.115,-531.962,2,57.791,2
+row,MISC,3816,36.813,1.768,3.276,-7.053,17.17,10.986,-543.171,1,39.154,3
+row,MAYBANK,1155,35.533,1.313,3.536,-7.731,24.41,14.399,-390.208,1,19.972,4
+row,INARI,0166,35.096,1.147,2.252,-8.175,21.45,12.461,-924.45,2,8.848,5
+
+section,rank,candidate,metric,value
+composite,1,IJM,score,62.776
+composite,2,CELCOMDIGI,score,57.791
+composite,3,MISC,score,39.154
+composite,4,MAYBANK,score,19.972
+composite,5,INARI,score,8.848
+oos,1,MAYBANK,oosCum,14.399
+oos,2,CELCOMDIGI,oosCum,14.115
+oos,3,IJM,oosCum,12.894
+oos,4,INARI,oosCum,12.461
+oos,5,MISC,oosCum,10.986
+mc,1,IJM,delistMc,4.79
+mc,2,MISC,delistMc,17.17
+mc,3,INARI,delistMc,21.45
+mc,4,CELCOMDIGI,delistMc,23.9
+mc,5,MAYBANK,delistMc,24.41
+
+section,candidate,bootstrapMeanCum,bootstrapP5,oosNegPct,mcBankruptcy,mcMeanCum
+robust,IJM,28.198,15.764,57,4.79,-88.158
+robust,CELCOMDIGI,30.986,20.358,83.6,23.9,-89.531
+robust,MISC,26.05,15.598,64.9,17.17,-82.637
+robust,MAYBANK,26.48,16.981,55.6,24.41,-89.672
+robust,INARI,26.105,10.564,64.8,21.45,-89.454
+
+section,answer,content
+answer,A,"A 総合ランキング: 1.IJM(62.776) · 2.CELCOMDIGI(57.791) · 3.MISC(39.154) · 4.MAYBANK(19.972) · 5.INARI(8.848)"
+answer,B,"B IJMとの差: CELCOMDIGI 累積+5.232% MC+19.11% 総合-4.985 · MISC 累積-1.547% MC+12.38% 総合-23.622 · MAYBANK 累積-2.827% MC+19.62% 総合-42.804 · INARI 累積-3.264% MC+16.66% 総合-53.928"
+answer,C,"C OOSランキング: 1.MAYBANK(OOS累積14.399%) · 2.CELCOMDIGI(OOS累積14.115%) · 3.IJM(OOS累積12.894%) · 4.INARI(OOS累積12.461%) · 5.MISC(OOS累積10.986%)"
+answer,D,"D MCランキング: 1.IJM(廃止MC4.79%) · 2.MISC(廃止MC17.17%) · 3.INARI(廃止MC21.45%) · 4.CELCOMDIGI(廃止MC23.9%) · 5.MAYBANK(廃止MC24.41%)"
+answer,E,"E 実運用推奨: IJM+YTL15%をv4第4銘柄として即確定 · CELCOMDIGI等は累積優位でも廃止MC>20%で不採用"
+verdict,grade,A

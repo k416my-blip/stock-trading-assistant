@@ -1,0 +1,26 @@
+# 最重要監査その81 Yahoo品質 2016-06-05〜2026-06-05
+# MY v4 Yahoo品質 · v4確定5銘柄 · 欠損/異常/遅延 · Twelve Data比較 · ルール変更なし
+# B 条件付き採用 — 取得成功100% · 欠損5.66% · 遅延0日
+
+section,symbol,yahooOk,twelveOk,bars,missingPct,anomalyPct,delayDays,corr,diffPct
+symbol,5347,true,false,2460,5.675,0,0,,
+symbol,1023,true,false,2461,5.637,0.041,0,,
+symbol,5398,true,false,2461,5.637,0,0,,
+symbol,6742,true,false,2460,5.675,0,0,,
+symbol,3336,true,false,2460,5.675,0,0,,
+
+section,metric,value
+aggregate,missingRatePct,5.66
+aggregate,anomalyRatePct,0.008
+aggregate,updateDelayDays,0
+aggregate,yahooSuccessRatePct,100
+aggregate,twelveSuccessRatePct,0
+aggregate,productionGrade,B
+
+section,answer,content
+answer,A,"A 欠損率: 平均5.66% · 5347:5.675% 1023:5.637% 5398:5.637% 6742:5.675% 3336:5.675%"
+answer,B,"B 異常値率: 平均0.008% · 5347:0% 1023:0.041% 5398:0% 6742:0% 3336:0%"
+answer,C,"C 更新遅延: 平均0日 · 5347:0日 1023:0日 5398:0日 6742:0日 3336:0日"
+answer,D,"D 銘柄別取得率: Yahoo100%(5/5) · Twelve0%(0/5)"
+answer,E,"E Yahoo vs Twelve: 平均相関— · 5347:— 1023:— 5398:— 6742:— 3336:—"
+answer,F,"F 本番採用判定: B 条件付き採用 — 取得成功100% · 欠損5.66% · 遅延0日"
