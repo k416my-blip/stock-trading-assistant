@@ -15,6 +15,8 @@ import {
   type PortfolioHoldingActionsRef,
 } from '../components/portfolio/PortfolioHoldingsList';
 import { PortfolioPriceSyncCard } from '../components/portfolio/PortfolioPriceSyncCard';
+import { RealAccountExposurePanel } from '../components/RealAccountExposurePanel';
+import { RealAccountPendingOrdersPanel } from '../components/RealAccountPendingOrdersPanel';
 import { useApp } from '../context/AppContext';
 import { usePriceSyncActions } from '../context/PriceSyncContext';
 import { useRenderTrace } from '../utils/renderDiagnostics';
@@ -370,17 +372,21 @@ export function PortfolioScreen() {
             <PracticeSummaryCard stats={practiceStats} />
           </>
         ) : (
-          <Card>
-            <TermHint term="portfolioHoldings" />
-            <TermHint term="sellAll" />
-            <LabeledValue term="holdingsValue" value={`RM${formatMYR(totalPortfolioValueMYR)}`} />
-            <LabeledValue
-              term="unrealizedPnL"
-              value={`${unrealizedMYR >= 0 ? '+' : ''}RM${safeNumber(unrealizedMYR, 0).toFixed(2)}`}
-              valueStyle={unrealizedMYR >= 0 ? styles.profit : styles.loss}
-            />
-            <LabeledValue term="dividend" value={`RM${formatMYR(dividendsMYR)}`} />
-          </Card>
+          <>
+            <Card>
+              <TermHint term="portfolioHoldings" />
+              <TermHint term="sellAll" />
+              <LabeledValue term="holdingsValue" value={`RM${formatMYR(totalPortfolioValueMYR)}`} />
+              <LabeledValue
+                term="unrealizedPnL"
+                value={`${unrealizedMYR >= 0 ? '+' : ''}RM${safeNumber(unrealizedMYR, 0).toFixed(2)}`}
+                valueStyle={unrealizedMYR >= 0 ? styles.profit : styles.loss}
+              />
+              <LabeledValue term="dividend" value={`RM${formatMYR(dividendsMYR)}`} />
+            </Card>
+            <RealAccountExposurePanel />
+            <RealAccountPendingOrdersPanel />
+          </>
         )}
 
         {isPractice ? (

@@ -1,0 +1,11 @@
+# Local native trees — EAS uses app.json + prebuild (managed workflow)
+android/
+ios/
+
+# Dev / audit artifacts (not needed in cloud build)
+.expo/
+.expo-bundle-*/
+scripts/monitor*.json
+scripts/monitor*.csv
+agent-tools/
+agent-transcripts/

@@ -41,7 +41,8 @@
             "./assets/sounds/warning.wav"
           ]
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {
