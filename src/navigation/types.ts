@@ -59,6 +59,7 @@ export type MainTabParamList = {
   AssetManagement: undefined;
   TodayTrading: undefined;
   MarketMonitoring: undefined;
+  AiNotifications: undefined;
   History: undefined;
   BeginnerGuide: undefined;
 };

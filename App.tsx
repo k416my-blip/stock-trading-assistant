@@ -2,6 +2,7 @@ import './src/wdyr';
 import { installDevConsoleLogFilter } from './src/utils/consoleLogFilter';
 
 installDevConsoleLogFilter();
+logRealApiModeOnBoot();
 
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
@@ -19,6 +20,8 @@ import { runDeferredBootTasks } from './src/services/deferredBoot';
 import { theme } from './src/theme';
 import { areNotificationsSupported } from './src/utils/runtimeEnvironment';
 import { devLog } from './src/utils/devLog';
+import { logAppMemorySnapshot } from './src/utils/appMemoryDiagnostics';
+import { logRealApiModeOnBoot } from './src/constants/realApiMode';
 
 const STARTUP_MARK_MS = Date.now();
 /** データ読込完了後、重い runtime を遅延ロードするまでの待機 */
@@ -35,12 +38,14 @@ const LazyInteractiveRuntime = lazy(async () => {
     { RootNavigator },
     { ProactiveConciergeProvider },
     { AiConciergeProvider },
+    { BursaConciergeProvider },
     { PerformanceCostBanner },
     { AiConciergeOverlay },
   ] = await Promise.all([
     import('./src/navigation/RootNavigator'),
     import('./src/context/ProactiveConciergeContext'),
     import('./src/context/AiConciergeContext'),
+    import('./src/context/BursaConciergeContext'),
     import('./src/components/PerformanceCostBanner'),
     import('./src/components/concierge/AiConciergeOverlay'),
   ]);
@@ -50,10 +55,12 @@ const LazyInteractiveRuntime = lazy(async () => {
       return (
         <ProactiveConciergeProvider>
           <AiConciergeProvider>
-            <PerformanceCostBanner />
-            <RootNavigator />
-            <AiConciergeOverlay />
-            <StatusBar style="light" />
+            <BursaConciergeProvider>
+              <PerformanceCostBanner />
+              <RootNavigator />
+              <AiConciergeOverlay />
+              <StatusBar style="light" />
+            </BursaConciergeProvider>
           </AiConciergeProvider>
         </ProactiveConciergeProvider>
       );
@@ -67,6 +74,7 @@ function StartupHomeShell({ showRecoveryActions = false }: { showRecoveryActions
 
   useEffect(() => {
     devLog('[startup] home_shell_visible_ms', Date.now() - STARTUP_MARK_MS);
+    logAppMemorySnapshot('startup_home_shell_visible');
   }, []);
 
   return (

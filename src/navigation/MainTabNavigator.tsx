@@ -30,6 +30,9 @@ const LazyTodayTradingScreen = lazy(() =>
 const LazyMarketMonitoringScreen = lazy(() =>
   import('../screens/MarketMonitoringScreen').then((m) => ({ default: m.MarketMonitoringScreen })),
 );
+const LazyAiNotificationsScreen = lazy(() =>
+  import('../screens/AiNotificationsScreen').then((m) => ({ default: m.AiNotificationsScreen })),
+);
 
 const TAB_TITLES: Record<keyof MainTabParamList, string> = {
   Home: 'ホーム',
@@ -39,6 +42,7 @@ const TAB_TITLES: Record<keyof MainTabParamList, string> = {
   AssetManagement: 'AI資産運用',
   TodayTrading: '今日の売買',
   MarketMonitoring: '市場監視',
+  AiNotifications: 'AI通知',
   History: '売買履歴',
   BeginnerGuide: '初心者ガイド',
 };
@@ -82,6 +86,7 @@ const MarketMonitoringTabScreen = lazyScreen(
   LazyMarketMonitoringScreen,
   TAB_TITLES.MarketMonitoring,
 );
+const AiNotificationsTabScreen = lazyScreen(LazyAiNotificationsScreen, TAB_TITLES.AiNotifications);
 const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
 const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
 
@@ -131,6 +136,7 @@ export function MainTabNavigator() {
       <Tab.Screen name="AssetManagement" component={AssetManagementTabScreen} />
       <Tab.Screen name="TodayTrading" component={TodayTradingTabScreen} />
       <Tab.Screen name="MarketMonitoring" component={MarketMonitoringTabScreen} />
+      <Tab.Screen name="AiNotifications" component={AiNotificationsTabScreen} />
       <Tab.Screen name="History" component={HistoryTabScreen} />
       <Tab.Screen name="BeginnerGuide" component={BeginnerGuideTabScreen} />
     </Tab.Navigator>

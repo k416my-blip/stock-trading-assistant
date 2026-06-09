@@ -88,4 +88,6 @@ export const STORAGE_KEYS = {
   bursaMonitoringSnapshot: '@sta/bursa_monitoring_snapshot_v1',
   bursaWatchlist: '@sta/bursa_watchlist_v1',
   bursaAlertHistory: '@sta/bursa_alert_history_v1',
+  bursaConciergeNotifications: '@sta/bursa_concierge_notifications_v1',
+  bursaConciergeSound: '@sta/bursa_concierge_sound_v1',
 } as const;

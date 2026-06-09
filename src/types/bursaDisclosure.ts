@@ -612,3 +612,55 @@ export type BursaPhase9Analysis = {
   fetchedFields: string[];
   missingFields: string[];
 };
+
+/** Phase 10 — AIコンシェルジュ自発通知 */
+export type BursaNotificationCategory =
+  | '買い'
+  | '売り'
+  | '配当'
+  | '決算'
+  | '監視'
+  | '市場全体';
+
+export type BursaNotificationTriggerKind =
+  | '強気買い'
+  | '買い'
+  | '注意'
+  | '売却候補'
+  | '増配'
+  | '減配'
+  | '利益急増'
+  | '利益急減'
+  | '順位急上昇'
+  | '順位急落';
+
+export type BursaConciergeNotification = {
+  id: string;
+  createdAt: string;
+  stockCode: string | null;
+  companyName: string | null;
+  category: BursaNotificationCategory;
+  importance: 1 | 2 | 3 | 4 | 5;
+  triggerKind: BursaNotificationTriggerKind;
+  titleJa: string;
+  messageJa: string;
+  reasons: string[];
+  isHolding: boolean;
+  isRead: boolean;
+};
+
+export type BursaTodayAction = {
+  actionJa: string;
+  symbol: string | null;
+  reasons: string[];
+};
+
+export type BursaPhase10Analysis = {
+  notifications: BursaConciergeNotification[];
+  todayAction: BursaTodayAction;
+  topNotification: BursaConciergeNotification | null;
+  soundEnabled: boolean;
+  newCount: number;
+  fetchedFields: string[];
+  missingFields: string[];
+};
