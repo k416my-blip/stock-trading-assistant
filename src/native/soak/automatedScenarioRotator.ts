@@ -2,16 +2,6 @@ import type { AutomatedSoakScenarioId } from '../../types/automatedSoakRunner';
 import { AUTOMATED_SOAK_SCENARIO_IDS } from '../../types/automatedSoakRunner';
 import { SOAK_SCENARIO_ROTATE_MS } from '../../constants/automatedSoakRunner';
 import { recordSoakTimeline } from './sessionTimelineRecorder';
-import { runForegroundBackgroundOscillatorStep } from './foregroundBackgroundOscillator';
-import { runWebSocketDisconnectSimulatorStep } from './websocketDisconnectSimulator';
-import { runThermalStressScenarioStep } from './thermalStressScenario';
-import { runBatterySaverScenarioStep } from './batterySaverScenario';
-import { runMemoryPressureScenarioStep } from './memoryPressureScenario';
-import { runAsyncFloodScenarioStep } from './asyncFloodScenario';
-import { runReplayFloodScenarioStep } from './replayFloodScenario';
-import { runDashboardRenderStormScenarioStep } from './dashboardRenderStormScenario';
-import { runNativeKillRecoveryScenarioStep } from './nativeKillRecoveryScenario';
-import { runAndroidLifecycleStressObserveStep } from './androidLifecycleStressRunner';
 import type { RuntimeTelemetryMetricsSnapshot } from '../../types/runtimeTelemetry';
 import type { PerformanceCostRuntimeSnapshot } from '../../types/performanceCost';
 
@@ -51,26 +41,46 @@ export async function tickAutomatedScenarioRotator(
   rotateIfNeeded(now);
 
   switch (current) {
-    case 'foreground_background':
+    case 'foreground_background': {
+      const { runForegroundBackgroundOscillatorStep } = await import('./foregroundBackgroundOscillator');
       return runForegroundBackgroundOscillatorStep();
-    case 'websocket_disconnect':
+    }
+    case 'websocket_disconnect': {
+      const { runWebSocketDisconnectSimulatorStep } = await import('./websocketDisconnectSimulator');
       return runWebSocketDisconnectSimulatorStep();
-    case 'thermal_stress':
+    }
+    case 'thermal_stress': {
+      const { runThermalStressScenarioStep } = await import('./thermalStressScenario');
       return runThermalStressScenarioStep(metrics.thermalState);
-    case 'battery_saver':
+    }
+    case 'battery_saver': {
+      const { runBatterySaverScenarioStep } = await import('./batterySaverScenario');
       return runBatterySaverScenarioStep(performance.batterySaverActive);
-    case 'memory_pressure':
+    }
+    case 'memory_pressure': {
+      const { runMemoryPressureScenarioStep } = await import('./memoryPressureScenario');
       return runMemoryPressureScenarioStep();
-    case 'async_flood':
+    }
+    case 'async_flood': {
+      const { runAsyncFloodScenarioStep } = await import('./asyncFloodScenario');
       return runAsyncFloodScenarioStep(metrics.asyncQueueDepth);
-    case 'replay_flood':
+    }
+    case 'replay_flood': {
+      const { runReplayFloodScenarioStep } = await import('./replayFloodScenario');
       return runReplayFloodScenarioStep();
-    case 'dashboard_render_storm':
+    }
+    case 'dashboard_render_storm': {
+      const { runDashboardRenderStormScenarioStep } = await import('./dashboardRenderStormScenario');
       return runDashboardRenderStormScenarioStep();
-    case 'native_kill_recovery':
+    }
+    case 'native_kill_recovery': {
+      const { runNativeKillRecoveryScenarioStep } = await import('./nativeKillRecoveryScenario');
       return runNativeKillRecoveryScenarioStep();
-    case 'android_lifecycle_stress':
+    }
+    case 'android_lifecycle_stress': {
+      const { runAndroidLifecycleStressObserveStep } = await import('./androidLifecycleStressRunner');
       return runAndroidLifecycleStressObserveStep();
+    }
     case 'runtime_self_recursion_endurance':
     case 'runtime_telemetry_entropy':
     case 'runtime_cognitive_governance':

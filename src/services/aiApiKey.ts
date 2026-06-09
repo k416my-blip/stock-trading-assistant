@@ -21,7 +21,7 @@ function readAiKeyFromEnv(): string {
 export async function loadAiApiKey(): Promise<string> {
   const stored = await safeGetApiKey('openai');
   if (stored) return stored;
-  const legacy = await getSecret('sta.secret.openai_api_key');
+  const legacy = await getSecret('aiApiKey');
   if (legacy && isUsableApiKey(legacy)) return normalizeStoredApiKey(legacy);
 
   const fromEnv = readAiKeyFromEnv();
