@@ -10,6 +10,9 @@ const TAB_ICON: Record<keyof MainTabParamList, { active: IonName; inactive: IonN
   AllocationPlan: { active: 'pie-chart', inactive: 'pie-chart-outline' },
   Screener: { active: 'search', inactive: 'search-outline' },
   Portfolio: { active: 'briefcase', inactive: 'briefcase-outline' },
+  AssetManagement: { active: 'sparkles', inactive: 'sparkles-outline' },
+  TodayTrading: { active: 'today', inactive: 'today-outline' },
+  MarketMonitoring: { active: 'pulse', inactive: 'pulse-outline' },
   History: { active: 'time', inactive: 'time-outline' },
   BeginnerGuide: { active: 'book', inactive: 'book-outline' },
 };

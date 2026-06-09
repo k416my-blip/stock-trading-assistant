@@ -1,9 +1,11 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { Market, SellAllResult } from '../types';
+import type { AllocationCandidate, Market, SellAllResult } from '../types';
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   StockDetail: { symbol: string; market: Market };
+  StockReport: { symbol: string; market: Market };
+  BursaDiscovery: undefined;
   AddTrade: { symbol?: string; market?: Market } | undefined;
   ManualAddHolding: { symbol?: string; market?: Market } | undefined;
   RiskWarning: undefined;
@@ -13,6 +15,7 @@ export type RootStackParamList = {
   Capital: undefined;
   Performance: undefined;
   HistoricalValidation: undefined;
+  ForwardValidation: undefined;
   RealQuantValidation: undefined;
   PortfolioOptimization: undefined;
   BayesianAllocation: undefined;
@@ -45,6 +48,7 @@ export type RootStackParamList = {
   ProductionDashboard: undefined;
   ProactiveSuggestions: undefined;
   XApiUsage: undefined;
+  AllocationCommitteeDetail: { candidate: AllocationCandidate };
 };
 
 export type MainTabParamList = {
@@ -52,6 +56,9 @@ export type MainTabParamList = {
   AllocationPlan: undefined;
   Screener: undefined;
   Portfolio: undefined;
+  AssetManagement: undefined;
+  TodayTrading: undefined;
+  MarketMonitoring: undefined;
   History: undefined;
   BeginnerGuide: undefined;
 };

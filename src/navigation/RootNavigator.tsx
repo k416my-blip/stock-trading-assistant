@@ -12,6 +12,7 @@ import { CapitalScreen } from '../screens/CapitalScreen';
 import { ManualOrderListScreen } from '../screens/ManualOrderListScreen';
 import { SellAllResultScreen } from '../screens/SellAllResultScreen';
 import { HistoricalValidationScreen } from '../screens/HistoricalValidationScreen';
+import { ForwardValidationScreen } from '../screens/ForwardValidationScreen';
 import { RealQuantValidationScreen } from '../screens/RealQuantValidationScreen';
 import { PortfolioOptimizationScreen } from '../screens/PortfolioOptimizationScreen';
 import { BayesianAllocationScreen } from '../screens/BayesianAllocationScreen';
@@ -42,7 +43,10 @@ import { ProductionDashboardScreen } from '../screens/ProductionDashboardScreen'
 import { ProactiveSuggestionsScreen } from '../screens/ProactiveSuggestionsScreen';
 import { XApiUsageScreen } from '../screens/XApiUsageScreen';
 import { RiskWarningScreen } from '../screens/RiskWarningScreen';
+import { AllocationCommitteeDetailScreen } from '../screens/AllocationCommitteeDetailScreen';
 import { StockDetailScreen } from '../screens/StockDetailScreen';
+import { StockReportScreen } from '../screens/StockReportScreen';
+import { BursaDiscoveryScreen } from '../screens/BursaDiscoveryScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -71,6 +75,17 @@ export function RootNavigator() {
       >
         <Stack.Screen name="MainTabs" component={MainTabNavigator} options={{ headerShown: false }} />
         <Stack.Screen name="StockDetail" component={StockDetailScreen} options={{ title: '銘柄分析' }} />
+        <Stack.Screen name="StockReport" component={StockReportScreen} options={{ title: 'AI四季報' }} />
+        <Stack.Screen
+          name="BursaDiscovery"
+          component={BursaDiscoveryScreen}
+          options={{ title: 'Bursa 銘柄発掘' }}
+        />
+        <Stack.Screen
+          name="AllocationCommitteeDetail"
+          component={AllocationCommitteeDetailScreen}
+          options={{ title: 'AI委員会 詳細' }}
+        />
         <Stack.Screen name="AddTrade" component={AddTradeScreen} options={{ title: '売買記録' }} />
         <Stack.Screen
           name="ManualAddHolding"
@@ -87,6 +102,11 @@ export function RootNavigator() {
           name="HistoricalValidation"
           component={HistoricalValidationScreen}
           options={{ title: '歴史検証' }}
+        />
+        <Stack.Screen
+          name="ForwardValidation"
+          component={ForwardValidationScreen}
+          options={{ title: '前向き検証' }}
         />
         <Stack.Screen
           name="RealQuantValidation"

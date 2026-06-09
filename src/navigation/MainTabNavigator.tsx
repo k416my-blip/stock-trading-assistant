@@ -21,12 +21,24 @@ const LazyTradeHistoryScreen = lazy(() =>
 const LazyBeginnerGuideScreen = lazy(() =>
   import('../screens/BeginnerGuideScreen').then((m) => ({ default: m.BeginnerGuideScreen })),
 );
+const LazyAssetManagementScreen = lazy(() =>
+  import('../screens/AssetManagementScreen').then((m) => ({ default: m.AssetManagementScreen })),
+);
+const LazyTodayTradingScreen = lazy(() =>
+  import('../screens/TodayTradingScreen').then((m) => ({ default: m.TodayTradingScreen })),
+);
+const LazyMarketMonitoringScreen = lazy(() =>
+  import('../screens/MarketMonitoringScreen').then((m) => ({ default: m.MarketMonitoringScreen })),
+);
 
 const TAB_TITLES: Record<keyof MainTabParamList, string> = {
   Home: 'ホーム',
   AllocationPlan: 'おすすめ配分',
   Screener: '銘柄検索',
   Portfolio: '保有銘柄',
+  AssetManagement: 'AI資産運用',
+  TodayTrading: '今日の売買',
+  MarketMonitoring: '市場監視',
   History: '売買履歴',
   BeginnerGuide: '初心者ガイド',
 };
@@ -64,6 +76,12 @@ const HomeTabScreen = lazyScreen(LazyHomeScreen, TAB_TITLES.Home);
 const AllocationPlanTabScreen = AllocationPlanScreen;
 const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, TAB_TITLES.Screener);
 const PortfolioTabScreen = PortfolioScreen;
+const AssetManagementTabScreen = lazyScreen(LazyAssetManagementScreen, TAB_TITLES.AssetManagement);
+const TodayTradingTabScreen = lazyScreen(LazyTodayTradingScreen, TAB_TITLES.TodayTrading);
+const MarketMonitoringTabScreen = lazyScreen(
+  LazyMarketMonitoringScreen,
+  TAB_TITLES.MarketMonitoring,
+);
 const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
 const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
 
@@ -110,6 +128,9 @@ export function MainTabNavigator() {
       <Tab.Screen name="AllocationPlan" component={AllocationPlanTabScreen} />
       <Tab.Screen name="Screener" component={ScreenerTabScreen} />
       <Tab.Screen name="Portfolio" component={PortfolioTabScreen} />
+      <Tab.Screen name="AssetManagement" component={AssetManagementTabScreen} />
+      <Tab.Screen name="TodayTrading" component={TodayTradingTabScreen} />
+      <Tab.Screen name="MarketMonitoring" component={MarketMonitoringTabScreen} />
       <Tab.Screen name="History" component={HistoryTabScreen} />
       <Tab.Screen name="BeginnerGuide" component={BeginnerGuideTabScreen} />
     </Tab.Navigator>
