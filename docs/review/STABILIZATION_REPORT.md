@@ -5,8 +5,8 @@
 | 実行日時 | 2026-06-10 07:37 JST |
 | Git ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 最新コミット（安定化本体） | `caac3ad47c3289028d5f9f4cb01d1f137445320f` — `stabilize bursa phase11 ai analysis and material sources` |
-| 後続修正コミット | 本レポート更新時に `fix verify:quick post-stabilization` を追加予定（aiApiKey SecretKeyId / soak rotator 動的 import） |
-| push 状態 | **未 push**（`ahead 1` → 修正コミット後 `ahead 2`） |
+| 後続修正コミット | `7fcc0020c55db7cd2dd544712ac73e34c71d1ad2` — `fix verify:quick post-stabilization` |
+| push 状態 | **未 push**（`ahead 2`） |
 | 未コミット差分 | コミット対象外: scripts 監査 JSON・スクリーンショット等 **約460件**（意図的に除外） |
 
 ## コマンド結果
