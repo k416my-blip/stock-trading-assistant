@@ -148,18 +148,24 @@ function computeDataQuality(sym: ConciergeSymbolEvidence, guide: ConciergeSymbol
 
 function buildSourceBreakdown(sym: ConciergeSymbolEvidence): SourceReliabilityEntry[] {
   const entries: SourceReliabilityEntry[] = [];
+  const seenTiers = new Set<string>();
   if (sym.currentPrice != null || sym.intradayChangePct != null) {
     const m = SOURCE_RELIABILITY_META.exchange_data;
     entries.push({ tier: 'exchange_data', labelJa: m.labelJa, weight: m.weight });
+    seenTiers.add('exchange_data');
   }
   for (const h of sym.latestFinancialNews.slice(0, 3)) {
     const tier = h.sourceTier ?? 'major_news';
+    if (seenTiers.has(tier)) continue;
+    seenTiers.add(tier);
     const m = SOURCE_RELIABILITY_META[tier];
     entries.push({ tier, labelJa: m.labelJa, weight: m.weight });
   }
   if (sym.xSentiment?.postCount) {
     const m = SOURCE_RELIABILITY_META.social_media;
-    entries.push({ tier: 'social_media', labelJa: m.labelJa, weight: m.weight });
+    if (!seenTiers.has('social_media')) {
+      entries.push({ tier: 'social_media', labelJa: m.labelJa, weight: m.weight });
+    }
   }
   return entries;
 }

@@ -1,9 +1,24 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AllocationCandidateCard } from '../components/AllocationCandidateCard';
+import {
+  BeginnerAllocationCandidateCard,
+  BeginnerFinalDisclaimer,
+} from '../components/BeginnerAllocationCandidateCard';
+import { TrustAllocationPlanPanel } from '../components/TrustAllocationPlanPanel';
+import { TrustConciergeHomeCard } from '../components/TrustConciergeHomeCard';
+import {
+  INVESTMENT_BEGINNER_FINAL_DISCLAIMER_JA,
+  INVESTMENT_TRUST_DISCLAIMER_JA,
+} from '../constants/investmentDisplay';
+import {
+  TRUST_APPROVE_BUTTON_LABEL_JA,
+  TRUST_HOME_SUBTITLE_JA,
+  TRUST_HOME_TITLE_JA,
+} from '../constants/trustDisplay';
 import { BulkBuyDebugPanel } from '../components/BulkBuyDebugPanel';
 import { BeginnerWarningBanner } from '../components/BeginnerWarningBanner';
 import { FractionalSharesToggle } from '../components/FractionalSharesToggle';
@@ -27,9 +42,27 @@ import {
 import { CLOSED_TRADE_WARNING } from '../constants/marketSession';
 import { getPlanRiskLevel, getStyleProfile } from '../constants/investmentStyles';
 import { useApp } from '../context/AppContext';
+import {
+  isBeginnerDisplayMode,
+  isProDisplayMode,
+  isTrustDisplayMode,
+} from '../services/beginnerDisplayMapper';
+import { TRUST_MD_GENERATING_LABEL_JA } from '../constants/trustDisplay';
+import {
+  buildTrustPlanPresentation,
+} from '../services/trustRecommendationSummary';
+import { recordTrustOperationStartIfNeeded } from '../services/trustOperatingPerformanceStorage';
+import { saveTrustPlanSnapshot, loadTrustPlanSnapshot } from '../services/trustPlanPreviewStorage';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { buildAllocationPlanAlert } from '../services/alertEngine';
-import { buildAllocationPlan } from '../services/allocationPlan';
+import {
+  resolveSymbolsForAllocation,
+  userSymbolsToAllocationUniverse,
+} from '../services/userAnalysisSymbols';
+import { buildAllocationPlan, persistAllocationPlanAudit, persistAllocationPlanEnrichmentAudit } from '../services/allocationPlan';
+import { adjustAllocationPlanToLiveCash } from '../services/allocationPlanFees';
+import { getActivePortfolio } from '../services/portfolioPriceUpdate';
+import { calculateBuyingPower } from '../services/buyingPower';
 import {
   filterBuyableCandidates,
   MANUAL_ORDER_WARNING,
@@ -94,8 +127,17 @@ function PlanActions({
 }
 
 export function AllocationPlanScreen() {
-  const { state, isPractice, applyAllocationPractice, addAllocationToManualOrderList, dispatchAlert } =
-    useApp();
+  const {
+    state,
+    isPractice,
+    applyAllocationPractice,
+    addAllocationToManualOrderList,
+    dispatchAlert,
+    aiPreferences,
+  } = useApp();
+  const beginnerMode = isBeginnerDisplayMode(aiPreferences);
+  const trustMode = isTrustDisplayMode(aiPreferences);
+  const proMode = isProDisplayMode(aiPreferences);
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [deposit, setDeposit] = useState('1000');
@@ -103,10 +145,20 @@ export function AllocationPlanScreen() {
   const [style, setStyle] = useState<InvestmentStyle>('balanced');
   const [fractionalShares, setFractionalShares] = useState(false);
   const [plan, setPlan] = useState<AllocationPlan | null>(null);
+  const [generating, setGenerating] = useState(false);
   const [buying, setBuying] = useState(false);
   const [buyDebug, setBuyDebug] = useState<BulkBuyDebugInfo | null>(null);
   const [lastBuyError, setLastBuyError] = useState<string | null>(null);
   const marketSession = useMarketSession(market);
+
+  useEffect(() => {
+    if (!trustMode) return;
+    void loadTrustPlanSnapshot().then((snapshot) => {
+      if (!snapshot) return;
+      setPlan(snapshot.plan);
+      setDeposit(String(snapshot.depositMYR));
+    });
+  }, [trustMode]);
 
   const debugPreview = useMemo((): BulkBuyDebugInfo | null => {
     if (!plan) return null;
@@ -119,22 +171,94 @@ export function AllocationPlanScreen() {
     };
   }, [plan, state.practice.cashBalanceMYR, state.practice.portfolio]);
 
-  const generate = () => {
+  const generate = async () => {
     const depositMYR = Number(deposit) || 0;
-    const result = buildAllocationPlan({
-      depositMYR,
+    const userRefs = resolveSymbolsForAllocation(state, isPractice);
+    const userUniverse = userSymbolsToAllocationUniverse(
+      userRefs,
       market,
-      riskLevel: getPlanRiskLevel(style),
-      investmentStyle: style,
-      fractionalSharesEnabled: fractionalShares,
-    });
-    if ('error' in result) {
-      Alert.alert('作成できません', result.error);
-      setPlan(null);
-      return;
+      getActivePortfolio(state),
+      state.manualOrderList,
+    );
+    setGenerating(true);
+    try {
+      let conciergeEvidence;
+      if (userUniverse.length > 0) {
+        try {
+          const { loadAnalysisApiKeys } = await import('../services/analysisApiKeys');
+          const { buildConciergeEvidenceForAllocationUniverse } = await import(
+            '../services/conciergeEvidenceBuilder'
+          );
+          const apiKeys = await loadAnalysisApiKeys();
+          conciergeEvidence = await buildConciergeEvidenceForAllocationUniverse({
+            state,
+            universe: userUniverse,
+            apiKeys,
+            analysisMode: 'balanced',
+          });
+        } catch {
+          conciergeEvidence = undefined;
+        }
+      }
+      let result = buildAllocationPlan({
+        depositMYR,
+        market,
+        riskLevel: getPlanRiskLevel(style),
+        investmentStyle: style,
+        fractionalSharesEnabled: fractionalShares,
+        userUniverse,
+        conciergeEvidence,
+      });
+      if ('error' in result) {
+        Alert.alert('作成できません', result.error);
+        setPlan(null);
+        return;
+      }
+      if (!isPractice && market === 'bursa') {
+        const cashMYR = calculateBuyingPower(state).buyingPowerMYR;
+        const cap = Math.min(depositMYR, cashMYR);
+        result = adjustAllocationPlanToLiveCash(result, cap);
+      }
+      setPlan(result);
+      void dispatchAlert(buildAllocationPlanAlert(result));
+      if (proMode) {
+        void persistAllocationPlanAudit(result);
+      }
+      void (async () => {
+        try {
+          const { enrichAllocationPlanNarratives } = await import('../services/recommendationMetaEnrichment');
+          const { plan: enriched, audits } = await enrichAllocationPlanNarratives(result);
+          setPlan(enriched);
+          if (trustMode) {
+            const presentation = buildTrustPlanPresentation(enriched);
+            await recordTrustOperationStartIfNeeded();
+            await saveTrustPlanSnapshot({
+              depositMYR: enriched.depositMYR,
+              allocationSummary: presentation.allocationSummaryText,
+              committeeApproved: presentation.committeeApproved,
+              expectedRiskLevel: presentation.expectedRiskLevel,
+              totalAmountMYR: enriched.depositMYR,
+              profileTypeLabel: presentation.profileTypeLabel,
+              monthlyOneLinerJa: presentation.monthlyOneLinerJa,
+              updatedAt: new Date().toISOString(),
+              plan: enriched,
+            });
+          }
+          if (proMode) {
+            await persistAllocationPlanEnrichmentAudit(
+              enriched,
+              audits.map((a) => ({ symbol: a.symbol, audit: a.audit })),
+            );
+          }
+        } catch (err) {
+          if (err instanceof Error && err.message === 'ERROR_DECISION_TAMPERED') {
+            console.error('[allocation-plan] decision tamper blocked', err);
+          }
+        }
+      })();
+    } finally {
+      setGenerating(false);
     }
-    setPlan(result);
-    void dispatchAlert(buildAllocationPlanAlert(result));
   };
 
   const executePracticeBuy = async () => {
@@ -194,6 +318,39 @@ export function AllocationPlanScreen() {
     void executePracticeBuy();
   };
 
+  const confirmCandidate = (candidate: AllocationPlan['candidates'][number]) => {
+    if (!plan) return;
+    const singlePlan: AllocationPlan = { ...plan, candidates: [candidate] };
+    Alert.alert('この内容で進めますか？', INVESTMENT_BEGINNER_FINAL_DISCLAIMER_JA, [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: '進める',
+        onPress: () => {
+          if (isPractice) {
+            void (async () => {
+              const result = await applyAllocationPractice(singlePlan);
+              if (!result.ok) {
+                Alert.alert('進められません', result.error ?? ALLOCATION_PRACTICE_MESSAGES.buyFailed);
+                return;
+              }
+              Alert.alert('記録しました', `${candidate.name}を仮想ポートフォリオに追加しました。`);
+            })();
+            return;
+          }
+          const result = addAllocationToManualOrderList(singlePlan);
+          if (!result.ok) {
+            Alert.alert('追加できません', result.error ?? ALLOCATION_PRACTICE_MESSAGES.noBuyable);
+            return;
+          }
+          Alert.alert('リストに追加しました', '証券会社アプリでご自身の目で確認して注文してください。', [
+            { text: 'リストを見る', onPress: () => stackNav.navigate('ManualOrderList') },
+            { text: 'OK' },
+          ]);
+        },
+      },
+    ]);
+  };
+
   const onManualChecklist = () => {
     if (!plan) return;
     const result = addAllocationToManualOrderList(plan);
@@ -216,6 +373,130 @@ export function AllocationPlanScreen() {
       [{ text: 'リストを見る', onPress: () => stackNav.navigate('ManualOrderList') }, { text: 'OK' }],
     );
   };
+
+  const confirmTrustPlan = () => {
+    if (!plan) return;
+    Alert.alert('この提案で進めますか？', INVESTMENT_TRUST_DISCLAIMER_JA, [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: TRUST_APPROVE_BUTTON_LABEL_JA,
+        onPress: () => {
+          if (isPractice) {
+            void executePracticeBuy();
+            return;
+          }
+          onManualChecklist();
+        },
+      },
+    ]);
+  };
+
+  if (trustMode) {
+    const trustPresentation = plan ? buildTrustPlanPresentation(plan) : null;
+
+    return (
+      <Screen title={TRUST_HOME_TITLE_JA} subtitle={TRUST_HOME_SUBTITLE_JA}>
+        <TrustConciergeHomeCard
+          fallbackDepositMYR={Number(deposit) || 1000}
+          monthlyOneLinerJa={trustPresentation?.monthlyOneLinerJa}
+        />
+        {isPractice ? <PracticeModeBadge /> : null}
+
+        <Card>
+          <Text style={styles.beginnerLabel}>今月の入金額（RM）</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="decimal-pad"
+            placeholder="例: 1000"
+            placeholderTextColor={theme.colors.textMuted}
+            value={deposit}
+            onChangeText={setDeposit}
+          />
+        </Card>
+
+        {!plan ? (
+          <Button
+            label={generating ? TRUST_MD_GENERATING_LABEL_JA : '配分案を受け取る'}
+            onPress={() => void generate()}
+            disabled={generating}
+          />
+        ) : null}
+
+        {trustPresentation ? (
+          <>
+            <TrustAllocationPlanPanel
+              presentation={trustPresentation}
+              onProceed={confirmTrustPlan}
+              proceeding={buying}
+            />
+            <Card>
+              <Text style={styles.disclaimer}>{INVESTMENT_TRUST_DISCLAIMER_JA}</Text>
+            </Card>
+          </>
+        ) : null}
+      </Screen>
+    );
+  }
+
+  if (beginnerMode) {
+    return (
+      <Screen title="今日のおすすめ" subtitle="入金額を入れて、買うべきか確認できます">
+        {isPractice ? <PracticeModeBadge /> : null}
+
+        <Card>
+          <Text style={styles.beginnerLabel}>入金したい金額（RM）</Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="decimal-pad"
+            placeholder="例: 1000"
+            placeholderTextColor={theme.colors.textMuted}
+            value={deposit}
+            onChangeText={setDeposit}
+          />
+        </Card>
+
+        <Button
+          label={generating ? 'おすすめを考えています…' : 'おすすめを見る'}
+          onPress={() => void generate()}
+          disabled={generating}
+        />
+
+        {plan ? (
+          <>
+            {isPractice ? (
+              <PlanActions
+                isPractice={isPractice}
+                buying={buying}
+                onPracticeBuy={onPracticeBuy}
+                onManualChecklist={onManualChecklist}
+                marketSessionBlocked={marketSession.blockVirtualBuy}
+              />
+            ) : (
+              <Card style={styles.actionCard}>
+                <Button label="手動注文リストに追加" onPress={onManualChecklist} variant="ghost" />
+                <Text style={styles.actionHint}>
+                  証券会社でご自身の目で確認してから注文してください。
+                </Text>
+              </Card>
+            )}
+
+            {plan.candidates.map((c, i) => (
+              <BeginnerAllocationCandidateCard
+                key={`${c.market}-${c.symbol}-${i}`}
+                candidate={c}
+                onOpenDetail={() => stackNav.navigate('AllocationCommitteeDetail', { candidate: c })}
+                onConfirm={() => confirmCandidate(c)}
+              />
+            ))}
+
+            <Card>
+              <BeginnerFinalDisclaimer />
+            </Card>
+          </>
+        ) : null}
+      </Screen>
+    );
+  }
 
   return (
     <Screen
@@ -254,7 +535,11 @@ export function AllocationPlanScreen() {
         <FractionalSharesToggle enabled={fractionalShares} onChange={setFractionalShares} />
       </Card>
 
-      <Button label="参考プランを作成" onPress={generate} />
+      <Button
+        label={generating ? 'AIコンシェルジュ分析中…' : '参考プランを作成'}
+        onPress={() => void generate()}
+        disabled={generating}
+      />
 
       {plan ? (
         <>
@@ -327,6 +612,11 @@ export function AllocationPlanScreen() {
 export default AllocationPlanScreen;
 
 const styles = StyleSheet.create({
+  beginnerLabel: {
+    color: theme.colors.text,
+    fontWeight: '600',
+    fontSize: theme.fontSize.md,
+  },
   section: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md, marginTop: theme.spacing.sm },
   input: {
     backgroundColor: theme.colors.surfaceElevated,

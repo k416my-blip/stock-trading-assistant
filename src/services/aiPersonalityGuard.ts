@@ -57,7 +57,7 @@ import { CONSTITUTIONAL_GOVERNANCE_AI_PROMPT_JA } from '../constants/constitutio
 import { EXPLAINABLE_GOVERNANCE_AI_PROMPT_JA } from '../constants/explainableGovernanceTransparentReasoning';
 import { RUNTIME_SURVIVAL_AI_PROMPT_JA } from '../constants/runtimeSurvivalMobileResilience';
 import { AI_DATA_DRIVEN_PROMPT_JA, type AiAnalysisMode } from '../constants/aiDataDriven';
-import { AI_FORBIDDEN_EXPRESSIONS, AI_SYSTEM_PROMPT } from '../constants/aiStrategy';
+import { AI_FORBIDDEN_EXPRESSIONS, AI_SYSTEM_PROMPT, AI_CONCIERGE_CHAT_SYSTEM_PROMPT } from '../constants/aiStrategy';
 import { buildAnalysisModeInstructions, normalizeAiAnalysisMode } from './aiAnalysisMode';
 import type { AiStrategyContextPayload } from '../types/aiStrategy';
 import type { ParsedAiApiJson } from './aiResponseSanitizer';
@@ -83,6 +83,21 @@ export function buildFixedPersonalityGuardrailsBlock(): {
     prohibitedMemoryCategoriesJa: AI_PROHIBITED_MEMORY_CATEGORIES_JA,
     fixedTraitsJa: AI_FIXED_PHILOSOPHY_TRAITS_JA,
   };
+}
+
+export function buildConciergeChatInstructions(
+  explanationLevel: AiExplanationLevel = DEFAULT_AI_EXPLANATION_LEVEL,
+  analysisMode?: AiAnalysisMode,
+): string {
+  const level = normalizeAiExplanationLevel(explanationLevel);
+  const mode = normalizeAiAnalysisMode(analysisMode);
+  return [
+    AI_CONCIERGE_CHAT_SYSTEM_PROMPT,
+    buildAnalysisModeInstructions(mode),
+    AI_SPECIFICITY_PROMPT_BLOCK_JA,
+    AI_NO_USER_LEARNING_POLICY,
+    buildExplanationLevelInstructions(level),
+  ].join('\n\n');
 }
 
 export function buildFixedAiInstructions(

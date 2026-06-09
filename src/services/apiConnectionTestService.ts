@@ -10,6 +10,10 @@ import { verifyApiProvider } from './apiVerificationService';
 import { getSecret } from './secretStorage';
 import { isUsableApiKey } from './apiKeyValidation';
 import { testTwelveDataConnection } from './marketDataService';
+import {
+  logTwelveDataConnectionTestProbe,
+  resolveTwelveDataKeyForTest,
+} from './twelveDataConnectionTest';
 
 const TEST_TIMEOUT_MS = AI_API_TIMEOUT_MS;
 
@@ -37,7 +41,8 @@ function secretIdFor(id: ApiRegistryId): Parameters<typeof getSecret>[0] {
 
 async function testTwelveData(apiKey: string): Promise<ApiConnectionTestResult> {
   const checkedAt = new Date().toISOString();
-  if (!isUsableApiKey(apiKey)) {
+  const resolved = await resolveTwelveDataKeyForTest(apiKey);
+  if (!isUsableApiKey(resolved)) {
     return {
       apiId: 'twelve_data',
       status: 'not_configured',
@@ -49,14 +54,15 @@ async function testTwelveData(apiKey: string): Promise<ApiConnectionTestResult> 
       successAt: null,
     };
   }
+  logTwelveDataConnectionTestProbe(resolved);
   try {
-    const quote = await testTwelveDataConnection(apiKey);
+    const quote = await testTwelveDataConnection(resolved);
     const ok = Number.isFinite(quote.price) && quote.price > 0;
     return {
       apiId: 'twelve_data',
       status: ok ? 'connected' : 'parse_error',
       errorType: ok ? 'none' : 'parse',
-      messageJa: ok ? '接続成功' : '応答形式の解析に失敗しました',
+      messageJa: ok ? '実API接続成功' : '実API接続失敗',
       quotaStatus: null,
       pingSummaryJa: ok ? `quote ${quote.symbol}` : null,
       checkedAt,
@@ -69,7 +75,7 @@ async function testTwelveData(apiKey: string): Promise<ApiConnectionTestResult> 
       apiId: 'twelve_data',
       status: timedOut ? 'timeout' : 'network_error',
       errorType: timedOut ? 'timeout' : 'network',
-      messageJa: timedOut ? '通信がタイムアウトしました' : 'ネットワーク接続に失敗しました',
+      messageJa: timedOut ? '実API接続失敗' : '実API接続失敗',
       quotaStatus: null,
       pingSummaryJa: null,
       checkedAt,

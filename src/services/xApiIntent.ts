@@ -13,9 +13,15 @@ export function userMessageRequestsXInsight(message: string): boolean {
   return X_INTENT.test(t);
 }
 
+export type ExtractSymbolsOptions = {
+  /** false = メッセージに銘柄が無いとき、保有1件を勝手に対象にしない */
+  allowSingleHoldingFallback?: boolean;
+};
+
 export function extractSymbolsForXLookup(
   message: string,
   holdings: Array<{ symbol: string; market: Market }>,
+  options?: ExtractSymbolsOptions,
 ): Array<{ symbol: string; market: Market }> {
   const found = new Map<string, { symbol: string; market: Market }>();
 
@@ -37,7 +43,11 @@ export function extractSymbolsForXLookup(
     }
   }
 
-  if (found.size === 0 && holdings.length === 1) {
+  if (
+    found.size === 0 &&
+    holdings.length === 1 &&
+    options?.allowSingleHoldingFallback !== false
+  ) {
     const h = holdings[0];
     return [{ symbol: h.symbol, market: h.market }];
   }

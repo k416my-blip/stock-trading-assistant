@@ -13,6 +13,7 @@ import * as stooq from '../../src/services/quoteProviders/stooqQuote';
 import * as rapid from '../../src/services/quoteProviders/rapidApiYahooQuote';
 import { MarketDataError } from '../../src/services/marketDataService';
 import { resetQuoteProviderStats } from '../../src/services/quoteProviderStats';
+import * as yahooBursa from '../../src/services/quoteProviders/yahooFinanceBursa';
 
 vi.mock('../../src/services/quoteProviders/yahooFinanceQuote');
 vi.mock('../../src/services/quoteProviders/yahooFinanceBursa', async () => {
@@ -39,36 +40,37 @@ describe('quoteProviderChain', () => {
     vi.clearAllMocks();
     resetQuoteProviderStats();
     resetProviderRateLimits();
+    vi.mocked(yahooBursa.fetchYahooFinanceQuoteForBursa).mockRejectedValue(
+      new MarketDataError('symbol_invalid', 'yahoo bursa fail', { lastProvider: 'yahoo_finance' }),
+    );
   });
 
   afterEach(() => {
     resetProviderRateLimits();
   });
 
-  it('order is Twelve then Yahoo then Alpha when API key is set', () => {
-    const order = getQuoteProviderOrder('bursa', 'test-key-12345678');
-    expect(order).toEqual(['twelve_data', 'yahoo_finance', 'alpha_vantage']);
+  it('order is Yahoo then Twelve then Alpha regardless of API key', () => {
+    expect(getQuoteProviderOrder('bursa', 'test-key-12345678')).toEqual([
+      'yahoo_finance',
+      'twelve_data',
+      'alpha_vantage',
+    ]);
+    expect(getQuoteProviderOrder('us', '')).toEqual([
+      'yahoo_finance',
+      'twelve_data',
+      'alpha_vantage',
+    ]);
   });
 
-  it('order is Yahoo then Alpha when API key is missing', () => {
-    const order = getQuoteProviderOrder('us', '');
-    expect(order).toEqual(['yahoo_finance', 'alpha_vantage']);
-  });
-
-  it('uses Twelve Data first when key is set and earlier providers fail', async () => {
-    vi.mocked(alpha.fetchAlphaVantageQuote).mockRejectedValue({
-      kind: 'symbol_invalid',
-      message: 'alpha skip',
-      rawMessage: 'alpha skip',
-    });
-    const { getQuoteForMarket } = await import('../../src/services/marketDataService');
-    vi.mocked(getQuoteForMarket).mockResolvedValue({
+  it('uses Yahoo first when key is set and Yahoo succeeds', async () => {
+    vi.mocked(yahooBursa.fetchYahooFinanceQuoteForBursa).mockResolvedValue({
       symbol: '5183.KL',
-      exchange: 'XKLS',
+      exchange: '',
       currency: 'MYR',
       price: 8.5,
-      datetime: '2026-01-01',
+      provider: 'yahoo_finance',
     });
+    const { getQuoteForMarket } = await import('../../src/services/marketDataService');
 
     const result = await fetchQuoteViaProviderChain({
       market: 'bursa',
@@ -80,8 +82,9 @@ describe('quoteProviderChain', () => {
       timeoutMs: 5000,
     });
 
-    expect(result.quote?.provider).toBe('twelve_data');
+    expect(result.quote?.provider).toBe('yahoo_finance');
     expect(result.quote?.price).toBe(8.5);
+    expect(getQuoteForMarket).not.toHaveBeenCalled();
   });
 
   it('returns fallback price without throwing when all providers fail', async () => {

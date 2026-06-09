@@ -85,7 +85,7 @@ export const API_WIZARD_PROVIDERS: readonly ApiWizardProviderConfig[] = [
     portalUrl: 'https://www.reddit.com/prefs/apps',
     secretKeyId: 'redditApiKey',
     keyHintJa:
-      'Reddit Developer Portalで取得したアクセストークン（Bearer）を貼り付け。OAuthの自動取得は行いません。',
+      '任意。未設定でも Reddit RSS（search.rss）で話題取得します。OAuth Bearerは prefs/apps で取得（reCAPTCHA問題時は省略可）。',
     optional: true,
   },
   {

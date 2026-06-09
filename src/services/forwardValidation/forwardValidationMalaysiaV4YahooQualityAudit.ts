@@ -8,6 +8,7 @@ import type {
 } from '../../types/forwardValidation';
 import { fetchHttpWithRetry } from '../quoteProviders/providerFetchUtil';
 import { normalizeTwelveDataApiKey, isUsableApiKey } from '../apiKeyValidation';
+import { getTwelveDataQuoteAttempts } from '../marketDataSymbols';
 import { MALAYSIA_V1_AUDIT_START } from './forwardValidationMalaysiaV1Audit';
 import { fetchForwardOhlcvDetailed } from './yahooOhlcvFetch';
 import type { OhlcvBar } from './case4Indicators';
@@ -138,38 +139,42 @@ async function fetchTwelveDailyBars(
   apiKey: string,
   startDate: string,
 ): Promise<{ bars: TwelveBar[]; ok: boolean }> {
-  const url = new URL('https://api.twelvedata.com/time_series');
-  url.searchParams.set('symbol', bursaSymbol);
-  url.searchParams.set('exchange', 'XKLS');
-  url.searchParams.set('mic_code', 'XKLS');
-  url.searchParams.set('interval', '1day');
-  url.searchParams.set('outputsize', '5000');
-  url.searchParams.set('apikey', apiKey);
-  url.searchParams.set('start_date', startDate);
+  const attempts = getTwelveDataQuoteAttempts('bursa', `${bursaSymbol}.KL`);
+  for (const attempt of attempts) {
+    const url = new URL('https://api.twelvedata.com/time_series');
+    url.searchParams.set('symbol', attempt.symbol);
+    if (attempt.exchange) url.searchParams.set('exchange', attempt.exchange);
+    if (attempt.mic_code) url.searchParams.set('mic_code', attempt.mic_code);
+    url.searchParams.set('interval', '1day');
+    url.searchParams.set('outputsize', '5000');
+    url.searchParams.set('apikey', apiKey);
+    url.searchParams.set('start_date', startDate);
 
-  try {
-    const { response, bodyText } = await fetchHttpWithRetry(url.toString(), {
-      timeoutMs: 20_000,
-      logLabel: 'forward_validation_twelve_quality',
-      symbol: bursaSymbol,
-    });
-    if (!response.ok) return { bars: [], ok: false };
-    const json = JSON.parse(bodyText) as {
-      status?: string;
-      values?: { datetime: string; close: string }[];
-    };
-    if (json.status === 'error' || !json.values?.length) return { bars: [], ok: false };
-    const bars = json.values
-      .map((v) => ({
-        date: v.datetime.slice(0, 10),
-        close: Number(v.close),
-      }))
-      .filter((b) => Number.isFinite(b.close) && b.close > 0)
-      .sort((a, b) => a.date.localeCompare(b.date));
-    return { bars, ok: bars.length >= 80 };
-  } catch {
-    return { bars: [], ok: false };
+    try {
+      const { response, bodyText } = await fetchHttpWithRetry(url.toString(), {
+        timeoutMs: 20_000,
+        logLabel: 'forward_validation_twelve_quality',
+        symbol: attempt.symbol,
+      });
+      if (!response.ok) continue;
+      const json = JSON.parse(bodyText) as {
+        status?: string;
+        values?: { datetime: string; close: string }[];
+      };
+      if (json.status === 'error' || !json.values?.length) continue;
+      const bars = json.values
+        .map((v) => ({
+          date: v.datetime.slice(0, 10),
+          close: Number(v.close),
+        }))
+        .filter((b) => Number.isFinite(b.close) && b.close > 0)
+        .sort((a, b) => a.date.localeCompare(b.date));
+      if (bars.length >= 80) return { bars, ok: true };
+    } catch {
+      continue;
+    }
   }
+  return { bars: [], ok: false };
 }
 
 function readTwelveApiKeyFromEnv(): string {

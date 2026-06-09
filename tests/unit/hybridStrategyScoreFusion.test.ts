@@ -10,7 +10,7 @@ import {
 import { HYBRID_AI_SCORE_WEIGHT, HYBRID_RULE_SCORE_WEIGHT } from '../../src/constants/hybridStrategyScore';
 
 describe('hybridStrategyScoreFusion', () => {
-  it('computes FinalScore = RuleScore*0.7 + AIScore*0.3', () => {
+  it('computes FinalScore = RuleScore*ruleWeight + AIScore*aiWeight', () => {
     const ruleScore = 80;
     const aiScore = 50;
     expect(computeFinalHybridScore(ruleScore, aiScore)).toBe(
@@ -28,7 +28,7 @@ describe('hybridStrategyScoreFusion', () => {
     expect(actionConfidenceToDirectionScore('reduce', 80)).toBe(20);
   });
 
-  it('buildHybridSymbolScore preserves 70/30 blend', () => {
+  it('buildHybridSymbolScore preserves hybrid weight blend', () => {
     const h = buildHybridSymbolScore({
       ruleAction: 'buy',
       ruleConfidencePct: 70,
@@ -37,7 +37,9 @@ describe('hybridStrategyScoreFusion', () => {
     });
     expect(h.ruleScore).toBe(70);
     expect(h.aiScore).toBeGreaterThan(45);
-    expect(h.finalScore).toBe(Math.round(h.ruleScore * 0.7 + h.aiScore * 0.3));
+    expect(h.finalScore).toBe(
+      Math.round(h.ruleScore * HYBRID_RULE_SCORE_WEIGHT + h.aiScore * HYBRID_AI_SCORE_WEIGHT),
+    );
   });
 
   it('resolveFusedActionFromFinalScore thresholds', () => {

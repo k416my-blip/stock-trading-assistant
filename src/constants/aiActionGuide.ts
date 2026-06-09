@@ -45,7 +45,15 @@ export const EVIDENCE_SCORE_LABELS_JA: Record<
 
 export const AI_ACTION_GUIDE_PROMPT_JA = `【投資行動支援 — context.evidenceData.actionGuide】
 各銘柄の actionGuide を参照し、ユーザーが次に何をすべきかを整理して答える。
-出力は可能なら次の構造に沿う（数値は actionGuide のみ引用。創作禁止）:
+出力は可能なら次の構造に沿う（数値は actionGuide / 材料分析のみ引用。創作禁止）:
+
+1. 銘柄名 2. 現在株価 3. 保有株数 4. 評価額 5. 含み損益
+6. 総合判定（強い買い / 買い / 中立 / 売り / 強い売り）
+7. 確信度 0〜100%
+8. 判断理由（Bursa / News API / X API / Reddit の材料要約を含む）
+9. ポジティブ材料 10. ネガティブ材料 11. リスク 12. 次に確認すべきポイント
+13. AI推奨アクション（追加購入 / 保有継続 / 一部利確 / 全利確 / 監視のみ）
+14. ソース別スコア（Bursa / News / X / Reddit）15. 総合スコア 0〜100
 
 市場状況: 強気 / 中立 / 弱気（actionGuide.marketStanceLabelJa）
 理由: 箇条書き（reasonBulletsJa）

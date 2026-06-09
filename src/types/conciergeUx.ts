@@ -54,9 +54,18 @@ export type ConciergeOneScreenSection = {
   priority: ConciergeInfoPriority;
 };
 
+export type ConciergeShortAnswerFact = {
+  labelJa: string;
+  valueJa: string;
+};
+
 export type ConciergeShortAnswer = {
   conclusionJa: string;
+  /** 銘柄・株価・保有・確信度など */
+  factsJa?: ConciergeShortAnswerFact[];
   reasonsJa: string[];
+  riskJa?: string;
+  watchJa?: string;
   actionJa: string;
 };
 

@@ -17,8 +17,9 @@ import {
 import { buildBursaPhase5Analysis } from '../../src/services/bursa/bursaPhase5Analysis';
 import { buildBursaPhase3FromSnapshots } from '../../src/services/bursa/bursaPhase3Analysis';
 import { peerSnapshotFromBundle } from '../../src/services/bursa/bursaPeerSnapshotService';
-import type { BursaDisclosureBundle } from '../../types/bursaDisclosure';
-import type { PortfolioPosition } from '../../types';
+import type { BursaDisclosureBundle } from '../../src/types/bursaDisclosure';
+import type { PortfolioPosition } from '../../src/types';
+import { bursaTestHolding } from '../helpers/bursaPortfolioFixture';
 
 const root = process.cwd();
 
@@ -88,14 +89,13 @@ describe('bursa Phase7 asset management', () => {
     );
     const bundles = codes.map(loadBundle).filter(Boolean) as BursaDisclosureBundle[];
     const holdings: PortfolioPosition[] = [
-      {
+      bursaTestHolding({
         id: 'h-maybank',
         symbol: '1155',
-        market: 'bursa',
         shares: 1000,
         currentPrice: 10.5,
         companyName: 'Maybank',
-      },
+      }),
     ];
 
     const phase7 = buildBursaPhase7FromBundles({ bundles, holdings });

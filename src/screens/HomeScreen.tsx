@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BursaConciergeHomeCard } from '../components/BursaConciergeHomeCard';
+import { BursaMaterialHomeCard } from '../components/BursaMaterialHomeCard';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { HeaderProactiveBadge } from '../components/proactive/HeaderProactiveBadge';
 import { DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST } from '../constants/aiConciergeDevFlags';
@@ -224,6 +225,7 @@ export function HomeScreen() {
     >
       <DegradedModeBanner />
       <BursaConciergeHomeCard />
+      <BursaMaterialHomeCard />
       {!DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST ? <ProactiveSuggestionsHomeCard /> : null}
       <CentralIntelligencePanel />
       {isPractice ? (

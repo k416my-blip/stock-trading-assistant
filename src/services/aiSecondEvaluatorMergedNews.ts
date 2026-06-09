@@ -51,11 +51,11 @@ export async function fetchMergedNewsForAiEvaluator(
   const sourcesUsed: string[] = [];
   const collected: FreeNewsHeadline[] = [];
 
-  const yahoo = await fetchYahooFinanceRss(stock);
+  const yahoo = await fetchYahooFinanceRss(stock).catch(() => [] as FreeNewsHeadline[]);
   if (yahoo.length > 0) sourcesUsed.push('Yahoo Finance RSS');
   collected.push(...yahoo);
 
-  const google = await fetchGoogleNewsRss(stock);
+  const google = await fetchGoogleNewsRss(stock).catch(() => [] as FreeNewsHeadline[]);
   if (google.length > 0) sourcesUsed.push('Google News RSS');
   collected.push(...google);
 

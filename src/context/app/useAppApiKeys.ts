@@ -18,6 +18,7 @@ import {
 } from '../../services/apiSetupWizardService';
 import { createEmptyHealthSnapshot, loadApiHealthSnapshot, updateProviderHealth } from '../../services/apiHealthStorage';
 import { logApiKeyLoadAudit } from '../../services/apiKeyLoadDiagnostics';
+import { safeGetApiKey } from '../../services/safeApiKey';
 import {
   getTwelveDataApiKey,
   saveTwelveDataApiKey as persistApiKey,
@@ -122,33 +123,36 @@ export function useAppApiKeys({
   }, [syncPriceSyncForEmptyHoldings, stateRef, setPriceSync]);
 
   const saveTwelveDataApiKey = useCallback(async (apiKey: string) => {
-    const trimmed = apiKey.trim();
-    await persistApiKey(trimmed);
-    console.log('SAVED API KEY', {
-      source: 'saveTwelveDataApiKey',
-      keyPresent: trimmed.length > 0,
-      keyLength: trimmed.length,
-    });
-    const { key } = await getTwelveDataApiKey();
-    const reloaded = key.trim();
-    console.log('[API KEY ROUNDTRIP]', {
-      source: 'saveTwelveDataApiKey',
-      matchedAfterSave: reloaded === trimmed,
-      loadedLength: reloaded.length,
-    });
-    setTwelveDataApiKey(reloaded);
-    await logApiKeyLoadAudit(apiKey.trim() ? 'save_twelve_data' : 'delete_twelve_data');
+    const saveResult = await persistApiKey(apiKey);
+    if (saveResult.saved) {
+      const { key } = await getTwelveDataApiKey();
+      setTwelveDataApiKey(key.trim());
+      await logApiKeyLoadAudit('save_twelve_data');
+    }
+    return saveResult;
   }, []);
 
   const saveAnalysisApiKeys = useCallback(async (keys: Partial<AnalysisApiKeys>) => {
-    await persistAnalysisApiKeys(keys);
+    const { savedFields } = await persistAnalysisApiKeys(keys);
     setAnalysisApiKeys((prev) => ({
-      newsApiKey: keys.newsApiKey !== undefined ? keys.newsApiKey : prev.newsApiKey,
-      snsApiKey: keys.snsApiKey !== undefined ? keys.snsApiKey : prev.snsApiKey,
-      earningsApiKey: keys.earningsApiKey !== undefined ? keys.earningsApiKey : prev.earningsApiKey,
-      redditApiKey: keys.redditApiKey !== undefined ? keys.redditApiKey : prev.redditApiKey,
-      xApiKey: keys.xApiKey !== undefined ? keys.xApiKey : prev.xApiKey,
+      newsApiKey:
+        savedFields.includes('newsApiKey') && keys.newsApiKey
+          ? keys.newsApiKey
+          : prev.newsApiKey,
+      snsApiKey:
+        savedFields.includes('snsApiKey') && keys.snsApiKey ? keys.snsApiKey : prev.snsApiKey,
+      earningsApiKey:
+        savedFields.includes('earningsApiKey') && keys.earningsApiKey
+          ? keys.earningsApiKey
+          : prev.earningsApiKey,
+      redditApiKey:
+        savedFields.includes('redditApiKey') && keys.redditApiKey
+          ? keys.redditApiKey
+          : prev.redditApiKey,
+      xApiKey:
+        savedFields.includes('xApiKey') && keys.xApiKey ? keys.xApiKey : prev.xApiKey,
     }));
+    return { savedFields };
   }, []);
 
   const testApiConnection = useCallback(async () => {
@@ -158,9 +162,9 @@ export function useAppApiKeys({
     try {
       const quote = await testTwelveDataConnection(apiKey);
       clearPriceSyncErrorState();
-      return { ok: true, message: `接続成功（AAPL: $${quote.price.toFixed(2)}）` };
+      return { ok: true, message: '実API接続成功' };
     } catch (err) {
-      const message = err instanceof Error ? err.message : '接続に失敗しました';
+      const message = '実API接続失敗';
       return { ok: false, message };
     }
   }, [clearPriceSyncErrorState]);
@@ -439,10 +443,14 @@ export function useAppApiKeys({
   }, [initialPriceRefreshDone]);
 
   const saveAiApiKey = useCallback(async (apiKey: string) => {
-    await persistAiApiKey(apiKey);
-    const display = isUsableApiKey(apiKey) ? apiKey.trim() : '';
+    const saveResult = await persistAiApiKey(apiKey);
+    if (!saveResult.saved) {
+      setAiApiKey(await safeGetApiKey('openai'));
+      return saveResult;
+    }
+    const display = apiKey.trim();
     setAiApiKey(display);
-    if (isUsableApiKey(apiKey)) {
+    if (saveResult.saved) {
       const snapshot = await updateProviderHealth('openai', {
         ...createDefaultProviderHealth('openai'),
         status: 'unconfigured',
@@ -456,10 +464,13 @@ export function useAppApiKeys({
       });
       setApiHealthDashboard(buildApiHealthDashboard(snapshot));
     }
+    return saveResult;
   }, []);
 
   const runTestAiApiConnection = useCallback(async () => {
-    const result = await testAiApiConnection({ apiKey: aiApiKey });
+    const storedKey = await safeGetApiKey('openai');
+    if (storedKey) setAiApiKey(storedKey);
+    const result = await testAiApiConnection({ apiKey: storedKey || aiApiKey });
     const snapshot = await loadApiHealthSnapshot();
     setApiHealthDashboard(buildApiHealthDashboard(snapshot));
     return result;
@@ -496,18 +507,20 @@ export function useAppApiKeys({
   const saveWizardApiKeyAndVerify = useCallback(
     async (providerId: ApiProviderId, apiKey: string) => {
       const config = getWizardProviderConfig(providerId);
-      await saveWizardApiKey(config.secretKeyId, apiKey);
-      if (providerId === 'openai') {
-        await persistAiApiKey(apiKey);
-      } else {
-        const partial: Partial<AnalysisApiKeys> = {};
-        if (providerId === 'news') partial.newsApiKey = apiKey;
-        if (providerId === 'earnings') partial.earningsApiKey = apiKey;
-        if (providerId === 'reddit') partial.redditApiKey = apiKey;
-        if (providerId === 'x') partial.xApiKey = apiKey;
-        await persistAnalysisApiKeys(partial);
+      const wizardSave = await saveWizardApiKey(config.secretKeyId, apiKey);
+      if (wizardSave.saved) {
+        if (providerId === 'openai') {
+          await persistAiApiKey(apiKey);
+        } else {
+          const partial: Partial<AnalysisApiKeys> = {};
+          if (providerId === 'news') partial.newsApiKey = apiKey;
+          if (providerId === 'earnings') partial.earningsApiKey = apiKey;
+          if (providerId === 'reddit') partial.redditApiKey = apiKey;
+          if (providerId === 'x') partial.xApiKey = apiKey;
+          await persistAnalysisApiKeys(partial);
+        }
+        applyWizardKeyToState(providerId, apiKey);
       }
-      applyWizardKeyToState(providerId, apiKey);
       const health = await verifyAndPersistProvider(providerId, apiKey);
       setApiHealthDashboard(await refreshApiHealthDashboard());
       return health;

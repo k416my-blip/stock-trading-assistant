@@ -139,6 +139,16 @@ export async function getSecret(keyId: SecretKeyId): Promise<string> {
 export async function setSecret(keyId: SecretKeyId, value: string): Promise<void> {
   const key = SECRET_KEYS[keyId];
   const trimmed = value.trim();
+  if (!trimmed) {
+    const existingMem = memorySecrets.get(key);
+    if (existingMem?.trim()) return;
+    const store = await loadSecureStore();
+    if (store) {
+      const existing = await safeGetSecureItem(store, key);
+      if (existing?.trim()) return;
+    }
+    return;
+  }
   memorySecrets.set(key, trimmed);
 
   const store = await loadSecureStore();

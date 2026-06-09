@@ -4,14 +4,18 @@ import {
   EVIDENCE_SCORE_LABELS_JA,
   NOTIFICATION_PRIORITY_LABELS_JA,
 } from '../../constants/aiActionGuide';
+import type { ConciergeAnalysisDiagnostics } from '../../types/conciergeEvidence';
 import type { ConciergeActionGuideBundle } from '../../types/conciergeActionGuide';
 import type { ConciergeRiskControlBundle } from '../../types/conciergeRiskControl';
+import { listKey, logDuplicateReactKeys } from '../../utils/reactKeyDiagnostics';
+import { ConciergeAnalysisDiagnosticsView } from './ConciergeAnalysisDiagnosticsView';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 
 type Props = {
   guide: ConciergeActionGuideBundle;
   riskControl?: ConciergeRiskControlBundle;
+  diagnostics?: ConciergeAnalysisDiagnostics;
 };
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
@@ -27,10 +31,37 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
   );
 }
 
-export function ConciergeActionPanel({ guide, riskControl }: Props) {
+export function ConciergeActionPanel({ guide, riskControl, diagnostics }: Props) {
   const primary = guide.symbols[0];
   if (!primary && guide.symbols.length === 0) return null;
   const showRecommendations = riskControl?.allowActionRecommendations !== false;
+  const reasonLines = primary?.reasonBulletsJa ?? [];
+  const recLines = guide.aggregatedRecommendationsJa;
+  const riskLines = guide.aggregatedRisksJa;
+  const attentionLines = guide.aggregatedAttentionJa;
+
+  if (typeof __DEV__ !== 'undefined' && __DEV__) {
+    logDuplicateReactKeys(
+      'ConciergeActionPanel/reason',
+      'ConciergeActionPanel',
+      reasonLines.map((line, i) => listKey('reason', i, line)),
+    );
+    logDuplicateReactKeys(
+      'ConciergeActionPanel/rec',
+      'ConciergeActionPanel',
+      recLines.map((line, i) => listKey('rec', i, line)),
+    );
+    logDuplicateReactKeys(
+      'ConciergeActionPanel/risk',
+      'ConciergeActionPanel',
+      riskLines.map((line, i) => listKey('risk', i, line)),
+    );
+    logDuplicateReactKeys(
+      'ConciergeActionPanel/attention',
+      'ConciergeActionPanel',
+      attentionLines.map((line, i) => listKey('attention', i, line)),
+    );
+  }
 
   return (
     <View style={styles.wrap}>
@@ -52,9 +83,11 @@ export function ConciergeActionPanel({ guide, riskControl }: Props) {
         </View>
       ) : null}
 
+      {diagnostics ? <ConciergeAnalysisDiagnosticsView diagnostics={diagnostics} /> : null}
+
       <Text style={styles.sectionTitle}>理由</Text>
-      {(primary?.reasonBulletsJa ?? []).map((line) => (
-        <SelectableText key={line} style={styles.bullet}>
+      {reasonLines.map((line, index) => (
+        <SelectableText key={listKey('reason', index, line)} style={styles.bullet}>
           · {line}
         </SelectableText>
       ))}
@@ -62,8 +95,8 @@ export function ConciergeActionPanel({ guide, riskControl }: Props) {
       {showRecommendations ? (
         <>
           <Text style={styles.sectionTitle}>推奨行動</Text>
-          {guide.aggregatedRecommendationsJa.map((line) => (
-            <SelectableText key={line} style={styles.bulletAccent}>
+          {recLines.map((line, index) => (
+            <SelectableText key={listKey('rec', index, line)} style={styles.bulletAccent}>
               · {line}
             </SelectableText>
           ))}
@@ -73,15 +106,15 @@ export function ConciergeActionPanel({ guide, riskControl }: Props) {
       )}
 
       <Text style={styles.sectionTitle}>リスク</Text>
-      {guide.aggregatedRisksJa.map((line) => (
-        <SelectableText key={line} style={styles.riskLine}>
+      {riskLines.map((line, index) => (
+        <SelectableText key={listKey('risk', index, line)} style={styles.riskLine}>
           {line}
         </SelectableText>
       ))}
 
       <Text style={styles.sectionTitle}>注目ポイント</Text>
-      {guide.aggregatedAttentionJa.map((line) => (
-        <SelectableText key={line} style={styles.bullet}>
+      {attentionLines.map((line, index) => (
+        <SelectableText key={listKey('attention', index, line)} style={styles.bullet}>
           · {line}
         </SelectableText>
       ))}

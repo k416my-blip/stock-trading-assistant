@@ -10,6 +10,7 @@ import { logApiKeyLoadAudit } from '../../services/apiKeyLoadDiagnostics';
 import type { AiLearningState } from '../../services/analysis/aiLearning';
 import { loadAiLearningState } from '../../services/analysis/aiLearning';
 import { loadAiPreferences } from '../../services/aiPreferencesStorage';
+import { logInvestmentDisplayModeForDeviceVerify } from '../../services/investmentDisplayModeVerifyLog';
 import { hydrateBursaFormatCache } from '../../services/bursaSymbolFormat';
 import { clearAllSensitiveLocalData } from '../../services/clearSensitiveData';
 import { runDailyHealthCheck, type HealthCheckReport } from '../../services/dailyHealthCheckService';
@@ -203,6 +204,7 @@ export function useAppBoot({
           setAiLearningState(aiState);
           setAiApiKey(loadedAiKey);
           setAiPreferences(loadedAiPrefs);
+          logInvestmentDisplayModeForDeviceVerify(loadedAiPrefs);
           void logApiKeyLoadAudit('safe_boot');
           recordDiagnosticEvent({
             type: 'safe_boot',
@@ -262,6 +264,7 @@ export function useAppBoot({
       setKillSwitches(loadedSwitches);
       setAiApiKey(loadedAiKey);
       setAiPreferences(loadedAiPrefs);
+      logInvestmentDisplayModeForDeviceVerify(loadedAiPrefs);
       setApiHealthDashboard(buildApiHealthDashboard(await loadApiHealthSnapshot()));
 
       applyTamperAssessment(tamper);

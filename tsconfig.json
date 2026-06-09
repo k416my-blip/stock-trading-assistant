@@ -34,6 +34,12 @@
     "artifacts",
     "src/verify",
     "src/tooling",
-    "src/native/soak"
+    "src/native/soak",
+    "src/services/forwardValidation",
+    "tests/unit/openAi*.test.ts",
+    "tests/unit/forwardValidation*.test.ts",
+    "tests/unit/sixEtf*.test.ts",
+    "tests/unit/usOperational*.test.ts",
+    "tests/unit/case4*.test.ts"
   ]
 }

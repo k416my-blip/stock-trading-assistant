@@ -13,8 +13,14 @@ describe('formatSymbolDisplay', () => {
     ).toBe('7103・マレーシア（Spritzer）');
   });
 
-  it('formats without company name', () => {
-    expect(formatSymbolDisplay({ symbol: 'AAPL', market: 'us' })).toBe('AAPL・アメリカ');
+  it('formats HK market as 香港', () => {
+    expect(
+      formatSymbolDisplay({
+        symbol: '0883',
+        market: 'hk',
+        companyName: 'CNOOC Limited',
+      }),
+    ).toBe('0883・香港（CNOOC Limited）');
   });
 });
 

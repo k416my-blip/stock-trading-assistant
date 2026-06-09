@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../constants/storageKeys';
 import type { AiPreferences } from '../types/aiStrategy';
 import { normalizeAiExplanationLevel } from './aiExplanationLevel';
 import { normalizeAiAnalysisMode } from './aiAnalysisMode';
+import { normalizeAiAnalysisSymbolScope } from '../constants/aiAnalysisScope';
 
 export const DEFAULT_AI_PREFERENCES: AiPreferences = {
   aiEnabled: true,
@@ -17,9 +18,12 @@ export const DEFAULT_AI_PREFERENCES: AiPreferences = {
   proactiveBriefingsEnabled: true,
   proactiveVoiceOnResume: true,
   aiAnalysisMode: 'balanced',
+  aiAnalysisSymbolScope: 'holdings_watchlist',
   aiConciergeDebugMode: false,
   batterySaverEnabled: false,
   conciergeUxMode: 'beginner',
+  investmentDisplayMode: 'trust',
+  investmentBeginnerMode: true,
   autonomousMonitoringEnabled: true,
   autonomousNotificationsPaused: false,
   autonomousAggressiveness: 'balanced',
@@ -87,10 +91,27 @@ export async function loadAiPreferences(): Promise<AiPreferences> {
       proactiveVoiceOnResume:
         parsed.proactiveVoiceOnResume === undefined ? true : parsed.proactiveVoiceOnResume === true,
       aiAnalysisMode: normalizeAiAnalysisMode(parsed.aiAnalysisMode),
+      aiAnalysisSymbolScope: normalizeAiAnalysisSymbolScope(parsed.aiAnalysisSymbolScope),
       aiConciergeDebugMode: parsed.aiConciergeDebugMode === true,
       batterySaverEnabled: parsed.batterySaverEnabled === true,
       conciergeUxMode:
         parsed.conciergeUxMode === 'advanced' ? 'advanced' : DEFAULT_AI_PREFERENCES.conciergeUxMode,
+      investmentDisplayMode:
+        parsed.investmentDisplayMode === 'pro' ||
+        parsed.investmentDisplayMode === 'beginner' ||
+        parsed.investmentDisplayMode === 'trust'
+          ? parsed.investmentDisplayMode
+          : parsed.investmentBeginnerMode === false
+            ? 'pro'
+            : DEFAULT_AI_PREFERENCES.investmentDisplayMode,
+      investmentBeginnerMode:
+        parsed.investmentDisplayMode === 'pro' || parsed.investmentBeginnerMode === false
+          ? false
+          : parsed.investmentDisplayMode === 'trust' ||
+              parsed.investmentDisplayMode === 'beginner' ||
+              parsed.investmentBeginnerMode === true
+            ? true
+            : DEFAULT_AI_PREFERENCES.investmentBeginnerMode,
       autonomousMonitoringEnabled: parsed.autonomousMonitoringEnabled !== false,
       autonomousNotificationsPaused: parsed.autonomousNotificationsPaused === true,
       autonomousAggressiveness:
@@ -190,12 +211,29 @@ export async function saveAiPreferences(prefs: Partial<AiPreferences>): Promise<
     proactiveBriefingsEnabled: prefs.proactiveBriefingsEnabled ?? current.proactiveBriefingsEnabled,
     proactiveVoiceOnResume: prefs.proactiveVoiceOnResume ?? current.proactiveVoiceOnResume,
     aiAnalysisMode: normalizeAiAnalysisMode(prefs.aiAnalysisMode ?? current.aiAnalysisMode),
+    aiAnalysisSymbolScope: normalizeAiAnalysisSymbolScope(
+      prefs.aiAnalysisSymbolScope ?? current.aiAnalysisSymbolScope,
+    ),
     aiConciergeDebugMode: prefs.aiConciergeDebugMode ?? current.aiConciergeDebugMode,
     batterySaverEnabled: prefs.batterySaverEnabled ?? current.batterySaverEnabled,
     conciergeUxMode:
       prefs.conciergeUxMode === 'advanced' || prefs.conciergeUxMode === 'beginner'
         ? prefs.conciergeUxMode
         : current.conciergeUxMode,
+    investmentDisplayMode:
+      prefs.investmentDisplayMode === 'pro' ||
+      prefs.investmentDisplayMode === 'beginner' ||
+      prefs.investmentDisplayMode === 'trust'
+        ? prefs.investmentDisplayMode
+        : prefs.investmentBeginnerMode === false
+          ? 'pro'
+          : prefs.investmentBeginnerMode === true
+            ? 'beginner'
+            : current.investmentDisplayMode,
+    investmentBeginnerMode:
+      (prefs.investmentDisplayMode ?? current.investmentDisplayMode) === 'pro'
+        ? false
+        : prefs.investmentBeginnerMode ?? current.investmentBeginnerMode,
     autonomousMonitoringEnabled:
       prefs.autonomousMonitoringEnabled ?? current.autonomousMonitoringEnabled,
     autonomousNotificationsPaused:

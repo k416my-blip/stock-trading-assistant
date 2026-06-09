@@ -1806,10 +1806,10 @@ export type ForwardVix24ExitCompareAuditReport = {
   humanSummaryJa: string;
 };
 
-export type ForwardVixBandId = 'b24_26' | 'b26_28' | 'b28_30' | 'b30_plus';
+export type ForwardVix24ExitCompareBandId = 'b24_26' | 'b26_28' | 'b28_30' | 'b30_plus';
 
 export type ForwardVixBandRow = {
-  bandId: ForwardVixBandId;
+  bandId: ForwardVix24ExitCompareBandId;
   labelJa: string;
   tradeCount: number;
   winCount: number;
@@ -6909,6 +6909,703 @@ export type ForwardMalaysiaV4YahooQualityAuditReport = {
   answerEJa: string;
   answerFJa: string;
   consistencyNoteJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4RebalanceHoldingRow = {
+  symbol: string;
+  symbolNameJa: string;
+  shares: number;
+  averageBuyPriceMYR: number;
+  currentPriceMYR: number;
+  marketValueMYR: number;
+  weightPct: number;
+  isV4Symbol: boolean;
+};
+
+export type ForwardMalaysiaV4RebalanceDeltaRow = {
+  symbol: string;
+  symbolNameJa: string;
+  currentWeightPct: number;
+  recommendedWeightPct: number;
+  deltaWeightPct: number;
+  currentValueMYR: number;
+  targetValueMYR: number;
+  deltaValueMYR: number;
+  action: 'hold' | 'buy' | 'sell';
+};
+
+export type ForwardMalaysiaV4RebalanceTradeRow = {
+  symbol: string;
+  symbolNameJa: string;
+  action: 'buy' | 'sell';
+  amountMYR: number;
+  deltaWeightPct: number;
+};
+
+export type ForwardMalaysiaV4RebalancePlanId = 'min_trades' | 'risk_min' | 'max_profit';
+
+export type ForwardMalaysiaV4RebalancePlan = {
+  planId: ForwardMalaysiaV4RebalancePlanId;
+  labelJa: string;
+  trades: ForwardMalaysiaV4RebalanceTradeRow[];
+  tradeCount: number;
+  summaryJa: string;
+};
+
+export type ForwardMalaysiaV4RebalancePrediction = {
+  ytlDependencyPct: number;
+  hhi: number;
+  expectedCumulativePct: number;
+  delistMcPct: number;
+  weightsAfter: Record<string, number>;
+};
+
+export type ForwardMalaysiaV4RebalanceAuditReport = {
+  auditedAt: string;
+  holdingsSourceJa: string;
+  totalPortfolioValueMYR: number;
+  v4HoldingsValueMYR: number;
+  nonV4HoldingsValueMYR: number;
+  holdingRows: ForwardMalaysiaV4RebalanceHoldingRow[];
+  deltaRows: ForwardMalaysiaV4RebalanceDeltaRow[];
+  sellCandidates: string[];
+  buyCandidates: string[];
+  rebalancePlans: ForwardMalaysiaV4RebalancePlan[];
+  predictions: Record<ForwardMalaysiaV4RebalancePlanId, ForwardMalaysiaV4RebalancePrediction>;
+  executionPriorityJa: string[];
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  consistencyNoteJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4TwelveProductionGrade = 'A' | 'B' | 'C';
+
+export type ForwardMalaysiaV4TwelveFormatProbeRow = {
+  attempt: string;
+  apiSymbol: string;
+  exchange?: string;
+  mic_code?: string;
+  quoteOk: boolean;
+  quotePrice: number | null;
+  quoteErrorJa: string | null;
+  timeSeriesOk: boolean;
+  timeSeriesBarCount: number;
+  timeSeriesErrorJa: string | null;
+};
+
+export type ForwardMalaysiaV4TwelveBursaSymbolRow = {
+  bursaSymbol: string;
+  yahooSymbol: string;
+  labelJa: string;
+  formatProbes: ForwardMalaysiaV4TwelveFormatProbeRow[];
+  winningAttempt: string | null;
+  winningApiSymbol: string | null;
+  productionQuoteOk: boolean;
+  productionQuotePrice: number | null;
+  productionTimeSeriesOk: boolean;
+  productionTimeSeriesBarCount: number;
+  yahooLatestClose: number | null;
+  yahooLatestDate: string | null;
+  twelveLatestDate: string | null;
+  priceDiffPct: number | null;
+};
+
+export type ForwardMalaysiaV4TwelveFailureFix = {
+  symbol: string;
+  issueJa: string;
+  causeJa: string;
+  fixFile: string;
+  fixCodeJa: string;
+};
+
+export type ForwardMalaysiaV4TwelveBursaAuditReport = {
+  auditedAt: string;
+  twelveApiKeyAvailable: boolean;
+  symbolRows: ForwardMalaysiaV4TwelveBursaSymbolRow[];
+  quoteSuccessRatePct: number;
+  timeSeriesSuccessRatePct: number;
+  productionQuoteSuccessRatePct: number;
+  productionTimeSeriesSuccessRatePct: number;
+  avgPriceDiffPct: number | null;
+  maxPriceDiffPct: number | null;
+  totalApiRequests: number;
+  rateLimitHitCount: number;
+  minIntervalMs: number;
+  symbolCooldownMs: number;
+  apiLimitNoteJa: string;
+  productionGrade: ForwardMalaysiaV4TwelveProductionGrade;
+  productionVerdictJa: string;
+  failureFixes: ForwardMalaysiaV4TwelveFailureFix[];
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  consistencyNoteJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4TwelveSymbolSearchHit = {
+  symbol: string;
+  instrumentName: string;
+  exchange: string;
+  micCode: string;
+  country: string;
+  currency: string;
+  instrumentType: string;
+  access: string;
+  searchQuery: string;
+};
+
+export type ForwardMalaysiaV4TwelveSymbolSearchQueryRow = {
+  bursaCode: string;
+  labelJa: string;
+  httpStatus: number;
+  matchCount: number;
+  malaysiaMatchCount: number;
+  responseBodyFull: string;
+  errorMessage: string | null;
+  hits: ForwardMalaysiaV4TwelveSymbolSearchHit[];
+};
+
+export type ForwardMalaysiaV4TwelveSymbolSearchRetryRow = {
+  bursaCode: string;
+  labelJa: string;
+  officialSymbol: string;
+  exchange: string;
+  micCode: string;
+  endpoint: 'quote' | 'time_series';
+  httpStatus: number;
+  ok: boolean;
+  responseBodyFull: string;
+  errorMessage: string | null;
+  quotePrice: number | null;
+  timeSeriesBarCount: number;
+};
+
+export type ForwardMalaysiaV4TwelveFinalVerdict =
+  | 'available'
+  | 'pro_plan_required'
+  | 'bursa_unsupported';
+
+export type ForwardMalaysiaV4TwelveRootCauseKind =
+  | 'plan_rate_limit'
+  | 'plan_upgrade_required'
+  | 'exchange_not_in_catalog'
+  | 'symbol_format_invalid'
+  | 'data_available';
+
+export type ForwardMalaysiaV4TwelveSymbolSearchAuditReport = {
+  auditedAt: string;
+  twelveApiKeyAvailable: boolean;
+  throttleMs: number;
+  searchRows: ForwardMalaysiaV4TwelveSymbolSearchQueryRow[];
+  officialSymbols: ForwardMalaysiaV4TwelveSymbolSearchHit[];
+  retryRows: ForwardMalaysiaV4TwelveSymbolSearchRetryRow[];
+  rootCauseKind: ForwardMalaysiaV4TwelveRootCauseKind;
+  rootCauseEvidenceJa: string[];
+  finalVerdict: ForwardMalaysiaV4TwelveFinalVerdict;
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4TwelveProRoiRecommendation =
+  | 'yahoo_only'
+  | 'twelve_recommended'
+  | 'twelve_future';
+
+export type ForwardMalaysiaV4DataGapRow = {
+  itemJa: string;
+  yahooStatusJa: string;
+  twelveProStatusJa: string;
+  codeReferenceJa: string;
+};
+
+export type ForwardMalaysiaV4OpsComparisonRow = {
+  dimensionJa: string;
+  yahooOnlyJa: string;
+  yahooPlusTwelveJa: string;
+};
+
+export type ForwardMalaysiaV4TwelveProRoiAuditReport = {
+  auditedAt: string;
+  yahooAudit81Grade: string;
+  yahooSuccessRatePct: number;
+  yahooMissingRatePct: number;
+  yahooAnomalyRatePct: number;
+  yahooUpdateDelayDays: number;
+  twelveSymbolSearchVerdict: string;
+  v4CumulativeReturnPct: number;
+  monthlyDcaMYR: number;
+  twelveProMonthlyUsd: number;
+  twelveProAnnualUsd: number;
+  dataGapRows: ForwardMalaysiaV4DataGapRow[];
+  opsComparisonRows: ForwardMalaysiaV4OpsComparisonRow[];
+  v4RequirementsJa: string[];
+  roiCostAnnualUsd: number;
+  roiMeasuredUpliftJa: string;
+  roiVerdictJa: string;
+  recommendation: ForwardMalaysiaV4TwelveProRoiRecommendation;
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4IssueSeverity = 'critical' | 'high' | 'medium' | 'low';
+
+export type ForwardMalaysiaV4OpenIssueRow = {
+  severity: ForwardMalaysiaV4IssueSeverity;
+  issueJa: string;
+  sourceAuditJa: string;
+  evidenceJa: string;
+};
+
+export type ForwardMalaysiaV4OpsAreaStatus = {
+  areaJa: string;
+  statusJa: '完了' | '条件付き' | '未完了' | '未監査';
+  evidenceJa: string;
+};
+
+export type ForwardMalaysiaV4ProductionVerdict =
+  | 'immediate'
+  | 'conditional'
+  | 'blocked';
+
+export type ForwardMalaysiaV4ProductionReadinessAuditReport = {
+  auditedAt: string;
+  auditSummaries: { auditNo: string; titleJa: string; verdictLine: string; csvPath: string }[];
+  completedItemsJa: string[];
+  incompleteItemsJa: string[];
+  openIssues: ForwardMalaysiaV4OpenIssueRow[];
+  criticalCount: number;
+  opsAreaStatuses: ForwardMalaysiaV4OpsAreaStatus[];
+  yahooRiskJa: string;
+  fallbackJa: string;
+  checklistJa: string[];
+  startConditionsJa: string[];
+  productionVerdict: ForwardMalaysiaV4ProductionVerdict;
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 最重要監査その85 — 実運用開始後 · Rakuten実保有整合 · 検索不具合修正検証 */
+export type ForwardMalaysiaV4StockSearchPathId =
+  | 'symbol'
+  | 'name'
+  | 'fuzzy'
+  | 'recommended';
+
+export type ForwardMalaysiaV4StockSearchProbeRow = {
+  symbol: string;
+  labelJa: string;
+  inStocksMaster: boolean;
+  inSearchIndex: boolean;
+  query: string;
+  pathId: ForwardMalaysiaV4StockSearchPathId;
+  hit: boolean;
+  matchedSymbols: string[];
+};
+
+export type ForwardMalaysiaV4GoLiveHoldingRow = {
+  symbol: string;
+  labelJa: string;
+  shares: number;
+  priceMYR: number;
+  marketValueMYR: number;
+  weightPct: number;
+  registrableViaFindStock: boolean;
+};
+
+export type ForwardMalaysiaV4GoLiveAuditReport = {
+  auditedAt: string;
+  searchBugCauseJa: string;
+  searchFixFilesJa: string[];
+  searchFixSummaryJa: string;
+  stockSearchProbes: ForwardMalaysiaV4StockSearchProbeRow[];
+  gamudaQueriesAllHit: boolean;
+  fiveSymbolSearchAllHit: boolean;
+  realHoldings: ForwardMalaysiaV4GoLiveHoldingRow[];
+  totalHoldingsMYR: number;
+  rebalanceReport: ForwardMalaysiaV4RebalanceAuditReport;
+  nextDcaProposalJa: string;
+  answerAJa: string;
+  answerBJa: string;
+  answerCJa: string;
+  answerDJa: string;
+  answerEJa: string;
+  answerFJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4RealAccountAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4RealAccountCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4RealAccountAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4RealAccountFlowSimRow = {
+  flowStateId: 'cash_only' | 'orders_pending' | 'partially_filled' | 'fully_filled';
+  flowStateLabelJa: string;
+  matchedShareTotal: number;
+  pendingOrderCount: number;
+  rebalanceHoldingCount: number;
+  rebalanceSummaryJa: string;
+};
+
+export type ForwardMalaysiaV4RealAccountAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4RealAccountAuditGrade;
+  checks: ForwardMalaysiaV4RealAccountCheckRow[];
+  flowSimulations: ForwardMalaysiaV4RealAccountFlowSimRow[];
+  userSnapshot: {
+    cashMYR: number;
+    flowStateId: string;
+    flowStateLabelJa: string;
+    matchedStockValueMYR: number;
+    matchedShareTotal: number;
+    pendingOrderCount: number;
+    orderRows: {
+      symbol: string;
+      estimatedShares: number;
+      matchedShares: number;
+      completed: boolean;
+    }[];
+  };
+  currentMatchedRebalance: {
+    answerAJa: string;
+    answerBJa: string;
+    answerCJa: string;
+    answerDJa: string;
+    answerEJa: string;
+  };
+  projectedAfterFullFillRebalance: {
+    answerAJa: string;
+    answerBJa: string;
+    answerCJa: string;
+    answerDJa: string;
+    answerEJa: string;
+    answerFJa: string;
+    holdingsSummaryJa: string;
+  };
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査87 — 実効エクスポージャー · Pending Orders AI認識 */
+export type ForwardMalaysiaV4EffectiveExposureAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4EffectiveExposureCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4EffectiveExposureAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4EffectiveExposureAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4EffectiveExposureAuditGrade;
+  checks: ForwardMalaysiaV4EffectiveExposureCheckRow[];
+  exposure: {
+    matchedStockValueMYR: number;
+    pendingOrderValueMYR: number;
+    availableCashMYR: number;
+    effectiveExposureMYR: number;
+    additionalPurchasableMYR: number;
+    cashCushionAfterFillMYR: number;
+    isOverCommitted: boolean;
+    assumedSummaryJa: string;
+    projectedSummaryJa: string;
+    liquiditySummaryJa: string;
+    allocationRows: {
+      symbol: string;
+      labelJa: string;
+      assumedWeightPct: number;
+      projectedWeightPct: number;
+      targetWeightPct: number;
+    }[];
+  };
+  uiPanelFieldsJa: string[];
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査88 — 実口座資産 · 二重計上修正 */
+export type ForwardMalaysiaV4RealAssetsAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4RealAssetsCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4RealAssetsAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4RealAssetsAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4RealAssetsAuditGrade;
+  checks: ForwardMalaysiaV4RealAssetsCheckRow[];
+  accountBreakdown: {
+    matchedStockValueMYR: number;
+    pendingOrderMarketValueMYR: number;
+    pendingCommittedMYR: number;
+    totalCashMYR: number;
+    reservedCashMYR: number;
+    availableCashMYR: number;
+    totalAssetsMYR: number;
+    audit87EffectiveExposureMYR: number;
+    doubleCountExcessMYR: number;
+    isDoubleCounting: boolean;
+    isOverCommitted: boolean;
+    buyingPowerDeductsPending: boolean;
+  };
+  audit87Pending5820DerivationJa: string;
+  orderCompareRows: {
+    symbol: string;
+    labelJa: string;
+    shares: number;
+    entryPriceMYR: number;
+    aiOrderAmountMYR: number;
+    aiMarketValueMYR: number;
+    rakutenOrderAmountMYR: number | null;
+    noteJa: string;
+  }[];
+  allocationRows: {
+    symbol: string;
+    labelJa: string;
+    proFormaWeightPct: number;
+    projectedWeightPct: number;
+    targetWeightPct: number;
+  }[];
+  assetsSummaryJa: string;
+  proFormaSummaryJa: string;
+  projectedSummaryJa: string;
+  liquiditySummaryJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査89 — Rakuten注文金額 vs AI注文金額 */
+export type ForwardMalaysiaV4OrderAmountAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4OrderAmountCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4OrderAmountAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4OrderAmountAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4OrderAmountAuditGrade;
+  checks: ForwardMalaysiaV4OrderAmountCheckRow[];
+  manualOrderListRows: {
+    orderId: string;
+    symbol: string;
+    labelJa: string;
+    shares: number;
+    limitPriceMYR: number;
+    allocationMYR: number;
+    orderAmountMYR: number;
+    completed: boolean;
+    source: string;
+  }[];
+  comparisonRows: {
+    symbol: string;
+    labelJa: string;
+    shares: number;
+    limitPriceMYR: number;
+    orderPriceMYR: number;
+    yahooCloseMYR: number | null;
+    yahooMarketValueMYR: number | null;
+    orderVsYahooDeltaMYR: number | null;
+  }[];
+  totals: {
+    orderPriceTotalMYR: number;
+    yahooMarketTotalMYR: number;
+    allocationTotalMYR: number;
+    cashMYR: number;
+    shortfallVsCashMYR: number;
+    fitsWithinCashAtOrderPrice: boolean;
+    fitsWithinCashAtYahoo: boolean;
+    impliedUniformLimitScaleForCash: number | null;
+  };
+  rootCauseJa: string;
+  valuationPolicyJa: string;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査90 — Rakuten実指値登録 */
+export type ForwardMalaysiaV4RakutenRegisterAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4RakutenRegisterCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4RakutenRegisterAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4RakutenRegisterAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4RakutenRegisterAuditGrade;
+  checks: ForwardMalaysiaV4RakutenRegisterCheckRow[];
+  registeredLimits: {
+    symbol: string;
+    labelJa: string;
+    shares: number;
+    entryPriceMYR: number;
+    orderAmountMYR: number;
+    yahooCloseMYR: number | null;
+    yahooMarketValueMYR: number | null;
+    deltaMYR: number | null;
+    brokerageFeeMYR: number;
+  }[];
+  totals: {
+    orderTotalMYR: number;
+    yahooMarketTotalMYR: number;
+    allocationTotalMYR: number;
+    brokerageTotalMYR: number;
+    orderWithFeesMYR: number;
+    cashMYR: number;
+    cashAfterOrdersMYR: number;
+    cashAfterOrdersAndFeesMYR: number;
+    fitsWithinCashBeforeFees: boolean;
+    fitsWithinCashAfterFees: boolean;
+  };
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査91 — 手数料込み発注資金 */
+export type ForwardMalaysiaV4OrderFundingAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4OrderFundingCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4OrderFundingAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4OrderFundingAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4OrderFundingAuditGrade;
+  checks: ForwardMalaysiaV4OrderFundingCheckRow[];
+  beforeAdjust: {
+    orderTotalMYR: number;
+    estimatedFeesMYR: number;
+    grandTotalMYR: number;
+    balanceAfterMYR: number;
+    canPlaceOrders: boolean;
+  };
+  afterAdjust: {
+    orderTotalMYR: number;
+    estimatedFeesMYR: number;
+    grandTotalMYR: number;
+    balanceAfterMYR: number;
+    canPlaceOrders: boolean;
+    scale: number;
+    reductions?: {
+      symbol: string;
+      labelJa: string;
+      sharesRemoved: number;
+      entryPriceMYR: number;
+      sharesAfter: number;
+    }[];
+    limits: { symbol: string; labelJa: string; entryPriceMYR: number; shares: number }[];
+  };
+  cashMYR: number;
+  fixedConditionsJa: string;
+  humanSummaryJa: string;
+};
+
+/** 重要監査92 — entryPrice固定 · 株数削減 */
+export type ForwardMalaysiaV4ShareReductionAuditGrade = 'PASS' | 'WARNING' | 'FAIL';
+
+export type ForwardMalaysiaV4ShareReductionCheckRow = {
+  checkId: string;
+  titleJa: string;
+  grade: ForwardMalaysiaV4ShareReductionAuditGrade;
+  evidenceJa: string;
+  codeRefJa: string;
+};
+
+export type ForwardMalaysiaV4ShareReductionOrderRow = {
+  symbol: string;
+  labelJa: string;
+  shares: number;
+  entryPriceMYR: number;
+  orderAmountMYR: number;
+};
+
+export type ForwardMalaysiaV4ShareReductionAuditReport = {
+  auditedAt: string;
+  overallGrade: ForwardMalaysiaV4ShareReductionAuditGrade;
+  checks: ForwardMalaysiaV4ShareReductionCheckRow[];
+  cashMYR: number;
+  shortfallMYR: number;
+  reductionPriority: string[];
+  reductionSteps: {
+    symbol: string;
+    labelJa: string;
+    sharesRemoved: number;
+    entryPriceMYR: number;
+    sharesAfter: number;
+    savedOrderMYR: number;
+  }[];
+  originalOrders: ForwardMalaysiaV4ShareReductionOrderRow[];
+  proposedOrders: ForwardMalaysiaV4ShareReductionOrderRow[];
+  beforeFunding: {
+    orderTotalMYR: number;
+    estimatedFeesMYR: number;
+    grandTotalMYR: number;
+    balanceAfterMYR: number;
+    canPlaceOrders: boolean;
+  };
+  afterFunding: {
+    orderTotalMYR: number;
+    estimatedFeesMYR: number;
+    grandTotalMYR: number;
+    balanceAfterMYR: number;
+    canPlaceOrders: boolean;
+  };
+  rakutenPriceMatch: boolean;
+  entryPricesUnchanged: boolean;
+  fixedConditionsJa: string;
   humanSummaryJa: string;
 };
 

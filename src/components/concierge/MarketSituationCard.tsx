@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { GlobalMarketAnalysisBundle } from '../../types/globalMarketAnalysis';
 import { SelectableText } from '../ui/SelectableText';
+import { listKey } from '../../utils/reactKeyDiagnostics';
 import { theme } from '../../theme';
 
 type Props = {
@@ -52,8 +53,8 @@ function MarketSituationCardInner({ analysis }: Props) {
       {expanded ? (
         <>
           <Text style={styles.section}>主要指数</Text>
-          {analysis.indices.map((idx) => (
-            <Text key={idx.id} style={styles.line}>
+          {analysis.indices.map((idx, index) => (
+            <Text key={listKey('idx', index, idx.id)} style={styles.line}>
               {idx.labelJa}:{' '}
               {idx.changePct != null
                 ? `${idx.changePct >= 0 ? '+' : ''}${idx.changePct.toFixed(2)}%`
@@ -64,24 +65,24 @@ function MarketSituationCardInner({ analysis }: Props) {
           ))}
 
           <Text style={styles.section}>セクター（ETF）</Text>
-          {analysis.sectors.slice(0, 5).map((s) => (
-            <Text key={s.id} style={styles.line}>
+          {analysis.sectors.slice(0, 5).map((s, index) => (
+            <Text key={listKey('sector', index, s.id)} style={styles.line}>
               #{s.leadershipRank} {s.labelJa}:{' '}
               {s.changePct != null ? `${s.changePct >= 0 ? '+' : ''}${s.changePct.toFixed(2)}%` : '—'}
             </Text>
           ))}
 
           <Text style={styles.section}>為替</Text>
-          {analysis.forex.map((f) => (
-            <Text key={f.id} style={styles.line}>
+          {analysis.forex.map((f, index) => (
+            <Text key={listKey('fx', index, f.id)} style={styles.line}>
               {f.labelJa}: {f.value != null ? f.value.toFixed(4) : '—'}
               {f.changePct != null ? ` (${f.changePct >= 0 ? '+' : ''}${f.changePct.toFixed(2)}%)` : ''}
             </Text>
           ))}
 
           <Text style={styles.section}>金利</Text>
-          {analysis.rates.map((r) => (
-            <Text key={r.id} style={styles.line}>
+          {analysis.rates.map((r, index) => (
+            <Text key={listKey('rate', index, r.id)} style={styles.line}>
               {r.labelJa}: {r.value != null ? `${r.value.toFixed(2)}${r.unitJa}` : '—'}
             </Text>
           ))}
@@ -89,8 +90,8 @@ function MarketSituationCardInner({ analysis }: Props) {
           {analysis.correlations.length > 0 ? (
             <>
               <Text style={styles.section}>相関（参考）</Text>
-              {analysis.correlations.map((c) => (
-                <Text key={c.pairLabelJa} style={styles.line}>
+              {analysis.correlations.map((c, index) => (
+                <Text key={listKey('corr', index, c.pairLabelJa)} style={styles.line}>
                   {c.pairLabelJa}: {c.correlationHintJa}
                 </Text>
               ))}
@@ -98,8 +99,8 @@ function MarketSituationCardInner({ analysis }: Props) {
           ) : null}
 
           <Text style={styles.section}>市場全体要因</Text>
-          {analysis.marketWideFactorsJa.map((f) => (
-            <Text key={f} style={styles.bullet}>
+          {analysis.marketWideFactorsJa.map((f, index) => (
+            <Text key={listKey('factor', index, f)} style={styles.bullet}>
               · {f}
             </Text>
           ))}

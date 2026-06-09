@@ -1,5 +1,6 @@
-import { getSecret, setSecret } from './secretStorage';
 import { isUsableApiKey, normalizeStoredApiKey } from './apiKeyValidation';
+import { safeGetApiKey, safeSaveApiKey } from './safeApiKey';
+import { getSecret } from './secretStorage';
 
 const AI_ENV_KEY_NAMES = [
   'EXPO_PUBLIC_OPENAI_API_KEY',
@@ -18,24 +19,22 @@ function readAiKeyFromEnv(): string {
 }
 
 export async function loadAiApiKey(): Promise<string> {
-  const raw = await getSecret('aiApiKey');
-  if (isUsableApiKey(raw)) return normalizeStoredApiKey(raw);
+  const stored = await safeGetApiKey('openai');
+  if (stored) return stored;
+  const legacy = await getSecret('sta.secret.openai_api_key');
+  if (legacy && isUsableApiKey(legacy)) return normalizeStoredApiKey(legacy);
 
   const fromEnv = readAiKeyFromEnv();
   if (fromEnv) {
-    await setSecret('aiApiKey', fromEnv);
+    await safeSaveApiKey('openai', fromEnv);
     return fromEnv;
   }
 
   return '';
 }
 
-export async function saveAiApiKey(apiKey: string): Promise<void> {
-  if (!isUsableApiKey(apiKey)) {
-    await setSecret('aiApiKey', '');
-    return;
-  }
-  await setSecret('aiApiKey', normalizeStoredApiKey(apiKey));
+export async function saveAiApiKey(apiKey: string): Promise<{ saved: boolean; reason: string }> {
+  return safeSaveApiKey('openai', apiKey);
 }
 
 export type LoadAiApiKeyResult = {

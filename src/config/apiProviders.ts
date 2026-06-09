@@ -5,6 +5,7 @@ export type SupportedApiProviderId =
   | 'twelve_data'
   | 'newsapi'
   | 'x'
+  | 'reddit'
   | 'alpha_vantage'
   | 'finnhub'
   | 'polygon'
@@ -46,6 +47,14 @@ export const API_PROVIDERS: ApiProviderDefinition[] = [
     secretKeyId: 'xApiKey',
     placeholder: 'Bearer Token',
     helpText: 'users/me で疎通確認します',
+  },
+  {
+    id: 'reddit',
+    label: 'Reddit API',
+    secretKeyId: 'redditApiKey',
+    placeholder: 'OAuth Bearer Token',
+    helpText:
+      '任意。未設定時は Reddit RSS で話題取得。OAuth Bearer 設定時は /api/v1/me で確認',
   },
   {
     id: 'alpha_vantage',

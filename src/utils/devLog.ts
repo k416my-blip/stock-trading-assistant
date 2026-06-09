@@ -6,6 +6,10 @@ function envFlag(name: string): boolean {
 }
 
 export const VERBOSE_DEV_LOGS = envFlag('EXPO_PUBLIC_VERBOSE_DEV_LOGS');
+/** [APP MEM] スナップショット — 既定 OFF。有効化: EXPO_PUBLIC_APP_MEM_LOGS=1 */
+export const APP_MEM_LOGS = envFlag('EXPO_PUBLIC_APP_MEM_LOGS');
+/** [ACTION_CENTER] 診断 — 既定 OFF。有効化: EXPO_PUBLIC_ACTION_CENTER_LOGS=1 */
+export const ACTION_CENTER_LOGS = envFlag('EXPO_PUBLIC_ACTION_CENTER_LOGS');
 export const RENDER_DIAG_FLAG = envFlag('EXPO_PUBLIC_RENDER_DIAG');
 export const WDYR_ENABLED = envFlag('EXPO_PUBLIC_WDYR');
 

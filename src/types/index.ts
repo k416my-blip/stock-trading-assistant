@@ -220,6 +220,8 @@ export interface AllocationCandidate {
   selectionReason: string;
   beginnerNote: string;
   recommendation?: import('./recommendation').StockRecommendation;
+  /** 投資委員長審議 — 賛成・反対・信頼度・一致率・採用可否 */
+  recommendationMeta?: import('../services/recommendationProvenance').AllocationRecommendationMeta;
 }
 
 export interface AllocationPlanInput {
@@ -228,6 +230,10 @@ export interface AllocationPlanInput {
   riskLevel: RiskLevel;
   investmentStyle: InvestmentStyle;
   fractionalSharesEnabled: boolean;
+  /** ユーザー登録銘柄のみ（Malaysia v4 参考モデルより優先） */
+  userUniverse?: StockFundamentals[];
+  /** AIコンシェルジュ根拠（最上位意思決定） */
+  conciergeEvidence?: import('../types/conciergeEvidence').ConciergeEvidenceBundle;
 }
 
 export interface AllocationPlan {

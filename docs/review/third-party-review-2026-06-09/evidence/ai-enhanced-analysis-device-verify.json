@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-06-09T13:22:57.783Z",
+  "question": "1155 Maybank は買い？",
+  "overall": "PASS",
+  "checks": {
+    "blockFound": true,
+    "labels": {
+      "stockName": true,
+      "currentPrice": true,
+      "shares": true,
+      "marketValue": true,
+      "unrealizedPnl": true,
+      "judgment": true,
+      "confidence": true,
+      "reasons": true,
+      "positive": true,
+      "negative": true,
+      "risk": true,
+      "nextCheck": true,
+      "action": true,
+      "sourceScores": true,
+      "overallScore": true
+    },
+    "labelsPass": 15,
+    "labelsTotal": 15,
+    "hasMaybank": true,
+    "noCrash": true
+  },
+  "missingDataTest": {
+    "crashed": false,
+    "pass": true
+  },
+  "screenshots": [
+    "04-ai-analysis-result.png",
+    "05-missing-data-no-crash.png"
+  ],
+  "sourcePath": "scripts/ai-enhanced-analysis-device-verify/report.json"
+}

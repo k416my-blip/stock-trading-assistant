@@ -8,8 +8,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { getActivePortfolio } from '../services/portfolioPriceUpdate';
+import {
+  buildAllowedSymbolKeySet,
+  normalizeSymbolKey,
+  resolveSymbolsForNotifications,
+} from '../services/userAnalysisSymbols';
 import { useApp } from './AppContext';
+import { getActivePortfolio } from '../services/portfolioPriceUpdate';
+import type { PortfolioPosition } from '../types';
 import { usePriceSyncState } from './PriceSyncContext';
 import { useCentralIntelligence } from '../hooks/useCentralIntelligence';
 import { useUrgencySignals } from './UrgencySignalContext';
@@ -374,6 +380,34 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       return;
     }
     noteProactiveRefresh();
+    const { AI_ACTION_CENTER_LITE_MODE } = await import('../constants/aiConciergeDevFlags');
+    if (AI_ACTION_CENTER_LITE_MODE) {
+      const { runConciergeLiteProactiveRefresh } = await import('../services/conciergeLiteRefresh');
+      const { logAppMemorySnapshot } = await import('../utils/appMemoryDiagnostics');
+      logAppMemorySnapshot('startup_after_interactive_shell');
+      await runConciergeLiteProactiveRefresh({
+        state: stateRef.current,
+        aiPreferences,
+        setStrategyBundle,
+        clearHeavyConciergeBundles: () => {
+          setMetaBundle(null);
+          setRealityBundle(null);
+          setExecutionBundle(null);
+          setSelfEvaluationBundle(null);
+          setMacroIntelligenceBundle(null);
+          setDataReliabilityBundle(null);
+          setPortfolioRiskExposureBundle(null);
+          setCapitalAllocationBundle(null);
+          setSystemStabilityIntegrityBundle(null);
+          setAiGovernanceDecisionBundle(null);
+          setReactiveEventOrchestrationBundle(null);
+          setExplainableCognitiveTraceBundle(null);
+          setAutonomousBundle(null);
+        },
+      });
+      releaseRenderBudget();
+      return;
+    }
     const refreshGen = nextAsyncGeneration('proactive-refresh');
     const {
       shouldRecomputeLayer: reactiveLayerOn,
@@ -836,6 +870,10 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       stateRef.current,
       apiKeys,
       aiPreferences.aiAnalysisMode,
+      {
+        isPractice: stateRef.current.appMode === 'practice',
+        symbolScope: aiPreferences.aiAnalysisSymbolScope,
+      },
     );
 
     let dataReliability: DataReliabilityBundle | null = null;
@@ -857,12 +895,20 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     const { buildGlobalMarketAnalysis } = await import('../services/marketRegimeConciergeEngine');
     const globalMarketAnalysis = await buildGlobalMarketAnalysis();
     const queue = tradeQueueFromProvider;
+    const notifyAllowed = buildAllowedSymbolKeySet(
+      resolveSymbolsForNotifications(
+        stateRef.current,
+        stateRef.current.appMode === 'practice',
+      ),
+    );
     const buyCandidateTickers = queue
       .filter((q) => q.suggestedAction === 'suggested_buy')
-      .map((q) => q.ticker);
+      .map((q) => q.ticker)
+      .filter((t) => notifyAllowed.has(normalizeSymbolKey(t)));
     const sellCandidateTickers = queue
       .filter((q) => q.suggestedAction === 'suggested_reduce')
-      .map((q) => q.ticker);
+      .map((q) => q.ticker)
+      .filter((t) => notifyAllowed.has(normalizeSymbolKey(t)));
 
     const input = {
       holdings,
@@ -876,6 +922,7 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       previous: fingerprintRef.current,
       conciergeEvidenceSymbols: proactiveEvidence.symbols,
       globalMarketAnalysis,
+      allowedSymbolKeys: notifyAllowed,
     };
 
     const candidates = evaluateProactiveAdvice(input);
@@ -933,7 +980,7 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
         .map((i) => i.yahooSymbol.split('.')[0])
         .slice(0, 4);
       autoBundle = buildAutonomousMonitoringBundle({
-        holdings: holdings.map((p) => ({
+        holdings: holdings.map((p: PortfolioPosition) => ({
           symbol: p.symbol,
           market: p.market,
           shares: p.shares ?? 0,
@@ -971,7 +1018,11 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
         }
       }
 
-      allRawCandidates.push(...autoBundle.notifyCandidates);
+      allRawCandidates.push(
+        ...autoBundle.notifyCandidates.filter(
+          (c) => !c.symbol || notifyAllowed.has(normalizeSymbolKey(c.symbol)),
+        ),
+      );
     } else {
       setAutonomousBundle(null);
     }
@@ -1036,10 +1087,9 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     const { FORCE_SHOW_AI_ACTION_CENTER: forceStrategyLayer } = await import(
       '../constants/aiConciergeDevFlags'
     );
-    const strategyLayerActive =
-      layerOn('strategy') || (__DEV__ && forceStrategyLayer);
+    const strategyLayerActive = layerOn('strategy') || forceStrategyLayer;
     if (
-      (aiPreferences.strategyExecutionEnabled || (__DEV__ && forceStrategyLayer)) &&
+      (aiPreferences.strategyExecutionEnabled || forceStrategyLayer) &&
       strategyLayerActive
     ) {
       const { loadStrategyExecutionState, appendStrategyJournalEntry, recordStrategyCooldownProposal } =
@@ -1073,33 +1123,35 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
         },
         stratState,
       );
-      if (
-        aiPreferences.aiEnabled &&
-        !aiPreferences.mockOnly
-      ) {
-        const { shouldPauseConciergeAi: pauseConciergeAi } = await import(
-          '../services/productionStability/productionStabilityRuntime'
+      const { shouldPauseConciergeAi: pauseConciergeAi } = await import(
+        '../services/productionStability/productionStabilityRuntime'
+      );
+      const aiPaused = pauseConciergeAi();
+      const { shouldPreferRealApiOverDegraded } = await import('../constants/realApiMode');
+      const preferRealApi = shouldPreferRealApiOverDegraded();
+      const hybridDegraded =
+        aiPreferences.mockOnly ||
+        aiPaused ||
+        !aiPreferences.aiEnabled ||
+        (!preferRealApi && (worldModel?.operations.degradedMode ?? false));
+      try {
+        const { enhanceStrategyBundleWithHybridEvaluator } = await import(
+          '../services/strategyHybridEnhancement'
         );
-        if (!pauseConciergeAi()) {
-          try {
-            const { enhanceStrategyBundleWithHybridEvaluator } = await import(
-              '../services/strategyHybridEnhancement'
-            );
-            strategy = await enhanceStrategyBundleWithHybridEvaluator(
-              strategy,
-              proactiveEvidence.symbols,
-              {
-                degradedMode: worldModel?.operations.degradedMode ?? false,
-                symbolWeightPct,
-              },
-            );
-          } catch (hybridErr) {
-            console.warn(
-              '[proactive-strategy] hybrid enhancement failed — showing rule bundle',
-              hybridErr instanceof Error ? hybridErr.message : String(hybridErr),
-            );
-          }
-        }
+        strategy = await enhanceStrategyBundleWithHybridEvaluator(
+          strategy,
+          proactiveEvidence.symbols,
+          {
+            degradedMode: hybridDegraded,
+            symbolWeightPct,
+            forceAi: aiPreferences.aiEnabled && !aiPreferences.mockOnly && !aiPaused,
+          },
+        );
+      } catch (hybridErr) {
+        console.warn(
+          '[proactive-strategy] hybrid enhancement failed — showing rule bundle',
+          hybridErr instanceof Error ? hybridErr.message : String(hybridErr),
+        );
       }
       if (__DEV__) {
         const allRecs = [
@@ -1109,9 +1161,34 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
           ...strategy.highExpectancy,
         ];
         const sample = allRecs.find((r) => r.symbol.toUpperCase() === '0820EA') ?? allRecs[0];
-        console.log('[proactive-strategy] setStrategyBundle', {
-          strategyBundle: strategy,
+        const portfolioEval = strategy.portfolioAiEvaluation;
+        const { devLog } = await import('../utils/devLog');
+        devLog('[proactive-strategy] setStrategyBundle', {
+          hybridDegraded,
+          aiPaused,
+          mockOnly: aiPreferences.mockOnly,
+          aiEnabled: aiPreferences.aiEnabled,
           hybridSecondEvaluator: strategy.hybridSecondEvaluator ?? null,
+          portfolioAiEvaluation: portfolioEval
+            ? {
+                portfolioScore: portfolioEval.portfolioScore,
+                holdingCount: portfolioEval.holdingCount,
+                batchSource: portfolioEval.batchSource,
+                evaluatedAtJa: portfolioEval.evaluatedAtJa,
+                rankedCount: portfolioEval.rankedHoldings.length,
+                bestSymbols: portfolioEval.bestToday.map((b) => b.symbol),
+                worstSymbols: portfolioEval.worstToday.map((w) => w.symbol),
+                sampleRank: portfolioEval.rankedHoldings[0]
+                  ? {
+                      symbol: portfolioEval.rankedHoldings[0].symbol,
+                      action: portfolioEval.rankedHoldings[0].action,
+                      confidence: portfolioEval.rankedHoldings[0].confidence,
+                      rsi14: portfolioEval.rankedHoldings[0].rsi14,
+                      dataSources: portfolioEval.rankedHoldings[0].dataSources,
+                    }
+                  : null,
+              }
+            : null,
           action: sample?.hybrid?.aiAction ?? sample?.action ?? null,
           confidence: sample?.hybrid?.aiConfidencePct ?? sample?.confidencePct ?? null,
           rationaleJa: sample?.hybrid?.rationaleJa ?? null,

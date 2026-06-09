@@ -4,13 +4,22 @@ export const AI_API_CHAT_URL = 'https://api.openai.com/v1/responses';
 export const AI_API_MODEL = 'gpt-4o-mini';
 
 /** チャットAPIリクエストのハードタイムアウト */
-export const AI_API_TIMEOUT_MS = 20_000;
+export const AI_API_TIMEOUT_MS = 30_000;
+
+/** 10秒超過でUIに遅延ヒントを表示 */
+export const AI_CONCIERGE_SLOW_UI_MS = 10_000;
 
 /** 起動時のAPIキー読み込み・接続チェック */
 export const AI_BOOT_CHECK_TIMEOUT_MS = 5_000;
 
-/** UIで in-flight が許容される上限（API 20s × 最大2回 + 余裕） */
-export const AI_MAX_IN_FLIGHT_MS = 45_000;
+/** UIで in-flight が許容される上限（OpenAI 30秒で強制終了） */
+export const AI_MAX_IN_FLIGHT_MS = 30_000;
+
+/** 通常会話の max_output_tokens */
+export const AI_API_MAX_OUTPUT_TOKENS = 480;
+
+/** 分析モードの max_output_tokens */
+export const AI_API_MAX_OUTPUT_TOKENS_ANALYSIS = 720;
 
 export const AI_ERROR_API_KEY_MISSING =
   'AI APIキーが未設定です。設定画面で登録してください。';
@@ -18,7 +27,7 @@ export const AI_ERROR_API_KEY_MISSING =
 export const AI_ERROR_API_KEY_LOAD_FAILED =
   'AI APIキーの読み込みに失敗しました。設定を確認してください。';
 
-export const AI_ERROR_TIMEOUT = 'AI応答がタイムアウトしました。モック応答に切り替えます。';
+export const AI_ERROR_TIMEOUT = 'タイムアウトしました';
 
 export const AI_ERROR_NETWORK_FALLBACK =
   'AI APIに接続できませんでした。モック応答を表示しています。';
@@ -54,6 +63,13 @@ export const AI_FORBIDDEN_EXPRESSIONS: RegExp[] = [
   /様々な要因(だけ|のみ|による)?/i,
   /様々な理由(だけ|のみ|による)?/i,
 ];
+
+/** チャット応答用の短いシステムプロンプト（速度優先） */
+export const AI_CONCIERGE_CHAT_SYSTEM_PROMPT = `あなたは投資分析補助のAIコンシェルジュです。助言ではなく分析補助。注文・自動売買はしません。
+context.sessionMemory は文脈継続のみ。質問に無関係な定型・免責の繰り返しは禁止。
+応答は JSON のみ。通常会話: { "body": "最初の文で直接回答（固有名詞優先）" }
+分析を求められたときのみ conclusion/reason/risk/confidence 等を含める。
+禁止: 必ず買う、利益保証、金融助言。`;
 
 export const AI_SYSTEM_PROMPT = `あなたは「自己修復型AI投資支援システム」の唯一の知性層であり、全画面から呼び出されるコンシェルジュです。
 役割: 戦略コンシェルジュとして冷静・知的に会話する。投資助言ではなく分析補助。注文送信・自動売買は行いません。

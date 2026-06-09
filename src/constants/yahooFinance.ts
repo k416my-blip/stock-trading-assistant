@@ -16,6 +16,10 @@ export const BURSA_SYMBOL_MAP: Record<string, string> = {
   '5183': '5183.KL',
   '1155': '1155.KL',
   '1023': '1023.KL',
+  '5347': '5347.KL',
+  '5398': '5398.KL',
+  '6742': '6742.KL',
+  '3336': '3336.KL',
   '7103': '7103.KL',
   '0820EA': '0820EA.KL',
 };
@@ -41,6 +45,30 @@ export const BURSA_YAHOO_SYMBOL_SEED: Record<
     shortName: 'CIMB',
     exchange: 'KLS',
     longName: 'CIMB Group Holdings Berhad',
+  },
+  '5347': {
+    yahooSymbol: '5347.KL',
+    shortName: 'TENAGA',
+    exchange: 'KLS',
+    longName: 'Tenaga Nasional Berhad',
+  },
+  '5398': {
+    yahooSymbol: '5398.KL',
+    shortName: 'GAMUDA',
+    exchange: 'KLS',
+    longName: 'Gamuda Berhad',
+  },
+  '6742': {
+    yahooSymbol: '6742.KL',
+    shortName: 'YTL',
+    exchange: 'KLS',
+    longName: 'YTL Power International Berhad',
+  },
+  '3336': {
+    yahooSymbol: '3336.KL',
+    shortName: 'IJM',
+    exchange: 'KLS',
+    longName: 'IJM Corporation Berhad',
   },
   '5183': {
     yahooSymbol: '5183.KL',

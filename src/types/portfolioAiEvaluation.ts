@@ -25,6 +25,8 @@ export type PortfolioAiSymbolEvaluation = {
   displayTone: PortfolioAiDisplayTone;
   dataSources: PortfolioAiDataSources;
   weightPct: number;
+  /** ルール reduce × AI buy 矛盾で WATCH 降格した場合 true */
+  rankingConflict?: boolean;
 };
 
 export type PortfolioAiEvaluationBundle = {

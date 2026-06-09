@@ -104,7 +104,7 @@ export function ScreenerScreen() {
           stock={item}
           candidateAdded={candidateKeys.has(key)}
           onPress={() =>
-            navigation.navigate('StockDetail', { symbol: item.symbol, market: item.market })
+            navigation.navigate('StockReport', { symbol: item.symbol, market: item.market })
           }
           onAddCandidate={() => onAddCandidate(item)}
         />
@@ -118,8 +118,16 @@ export function ScreenerScreen() {
       <Text style={styles.title}>銘柄検索</Text>
       <Text style={styles.subtitle}>総合おすすめ度の高い順に表示しています</Text>
 
+      <Pressable
+        style={styles.bursaDiscoveryBtn}
+        onPress={() => navigation.navigate('BursaDiscovery')}
+      >
+        <Text style={styles.bursaDiscoveryBtnText}>Bursa 銘柄発掘（四季報 Phase6）</Text>
+      </Pressable>
+
       <View style={styles.searchRow}>
         <TextInput
+          testID="screener-search-input"
           style={styles.searchInput}
           value={query}
           onChangeText={setQuery}
@@ -190,6 +198,20 @@ const styles = StyleSheet.create({
   header: { marginBottom: theme.spacing.sm, gap: theme.spacing.sm },
   title: { color: theme.colors.text, fontSize: theme.fontSize.title, fontWeight: '700' },
   subtitle: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18 },
+  bursaDiscoveryBtn: {
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.radius.sm,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  bursaDiscoveryBtnText: {
+    color: theme.colors.primary,
+    fontWeight: '700',
+    fontSize: theme.fontSize.sm,
+    textAlign: 'center',
+  },
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
   searchInput: {
     flex: 1,

@@ -1,6 +1,7 @@
 import { TWELVE_DATA_BASE_URL } from '../constants/marketData';
 import { devLog } from '../utils/devLog';
-import { isUsableApiKey } from './apiKeyValidation';
+import { isUsableApiKey, normalizeTwelveDataApiKey } from './apiKeyValidation';
+import { safeGetApiKey, safeSaveApiKey } from './safeApiKey';
 import { getSecret, setSecret } from './secretStorage';
 
 const TWELVE_DATA_STORAGE_KEYS = {
@@ -138,18 +139,16 @@ export function logTwelveDataEnvKeyAtStartup(resolved: {
   });
 }
 
-export async function saveTwelveDataApiKey(apiKey: string): Promise<void> {
-  const trimmed = apiKey.trim();
-  await setSecret('twelveDataApiKey', trimmed);
-  devLog('SAVED API KEY', {
-    storageKeys: TWELVE_DATA_STORAGE_KEYS,
-    keyPresent: trimmed.length > 0,
-    keyLength: trimmed.length,
-  });
-  const reloaded = (await getSecret('twelveDataApiKey')).trim();
-  devLog('[API KEY ROUNDTRIP]', {
-    keyPresent: reloaded.length > 0,
-    keyLength: reloaded.length,
-    matchedAfterSave: reloaded === trimmed,
-  });
+export async function saveTwelveDataApiKey(
+  apiKey: string,
+): Promise<{ saved: boolean; reason: string }> {
+  const result = await safeSaveApiKey('twelve_data', apiKey);
+  if (result.saved) {
+    devLog('SAVED API KEY', {
+      storageKeys: TWELVE_DATA_STORAGE_KEYS,
+      keyPresent: true,
+      keyLength: (await safeGetApiKey('twelve_data')).length,
+    });
+  }
+  return result;
 }

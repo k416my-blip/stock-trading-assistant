@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useAiTradeQueue } from './AiTradeQueueContext';
+import { emitChatAuditNotice } from '../services/chatMessageFactory';
 import {
   acknowledgeSystemSignal,
   acknowledgeTradeQueueItem,
@@ -16,7 +17,7 @@ import {
   loadTradeQueueAckMap,
   type TradeQueueAckRecord,
 } from '../services/tradeQueueAckStorage';
-import { resolveEffectiveQueueAckStatus } from '../services/tradeQueueStatusResolver';
+import { resolveEffectiveQueueAckStatus, isActiveSignalStatus } from '../services/tradeQueueStatusResolver';
 import { countDiagnosticsBySeverity } from '../services/structuredDiagnostics';
 import {
   aggregateUrgencySignals,
@@ -26,7 +27,10 @@ import {
 import { playUrgentSignalFeedback } from '../services/urgencyAlertFeedback';
 import type { TradeQueueAckStatus, UrgencySignal } from '../types/urgencySignal';
 import { AI_UI } from '../constants/aiStrategyBriefing';
-import { emitChatAuditNotice } from '../services/chatMessageFactory';
+import {
+  buildNoActiveSignalReasons,
+  logNoActiveSignalReason,
+} from '../services/actionCenterDiagnostics';
 import { useApp } from './AppContext';
 import { useCentralIntelligence } from '../hooks/useCentralIntelligence';
 
@@ -120,6 +124,45 @@ export function UrgencySignalProvider({ children }: { children: ReactNode }) {
   ]);
 
   const activeSignal = useMemo(() => pickActiveUrgencySignal(allSignals), [allSignals]);
+
+  useEffect(() => {
+    if (activeSignal) return;
+    const activeQueue = queueWithAck.filter((q) => isActiveSignalStatus(q.ackStatus)).length;
+    const reasons = buildNoActiveSignalReasons({
+      allSignalsCount: allSignals.length,
+      queueItemsCount: queueWithAck.length,
+      activeQueueSignals: activeQueue,
+      staleHoldingsCount: worldModel?.portfolioRisk.staleHoldingsCount ?? 0,
+      degradedMode: degradedMode || Boolean(worldModel?.operations.degradedMode),
+      diagnosticsCritical: diagnostics.critical,
+      diagnosticsError: diagnostics.error,
+      executionBlocked:
+        killSwitches.readOnlyMode || killSwitches.disableTradeSubmission,
+      reasonsJa: [],
+    });
+    logNoActiveSignalReason({
+      allSignalsCount: allSignals.length,
+      queueItemsCount: queueWithAck.length,
+      activeQueueSignals: activeQueue,
+      staleHoldingsCount: worldModel?.portfolioRisk.staleHoldingsCount ?? 0,
+      degradedMode: degradedMode || Boolean(worldModel?.operations.degradedMode),
+      diagnosticsCritical: diagnostics.critical,
+      diagnosticsError: diagnostics.error,
+      executionBlocked:
+        killSwitches.readOnlyMode || killSwitches.disableTradeSubmission,
+      reasonsJa: reasons,
+    });
+  }, [
+    activeSignal,
+    allSignals.length,
+    queueWithAck,
+    worldModel,
+    degradedMode,
+    diagnostics.critical,
+    diagnostics.error,
+    killSwitches.readOnlyMode,
+    killSwitches.disableTradeSubmission,
+  ]);
 
   useEffect(() => {
     if (!activeSignal || activeSignal.level !== 'critical') return;
@@ -256,4 +299,8 @@ export function useUrgencySignals(): UrgencySignalContextValue {
     throw new Error('useUrgencySignals must be used within UrgencySignalProvider');
   }
   return ctx;
+}
+
+export function useUrgencySignalsOptional(): UrgencySignalContextValue | null {
+  return useContext(UrgencySignalContext);
 }

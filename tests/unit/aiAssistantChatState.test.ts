@@ -52,7 +52,7 @@ describe('aiAssistantChatState', () => {
 
   it('maps terminal statuses for display', () => {
     expect(statusJaForRequestStatus('api_key_missing')).toBe('APIキー未設定');
-    expect(statusJaForRequestStatus('timeout')).toBe('タイムアウト');
+    expect(statusJaForRequestStatus('timeout')).toBe('タイムアウトしました');
     expect(statusJaForRequestStatus('fallback_mock')).toBe('モック応答中');
     expect(statusJaForRequestStatus('thinking')).toBe('考え中…');
     expect(statusJaForRequestStatus('retrying')).toBe('再試行中…');

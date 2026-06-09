@@ -1,6 +1,6 @@
 /** Phase B — ルールスコアと AI スコアの統合重み */
-export const HYBRID_RULE_SCORE_WEIGHT = 0.7;
-export const HYBRID_AI_SCORE_WEIGHT = 0.3;
+export const HYBRID_RULE_SCORE_WEIGHT = 0.5;
+export const HYBRID_AI_SCORE_WEIGHT = 0.5;
 
 export const AI_SECOND_EVALUATOR_CACHE_TTL_MS = 5 * 60 * 1000;
 /** 1回の OpenAI リクエストあたりの銘柄数 */

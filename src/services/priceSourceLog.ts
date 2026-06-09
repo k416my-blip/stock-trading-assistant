@@ -1,10 +1,10 @@
 import type { QuoteProviderId } from '../types/quoteProvider';
 
-export type PriceSourceLogTag = 'twelve' | 'yahoo_fallback' | 'alpha_fallback';
+export type PriceSourceLogTag = 'twelve' | 'yahoo_finance' | 'alpha_fallback';
 
 export function priceSourceLogTag(provider: QuoteProviderId): PriceSourceLogTag | string {
   if (provider === 'twelve_data') return 'twelve';
-  if (provider === 'yahoo_finance') return 'yahoo_fallback';
+  if (provider === 'yahoo_finance' || provider === 'rapidapi_yahoo') return 'yahoo_finance';
   if (provider === 'alpha_vantage') return 'alpha_fallback';
   return provider;
 }

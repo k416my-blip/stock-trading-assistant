@@ -70,6 +70,9 @@ describe('strategyHybridEnhancement', () => {
     expect(rec?.hybrid?.ruleScore).toBeGreaterThan(0);
     expect(rec?.hybrid?.aiScore).toBeGreaterThan(0);
     expect(rec?.fusedDisplayAction).toBeDefined();
+    expect(enhanced.portfolioAiEvaluation).toBeDefined();
+    expect(enhanced.portfolioAiEvaluation!.rankedHoldings.length).toBeGreaterThan(0);
+    expect(enhanced.portfolioAiEvaluation!.portfolioScore).toBeGreaterThan(0);
   });
 
   it('buildAiSecondEvaluatorInputs includes RSI, news, and X metadata', () => {

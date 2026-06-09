@@ -80,4 +80,56 @@ export type ConciergeEvidenceBundle = ConciergeEvidenceCore & {
   actionGuide: ConciergeActionGuideBundle;
   /** リスク統制・幻覚抑制 */
   riskControl: ConciergeRiskControlBundle;
+  /** シンボル解決・API取得・確信度根拠 */
+  analysisDiagnostics?: ConciergeAnalysisDiagnostics;
+};
+
+export type ConciergeFetchSource = 'twelve_data' | 'yahoo' | 'newsapi' | 'x';
+
+export type ConciergeFetchResultRow = {
+  source: ConciergeFetchSource;
+  ok: boolean;
+  detailJa: string;
+  /** Metro [CONCIERGE_SYMBOL_FETCH] の *Error フィールド用 */
+  error?: string;
+  provider?: string;
+  price?: number;
+  headlineCount?: number;
+  postCount?: number;
+};
+
+export type ConciergeConfidenceBreakdown = {
+  /** 価格・出来高・ボラティリティ根拠スコアの平均（有効なもののみ） */
+  marketDataPts: number;
+  newsPts: number;
+  xPts: number;
+  /** データ不足・株価ステールの減点合計 */
+  dataGapPenalty: number;
+  confidenceScore: number;
+};
+
+export type ConciergeNewsProvider = 'newsapi' | 'rss';
+
+export type ConciergeAnalysisDiagnostics = {
+  symbol: string;
+  resolvedSymbol: string;
+  symbolResolutionJa: string;
+  twelveOk: boolean;
+  yahooOk: boolean;
+  newsOk: boolean;
+  /** NewsAPI 成功時 newsapi / RSS 代替時 rss */
+  newsProvider?: ConciergeNewsProvider;
+  xOk: boolean;
+  newsCount: number;
+  xCount: number;
+  twelveError?: string;
+  newsError?: string;
+  xError?: string;
+  fetchResults: ConciergeFetchResultRow[];
+  dataFetchSuccessCount: number;
+  dataFetchFailCount: number;
+  usedSourceCount: number;
+  confidenceScore: number;
+  confidenceBreakdown: ConciergeConfidenceBreakdown;
+  confidenceBasisJa: string;
 };

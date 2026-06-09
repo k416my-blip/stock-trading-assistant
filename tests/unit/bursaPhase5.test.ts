@@ -12,6 +12,7 @@ import { filterCompleteFyAnnual } from '../../src/services/bursa/bursaTrendAnaly
 import { assembleAiStockReport } from '../../src/services/aiStockReportService';
 import type { AiStockReportRawData } from '../../src/services/aiStockReportDataFetcher';
 import type { BursaDisclosureBundle, BursaPeerSnapshot } from '../../src/types/bursaDisclosure';
+import { emptyYahooFundamentals } from '../helpers/bursaPortfolioFixture';
 
 const root = process.cwd();
 
@@ -103,26 +104,7 @@ describe('bursa Phase5 analyst features', () => {
       symbol: '1155',
       market: 'bursa',
       currency: 'MYR',
-      yahoo: {
-        ok: false,
-        fetched: [],
-        missing: ['all'],
-        companyName: null,
-        sector: null,
-        revenue: null,
-        operatingIncome: null,
-        profit: null,
-        eps: null,
-        marketCap: null,
-        pe: null,
-        dividendYieldPct: null,
-        revenueGrowthPct: null,
-        profitMarginPct: null,
-        debtToEquity: null,
-        operatingCashflow: null,
-        freeCashflow: null,
-        businessDescription: null,
-      },
+      yahoo: { ...emptyYahooFundamentals, yahooSymbol: '1155.KL' },
       currentPrice: 10.62,
       volume: 1_000_000,
       marketStatusJa: '取引中',

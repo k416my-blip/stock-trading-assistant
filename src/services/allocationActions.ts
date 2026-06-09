@@ -28,6 +28,9 @@ export function buyableShares(candidate: AllocationCandidate): number {
 }
 
 export function canBuyCandidate(candidate: AllocationCandidate): boolean {
+  if (candidate.recommendationMeta && !candidate.recommendationMeta.buyAllowed) {
+    return false;
+  }
   return buyableShares(candidate) > 0;
 }
 

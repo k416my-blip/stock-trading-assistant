@@ -1,0 +1,42 @@
+/**
+ * AI コンシェルジュ用ダッシュボード — すべて main bundle に同梱（Expo tunnel では lazy split が失敗するため）
+ */
+export { AiActionCenterAwaitingBundle, AiActionCenterPanel } from './AiActionCenterPanel';
+export { AiPerformanceCenterPanel } from './AiPerformanceCenterPanel';
+export { AutonomousMonitoringPanel } from './AutonomousMonitoringPanel';
+export { MetaTopPrioritiesPanel } from './MetaTopPrioritiesPanel';
+export { ExecutionDashboardPanel } from './ExecutionDashboardPanel';
+export { SelfEvaluationPanel } from './SelfEvaluationPanel';
+export { WorldStatePanel } from './WorldStatePanel';
+export { DataReliabilityPanel } from './DataReliabilityPanel';
+export { PortfolioRiskExposurePanel } from './PortfolioRiskExposurePanel';
+export { CapitalAllocationPanel } from './CapitalAllocationPanel';
+export { SystemStabilityIntegrityPanel } from './SystemStabilityIntegrityPanel';
+export { AiGovernancePanel } from './AiGovernancePanel';
+export { ReactiveEventDashboardPanel } from './ReactiveEventDashboardPanel';
+export { ExplainabilityDashboardPanel } from './ExplainabilityDashboardPanel';
+export { ResourceDashboardPanel } from './ResourceDashboardPanel';
+export { IntegrityDashboardPanel } from './IntegrityDashboardPanel';
+export { SemanticDashboardPanel } from './SemanticDashboardPanel';
+export { ReliabilityDashboardPanel } from './ReliabilityDashboardPanel';
+export { ArbitrationDashboardPanel } from './ArbitrationDashboardPanel';
+export { MetaAuditDashboardPanel } from './MetaAuditDashboardPanel';
+export { MemoryCompressionDashboardPanel } from './MemoryCompressionDashboardPanel';
+export { SystemicStabilityDashboardPanel } from './SystemicStabilityDashboardPanel';
+export { ExecutionRecoveryDashboardPanel } from './ExecutionRecoveryDashboardPanel';
+export { DynamicOrchestrationDashboardPanel } from './DynamicOrchestrationDashboardPanel';
+export { MarketRegimeDashboardPanel } from './MarketRegimeDashboardPanel';
+export { CognitiveConsensusDashboardPanel } from './CognitiveConsensusDashboardPanel';
+export { MetaReliabilityDashboardPanel } from './MetaReliabilityDashboardPanel';
+export { SelfArchitectureDashboardPanel } from './SelfArchitectureDashboardPanel';
+export { EpistemicIntegrityDashboardPanel } from './EpistemicIntegrityDashboardPanel';
+export { StrategicMemoryGraphDashboardPanel } from './StrategicMemoryGraphDashboardPanel';
+export { CognitiveResourceEconomyDashboardPanel } from './CognitiveResourceEconomyDashboardPanel';
+export { UnifiedCognitiveStateDashboardPanel } from './UnifiedCognitiveStateDashboardPanel';
+export { HumanIntentContinuityDashboardPanel } from './HumanIntentContinuityDashboardPanel';
+export { AdaptiveExplorationDashboardPanel } from './AdaptiveExplorationDashboardPanel';
+export { ConstitutionalGovernanceDashboardPanel } from './ConstitutionalGovernanceDashboardPanel';
+export { ExplainableGovernanceDashboardPanel } from './ExplainableGovernanceDashboardPanel';
+export { RuntimeSurvivalDashboardPanel } from './RuntimeSurvivalDashboardPanel';
+export { RuntimeTelemetryDashboardPanel } from './RuntimeTelemetryDashboardPanel';
+export { RuntimeStabilityDashboardPanel } from './RuntimeStabilityDashboardPanel';

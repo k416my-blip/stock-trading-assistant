@@ -22,7 +22,7 @@ export const PROACTIVE_UI = {
   retry: '再試行',
   retryPrompt: '応答に失敗しました。再試行しますか？',
   thinking: '考え中…',
-  timeout: '応答が遅延しています（10秒超）',
+  timeout: '処理中・少し時間がかかっています',
   voiceResumePrompt: '未読の重要提案があります。読み上げますか？',
   safetyFooter:
     '参考情報です。購入候補・売却候補の判断は必ずご自身で確認してください。自動売買は行いません。',

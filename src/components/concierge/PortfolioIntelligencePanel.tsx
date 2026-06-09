@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { PortfolioIntelligenceBundle } from '../../types/portfolioIntelligence';
 import { AI_ANALYSIS_MODE_LABELS_JA } from '../../constants/aiDataDriven';
 import { SelectableText } from '../ui/SelectableText';
+import { listKey } from '../../utils/reactKeyDiagnostics';
 import { theme } from '../../theme';
 
 type Props = {
@@ -19,8 +20,8 @@ export function PortfolioIntelligencePanel({ intel }: Props) {
         {intel.behavior.styleLabelJa} · 推奨モード{' '}
         {AI_ANALYSIS_MODE_LABELS_JA[intel.suggestedAnalysisMode]}
       </Text>
-      {intel.behavior.styleHintsJa.map((h) => (
-        <SelectableText key={h} style={styles.line}>
+      {intel.behavior.styleHintsJa.map((h, index) => (
+        <SelectableText key={listKey('hint', index, h)} style={styles.line}>
           · {h}
         </SelectableText>
       ))}
@@ -36,8 +37,8 @@ export function PortfolioIntelligencePanel({ intel }: Props) {
       {intel.weeklyReview ? (
         <>
           <Text style={styles.section}>{intel.weeklyReview.weekLabelJa}レビュー</Text>
-          {intel.weeklyReview.summaryBulletsJa.map((b) => (
-            <SelectableText key={b} style={styles.line}>
+          {intel.weeklyReview.summaryBulletsJa.map((b, index) => (
+            <SelectableText key={listKey('review', index, b)} style={styles.line}>
               · {b}
             </SelectableText>
           ))}
@@ -47,8 +48,8 @@ export function PortfolioIntelligencePanel({ intel }: Props) {
       {intel.similarCasesJa.length > 0 ? (
         <>
           <Text style={styles.section}>過去類似ケース</Text>
-          {intel.similarCasesJa.map((c) => (
-            <SelectableText key={c} style={styles.line}>
+          {intel.similarCasesJa.map((c, index) => (
+            <SelectableText key={listKey('similar', index, c)} style={styles.line}>
               {c}
             </SelectableText>
           ))}

@@ -40,8 +40,13 @@ function formatRsiSource(raw: string | null | undefined): string | null {
   return raw;
 }
 
-function formatNewsSource(raw: string | null | undefined): string | null {
+function formatNewsSource(
+  raw: string | null | undefined,
+  newsApiCount?: number,
+): string | null {
+  if ((newsApiCount ?? 0) > 0) return 'NewsAPI';
   if (!raw?.trim()) return null;
+  if (/newsapi/i.test(raw)) return 'NewsAPI';
   if (/rss|yahoo|google|news/i.test(raw)) return 'News';
   return 'News';
 }
@@ -56,14 +61,14 @@ export function buildDataSourcesFromInput(inp: AiSecondEvaluatorSymbolInput): Po
   return {
     quote: formatQuoteSource(inp.quoteSource),
     rsi: formatRsiSource(inp.rsiSource),
-    news: formatNewsSource(inp.newsSource),
+    news: formatNewsSource(inp.newsSource, inp.newsApiCount),
     x: formatXSource(inp.xFetchSource),
   };
 }
 
 export function formatDataSourcesLine(sources: PortfolioAiDataSources): string {
   const parts = [sources.quote, sources.rsi, sources.news, sources.x].filter(Boolean);
-  return parts.length > 0 ? parts.join(' · ') : '—';
+  return parts.length > 0 ? parts.join(' · ') : '未取得';
 }
 
 export function formatEvaluatedAtJa(iso: string): string {

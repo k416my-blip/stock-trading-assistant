@@ -1,14 +1,18 @@
+import type { ConciergeAnalysisDiagnostics } from '../../types/conciergeEvidence';
 import type { ConciergeRiskControlBundle } from '../../types/conciergeRiskControl';
+import { listKey } from '../../utils/reactKeyDiagnostics';
 import { ANALYSIS_BLOCKED_LABEL_JA } from '../../constants/aiRiskControl';
 import { StyleSheet, Text, View } from 'react-native';
+import { ConciergeAnalysisDiagnosticsView } from './ConciergeAnalysisDiagnosticsView';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 
 type Props = {
   risk: ConciergeRiskControlBundle;
+  diagnostics?: ConciergeAnalysisDiagnostics;
 };
 
-export function ConciergeRiskControlPanel({ risk }: Props) {
+export function ConciergeRiskControlPanel({ risk, diagnostics }: Props) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.title}>リスク統制・データ品質</Text>
@@ -21,6 +25,8 @@ export function ConciergeRiskControlPanel({ risk }: Props) {
       {!risk.allowSpeculativeAi && risk.analysisBlockedJa ? (
         <Text style={styles.blocked}>{risk.analysisBlockedJa}</Text>
       ) : null}
+
+      {diagnostics ? <ConciergeAnalysisDiagnosticsView diagnostics={diagnostics} /> : null}
 
       {!risk.allowActionRecommendations ? (
         <Text style={styles.warn}>行動提案は抑制中（確信度ゲート / クロス検証不足）</Text>
@@ -43,8 +49,8 @@ export function ConciergeRiskControlPanel({ risk }: Props) {
       {risk.symbols[0] ? (
         <>
           <Text style={styles.section}>ソース信頼度</Text>
-          {risk.symbols[0].sourceBreakdown.map((s) => (
-            <Text key={`${s.tier}-${s.labelJa}`} style={styles.line}>
+          {risk.symbols[0].sourceBreakdown.map((s, index) => (
+            <Text key={listKey('source-tier', index, `${s.tier}-${s.labelJa}`)} style={styles.line}>
               {s.labelJa}（重み {s.weight}）
             </Text>
           ))}
@@ -52,8 +58,8 @@ export function ConciergeRiskControlPanel({ risk }: Props) {
           {risk.symbols[0].rumorLabelsJa.length > 0 ? (
             <>
               <Text style={styles.section}>未確認情報</Text>
-              {risk.symbols[0].rumorLabelsJa.map((r) => (
-                <Text key={r} style={styles.rumor}>
+              {risk.symbols[0].rumorLabelsJa.map((r, index) => (
+                <Text key={listKey('rumor', index, r)} style={styles.rumor}>
                   {r}
                 </Text>
               ))}

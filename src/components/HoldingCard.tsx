@@ -3,7 +3,6 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 import { MARKET_DATA_MESSAGES } from '../constants/marketData';
 import { SYMBOL_EXPLORING_MESSAGE } from '../constants/yahooFinance';
 import { CURRENCY_SYMBOL, MARKET_LABEL } from '../constants/rakutenTrade';
-import { formatSymbolDisplayFromPosition } from '../utils/formatSymbolDisplay';
 import type { HoldingDetail, Market, PortfolioPosition } from '../types';
 import type { PriceSyncFailure } from '../types/marketData';
 import { QUOTE_PROVIDER_LABELS } from '../constants/quoteProviders';
@@ -164,12 +163,9 @@ export function HoldingCard({
 
   return (
     <Card>
-      <Text style={styles.symbol}>
-        {formatSymbolDisplayFromPosition({
-          symbol: holding.symbol,
-          market: holding.market,
-          companyName: position.companyName ?? holding.name,
-        })}
+      <Text style={styles.name}>{holding.name}</Text>
+      <Text style={styles.marketMeta}>
+        {holding.symbol} · {MARKET_LABEL[holding.market]}
       </Text>
 
       <LabeledValue term="sharesHeld" value={`${holding.shares}株`} />
@@ -388,8 +384,13 @@ export function HoldingCard({
 }
 
 const styles = StyleSheet.create({
+  name: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg },
+  marketMeta: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    marginBottom: theme.spacing.sm,
+  },
   symbol: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg },
-  name: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: 2, marginBottom: theme.spacing.sm },
   subheading: {
     color: theme.colors.textMuted,
     fontSize: theme.fontSize.sm,

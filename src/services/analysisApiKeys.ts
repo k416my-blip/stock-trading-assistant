@@ -1,5 +1,6 @@
-import { getSecret, setSecret } from './secretStorage';
-import { isUsableApiKey } from './apiKeyValidation';
+import { getSecret } from './secretStorage';
+import { canPersistApiKeyValue, isUsableApiKey } from './apiKeyValidation';
+import { safeSaveSecretById } from './safeApiKey';
 import { readXBearerFromEnv } from './xBearerToken';
 
 export interface AnalysisApiKeys {
@@ -47,7 +48,7 @@ export async function loadAnalysisApiKeys(): Promise<AnalysisApiKeys> {
       newsApiKey,
       snsApiKey,
       earningsApiKey: isUsableApiKey(earnings) ? earnings.trim() : '',
-      redditApiKey: isUsableApiKey(reddit) ? reddit.trim() : snsApiKey,
+      redditApiKey: isUsableApiKey(reddit) ? reddit.trim() : '',
       xApiKey,
     };
   } catch {
@@ -55,22 +56,28 @@ export async function loadAnalysisApiKeys(): Promise<AnalysisApiKeys> {
   }
 }
 
-export async function saveAnalysisApiKeys(keys: Partial<AnalysisApiKeys>): Promise<void> {
-  const tasks: Promise<void>[] = [];
-  if (keys.newsApiKey !== undefined) {
-    tasks.push(setSecret('newsApiKey', keys.newsApiKey));
+export async function saveAnalysisApiKeys(
+  keys: Partial<AnalysisApiKeys>,
+): Promise<{ savedFields: string[]; skippedFields: string[] }> {
+  const savedFields: string[] = [];
+  const skippedFields: string[] = [];
+  const entries: Array<[keyof AnalysisApiKeys, 'newsApiKey' | 'snsApiKey' | 'earningsApiKey' | 'redditApiKey' | 'xApiKey']> = [
+    ['newsApiKey', 'newsApiKey'],
+    ['snsApiKey', 'snsApiKey'],
+    ['earningsApiKey', 'earningsApiKey'],
+    ['redditApiKey', 'redditApiKey'],
+    ['xApiKey', 'xApiKey'],
+  ];
+  for (const [field, secretId] of entries) {
+    if (keys[field] === undefined) continue;
+    const value = keys[field] ?? '';
+    if (!canPersistApiKeyValue(value)) {
+      skippedFields.push(field);
+      continue;
+    }
+    const res = await safeSaveSecretById(secretId, value);
+    if (res.saved) savedFields.push(field);
+    else skippedFields.push(field);
   }
-  if (keys.snsApiKey !== undefined) {
-    tasks.push(setSecret('snsApiKey', keys.snsApiKey));
-  }
-  if (keys.earningsApiKey !== undefined) {
-    tasks.push(setSecret('earningsApiKey', keys.earningsApiKey));
-  }
-  if (keys.redditApiKey !== undefined) {
-    tasks.push(setSecret('redditApiKey', keys.redditApiKey));
-  }
-  if (keys.xApiKey !== undefined) {
-    tasks.push(setSecret('xApiKey', keys.xApiKey));
-  }
-  await Promise.all(tasks);
+  return { savedFields, skippedFields };
 }

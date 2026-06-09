@@ -56,7 +56,9 @@ audit-out.txt
 expo-go-qr.png
 *.qr.png
 agent-tools/
-.expo-start-log.txt
+.expo-bundle-eager/
+.expo-bundle-head/
+.expo-bundle-test/
 .expo-tunnel-log.txt
 scripts/device-screenshot*.png
 scripts/device-ui*.xml

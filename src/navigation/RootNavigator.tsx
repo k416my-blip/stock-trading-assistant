@@ -12,7 +12,7 @@ import { CapitalScreen } from '../screens/CapitalScreen';
 import { ManualOrderListScreen } from '../screens/ManualOrderListScreen';
 import { SellAllResultScreen } from '../screens/SellAllResultScreen';
 import { HistoricalValidationScreen } from '../screens/HistoricalValidationScreen';
-import { ForwardValidationScreen } from '../screens/ForwardValidationScreen';
+import ForwardValidationScreen from '../screens/ForwardValidationRoute';
 import { RealQuantValidationScreen } from '../screens/RealQuantValidationScreen';
 import { PortfolioOptimizationScreen } from '../screens/PortfolioOptimizationScreen';
 import { BayesianAllocationScreen } from '../screens/BayesianAllocationScreen';

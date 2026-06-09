@@ -8,8 +8,8 @@ import { buildBursaPhase6FromBundles } from '../../src/services/bursa/bursaPhase
 import { computePhase6CompositeScore } from '../../src/services/bursa/bursaPhase6Scoring';
 import { getBursaUniverseStockCodes } from '../../src/services/bursa/bursaStockUniverse';
 import { formatBursaDiscoveryReport } from '../../src/services/bursa/bursaDiscoveryService';
-import type { BursaDisclosureBundle } from '../../types/bursaDisclosure';
-import type { PortfolioPosition } from '../../types';
+import type { BursaDisclosureBundle } from '../../src/types/bursaDisclosure';
+import type { PortfolioPosition } from '../../src/types';
 
 const root = process.cwd();
 

@@ -3,7 +3,8 @@ import { API_WIZARD_PROVIDERS, type ApiWizardProviderConfig } from '../constants
 import type { ApiProviderId, ApiProviderHealth } from '../types/apiSetup';
 import { buildApiHealthDashboard } from './apiHealthDashboard';
 import { loadApiHealthSnapshot, updateProviderHealth } from './apiHealthStorage';
-import { getSecret, setSecret } from './secretStorage';
+import { safeSaveSecretById } from './safeApiKey';
+import { getSecret } from './secretStorage';
 import { verifyApiProvider } from './apiVerificationService';
 
 export function getWizardProviderConfig(providerId: ApiProviderId): ApiWizardProviderConfig {
@@ -16,8 +17,11 @@ export async function loadWizardApiKey(secretKeyId: SecretKeyId): Promise<string
   return getSecret(secretKeyId);
 }
 
-export async function saveWizardApiKey(secretKeyId: SecretKeyId, apiKey: string): Promise<void> {
-  await setSecret(secretKeyId, apiKey);
+export async function saveWizardApiKey(
+  secretKeyId: SecretKeyId,
+  apiKey: string,
+): Promise<{ saved: boolean; reason: string }> {
+  return safeSaveSecretById(secretKeyId, apiKey);
 }
 
 export async function verifyAndPersistProvider(

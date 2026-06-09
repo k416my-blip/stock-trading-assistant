@@ -23,6 +23,7 @@ import {
   confirmManualOrderInState,
   type ManualOrderConfirmInput,
 } from '../../services/manualOrderConfirmation';
+import { applyManualOrderEntryPriceUpdate } from '../../services/manualOrderEntryPrice';
 import {
   applyManualHoldingToState,
   mergePortfolioFromPersistence,
@@ -538,6 +539,60 @@ export function useAppPortfolioActions({
     }));
   }, [setState]);
 
+  const removePendingManualOrder = useCallback(
+    (orderId: string): { ok: boolean; error?: string } => {
+      if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
+        return { ok: false, error: '読み取り専用モードでは削除できません' };
+      }
+      let found = false;
+      setState((prev) => {
+        const nextList = prev.manualOrderList.filter((i) => {
+          if (i.id !== orderId) return true;
+          found = true;
+          return false;
+        });
+        if (!found) return prev;
+        const next = { ...prev, manualOrderList: nextList };
+        stateRef.current = next;
+        return next;
+      });
+      if (!found) return { ok: false, error: '候補が見つかりません' };
+      return { ok: true };
+    },
+    [setState, stateRef],
+  );
+
+  const updateManualOrderEntryPrice = useCallback(
+    (orderId: string, entryPrice: number, estimatedShares?: number) => {
+      if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
+        return { ok: false as const, error: '読み取り専用モードでは編集できません' };
+      }
+      if (stateRef.current.appMode === 'practice') {
+        return { ok: false as const, error: '実口座モードでのみ指値を登録できます' };
+      }
+
+      let error: string | undefined;
+      setState((prev) => {
+        const result = applyManualOrderEntryPriceUpdate(
+          prev.manualOrderList,
+          orderId,
+          entryPrice,
+          estimatedShares,
+        );
+        if (!result.ok) {
+          error = result.error;
+          return prev;
+        }
+        const next = { ...prev, manualOrderList: result.orders };
+        stateRef.current = next;
+        return next;
+      });
+      if (error) return { ok: false as const, error };
+      return { ok: true as const };
+    },
+    [setState, stateRef],
+  );
+
   const addScreenerCandidateToManualList = useCallback((stock: RankedStock) => {
     let duplicate = false;
     setState((prev) => {
@@ -669,6 +724,8 @@ export function useAppPortfolioActions({
     addManualSellAllChecklist,
     confirmManualOrderAsExecuted,
     clearCompletedManualOrders,
+    removePendingManualOrder,
+    updateManualOrderEntryPrice,
     addScreenerCandidateToManualList,
     updateHoldingCurrentPrice,
     updateHoldingSymbol,

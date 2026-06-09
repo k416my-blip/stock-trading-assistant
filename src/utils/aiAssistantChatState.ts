@@ -49,7 +49,7 @@ export function statusJaForRequestStatus(status: AiRequestStatus): string {
     case 'fallback_mock':
       return 'モック応答中';
     case 'timeout':
-      return 'タイムアウト';
+      return 'タイムアウトしました';
     case 'error':
       return 'エラー';
     default:

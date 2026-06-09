@@ -19,19 +19,38 @@ import { useApp } from '../context/AppContext';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
-import { deleteApiKey, hasUsableKey, loadAllApiKeys, maskApiKey, saveApiKey } from '../services/apiKeys';
+import {
+  deleteApiKey,
+  hasSavedKey,
+  loadAllApiKeys,
+  maskApiKey,
+  saveApiKey,
+} from '../services/apiKeys';
 import { testApiConnection, type ApiConnectionState } from '../services/apiHealth';
-import { runOperationalApiTest, type OperationalApiTestReport } from '../services/operationalApiTest';
+import {
+  buildOperationalCoreApiRows,
+  runOperationalApiTest,
+  type OperationalApiTestReport,
+} from '../services/operationalApiTest';
+import {
+  runNewsApiEverythingTest,
+  type NewsApiEverythingTestResult,
+} from '../services/newsApiEverythingTest';
+import {
+  runXApiSearchRecentTest,
+  type XApiSearchRecentTestResult,
+} from '../services/xApiSearchRecentTest';
 
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { state, isPractice, resetAllAppData } = useApp();
+  const { state, isPractice, resetAllAppData, saveAnalysisApiKeys } = useApp();
   const [resetting, setResetting] = useState(false);
   const [apiKeyInputs, setApiKeyInputs] = useState<Record<SupportedApiProviderId, string>>({
     openai: '',
     twelve_data: '',
     newsapi: '',
     x: '',
+    reddit: '',
     alpha_vantage: '',
     finnhub: '',
     polygon: '',
@@ -42,6 +61,7 @@ export function SettingsScreen() {
     twelve_data: 'idle',
     newsapi: 'idle',
     x: 'idle',
+    reddit: 'idle',
     alpha_vantage: 'idle',
     finnhub: 'idle',
     polygon: 'idle',
@@ -52,6 +72,7 @@ export function SettingsScreen() {
     twelve_data: '未確認',
     newsapi: '未確認',
     x: '未確認',
+    reddit: '未確認',
     alpha_vantage: '未確認',
     finnhub: '未確認',
     polygon: '未確認',
@@ -59,11 +80,27 @@ export function SettingsScreen() {
   });
   const [operationalRunning, setOperationalRunning] = useState(false);
   const [operationalReport, setOperationalReport] = useState<OperationalApiTestReport | null>(null);
+  const [newsApiTestRunning, setNewsApiTestRunning] = useState(false);
+  const [newsApiTestResult, setNewsApiTestResult] = useState<NewsApiEverythingTestResult | null>(null);
+  const [xApiTestRunning, setXApiTestRunning] = useState(false);
+  const [xApiTestResult, setXApiTestResult] = useState<XApiSearchRecentTestResult | null>(null);
+  const [apiKeySaved, setApiKeySaved] = useState<Record<SupportedApiProviderId, boolean>>({
+    openai: false,
+    twelve_data: false,
+    newsapi: false,
+    x: false,
+    reddit: false,
+    alpha_vantage: false,
+    finnhub: false,
+    polygon: false,
+    fmp: false,
+  });
   const [apiBusy, setApiBusy] = useState<Record<SupportedApiProviderId, boolean>>({
     openai: false,
     twelve_data: false,
     newsapi: false,
     x: false,
+    reddit: false,
     alpha_vantage: false,
     finnhub: false,
     polygon: false,
@@ -76,10 +113,17 @@ export function SettingsScreen() {
       const loaded = await loadAllApiKeys();
       if (!mounted) return;
       setApiKeyInputs(loaded);
+      setApiKeySaved(
+        Object.fromEntries(
+          API_PROVIDERS.map((p) => [p.id, hasSavedKey(p.id, loaded[p.id])]),
+        ) as Record<SupportedApiProviderId, boolean>,
+      );
       setApiConnectionMessages((prev) => {
         const next = { ...prev };
         API_PROVIDERS.forEach((provider) => {
-          next[provider.id] = hasUsableKey(loaded[provider.id]) ? 'キー保存済み（未テスト）' : '未登録';
+          next[provider.id] = hasSavedKey(provider.id, loaded[provider.id])
+            ? '未テスト'
+            : '未テスト';
         });
         return next;
       });
@@ -148,29 +192,61 @@ export function SettingsScreen() {
   const onSaveApiKey = async (providerId: SupportedApiProviderId) => {
     setApiBusy((prev) => ({ ...prev, [providerId]: true }));
     try {
-      await saveApiKey(providerId, apiKeyInputs[providerId]);
-      const normalized = apiKeyInputs[providerId].trim();
+      const saveResult = await saveApiKey(providerId, apiKeyInputs[providerId]);
+      if (!saveResult.saved) {
+        Alert.alert(
+          '保存しませんでした',
+          `無効な入力のため既存キーを保持しました（reason: ${saveResult.reason}）。空欄・マスク表示・10文字未満は保存されません。`,
+        );
+        return;
+      }
+      const reloaded = await loadAllApiKeys();
+      setApiKeyInputs((prev) => ({ ...prev, [providerId]: reloaded[providerId] }));
+      setApiKeySaved((prev) => ({ ...prev, [providerId]: true }));
       setApiConnectionMessages((prev) => ({
         ...prev,
-        [providerId]: normalized ? '保存しました' : '未登録',
+        [providerId]: '未テスト',
       }));
+      setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
+      if (providerId === 'newsapi') {
+        await saveAnalysisApiKeys({ newsApiKey: reloaded.newsapi });
+      } else if (providerId === 'x') {
+        await saveAnalysisApiKeys({ xApiKey: reloaded.x });
+      } else if (providerId === 'reddit') {
+        await saveAnalysisApiKeys({ redditApiKey: reloaded.reddit });
+      }
       Alert.alert('保存しました', 'APIキーを安全に保存しました。');
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
     }
   };
 
-  const onDeleteApiKey = async (providerId: SupportedApiProviderId) => {
-    setApiBusy((prev) => ({ ...prev, [providerId]: true }));
-    try {
-      await deleteApiKey(providerId);
-      setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
-      setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
-      setApiConnectionMessages((prev) => ({ ...prev, [providerId]: '削除しました' }));
-      Alert.alert('削除しました', 'APIキーを削除しました。');
-    } finally {
-      setApiBusy((prev) => ({ ...prev, [providerId]: false }));
-    }
+  const onDeleteApiKey = (providerId: SupportedApiProviderId) => {
+    const provider = API_PROVIDERS.find((p) => p.id === providerId);
+    Alert.alert(
+      'APIキー削除',
+      `本当に${provider?.label ?? providerId}のAPIキーを削除しますか？`,
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: () => void (async () => {
+            setApiBusy((prev) => ({ ...prev, [providerId]: true }));
+            try {
+              await deleteApiKey(providerId, true);
+              setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
+              setApiKeySaved((prev) => ({ ...prev, [providerId]: false }));
+              setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
+              setApiConnectionMessages((prev) => ({ ...prev, [providerId]: '未テスト' }));
+              Alert.alert('削除しました', 'APIキーを削除しました。');
+            } finally {
+              setApiBusy((prev) => ({ ...prev, [providerId]: false }));
+            }
+          })(),
+        },
+      ],
+    );
   };
 
   const onTestApiConnection = async (providerId: SupportedApiProviderId) => {
@@ -179,10 +255,72 @@ export function SettingsScreen() {
     try {
       const testResult = await testApiConnection(providerId, apiKeyInputs[providerId]);
       setApiConnectionStates((prev) => ({ ...prev, [providerId]: testResult.ok ? 'ok' : 'error' }));
-      setApiConnectionMessages((prev) => ({ ...prev, [providerId]: testResult.message }));
-      Alert.alert(testResult.ok ? '接続テスト成功' : '接続テスト失敗', testResult.message);
+      const connLabel = testResult.ok ? '成功' : '失敗';
+      setApiConnectionMessages((prev) => ({ ...prev, [providerId]: connLabel }));
+      Alert.alert(
+        testResult.ok ? '接続テスト成功' : '接続テスト失敗',
+        testResult.ok ? testResult.message : '実API接続失敗',
+      );
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
+    }
+  };
+
+  const onRunNewsApiEverythingTest = async () => {
+    setNewsApiTestRunning(true);
+    setNewsApiTestResult(null);
+    try {
+      const result = await runNewsApiEverythingTest(apiKeyInputs.newsapi);
+      setNewsApiTestResult(result);
+      console.log('[News API テスト]', JSON.stringify({
+        ok: result.ok,
+        httpStatus: result.httpStatus,
+        articleCount: result.articleCount,
+        titles: result.titles,
+        errorReason: result.errorReason,
+      }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setNewsApiTestResult({
+        ok: false,
+        httpStatus: 0,
+        responseBody: msg,
+        articleCount: 0,
+        titles: [],
+        testedAt: new Date().toISOString(),
+        errorReason: msg,
+      });
+    } finally {
+      setNewsApiTestRunning(false);
+    }
+  };
+
+  const onRunXApiSearchRecentTest = async () => {
+    setXApiTestRunning(true);
+    setXApiTestResult(null);
+    try {
+      const result = await runXApiSearchRecentTest(apiKeyInputs.x);
+      setXApiTestResult(result);
+      console.log('[X API テスト]', JSON.stringify({
+        ok: result.ok,
+        httpStatus: result.httpStatus,
+        tweetCount: result.tweetCount,
+        tweetTexts: result.tweetTexts,
+        errorReason: result.errorReason,
+      }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setXApiTestResult({
+        ok: false,
+        httpStatus: 0,
+        responseBody: msg,
+        tweetCount: 0,
+        tweetTexts: [],
+        testedAt: new Date().toISOString(),
+        errorReason: msg,
+      });
+    } finally {
+      setXApiTestRunning(false);
     }
   };
 
@@ -207,7 +345,8 @@ export function SettingsScreen() {
           すべて端末内の SecureStore に保存します。未登録APIがあってもアプリは動作します。
         </Text>
         {API_PROVIDERS.map((provider) => {
-          const masked = maskApiKey(apiKeyInputs[provider.id]);
+          const saved = apiKeySaved[provider.id];
+          const masked = saved ? maskApiKey(apiKeyInputs[provider.id]) : '未保存';
           const state = apiConnectionStates[provider.id];
           const stateColor =
             state === 'ok'
@@ -222,9 +361,12 @@ export function SettingsScreen() {
             <View key={provider.id} style={styles.apiProviderBlock}>
               <Text style={styles.apiProviderTitle}>{provider.label}</Text>
               <Text style={styles.apiHelpText}>{provider.helpText}</Text>
-              <Text style={styles.apiMaskText}>保存状態: {masked}</Text>
+              <Text style={styles.apiMaskText}>
+                保存状態: {saved ? '保存済み' : '未保存'}
+                {saved ? ` (${masked})` : ''}
+              </Text>
               <Text style={[styles.apiStatusText, { color: stateColor }]}>
-                接続状態: {apiConnectionMessages[provider.id]}
+                接続状態: {saved ? apiConnectionMessages[provider.id] : '未テスト'}
               </Text>
               <TextInput
                 style={styles.input}
@@ -240,7 +382,7 @@ export function SettingsScreen() {
                 <Button label={busy ? '処理中…' : '保存'} onPress={() => void onSaveApiKey(provider.id)} disabled={busy} />
                 <Button
                   label={busy ? '処理中…' : '削除'}
-                  onPress={() => void onDeleteApiKey(provider.id)}
+                  onPress={() => onDeleteApiKey(provider.id)}
                   disabled={busy}
                   variant="ghost"
                 />
@@ -251,6 +393,128 @@ export function SettingsScreen() {
                   variant="ghost"
                 />
               </View>
+              {provider.id === 'x' ? (
+                <View style={styles.newsApiTestBlock}>
+                  <Text style={styles.newsApiTestTitle}>X API search/recent テスト</Text>
+                  <Text style={styles.apiHelpText}>
+                    GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token
+                  </Text>
+                  <Button
+                    label={xApiTestRunning ? 'テスト中…' : 'X API テスト'}
+                    onPress={() => void onRunXApiSearchRecentTest()}
+                    disabled={xApiTestRunning || busy}
+                    variant="ghost"
+                  />
+                  {xApiTestResult ? (
+                    <View style={styles.newsApiTestResult}>
+                      <Text
+                        style={[
+                          styles.newsApiTestStatus,
+                          { color: xApiTestResult.ok ? theme.colors.success : theme.colors.danger },
+                        ]}
+                      >
+                        {xApiTestResult.ok ? '接続成功' : '接続失敗'}
+                      </Text>
+                      <Text style={styles.newsApiTestMeta} selectable>
+                        HTTP Status: {xApiTestResult.httpStatus || '—'}
+                      </Text>
+                      {xApiTestResult.ok ? (
+                        <>
+                          <Text style={styles.newsApiTestMeta}>
+                            取得件数: {xApiTestResult.tweetCount}
+                          </Text>
+                          <Text style={styles.newsApiTestMeta}>
+                            テスト日時: {new Date(xApiTestResult.testedAt).toLocaleString('ja-JP')}
+                          </Text>
+                          <Text style={styles.newsApiTestMeta}>最初の3件の本文:</Text>
+                          {xApiTestResult.tweetTexts.length > 0 ? (
+                            xApiTestResult.tweetTexts.map((text, i) => (
+                              <Text key={`x-tweet-${i}`} style={styles.newsApiTestTitleLine} selectable>
+                                {i + 1}. {text}
+                              </Text>
+                            ))
+                          ) : (
+                            <Text style={styles.newsApiTestTitleLine}>（0件）</Text>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {xApiTestResult.errorReason ? (
+                            <Text style={styles.newsApiTestMeta} selectable>
+                              理由: {xApiTestResult.errorReason}
+                            </Text>
+                          ) : null}
+                          <Text style={styles.newsApiTestMeta}>エラー本文:</Text>
+                          <Text style={styles.newsApiTestBody} selectable>
+                            {xApiTestResult.responseBody || '（空）'}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
+              {provider.id === 'newsapi' ? (
+                <View style={styles.newsApiTestBlock}>
+                  <Text style={styles.newsApiTestTitle}>News API everything テスト</Text>
+                  <Text style={styles.apiHelpText}>
+                    GET /v2/everything?q=Maybank&pageSize=5 · Header X-Api-Key
+                  </Text>
+                  <Button
+                    label={newsApiTestRunning ? 'テスト中…' : 'News API テスト'}
+                    onPress={() => void onRunNewsApiEverythingTest()}
+                    disabled={newsApiTestRunning || busy}
+                    variant="ghost"
+                  />
+                  {newsApiTestResult ? (
+                    <View style={styles.newsApiTestResult}>
+                      <Text
+                        style={[
+                          styles.newsApiTestStatus,
+                          { color: newsApiTestResult.ok ? theme.colors.success : theme.colors.danger },
+                        ]}
+                      >
+                        {newsApiTestResult.ok ? '接続成功' : '接続失敗'}
+                      </Text>
+                      {newsApiTestResult.ok ? (
+                        <>
+                          <Text style={styles.newsApiTestMeta}>
+                            取得件数: {newsApiTestResult.articleCount}
+                          </Text>
+                          <Text style={styles.newsApiTestMeta}>
+                            テスト日時: {new Date(newsApiTestResult.testedAt).toLocaleString('ja-JP')}
+                          </Text>
+                          <Text style={styles.newsApiTestMeta}>記事タイトル:</Text>
+                          {newsApiTestResult.titles.length > 0 ? (
+                            newsApiTestResult.titles.map((title, i) => (
+                              <Text key={`news-title-${i}`} style={styles.newsApiTestTitleLine} selectable>
+                                {i + 1}. {title}
+                              </Text>
+                            ))
+                          ) : (
+                            <Text style={styles.newsApiTestTitleLine}>（0件）</Text>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Text style={styles.newsApiTestMeta} selectable>
+                            HTTP Status: {newsApiTestResult.httpStatus || '—'}
+                          </Text>
+                          {newsApiTestResult.errorReason ? (
+                            <Text style={styles.newsApiTestMeta} selectable>
+                              理由: {newsApiTestResult.errorReason}
+                            </Text>
+                          ) : null}
+                          <Text style={styles.newsApiTestMeta}>response body:</Text>
+                          <Text style={styles.newsApiTestBody} selectable>
+                            {newsApiTestResult.responseBody || '（空）'}
+                          </Text>
+                        </>
+                      )}
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
             </View>
           );
         })}
@@ -272,11 +536,29 @@ export function SettingsScreen() {
                 {' · '}
                 {new Date(operationalReport.generatedAt).toLocaleString('ja-JP')}
               </Text>
+              <Text style={styles.sectionHint}>主要 API（OpenAI · Twelve Data · NewsAPI）</Text>
               <View style={styles.operationalTableHeader}>
                 <Text style={[styles.operationalColApi, styles.operationalHeaderText]}>API名</Text>
                 <Text style={[styles.operationalColStatus, styles.operationalHeaderText]}>結果</Text>
                 <Text style={[styles.operationalColMs, styles.operationalHeaderText]}>応答(ms)</Text>
               </View>
+              {buildOperationalCoreApiRows(operationalReport).map((row, index) => (
+                <View key={`core-${row.apiName}-${index}`} style={styles.operationalTableRow}>
+                  <Text style={styles.operationalColApi} numberOfLines={2}>
+                    {row.apiName}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.operationalColStatus,
+                      { color: row.ok ? theme.colors.success : theme.colors.danger },
+                    ]}
+                  >
+                    {row.ok ? '成功' : '失敗'}
+                  </Text>
+                  <Text style={styles.operationalColMs}>{row.elapsedMs}</Text>
+                </View>
+              ))}
+              <Text style={[styles.sectionHint, { marginTop: 8 }]}>詳細（全プロバイダ）</Text>
               {operationalReport.displayRows.map((row, index) => (
                 <View key={`${row.apiName}-${index}`} style={styles.operationalTableRow}>
                   <Text style={styles.operationalColApi} numberOfLines={2}>
@@ -403,6 +685,12 @@ export function SettingsScreen() {
           title="Production Dashboard"
           subtitle="API · memory · queue · AI負荷 · 本番準備チェックリスト"
           onPress={() => stackNav.navigate('ProductionDashboard')}
+        />
+        <SettingsMenuRow
+          icon="trending-up-outline"
+          title="リアルタイム前向き検証"
+          subtitle="4ETF日次シグナル · 仮想PF · バックテスト比較 · 30Tレポート"
+          onPress={() => stackNav.navigate('ForwardValidation')}
         />
         <SettingsMenuRow
           icon="analytics-outline"
@@ -621,5 +909,41 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: theme.fontSize.md,
     marginTop: theme.spacing.xs,
+  },
+  newsApiTestBlock: {
+    marginTop: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.border,
+    gap: theme.spacing.xs,
+  },
+  newsApiTestTitle: {
+    color: theme.colors.text,
+    fontWeight: '600',
+    fontSize: theme.fontSize.sm,
+  },
+  newsApiTestResult: {
+    marginTop: theme.spacing.xs,
+    gap: 4,
+  },
+  newsApiTestStatus: {
+    fontWeight: '700',
+    fontSize: theme.fontSize.md,
+  },
+  newsApiTestMeta: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 18,
+  },
+  newsApiTestTitleLine: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 18,
+  },
+  newsApiTestBody: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 16,
+    fontFamily: 'monospace',
   },
 });

@@ -42,7 +42,15 @@ export function AllocationCandidateCard({ candidate, index }: Props) {
       <LabeledValue term="takeProfit" value={`${sym}${candidate.takeProfit.toFixed(2)}`} valueStyle={styles.success} />
 
       {candidate.recommendation ? (
-        <StockRecommendationPanel recommendation={candidate.recommendation} compact />
+        <StockRecommendationPanel
+          recommendation={candidate.recommendation}
+          recommendationMeta={candidate.recommendationMeta}
+          symbol={candidate.symbol}
+          name={candidate.name}
+          selectionReason={candidate.selectionReason}
+          allocationPct={candidate.allocationPct}
+          compact
+        />
       ) : (
         <>
           <Text style={styles.reasonLabel}>選定理由</Text>

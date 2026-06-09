@@ -62,6 +62,7 @@ import {
   logTwelveDataRequestUrl,
 } from '../utils/quoteFetchDebugLog';
 import { logTwelveDataApiResponse } from '../utils/twelveDataResponseLog';
+import { normalizeTwelveDataApiKey } from './apiKeyValidation';
 import {
   logPriceFetchDuplicateBlocked,
   logQueueActive,
@@ -1045,14 +1046,9 @@ export async function getDailyOHLCV(
 }
 
 export async function testTwelveDataConnection(apiKey: string): Promise<MarketQuote> {
-  const trimmed = apiKey.trim();
+  const trimmed = normalizeTwelveDataApiKey(apiKey);
   if (!trimmed) {
     throw new MarketDataError('api_key', userMessageForErrorKind('api_key'));
-  }
-  if (typeof __DEV__ !== 'undefined' && __DEV__) {
-    devLog('[TWELVE AAPL TEST]', {
-      url: 'https://api.twelvedata.com/quote?symbol=AAPL&apikey=****',
-    });
   }
   return getQuote(trimmed, { symbol: 'AAPL' }, 'USD', 'us');
 }

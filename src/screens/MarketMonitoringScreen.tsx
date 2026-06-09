@@ -13,6 +13,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
 import { SelectableText } from '../components/ui/SelectableText';
 import { useApp } from '../context/AppContext';
+import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import {
   formatMarketMonitoringReport,
@@ -46,6 +47,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function MarketMonitoringScreen() {
   const { state } = useApp();
+  const { report: materialReport } = useBursaMaterial();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [report, setReport] = useState<MarketMonitoringReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -126,6 +128,18 @@ export function MarketMonitoringScreen() {
                 <Text style={styles.alertKind}>{a.kindJa}</Text>
                 <SelectableText style={styles.alertMsg}>{a.messageJa}</SelectableText>
               </View>
+            ))
+          )}
+        </Section>
+
+        <Section title="【材料分析アラート（Phase11）】">
+          {!materialReport || materialReport.monitoringNotifications.length === 0 ? (
+            <Text style={styles.empty}>{MONITORING_MISSING_JA}</Text>
+          ) : (
+            materialReport.monitoringNotifications.map((n: string, i: number) => (
+              <Text key={`mat-${i}`} style={styles.alertMsg}>
+                {n}
+              </Text>
             ))
           )}
         </Section>

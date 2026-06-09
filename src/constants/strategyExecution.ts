@@ -30,6 +30,7 @@ export const STRATEGY_AI_PROMPT_JA = `
 export const STRATEGY_UI_LABELS_JA = {
   panelTitle: 'AI Action Center',
   portfolioScore: 'ポートフォリオ全体スコア',
+  portfolioScoreEn: 'Portfolio Score',
   evaluatedAt: '評価更新',
   dataSources: '取得元',
   ranking: 'おすすめ順ランキング（全保有）',

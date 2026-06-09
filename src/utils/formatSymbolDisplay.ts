@@ -5,7 +5,7 @@ import { isMalaysiaMarket } from './normalizeBursaSymbol';
 export const MARKET_REGION_LABEL_JA: Record<Market, string> = {
   bursa: 'マレーシア',
   us: 'アメリカ',
-  hk: '日本',
+  hk: '香港',
 };
 
 export function displaySymbolCore(symbol: string): string {

@@ -12,6 +12,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
 import { SelectableText } from '../components/ui/SelectableText';
 import { useApp } from '../context/AppContext';
+import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import { buildBursaPhase8Analysis } from '../services/bursa/bursaPhase8Analysis';
 import { BURSA_TODAY_BUDGETS_MYR } from '../services/bursa/bursaStockUniverse';
@@ -42,6 +43,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function TodayTradingScreen() {
   const { state } = useApp();
+  const { report: materialReport } = useBursaMaterial();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [report, setReport] = useState<TodayTradingReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +104,50 @@ export function TodayTradingScreen() {
         <Section title="【本日の推奨アクション】">
           <Text style={styles.primaryAction}>{report.primaryActionJa}</Text>
           <Text style={styles.subReason}>{report.primaryReasonJa}</Text>
+        </Section>
+
+        <Section title="【今日買う理由 — 材料分析】">
+          {!materialReport ? (
+            <Text style={styles.empty}>{TODAY_TRADING_MISSING_JA}</Text>
+          ) : (
+            materialReport.stocks
+              .filter((s) => s.buyReasons.length > 0)
+              .slice(0, 4)
+              .map((s) => (
+                <View key={`buy-mat-${s.stockCode}`} style={styles.subBlock}>
+                  <Text style={styles.cardCode}>
+                    {s.stockCode} {s.scoreJa}
+                  </Text>
+                  {s.buyReasons.map((r, i) => (
+                    <Text key={`br-${i}`} style={styles.subReason}>
+                      {r}
+                    </Text>
+                  ))}
+                </View>
+              ))
+          )}
+        </Section>
+
+        <Section title="【今日売る理由 — 材料分析】">
+          {!materialReport ? (
+            <Text style={styles.empty}>{TODAY_TRADING_MISSING_JA}</Text>
+          ) : (
+            materialReport.stocks
+              .filter((s) => s.sellReasons.length > 0)
+              .slice(0, 4)
+              .map((s) => (
+                <View key={`sell-mat-${s.stockCode}`} style={styles.subBlock}>
+                  <Text style={styles.cardCode}>
+                    {s.stockCode} {s.scoreJa}
+                  </Text>
+                  {s.sellReasons.map((r, i) => (
+                    <Text key={`sr-${i}`} style={styles.subReason}>
+                      {r}
+                    </Text>
+                  ))}
+                </View>
+              ))
+          )}
         </Section>
 
         <Section title="【今日買うべき TOP10】">

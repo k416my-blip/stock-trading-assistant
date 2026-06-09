@@ -27,6 +27,7 @@ import {
   resolveV4TradeSymbols,
 } from './forwardValidationMalaysiaV4CandidateAudit';
 import { V4_PHASE2_SYMBOLS } from './forwardValidationMalaysiaV4AttributionAudit';
+import { isMalaysiaMarket } from '../../utils/normalizeBursaSymbol';
 import { buildSymbolWeightPctMap } from '../metaDecisionPortfolioWeights';
 import { precomputeTradeTemplates } from './forwardValidationRobustnessAudit';
 import type { SurvivorshipOhlcvBundle } from './forwardValidationSurvivorshipAudit';
@@ -37,13 +38,7 @@ const YTL_CAP_PCT = 15;
 const MONTHLY_DCA = 1500;
 const REBALANCE_TOLERANCE_PCT = 3;
 
-export const MALAYSIA_V4_TARGET_WEIGHTS: Record<string, number> = {
-  '5347': 23.3,
-  '1023': 23.3,
-  '5398': 15.0,
-  '6742': 15.0,
-  '3336': 23.3,
-};
+export { MALAYSIA_V4_TARGET_WEIGHTS } from '../../constants/malaysiaV4TargetWeights';
 
 const SYMBOL_NAMES: Record<string, string> = {
   '5347': 'TENAGA',
@@ -225,7 +220,7 @@ function ledgerImpliedWeights(ledger: MalaysiaV3DcaExecutedTrade[]): Record<stri
 }
 
 function mapHoldingsToBursaWeights(holdings: PortfolioPosition[]): Record<string, number> {
-  const myHoldings = holdings.filter((p) => p.market === 'my' && (p.shares ?? 0) > 0);
+  const myHoldings = holdings.filter((p) => isMalaysiaMarket(p.market) && (p.shares ?? 0) > 0);
   const raw = buildSymbolWeightPctMap(myHoldings);
   const out: Record<string, number> = {};
   for (const [sym, pct] of Object.entries(raw)) {

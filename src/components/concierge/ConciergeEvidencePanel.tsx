@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ConciergeEvidenceBundle } from '../../types/conciergeEvidence';
+import { listKey, logDuplicateReactKeys } from '../../utils/reactKeyDiagnostics';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 
@@ -12,6 +13,13 @@ function ConciergeEvidencePanelInner({ evidence }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   if (evidence.symbols.length === 0) return null;
+
+  const noteKeys = evidence.cacheNotesJa.map((note, i) => listKey('cache-note', i, note));
+  const symbolKeys = evidence.symbols.map((sym, i) =>
+    listKey('symbol', i, `${sym.market}:${sym.symbol}`),
+  );
+  logDuplicateReactKeys('ConciergeEvidencePanel/notes', 'ConciergeEvidencePanel', noteKeys);
+  logDuplicateReactKeys('ConciergeEvidencePanel/symbols', 'ConciergeEvidencePanel', symbolKeys);
 
   return (
     <View style={styles.wrap}>
@@ -26,13 +34,13 @@ function ConciergeEvidencePanelInner({ evidence }: Props) {
       </Pressable>
       {expanded ? (
         <>
-          {evidence.cacheNotesJa.map((note) => (
-            <Text key={note} style={styles.cacheNote}>
+          {evidence.cacheNotesJa.map((note, index) => (
+            <Text key={noteKeys[index]} style={styles.cacheNote}>
               {note}
             </Text>
           ))}
-          {evidence.symbols.map((sym) => (
-            <View key={`${sym.market}:${sym.symbol}`} style={styles.symbolBlock}>
+          {evidence.symbols.map((sym, index) => (
+            <View key={symbolKeys[index]} style={styles.symbolBlock}>
               <SelectableText style={styles.symbolTitle}>{sym.displayLabelJa}</SelectableText>
               <SelectableText style={styles.line}>
                 現在値: {sym.currentPrice ?? '—'} · 前日終値: {sym.previousClose ?? '—'} · 日中{' '}
@@ -55,9 +63,15 @@ function ConciergeEvidencePanelInner({ evidence }: Props) {
                 </SelectableText>
               ) : null}
               {sym.latestFinancialNews.length > 0 ? (
-                <SelectableText style={styles.line}>
-                  ニュース: {sym.latestFinancialNews.slice(0, 2).map((h) => h.title).join(' / ')}
-                </SelectableText>
+                <>
+                  <Text style={styles.sectionInline}>ニュース一覧</Text>
+                  {sym.latestFinancialNews.slice(0, 5).map((h, hi) => (
+                    <SelectableText key={listKey('news', hi, h.title)} style={styles.line}>
+                      · {h.title}
+                      {h.sentiment ? ` (${h.sentiment})` : ''}
+                    </SelectableText>
+                  ))}
+                </>
               ) : (
                 <SelectableText style={styles.muted}>ニュース: 未取得</SelectableText>
               )}
@@ -124,6 +138,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.text,
     marginBottom: 4,
+  },
+  sectionInline: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: theme.colors.textMuted,
+    marginTop: 4,
+    marginBottom: 2,
   },
   line: {
     fontSize: 11,

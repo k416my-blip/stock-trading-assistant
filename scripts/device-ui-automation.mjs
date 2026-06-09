@@ -72,11 +72,11 @@ async function main() {
 
   const checks = [
     'AI Action Center',
+    'portfolio-ai-eval-v2',
     'ポートフォリオ全体スコア',
     'おすすめ順ランキング',
     '本日のベスト銘柄',
     '本日のワースト銘柄',
-    'リスク警告',
     '評価更新',
     '取得元',
     'action hold',
@@ -84,8 +84,8 @@ async function main() {
     'confidence',
     'rationaleJa',
     'RSI',
-    '0820EA',
-    'Yahoo',
+    'portfolio-ai-eval-missing-hint',
+    'portfolioAiEvaluation 未生成',
   ];
   for (const c of checks) {
     console.log(c, xml.includes(c));

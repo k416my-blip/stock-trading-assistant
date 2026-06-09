@@ -4,9 +4,30 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
 import { SelectableText } from '../components/ui/SelectableText';
 import { useBursaConcierge } from '../context/BursaConciergeContext';
+import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
+import { materialQualityForStockCode } from '../services/bursa/bursaMaterialAnalysisService';
+import type { MaterialAnalysisReport } from '../services/bursa/bursaMaterialAnalysisService';
 import { theme } from '../theme';
+
+function NotificationQualityBlock({
+  stockCode,
+  materialReport,
+}: {
+  stockCode: string;
+  materialReport: MaterialAnalysisReport | null;
+}) {
+  const quality = materialQualityForStockCode(materialReport, stockCode);
+  if (!quality) return null;
+  return (
+    <View style={styles.qualityBlock}>
+      <Text style={styles.qualityLine}>
+        材料品質 {quality.stars} {quality.labelJa}
+      </Text>
+    </View>
+  );
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -20,6 +41,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function AiNotificationsScreen() {
   const { report, loading, error, markRead, markAllRead, setSoundEnabled, refresh } =
     useBursaConcierge();
+  const { report: materialReport } = useBursaMaterial();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   if (loading && !report) {
@@ -89,6 +111,12 @@ export function AiNotificationsScreen() {
                 </View>
                 <Text style={styles.title}>{n.titleJa}</Text>
                 <Text style={styles.message}>{n.messageJa}</Text>
+                {n.stockCodeJa !== CONCIERGE_NOTIFY_MISSING_JA ? (
+                  <NotificationQualityBlock
+                    stockCode={n.stockCodeJa}
+                    materialReport={materialReport}
+                  />
+                ) : null}
                 <Text style={styles.meta}>{n.createdAtJa}</Text>
               </Pressable>
             ))
@@ -105,6 +133,12 @@ export function AiNotificationsScreen() {
               <Text style={styles.importance}>{n.importanceJa}</Text>
               <Text style={styles.title}>{n.titleJa}</Text>
               <Text style={styles.message}>{n.messageJa}</Text>
+              {n.stockCodeJa !== CONCIERGE_NOTIFY_MISSING_JA ? (
+                <NotificationQualityBlock
+                  stockCode={n.stockCodeJa}
+                  materialReport={materialReport}
+                />
+              ) : null}
             </Pressable>
           ))}
         </Section>
@@ -203,6 +237,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceElevated,
   },
   refreshText: { color: theme.colors.primary, fontWeight: '700' },
+  qualityBlock: {
+    marginTop: 6,
+    paddingTop: 6,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.border,
+  },
+  qualityLine: { fontSize: theme.fontSize.sm, color: theme.colors.warning, fontWeight: '600' },
+  qualitySource: { fontSize: theme.fontSize.sm, color: theme.colors.textMuted, marginLeft: 8 },
   error: { color: theme.colors.danger, padding: theme.spacing.md },
 });
 

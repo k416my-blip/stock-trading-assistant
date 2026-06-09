@@ -4,6 +4,7 @@ import type { ConciergeEvidenceBundle } from './conciergeEvidence';
 import type { GlobalMarketAnalysisBundle } from './globalMarketAnalysis';
 import type { PortfolioIntelligenceBundle } from './portfolioIntelligence';
 import type { ConciergeUxDisplayMode } from './conciergeUx';
+import type { InvestmentDisplayMode } from './investmentDisplay';
 import type { DataReliabilityBundle } from './dataReliability';
 import type { PortfolioRiskExposureBundle } from './portfolioRiskExposure';
 import type { CapitalAllocationBundle } from './capitalAllocation';
@@ -61,12 +62,18 @@ export type AiPreferences = {
   proactiveVoiceOnResume: boolean;
   /** 実データ分析の厳しさ（conservative / balanced / aggressive） */
   aiAnalysisMode: AiAnalysisMode;
+  /** AI分析対象銘柄スコープ */
+  aiAnalysisSymbolScope: import('../constants/aiAnalysisScope').AiAnalysisSymbolScope;
   /** デバッグ: 直近AIプロンプト全文を表示 */
   aiConciergeDebugMode: boolean;
   /** バッテリーセーバー — 更新頻度低下・X API停止 */
   batterySaverEnabled: boolean;
   /** コンシェルジュ表示 — 初心者（要点のみ） / 上級者（詳細根拠） */
   conciergeUxMode: ConciergeUxDisplayMode;
+  /** 投資配分UI表示モード — trust / beginner / pro（初期値 beginner） */
+  investmentDisplayMode: InvestmentDisplayMode;
+  /** @deprecated investmentDisplayMode へ移行。互換用 */
+  investmentBeginnerMode: boolean;
   /** 自律監視エージェント — バックグラウンド市場監視 */
   autonomousMonitoringEnabled: boolean;
   autonomousNotificationsPaused: boolean;

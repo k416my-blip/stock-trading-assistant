@@ -1,40 +1,62 @@
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { colorForUrgencyLevel } from '../constants/urgencyColors';
+import { useApp } from '../context/AppContext';
+import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import { useUrgencySignals } from '../context/UrgencySignalContext';
+import { buildAiDailyComment } from '../services/aiDailyCommentBuilder';
+import { useAiAnalystReport } from '../hooks/useAiAnalystReport';
+import { resolvePortfolioAiEvaluation } from '../services/portfolioAiEvaluationFromStrategyBundle';
 import { buildHeaderSignalDisplay } from '../services/urgencySignalDisplay';
-import { HEADER_NO_ACTIVE_SIGNAL_JA } from '../types/urgencySignal';
 import type { MainTabParamList } from '../navigation/types';
+import { AiAnalystReportPanel } from './concierge/AiAnalystReportPanel';
+import { AiDailyCommentPanel } from './concierge/AiDailyCommentPanel';
 import { theme } from '../theme';
 
 export function HeaderUrgencyBadge() {
   const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
-  const { activeSignal, focusSignal, nowMs } = useUrgencySignals();
-  const pulseOpacity = useRef(new Animated.Value(1)).current;
+  const { state, twelveDataApiKey, analysisApiKeys } = useApp();
+  const proactive = useProactiveConciergeOptional();
+  const { activeSignal, focusSignal, nowMs, allSignals } = useUrgencySignals();
+  const pulseOpacity = useMemo(() => new Animated.Value(1), []);
 
-  useEffect(() => {
-    if (!activeSignal || activeSignal.level !== 'critical') {
-      pulseOpacity.setValue(1);
-      return;
-    }
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseOpacity, { toValue: 0.35, duration: 550, useNativeDriver: true }),
-        Animated.timing(pulseOpacity, { toValue: 1, duration: 550, useNativeDriver: true }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [activeSignal, pulseOpacity]);
+  const activeHoldingCount = useMemo(
+    () => state.portfolio.filter((p) => (p.shares ?? 0) > 0).length,
+    [state.portfolio],
+  );
+
+  const dailyComment = useMemo(() => {
+    const bundle = proactive?.strategyBundle ?? null;
+    const portfolio =
+      bundle?.portfolioAiEvaluation ?? (bundle ? resolvePortfolioAiEvaluation(bundle) : null);
+    return buildAiDailyComment({
+      bundle,
+      portfolio,
+      holdings: state.portfolio,
+      dividends: state.dividends,
+      activeSignals: allSignals,
+    });
+  }, [proactive?.strategyBundle, state.portfolio, state.dividends, allSignals]);
+
+  const analystReport = useAiAnalystReport({
+    portfolio:
+      proactive?.strategyBundle?.portfolioAiEvaluation ??
+      (proactive?.strategyBundle ? resolvePortfolioAiEvaluation(proactive.strategyBundle) : null),
+    holdings: state.portfolio,
+    twelveDataApiKey,
+    newsApiKey: analysisApiKeys.newsApiKey,
+  });
 
   if (!activeSignal) {
     return (
-      <View style={styles.emptyWrap} accessibilityRole="text">
-        <Text style={styles.emptyText} numberOfLines={1}>
-          {HEADER_NO_ACTIVE_SIGNAL_JA}
-        </Text>
+      <View style={styles.dailyWrap} accessibilityRole="text" testID="header-daily-ai-comment">
+        {activeHoldingCount > 0 ? (
+          <AiAnalystReportPanel report={analystReport} compact />
+        ) : (
+          <AiDailyCommentPanel comment={dailyComment} compact />
+        )}
       </View>
     );
   }
@@ -88,15 +110,9 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     backgroundColor: 'rgba(0,0,0,0.12)',
   },
-  emptyWrap: {
-    maxWidth: 160,
+  dailyWrap: {
+    maxWidth: 240,
     marginRight: theme.spacing.xs,
-    paddingVertical: 2,
-  },
-  emptyText: {
-    color: theme.colors.textMuted,
-    fontSize: 11,
-    fontWeight: '600',
   },
   pressed: { opacity: 0.88 },
   dot: {

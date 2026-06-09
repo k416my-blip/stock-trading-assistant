@@ -9,5 +9,5 @@ export const API_KEY_SETTINGS = {
   beginnerSteps:
     '①「APIキー取得方法」でTwelve Dataに登録 → ②無料APIキーをコピー → ③「APIキー設定」に貼り付けて保存',
   analysisOptionalNote:
-    'ニュース・決算・SNSのAPIキーは任意です。未設定でも参考推定で分析できます。',
+    'ニュース・決算・Reddit・SNSのAPIキーは任意です。未設定でも参考推定で分析できます。',
 } as const;

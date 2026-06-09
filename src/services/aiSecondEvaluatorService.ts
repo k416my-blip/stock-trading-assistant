@@ -16,6 +16,7 @@ import { buildEnrichedAiSecondEvaluatorInputs } from './aiSecondEvaluatorDataEnr
 import { loadAiApiKey } from './aiApiKey';
 import { isUsableApiKey } from './apiKeyValidation';
 import { parseAiApiJsonContent } from './aiResponseSanitizer';
+import { shouldPreferRealApiOverDegraded, logRealApiMode } from '../constants/realApiMode';
 import { shouldPauseConciergeAi } from './productionStability/productionStabilityRuntime';
 import { shouldPauseApiRequests } from './performanceCostRuntime';
 import { secureWarn } from './secureLogger';
@@ -142,6 +143,25 @@ export function buildAiSecondEvaluatorInputs(
   });
 }
 
+function buildEvidenceBasedRationale(s: AiSecondEvaluatorSymbolInput): string {
+  const parts: string[] = [];
+  if (s.rsi14 != null) {
+    parts.push(`RSI14=${s.rsi14}（${s.rsiSource}）`);
+  }
+  if (s.newsHeadlines.length > 0) {
+    parts.push(`ニュース: ${s.newsHeadlines.slice(0, 2).join(' / ')}`);
+  } else if (s.newsSummaryJa?.trim()) {
+    parts.push(s.newsSummaryJa.trim().slice(0, 140));
+  }
+  if (s.xPostCount > 0 && s.xSentimentSummaryJa?.trim()) {
+    parts.push(`X: ${s.xSentimentSummaryJa.trim().slice(0, 80)}`);
+  }
+  if ((s.volumeSurgeRatio ?? 1) >= 1.4) {
+    parts.push(`出来高急増比 ${(s.volumeSurgeRatio ?? 1).toFixed(2)}`);
+  }
+  return parts.length > 0 ? parts.join(' · ') : '指標・ニュース不足 — ルールベース参考';
+}
+
 function mockResults(inputs: AiSecondEvaluatorSymbolInput[]): AiSecondEvaluatorSymbolResult[] {
   return inputs.map((s) => {
     const rsi = s.rsi14 ?? 50;
@@ -161,7 +181,7 @@ function mockResults(inputs: AiSecondEvaluatorSymbolInput[]): AiSecondEvaluatorS
       symbol: s.symbol,
       action,
       confidence,
-      rationaleJa: 'ルールベース参考（API未使用/mock）',
+      rationaleJa: buildEvidenceBasedRationale(s),
     };
   });
 }
@@ -342,6 +362,8 @@ async function fetchFromOpenAi(
 export type FetchAiSecondEvaluatorOptions = {
   force?: boolean;
   degradedMode?: boolean;
+  /** 監査用 — enrichment をスキップし OpenAI のみ（日次 RSI/価格差し替え済み inputs） */
+  prebuiltInputs?: AiSecondEvaluatorSymbolInput[];
   /** ルール方向スコア（symbol 大文字キー）— [AI_EVAL_START] 用 */
   ruleScoresBySymbol?: Record<string, number>;
   quoteMetaBySymbol?: Record<
@@ -441,11 +463,13 @@ export async function fetchAiSecondEvaluatorBatch(
   options: FetchAiSecondEvaluatorOptions = {},
 ): Promise<AiSecondEvaluatorBatchResult> {
   const startedAt = Date.now();
-  const inputs = await buildEnrichedAiSecondEvaluatorInputs(evidenceSymbols, {
-    degradedMode: options.degradedMode,
-    forceRefresh: options.force,
-    quoteMetaBySymbol: options.quoteMetaBySymbol,
-  });
+  const inputs =
+    options.prebuiltInputs ??
+    (await buildEnrichedAiSecondEvaluatorInputs(evidenceSymbols, {
+      degradedMode: options.degradedMode,
+      forceRefresh: options.force,
+      quoteMetaBySymbol: options.quoteMetaBySymbol,
+    }));
   if (inputs.length === 0) {
     return finishBatch(
       { symbols: [], source: 'skipped', fetchedAt: new Date().toISOString() },
@@ -459,12 +483,18 @@ export async function fetchAiSecondEvaluatorBatch(
     );
   }
 
-  if (options.degradedMode || shouldPauseApiRequests() || shouldPauseConciergeAi()) {
-    const reason: AiEvalSkipReason = options.degradedMode
+  const degradedRequested = Boolean(options.degradedMode);
+  const useDegraded =
+    degradedRequested &&
+    !shouldPreferRealApiOverDegraded();
+
+  if (useDegraded || shouldPauseApiRequests() || shouldPauseConciergeAi()) {
+    const reason: AiEvalSkipReason = useDegraded
       ? 'degraded_mode'
       : shouldPauseConciergeAi()
         ? 'concierge_ai_paused'
         : 'api_requests_paused';
+    logRealApiMode('ai_second_eval_skipped_openai', { reason, symbolCount: inputs.length });
     const mock = {
       symbols: mockResults(inputs),
       source: 'mock_fallback' as const,
@@ -477,6 +507,8 @@ export async function fetchAiSecondEvaluatorBatch(
       openAiSkippedReason: reason,
     });
   }
+
+  logRealApiMode('ai_second_eval_openai', { symbolCount: inputs.length });
 
   const cacheKey = buildCacheKey(inputs);
   if (!options.force) {

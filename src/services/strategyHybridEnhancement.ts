@@ -6,12 +6,19 @@ import { fetchAiSecondEvaluatorBatch } from './aiSecondEvaluatorService';
 import {
   buildHybridSymbolScore,
   fusedActionToStrategyAction,
-  ruleActionToDirectionScore,
 } from './hybridStrategyScoreFusion';
+import type { StrategyAction } from '../types/strategyExecution';
 import type { ConciergeSymbolEvidence } from '../types/conciergeEvidence';
 import type { AiSecondEvaluatorAction } from '../types/aiSecondEvaluator';
 import type { AiSecondEvaluatorBatchResult } from '../types/aiSecondEvaluator';
+import { logPortfolioBestTodayBuild } from './conciergeEvidenceTrace';
+import { logRealApiMode } from '../constants/realApiMode';
+import {
+  buildPerSymbolRankingMap,
+  rankingMapToRuleScores,
+} from './hybridRankingConflict';
 import { buildPortfolioAiEvaluation } from './portfolioAiEvaluationBuilder';
+import { HYBRID_AI_SCORE_WEIGHT, HYBRID_RULE_SCORE_WEIGHT } from '../constants/hybridStrategyScore';
 import type {
   HybridSecondEvaluatorSummary,
   StrategyExecutionBundle,
@@ -23,6 +30,7 @@ function applyHybridToRecommendation(
   rec: StrategySymbolRecommendation,
   aiBySymbol: Map<string, { action: AiSecondEvaluatorAction; confidence: number; rationaleJa: string }>,
   rsiBySymbol: Map<string, { rsi14: number | null; rsiSource?: string }>,
+  effectiveRuleAction: StrategyAction,
 ): StrategySymbolRecommendation {
   const ai = aiBySymbol.get(rec.symbol.toUpperCase());
   if (!ai) return rec;
@@ -30,7 +38,7 @@ function applyHybridToRecommendation(
   const rsi = rsiBySymbol.get(rec.symbol.toUpperCase());
 
   const hybridCore = buildHybridSymbolScore({
-    ruleAction: rec.action,
+    ruleAction: effectiveRuleAction,
     ruleConfidencePct: rec.confidencePct,
     aiAction: ai.action,
     aiConfidencePct: ai.confidence,
@@ -41,7 +49,7 @@ function applyHybridToRecommendation(
     ruleScore: hybridCore.ruleScore,
     aiScore: hybridCore.aiScore,
     finalScore: hybridCore.finalScore,
-    ruleAction: rec.action,
+    ruleAction: effectiveRuleAction,
     aiAction: ai.action,
     aiConfidencePct: ai.confidence,
     fusedAction: hybridCore.fusedAction,
@@ -67,26 +75,9 @@ function buildSummary(
     generatedAt: batch.fetchedAt,
     source: batch.source,
     symbolCount,
-    ruleWeightPct: 70,
-    aiWeightPct: 30,
+    ruleWeightPct: Math.round(HYBRID_RULE_SCORE_WEIGHT * 100),
+    aiWeightPct: Math.round(HYBRID_AI_SCORE_WEIGHT * 100),
   };
-}
-
-function buildRuleScoresBySymbol(bundle: StrategyExecutionBundle): Record<string, number> {
-  const out: Record<string, number> = {};
-  const allRecs = [
-    ...bundle.todayRecommendations,
-    ...bundle.dangerAvoid,
-    ...bundle.watchList,
-    ...bundle.highExpectancy,
-  ];
-  for (const r of allRecs) {
-    const sym = r.symbol.toUpperCase();
-    if (!out[sym]) {
-      out[sym] = ruleActionToDirectionScore(r.action, r.confidencePct);
-    }
-  }
-  return out;
 }
 
 export type EnhanceStrategyHybridOptions = {
@@ -104,17 +95,28 @@ export async function enhanceStrategyBundleWithHybridEvaluator(
   evidenceSymbols: ConciergeSymbolEvidence[],
   options: EnhanceStrategyHybridOptions = {},
 ): Promise<StrategyExecutionBundle> {
-  const ruleScoresBySymbol = buildRuleScoresBySymbol(bundle);
   const [batch, enrichedInputs] = await Promise.all([
     fetchAiSecondEvaluatorBatch(evidenceSymbols, {
       force: options.forceAi,
       degradedMode: options.degradedMode,
-      ruleScoresBySymbol,
+      ruleScoresBySymbol: {},
     }),
     buildEnrichedAiSecondEvaluatorInputs(evidenceSymbols, {
       degradedMode: options.degradedMode,
     }),
   ]);
+
+  const evidenceBySymbol = new Map(
+    evidenceSymbols.map((s) => [s.symbol.toUpperCase(), s] as const),
+  );
+  const rankingBySymbol = buildPerSymbolRankingMap({
+    bundle,
+    evidenceBySymbol,
+    enrichedInputs,
+    batch,
+    symbolWeightPct: options.symbolWeightPct ?? {},
+  });
+  const ruleScoresBySymbol = rankingMapToRuleScores(rankingBySymbol);
 
   const rsiBySymbol = new Map(
     enrichedInputs.map((inp) => [
@@ -143,7 +145,9 @@ export async function enhanceStrategyBundleWithHybridEvaluator(
 
   const enhancedBySymbol = new Map<string, StrategySymbolRecommendation>();
   for (const [sym, rec] of uniqueBySymbol) {
-    enhancedBySymbol.set(sym, applyHybridToRecommendation(rec, aiBySymbol, rsiBySymbol));
+    const ranking = rankingBySymbol.get(sym);
+    const effectiveRule = ranking?.effectiveRuleAction ?? rec.action;
+    enhancedBySymbol.set(sym, applyHybridToRecommendation(rec, aiBySymbol, rsiBySymbol, effectiveRule));
   }
 
   const pick = (rec: StrategySymbolRecommendation) =>
@@ -154,6 +158,39 @@ export async function enhanceStrategyBundleWithHybridEvaluator(
     batch,
     ruleScoresBySymbol,
     symbolWeightPct: options.symbolWeightPct ?? {},
+    rankingBySymbol,
+  });
+
+  const conflictBySymbol: Record<string, boolean> = {};
+  for (const [sym, r] of rankingBySymbol) {
+    conflictBySymbol[sym] = r.conflict;
+  }
+  logPortfolioBestTodayBuild({
+    portfolioScore: portfolioAiEvaluation.portfolioScore,
+    batchSource: portfolioAiEvaluation.batchSource,
+    bestToday: portfolioAiEvaluation.bestToday.map((e) => ({
+      rank: e.rank,
+      symbol: e.symbol,
+      finalScore: e.finalScore,
+      ruleScore: e.ruleScore,
+      aiScore: e.aiScore,
+      action: e.action,
+      conflict: conflictBySymbol[e.symbol.toUpperCase()] ?? false,
+    })),
+    rankedTop10: portfolioAiEvaluation.rankedHoldings.slice(0, 10).map((e) => ({
+      rank: e.rank,
+      symbol: e.symbol,
+      finalScore: e.finalScore,
+      action: e.action,
+      conflict: conflictBySymbol[e.symbol.toUpperCase()] ?? false,
+    })),
+  });
+
+  logRealApiMode('strategy_hybrid_enhanced', {
+    batchSource: portfolioAiEvaluation.batchSource,
+    openAiSource: batch.source,
+    symbolCount: enrichedInputs.length,
+    degradedMode: options.degradedMode ?? false,
   });
 
   return {

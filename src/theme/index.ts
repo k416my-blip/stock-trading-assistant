@@ -15,10 +15,12 @@ export const theme = {
     lg: 16,
   },
   fontSize: {
+    xs: 11,
     sm: 13,
     md: 15,
     lg: 18,
     xl: 22,
+    xxl: 24,
     title: 28,
   },
 } as const;

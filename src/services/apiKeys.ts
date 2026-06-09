@@ -1,6 +1,11 @@
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
-import { isUsableApiKey, normalizeStoredApiKey } from './apiKeyValidation';
-import { deleteSecret, getSecret, setSecret } from './secretStorage';
+import { canPersistApiKeyValue, canPersistTwelveDataApiKey } from './apiKeyValidation';
+import {
+  apiKeyExistsInStorage,
+  safeDeleteApiKey,
+  safeGetApiKey,
+  safeSaveApiKey,
+} from './safeApiKey';
 
 export function maskApiKey(value: string): string {
   const normalized = value.trim();
@@ -10,31 +15,35 @@ export function maskApiKey(value: string): string {
 }
 
 export async function loadApiKey(providerId: SupportedApiProviderId): Promise<string> {
-  const provider = API_PROVIDERS.find((item) => item.id === providerId);
-  if (!provider) return '';
-  return getSecret(provider.secretKeyId);
+  return safeGetApiKey(providerId);
 }
 
-export async function saveApiKey(providerId: SupportedApiProviderId, value: string): Promise<void> {
-  const provider = API_PROVIDERS.find((item) => item.id === providerId);
-  if (!provider) return;
-  const normalized = normalizeStoredApiKey(value);
-  await setSecret(provider.secretKeyId, normalized);
+export async function saveApiKey(
+  providerId: SupportedApiProviderId,
+  value: string,
+): Promise<{ saved: boolean; reason: string }> {
+  return safeSaveApiKey(providerId, value);
 }
 
-export async function deleteApiKey(providerId: SupportedApiProviderId): Promise<void> {
-  const provider = API_PROVIDERS.find((item) => item.id === providerId);
-  if (!provider) return;
-  await deleteSecret(provider.secretKeyId);
+export async function deleteApiKey(
+  providerId: SupportedApiProviderId,
+  userConfirmed = true,
+): Promise<void> {
+  return safeDeleteApiKey(providerId, userConfirmed);
 }
 
 export async function loadAllApiKeys(): Promise<Record<SupportedApiProviderId, string>> {
   const entries = await Promise.all(
-    API_PROVIDERS.map(async (provider) => [provider.id, await getSecret(provider.secretKeyId)] as const),
+    API_PROVIDERS.map(async (provider) => [provider.id, await safeGetApiKey(provider.id)] as const),
   );
   return Object.fromEntries(entries) as Record<SupportedApiProviderId, string>;
 }
 
 export function hasUsableKey(value: string): boolean {
-  return isUsableApiKey(value);
+  return canPersistApiKeyValue(value);
+}
+
+export function hasSavedKey(providerId: SupportedApiProviderId, value: string): boolean {
+  if (providerId === 'twelve_data') return canPersistTwelveDataApiKey(value);
+  return canPersistApiKeyValue(value);
 }

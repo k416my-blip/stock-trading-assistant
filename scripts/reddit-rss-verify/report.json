@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-06-09T12:54:29.747Z",
+  "stockCode": "1155",
+  "companyName": "MALAYAN BANKING BERHAD",
+  "result": "Reddit RSS取得成功",
+  "redditFetchDiagnostics": {
+    "fetchMethod": "rss",
+    "fetchUrl": "https://www.reddit.com/search.rss?q=Maybank&sort=new",
+    "articleCount": 3,
+    "fetchedCount": 155,
+    "validCount": 3,
+    "excludedCount": 152,
+    "irrelevantRate": 0.9806451612903225,
+    "confidenceJa": "低",
+    "investmentConfidenceJa": "高",
+    "qualityWarningJa": "Reddit品質低",
+    "titles": [
+      "Maybank Stock",
+      "maybank stocks or asb?",
+      "Maybank stocks vs ASM/ASB-style funds for long term investing in Malaysia?"
+    ],
+    "searchQueries": [
+      "Maybank",
+      "MAYBANK",
+      "MALAYAN BANKING",
+      "1155.KL",
+      "1155 Bursa",
+      "Maybank subreddit:BursaMalaysia",
+      "Maybank subreddit:malaysia",
+      "1155 KLSE",
+      "Maybank dividend",
+      "Maybank earnings",
+      "Maybank shares",
+      "1155 dividend"
+    ],
+    "fetchedAt": "2026-06-09T12:54:27.783Z",
+    "errorReason": null,
+    "oauthConfigured": false
+  },
+  "top5Titles": [
+    "Maybank Stock",
+    "maybank stocks or asb?",
+    "Maybank stocks vs ASM/ASB-style funds for long term investing in Malaysia?"
+  ],
+  "itemCountBySource": {
+    "Bursa Announcement": 7,
+    "RSS": 12,
+    "Reddit RSS": 3,
+    "Reddit": 3
+  },
+  "redditApiConnection": "Reddit RSS接続",
+  "oauthConfigured": false,
+  "hasRedditRssSourceLabel": true,
+  "redditMaterialTitles": [
+    {
+      "title": "Maybank Stock",
+      "sourceLabelJa": "Reddit RSS"
+    },
+    {
+      "title": "maybank stocks or asb?",
+      "sourceLabelJa": "Reddit RSS"
+    },
+    {
+      "title": "Maybank stocks vs ASM/ASB-style funds for long term investing in Malaysia?",
+      "sourceLabelJa": "Reddit RSS"
+    }
+  ]
+}

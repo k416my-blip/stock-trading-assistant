@@ -22,8 +22,9 @@ import { buildBursaPhase3FromSnapshots } from '../../src/services/bursa/bursaPha
 import { buildBursaPhase5Analysis } from '../../src/services/bursa/bursaPhase5Analysis';
 import { peerSnapshotFromBundle } from '../../src/services/bursa/bursaPeerSnapshotService';
 import { BURSA_TODAY_BUDGETS_MYR } from '../../src/services/bursa/bursaStockUniverse';
-import type { BursaDisclosureBundle } from '../../types/bursaDisclosure';
-import type { PortfolioPosition } from '../../types';
+import type { BursaDisclosureBundle } from '../../src/types/bursaDisclosure';
+import type { PortfolioPosition } from '../../src/types';
+import { bursaTestHolding } from '../helpers/bursaPortfolioFixture';
 
 const root = process.cwd();
 const VERIFY_CODES = ['1155', '1066', '5819', '5183'];
@@ -45,14 +46,15 @@ function loadBundle(code: string): BursaDisclosureBundle | null {
 }
 
 function verifyHoldings(): PortfolioPosition[] {
-  return VERIFY_CODES.map((code, i) => ({
-    id: `h-${code}`,
-    symbol: code,
-    market: 'bursa' as const,
-    shares: 1000,
-    currentPrice: null,
-    companyName: null,
-  }));
+  return VERIFY_CODES.map((code) =>
+    bursaTestHolding({
+      id: `h-${code}`,
+      symbol: code,
+      shares: 1000,
+      currentPrice: 0,
+      companyName: code,
+    }),
+  );
 }
 
 describe('bursa Phase8 today trading', () => {

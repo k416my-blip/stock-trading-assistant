@@ -283,7 +283,7 @@ export function StockDetailScreen() {
           </View>
         </Card>
       ) : recommendation ? (
-        <StockRecommendationPanel recommendation={recommendation} />
+        <StockRecommendationPanel recommendation={recommendation} symbol={stock.symbol} />
       ) : null}
       <Card>
         <Text style={styles.muted}>

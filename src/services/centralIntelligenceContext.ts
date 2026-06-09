@@ -17,6 +17,7 @@ import { reconcileExecutionJournal } from './executionReconciliationService';
 import { loadExecutionJournal } from './executionJournalStorage';
 import { marketDataRequestQueue } from './marketDataRequestQueue';
 import { loadHealthyPortfolioSnapshot, verifyPortfolioChecksum } from './portfolioSnapshot';
+import { getWatchlistSymbols } from './userAnalysisSymbols';
 function clampPercent(n: number): number {
   return Math.max(0, Math.min(100, Math.round(n)));
 }
@@ -191,10 +192,10 @@ export async function buildCentralIntelligenceWorldModel(
       };
     });
 
-  const watchlist = input.state.manualOrderList.slice(0, 30).map((o) => ({
+  const watchlist = getWatchlistSymbols(input.state).slice(0, 30).map((o) => ({
     symbol: o.symbol,
     market: MARKET_LABEL[o.market],
-    side: o.side === 'sell' ? '売却検討' : '買い推奨',
+    side: 'ウォッチ',
   }));
 
   const journal = await loadExecutionJournal();

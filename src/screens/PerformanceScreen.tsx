@@ -41,6 +41,11 @@ export function PerformanceScreen() {
       )}
       <PerformanceChart data={history} />
       <Button
+        label="リアルタイム前向き検証"
+        onPress={() => stackNav.navigate('ForwardValidation')}
+        variant="ghost"
+      />
+      <Button
         label="歴史シミュレーション検証"
         onPress={() => stackNav.navigate('HistoricalValidation')}
         variant="ghost"

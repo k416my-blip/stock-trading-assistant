@@ -115,6 +115,8 @@ import { ForwardMalaysiaV4IjmOosAuditPanel } from '../components/ForwardMalaysia
 import { ForwardMalaysiaV4FinalCompareAuditPanel } from '../components/ForwardMalaysiaV4FinalCompareAuditPanel';
 import { ForwardMalaysiaV4OpsMonitorAuditPanel } from '../components/ForwardMalaysiaV4OpsMonitorAuditPanel';
 import { ForwardMalaysiaV4YahooQualityAuditPanel } from '../components/ForwardMalaysiaV4YahooQualityAuditPanel';
+import { ForwardMalaysiaV4RebalanceAuditPanel } from '../components/ForwardMalaysiaV4RebalanceAuditPanel';
+import { ForwardMalaysiaV4TwelveBursaAuditPanel } from '../components/ForwardMalaysiaV4TwelveBursaAuditPanel';
 import { ForwardMacdCumulativeAuditPanel } from '../components/ForwardMacdCumulativeAuditPanel';
 import { ForwardMacdExclSpringAuditPanel } from '../components/ForwardMacdExclSpringAuditPanel';
 import { ForwardEightCellAuditPanel } from '../components/ForwardEightCellAuditPanel';
@@ -406,6 +408,8 @@ import type {
   ForwardMalaysiaV4FinalCompareAuditReport,
   ForwardMalaysiaV4OpsMonitorAuditReport,
   ForwardMalaysiaV4YahooQualityAuditReport,
+  ForwardMalaysiaV4RebalanceAuditReport,
+  ForwardMalaysiaV4TwelveBursaAuditReport,
 } from '../types/forwardValidation';
 import {
   formatSurvivorshipCsv,
@@ -688,6 +692,16 @@ import {
   runMalaysiaV4YahooQualityAudit,
 } from '../services/forwardValidation/forwardValidationMalaysiaV4YahooQualityAudit';
 import {
+  formatMalaysiaV4RebalanceCsv,
+  runMalaysiaV4RebalanceAudit,
+} from '../services/forwardValidation/forwardValidationMalaysiaV4RebalanceAudit';
+import {
+  formatMalaysiaV4TwelveBursaCsv,
+  runMalaysiaV4TwelveBursaAudit,
+} from '../services/forwardValidation/forwardValidationMalaysiaV4TwelveBursaAudit';
+import { useApp } from '../context/AppContext';
+import { isMalaysiaMarket } from '../utils/normalizeBursaSymbol';
+import {
   auditMacdCumulative,
   formatMacdCumulativeCsv,
 } from '../services/forwardValidation/forwardValidationMacdCumulativeAudit';
@@ -811,6 +825,7 @@ import type { ForwardValidationPersisted, ForwardYahooFetchLog } from '../types/
 import { theme } from '../theme';
 
 export function ForwardValidationScreen() {
+  const { state: appState, isPractice } = useApp();
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [state, setState] = useState<ForwardValidationPersisted | null>(null);
   const [bundle, setBundle] = useState<ForwardOhlcvBundle | null>(null);
@@ -2408,6 +2423,17 @@ export function ForwardValidationScreen() {
   const [malaysiaV4YahooQualityReport, setMalaysiaV4YahooQualityReport] =
     useState<ForwardMalaysiaV4YahooQualityAuditReport | null>(null);
   const [malaysiaV4YahooQualityLoading, setMalaysiaV4YahooQualityLoading] = useState(false);
+  const [malaysiaV4RebalanceReport, setMalaysiaV4RebalanceReport] =
+    useState<ForwardMalaysiaV4RebalanceAuditReport | null>(null);
+  const [malaysiaV4RebalanceLoading, setMalaysiaV4RebalanceLoading] = useState(false);
+  const [malaysiaV4TwelveBursaReport, setMalaysiaV4TwelveBursaReport] =
+    useState<ForwardMalaysiaV4TwelveBursaAuditReport | null>(null);
+  const [malaysiaV4TwelveBursaLoading, setMalaysiaV4TwelveBursaLoading] = useState(false);
+
+  const malaysiaHoldings = useMemo(() => {
+    const raw = isPractice ? appState.practice.portfolio : appState.portfolio;
+    return raw.filter((p) => isMalaysiaMarket(p.market) && (p.shares ?? 0) > 0);
+  }, [isPractice, appState.portfolio, appState.practice.portfolio]);
 
   useEffect(() => {
     let cancelled = false;
@@ -2463,6 +2489,36 @@ export function ForwardValidationScreen() {
       })
       .finally(() => {
         if (!cancelled) setMalaysiaV4YahooQualityLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMalaysiaV4RebalanceLoading(true);
+    void runMalaysiaV4RebalanceAudit(malaysiaHoldings)
+      .then((r) => {
+        if (!cancelled) setMalaysiaV4RebalanceReport(r);
+      })
+      .finally(() => {
+        if (!cancelled) setMalaysiaV4RebalanceLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [malaysiaHoldings]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMalaysiaV4TwelveBursaLoading(true);
+    void runMalaysiaV4TwelveBursaAudit()
+      .then((r) => {
+        if (!cancelled) setMalaysiaV4TwelveBursaReport(r);
+      })
+      .finally(() => {
+        if (!cancelled) setMalaysiaV4TwelveBursaLoading(false);
       });
     return () => {
       cancelled = true;
@@ -3969,6 +4025,30 @@ export function ForwardValidationScreen() {
     }
   };
 
+  const onExportMalaysiaV4RebalanceCsv = async () => {
+    if (!malaysiaV4RebalanceReport) return;
+    try {
+      await Share.share({
+        message: formatMalaysiaV4RebalanceCsv(malaysiaV4RebalanceReport),
+        title: 'forward_validation_malaysia_v4_rebalance_audit.csv',
+      });
+    } catch (e) {
+      Alert.alert('CSV出力', e instanceof Error ? e.message : '共有に失敗しました');
+    }
+  };
+
+  const onExportMalaysiaV4TwelveBursaCsv = async () => {
+    if (!malaysiaV4TwelveBursaReport) return;
+    try {
+      await Share.share({
+        message: formatMalaysiaV4TwelveBursaCsv(malaysiaV4TwelveBursaReport),
+        title: 'forward_validation_malaysia_v4_twelve_bursa_audit.csv',
+      });
+    } catch (e) {
+      Alert.alert('CSV出力', e instanceof Error ? e.message : '共有に失敗しました');
+    }
+  };
+
   const onExportMacdCumulativeCsv = async () => {
     if (!macdCumulativeReport) return;
     try {
@@ -4636,6 +4716,16 @@ export function ForwardValidationScreen() {
       <ForwardMalaysiaV4YahooQualityAuditPanel
         report={malaysiaV4YahooQualityReport}
         loading={malaysiaV4YahooQualityLoading}
+      />
+
+      <ForwardMalaysiaV4RebalanceAuditPanel
+        report={malaysiaV4RebalanceReport}
+        loading={malaysiaV4RebalanceLoading}
+      />
+
+      <ForwardMalaysiaV4TwelveBursaAuditPanel
+        report={malaysiaV4TwelveBursaReport}
+        loading={malaysiaV4TwelveBursaLoading}
       />
 
       <ForwardWinLossAuditPanel report={winLossReport} loading={loading} />
@@ -5331,6 +5421,16 @@ export function ForwardValidationScreen() {
       <Button
         label="MY v4 Yahoo品質 CSV"
         onPress={() => void onExportMalaysiaV4YahooQualityCsv()}
+        variant="ghost"
+      />
+      <Button
+        label="MY v4リバランス CSV"
+        onPress={() => void onExportMalaysiaV4RebalanceCsv()}
+        variant="ghost"
+      />
+      <Button
+        label="MY v4 Twelve Bursa CSV"
+        onPress={() => void onExportMalaysiaV4TwelveBursaCsv()}
         variant="ghost"
       />
       <Button

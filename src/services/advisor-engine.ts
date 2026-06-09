@@ -18,6 +18,7 @@ import type { GlobalMarketAnalysisBundle } from '../types/globalMarketAnalysis';
 import type { ConciergeSymbolEvidence } from '../types/conciergeEvidence';
 import { evaluateMarketSignals } from './signal-engine';
 import { calculatePositionsPnLFromList } from './portfolio';
+import { normalizeSymbolKey } from './userAnalysisSymbols';
 
 export type ProactiveEvaluationInput = {
   holdings: PortfolioPosition[];
@@ -31,6 +32,8 @@ export type ProactiveEvaluationInput = {
   marketRegime?: MarketRegimeResult | null;
   previous: ProactiveStateFingerprint | null;
   nowMs?: number;
+  /** 保有・ウォッチ・注文候補のみ通知 */
+  allowedSymbolKeys?: Set<string>;
   /** 実データ分析型 — 保有銘柄の異常フラグ（キャッシュベース） */
   conciergeEvidenceSymbols?: ConciergeSymbolEvidence[];
   globalMarketAnalysis?: GlobalMarketAnalysisBundle | null;
@@ -273,6 +276,13 @@ export function evaluateProactiveAdvice(
 
   for (const signal of input.urgencySignals) {
     if (signal.level === 'low') continue;
+    if (
+      signal.ticker &&
+      input.allowedSymbolKeys?.size &&
+      !input.allowedSymbolKeys.has(normalizeSymbolKey(signal.ticker))
+    ) {
+      continue;
+    }
     out.push(urgencyToCandidate(signal));
   }
 
@@ -290,6 +300,12 @@ export function evaluateProactiveAdvice(
   }
 
   for (const ticker of input.buyCandidateTickers.slice(0, 3)) {
+    if (
+      input.allowedSymbolKeys?.size &&
+      !input.allowedSymbolKeys.has(normalizeSymbolKey(ticker))
+    ) {
+      continue;
+    }
     out.push({
       priority: 'medium',
       category: 'buy_candidate',
@@ -304,6 +320,12 @@ export function evaluateProactiveAdvice(
   }
 
   for (const ticker of input.sellCandidateTickers.slice(0, 3)) {
+    if (
+      input.allowedSymbolKeys?.size &&
+      !input.allowedSymbolKeys.has(normalizeSymbolKey(ticker))
+    ) {
+      continue;
+    }
     out.push({
       priority: 'medium',
       category: 'sell_candidate',
@@ -358,6 +380,12 @@ export function evaluateProactiveAdvice(
       reasonsJa: ['シグナルなし'],
       source: 'periodic',
     });
+  }
+
+  if (input.allowedSymbolKeys?.size) {
+    return out.filter(
+      (c) => !c.symbol || input.allowedSymbolKeys!.has(normalizeSymbolKey(c.symbol)),
+    );
   }
 
   return out;

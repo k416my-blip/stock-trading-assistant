@@ -7,7 +7,7 @@ export interface PriceSyncActionsContextValue {
   refreshPortfolioPrices: (options?: PriceRefreshOptions) => Promise<PriceSyncResult>;
   syncPriceSyncForEmptyHoldings: () => void;
   reloadTwelveDataApiKeyFromStorage: () => Promise<void>;
-  saveTwelveDataApiKey: (apiKey: string) => Promise<void>;
+  saveTwelveDataApiKey: (apiKey: string) => Promise<{ saved: boolean; reason: string }>;
   testTwelveDataConnection: () => Promise<{ ok: boolean; message: string }>;
 }
 

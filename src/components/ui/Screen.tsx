@@ -10,7 +10,7 @@ import {
 import { theme } from '../../theme';
 
 type Props = {
-  title: string;
+  title?: string;
   subtitle?: string;
   children: ReactNode;
   pointerEvents?: ViewProps['pointerEvents'];
@@ -26,7 +26,7 @@ export const Screen = forwardRef(function Screen(
     return (
       <View style={styles.scroll} pointerEvents={pointerEvents}>
         <View style={styles.contentStatic}>
-          <Text style={styles.title}>{title}</Text>
+          {title ? <Text style={styles.title}>{title}</Text> : null}
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
           <View style={styles.bodyFlex}>{children}</View>
         </View>
@@ -43,7 +43,7 @@ export const Screen = forwardRef(function Screen(
       pointerEvents={pointerEvents}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>{title}</Text>
+      {title ? <Text style={styles.title}>{title}</Text> : null}
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       <View style={styles.body}>{children}</View>
     </ScrollView>

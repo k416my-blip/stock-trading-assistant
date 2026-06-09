@@ -39,6 +39,7 @@ const LazyInteractiveRuntime = lazy(async () => {
     { ProactiveConciergeProvider },
     { AiConciergeProvider },
     { BursaConciergeProvider },
+    { BursaMaterialProvider },
     { PerformanceCostBanner },
     { AiConciergeOverlay },
   ] = await Promise.all([
@@ -46,6 +47,7 @@ const LazyInteractiveRuntime = lazy(async () => {
     import('./src/context/ProactiveConciergeContext'),
     import('./src/context/AiConciergeContext'),
     import('./src/context/BursaConciergeContext'),
+    import('./src/context/BursaMaterialContext'),
     import('./src/components/PerformanceCostBanner'),
     import('./src/components/concierge/AiConciergeOverlay'),
   ]);
@@ -56,10 +58,12 @@ const LazyInteractiveRuntime = lazy(async () => {
         <ProactiveConciergeProvider>
           <AiConciergeProvider>
             <BursaConciergeProvider>
-              <PerformanceCostBanner />
-              <RootNavigator />
-              <AiConciergeOverlay />
-              <StatusBar style="light" />
+              <BursaMaterialProvider>
+                <PerformanceCostBanner />
+                <RootNavigator />
+                <AiConciergeOverlay />
+                <StatusBar style="light" />
+              </BursaMaterialProvider>
             </BursaConciergeProvider>
           </AiConciergeProvider>
         </ProactiveConciergeProvider>

@@ -23,6 +23,11 @@ import type {
 } from '../types';
 import { getMarketSession } from './marketSession';
 import { buildHoldingDetails, calculatePositionsPnLFromList } from './portfolio';
+import {
+  buildAllowedSymbolKeySet,
+  normalizeSymbolKey,
+  resolveSymbolsForNotifications,
+} from './userAnalysisSymbols';
 
 export interface AlertPayload {
   type: AlertType;
@@ -259,6 +264,12 @@ export function scanMarketSessionAlerts(at = new Date()): AlertPayload[] {
 }
 
 export function collectPeriodicAlerts(state: AppState, at = new Date()): AlertPayload[] {
-  const positions = state.appMode === 'practice' ? state.practice.portfolio : state.portfolio;
+  const isPractice = state.appMode === 'practice';
+  const allowed = buildAllowedSymbolKeySet(
+    resolveSymbolsForNotifications(state, isPractice),
+  );
+  const positions = (isPractice ? state.practice.portfolio : state.portfolio).filter((p) =>
+    allowed.has(normalizeSymbolKey(p.symbol)),
+  );
   return [...scanHoldingAlerts(positions), ...scanMarketSessionAlerts(at)];
 }

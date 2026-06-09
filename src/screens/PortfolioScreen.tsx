@@ -1,4 +1,4 @@
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,10 +11,11 @@ import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { logFocusRefresh } from '../services/productionOpsLog';
 import {
-  usePortfolioHoldingsListModel,
   type PortfolioHoldingActionsRef,
 } from '../components/portfolio/PortfolioHoldingsList';
 import { PortfolioPriceSyncCard } from '../components/portfolio/PortfolioPriceSyncCard';
+import { PortfolioCandidateSection } from '../components/portfolio/PortfolioCandidateSection';
+import { PortfolioHoldingsCardsSection } from '../components/portfolio/PortfolioHoldingsCardsSection';
 import { RealAccountExposurePanel } from '../components/RealAccountExposurePanel';
 import { RealAccountPendingOrdersPanel } from '../components/RealAccountPendingOrdersPanel';
 import { useApp } from '../context/AppContext';
@@ -350,14 +351,6 @@ export function PortfolioScreen() {
     },
   };
 
-  const { renderItem, keyExtractor, extraData } = usePortfolioHoldingsListModel({
-    holdings,
-    portfolioById,
-    isPractice,
-    readOnly: killSwitches.readOnlyMode,
-    actionsRef: holdingActionsRef,
-  });
-
   const listHeader = useMemo(
     () => (
       <View style={styles.listHeader}>
@@ -384,10 +377,29 @@ export function PortfolioScreen() {
               />
               <LabeledValue term="dividend" value={`RM${formatMYR(dividendsMYR)}`} />
             </Card>
-            <RealAccountExposurePanel />
-            <RealAccountPendingOrdersPanel />
           </>
         )}
+
+        <PortfolioHoldingsCardsSection
+          holdings={holdings}
+          portfolio={portfolio}
+          portfolioById={portfolioById}
+          portfolioStateLength={
+            isPractice ? state.practice.portfolio.length : state.portfolio.length
+          }
+          isPractice={isPractice}
+          readOnly={killSwitches.readOnlyMode}
+          actionsRef={holdingActionsRef}
+          onNavigateScreener={() => navigation.getParent()?.navigate('Screener')}
+        />
+
+        {!isPractice ? (
+          <>
+            <RealAccountExposurePanel />
+            <RealAccountPendingOrdersPanel />
+            <PortfolioCandidateSection />
+          </>
+        ) : null}
 
         {isPractice ? (
           <Card>
@@ -435,6 +447,10 @@ export function PortfolioScreen() {
       buyingPower,
       dividendsMYR,
       holdings.length,
+      portfolioById,
+      killSwitches.readOnlyMode,
+      holdingActionsRef,
+      state.portfolio.length,
       holdingsLastPriceAt,
       isPractice,
       marketRegime,
@@ -442,31 +458,13 @@ export function PortfolioScreen() {
       onSellAll,
       portfolio,
       practiceStats,
-      state,
+      state.manualOrderList.length,
+      state.practice.portfolio.length,
+      holdings,
       totalPortfolioValueMYR,
       unrealizedMYR,
       sellablePositions.length,
     ],
-  );
-
-  const listEmpty = useMemo(
-    () => (
-      <Card style={styles.emptyCard}>
-        <Text style={styles.emptyTitle}>現在保有銘柄はありません</Text>
-        <Text style={styles.muted}>
-          {isPractice
-            ? '「おすすめ配分」または「仮想買付」から取引してください。'
-            : '銘柄検索から追加してください。'}
-        </Text>
-        {!isPractice ? (
-          <Button
-            label="銘柄検索へ"
-            onPress={() => navigation.getParent()?.navigate('Screener')}
-          />
-        ) : null}
-      </Card>
-    ),
-    [isPractice, navigation],
   );
 
   const listFooter = useMemo(() => {
@@ -495,26 +493,16 @@ export function PortfolioScreen() {
           isPractice ? '練習モードの仮想ポジション' : '実運用分析 — 証券会社で約定後に記録したポジション'
         }
       >
-        <FlatList
+        <ScrollView
           style={styles.list}
-          data={holdings}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          extraData={extraData}
-          ListHeaderComponent={listHeader}
-          ListEmptyComponent={listEmpty}
-          ListFooterComponent={listFooter}
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
           nestedScrollEnabled
-          scrollEnabled
           showsVerticalScrollIndicator={false}
-          removeClippedSubviews={false}
-          overScrollMode="always"
-          initialNumToRender={6}
-          maxToRenderPerBatch={8}
-          windowSize={7}
-        />
+        >
+          {listHeader}
+          {listFooter}
+        </ScrollView>
       </Screen>
 
       <SellAllMissingPriceModal

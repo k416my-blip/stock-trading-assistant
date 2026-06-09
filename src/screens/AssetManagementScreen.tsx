@@ -12,6 +12,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
 import { SelectableText } from '../components/ui/SelectableText';
 import { useApp } from '../context/AppContext';
+import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import {
   ASSET_MGMT_MISSING_JA,
@@ -72,6 +73,7 @@ function HoldingCard({
 
 export function AssetManagementScreen() {
   const { state } = useApp();
+  const { report: materialReport } = useBursaMaterial();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [report, setReport] = useState<AssetMgmtReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +134,23 @@ export function AssetManagementScreen() {
           <Row label="配当依存度" value={report.dividendDependencyJa} />
           <Row label="大型株依存度" value={report.largeCapDependencyJa} />
           <Row label="成長株比率" value={report.growthRatioJa} />
+        </Section>
+
+        <Section title="【保有銘柄 — 材料スコア（Phase11）】">
+          {!materialReport ? (
+            <Text style={styles.empty}>{ASSET_MGMT_MISSING_JA}</Text>
+          ) : (
+            materialReport.stocks
+              .filter((s) => report.holdings.some((h) => h.symbol === s.stockCode))
+              .map((s) => (
+                <View key={`mat-${s.stockCode}`} style={styles.card}>
+                  <Text style={styles.cardCode}>
+                    {s.stockCode} · 材料スコア {s.scoreJa}
+                  </Text>
+                  <Text style={styles.cardReason}>{s.summaryLines.join(' / ')}</Text>
+                </View>
+              ))
+          )}
         </Section>
 
         <Section title="【保有銘柄診断】">

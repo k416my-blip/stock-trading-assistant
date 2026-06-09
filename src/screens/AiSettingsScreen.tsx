@@ -20,14 +20,30 @@ import {
   type AiAnalysisMode,
 } from '../constants/aiDataDriven';
 import {
+  AI_ANALYSIS_SYMBOL_SCOPE_HINTS_JA,
+  AI_ANALYSIS_SYMBOL_SCOPE_LABELS_JA,
+  AI_ANALYSIS_SYMBOL_SCOPE_ORDER,
+  type AiAnalysisSymbolScope,
+} from '../constants/aiAnalysisScope';
+import {
   CONCIERGE_UX_MODE_HINTS_JA,
   CONCIERGE_UX_MODE_LABELS_JA,
 } from '../constants/conciergeUx';
 import type { ConciergeUxDisplayMode } from '../types/conciergeUx';
+import {
+  INVESTMENT_DISPLAY_MODE_HINTS_JA,
+  INVESTMENT_DISPLAY_MODE_LABELS_JA,
+} from '../constants/investmentDisplay';
 import { TACTICAL_MODE_LABELS_JA } from '../constants/strategyExecution';
+import {
+  INVESTMENT_DISPLAY_MODE_ORDER,
+  type InvestmentDisplayMode,
+} from '../types/investmentDisplay';
 import type { TacticalMode } from '../types/strategyExecution';
 import { AI_PERSONAL_SAFETY_FOOTER } from '../constants/aiStrategyBriefing';
 import { statusLabelJa } from '../services/apiConnectionStatusMapper';
+import { hasSavedKey } from '../services/apiKeys';
+import { safeGetApiKey } from '../services/safeApiKey';
 import { useApp } from '../context/AppContext';
 import { usePerformanceCost } from '../context/PerformanceCostContext';
 import { ApiCostDashboardPanel } from '../components/ApiCostDashboardPanel';
@@ -52,6 +68,7 @@ export function AiSettingsScreen() {
   const [testing, setTesting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ApiConnectionStatus>('not_configured');
   const [connectionMessage, setConnectionMessage] = useState('');
+  const [keySaved, setKeySaved] = useState(false);
 
   const syncStatusFromDashboard = useCallback(() => {
     const row = apiHealthDashboard.providers.openai;
@@ -95,14 +112,30 @@ export function AiSettingsScreen() {
   }, [aiApiKey, apiHealthDashboard.providers.openai]);
 
   useEffect(() => {
-    setKeyInput(aiApiKey);
-    syncStatusFromDashboard();
+    void (async () => {
+      const stored = await safeGetApiKey('openai');
+      setKeySaved(hasSavedKey('openai', stored));
+      if (stored) setKeyInput(stored);
+      else setKeyInput(aiApiKey);
+      syncStatusFromDashboard();
+    })();
   }, [aiApiKey, syncStatusFromDashboard]);
 
   const onSaveKey = async () => {
     setSaving(true);
-    await saveAiApiKey(keyInput);
+    const saveResult = await saveAiApiKey(keyInput);
     setSaving(false);
+    if (!saveResult.saved) {
+      Alert.alert(
+        '保存しませんでした',
+        '空欄・マスク表示・10文字未満は保存されません。既存キーは保持されます。',
+      );
+      const stored = await safeGetApiKey('openai');
+      setKeySaved(hasSavedKey('openai', stored));
+      syncStatusFromDashboard();
+      return;
+    }
+    setKeySaved(true);
     syncStatusFromDashboard();
     Alert.alert('保存しました', AI_SETTINGS.savedKey);
   };
@@ -115,7 +148,10 @@ export function AiSettingsScreen() {
       const result = await testAiApiConnection();
       setConnectionStatus(result.connectionStatus);
       setConnectionMessage(result.messageJa);
-      Alert.alert(result.ok ? '接続成功' : '接続失敗', result.messageJa);
+      Alert.alert(
+        result.ok ? '接続成功' : '接続失敗',
+        result.ok ? result.messageJa : '実API接続失敗',
+      );
     } finally {
       setTesting(false);
     }
@@ -196,6 +232,7 @@ export function AiSettingsScreen() {
           autoCorrect={false}
           secureTextEntry
         />
+        <Text style={styles.statusLine}>保存状態: {keySaved ? '保存済み' : '未保存'}</Text>
         <Text style={styles.statusLine}>
           {AI_SETTINGS.connectionStatusLabel}: {statusLabelJa(connectionStatus)}
         </Text>
@@ -1013,6 +1050,49 @@ export function AiSettingsScreen() {
       </Card>
 
       <Card>
+        <Text style={styles.label}>投資表示モード</Text>
+        <Text style={styles.hint}>
+          AI信託は専属MD任せの最小表示。初心者はやさしい言葉。プロは詳細・監査ログを表示します。
+        </Text>
+        {INVESTMENT_DISPLAY_MODE_ORDER.map((mode, index) => (
+          <Pressable
+            key={mode}
+            onPress={() =>
+              void saveAiPreferences({
+                investmentDisplayMode: mode,
+                investmentBeginnerMode: mode !== 'pro',
+              })
+            }
+            style={({ pressed }) => [
+              styles.optionRow,
+              index < INVESTMENT_DISPLAY_MODE_ORDER.length - 1 && styles.optionRowBorder,
+              pressed && styles.optionRowPressed,
+              aiPreferences.investmentDisplayMode === mode && styles.optionRowSelected,
+            ]}
+          >
+            <View style={styles.optionBody}>
+              <Text
+                style={[
+                  styles.optionLabel,
+                  aiPreferences.investmentDisplayMode === mode && styles.optionLabelSelected,
+                ]}
+              >
+                {INVESTMENT_DISPLAY_MODE_LABELS_JA[mode as InvestmentDisplayMode]}
+              </Text>
+              <Text style={styles.optionHint}>
+                {INVESTMENT_DISPLAY_MODE_HINTS_JA[mode as InvestmentDisplayMode]}
+              </Text>
+            </View>
+            {aiPreferences.investmentDisplayMode === mode ? (
+              <Text style={styles.check}>✓</Text>
+            ) : (
+              <View style={styles.radioOff} />
+            )}
+          </Pressable>
+        ))}
+      </Card>
+
+      <Card>
         <Text style={styles.label}>コンシェルジュ表示モード</Text>
         <Text style={styles.hint}>
           初心者モードは結論先出し・用語簡略化。上級者モードは evidence・生センチメント・コスト推定を表示します。
@@ -1078,6 +1158,44 @@ export function AiSettingsScreen() {
               <Text style={styles.optionHint}>{AI_ANALYSIS_MODE_HINTS_JA[mode as AiAnalysisMode]}</Text>
             </View>
             {aiPreferences.aiAnalysisMode === mode ? (
+              <Text style={styles.check}>✓</Text>
+            ) : (
+              <View style={styles.radioOff} />
+            )}
+          </Pressable>
+        ))}
+      </Card>
+
+      <Card>
+        <Text style={styles.label}>AI分析対象</Text>
+        <Text style={styles.hint}>
+          おすすめ配分は保有・ウォッチ・手動注文のみ。売買アドバイスとコンシェルジュはここで選んだ範囲に限定します。
+        </Text>
+        {AI_ANALYSIS_SYMBOL_SCOPE_ORDER.map((scope, index) => (
+          <Pressable
+            key={scope}
+            onPress={() => void saveAiPreferences({ aiAnalysisSymbolScope: scope })}
+            style={({ pressed }) => [
+              styles.optionRow,
+              index < AI_ANALYSIS_SYMBOL_SCOPE_ORDER.length - 1 && styles.optionRowBorder,
+              pressed && styles.optionRowPressed,
+              aiPreferences.aiAnalysisSymbolScope === scope && styles.optionRowSelected,
+            ]}
+          >
+            <View style={styles.optionBody}>
+              <Text
+                style={[
+                  styles.optionLabel,
+                  aiPreferences.aiAnalysisSymbolScope === scope && styles.optionLabelSelected,
+                ]}
+              >
+                {AI_ANALYSIS_SYMBOL_SCOPE_LABELS_JA[scope as AiAnalysisSymbolScope]}
+              </Text>
+              <Text style={styles.optionHint}>
+                {AI_ANALYSIS_SYMBOL_SCOPE_HINTS_JA[scope as AiAnalysisSymbolScope]}
+              </Text>
+            </View>
+            {aiPreferences.aiAnalysisSymbolScope === scope ? (
               <Text style={styles.check}>✓</Text>
             ) : (
               <View style={styles.radioOff} />

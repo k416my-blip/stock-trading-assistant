@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { DATA_SOURCE_LABELS, DATA_UNAVAILABLE_LABEL } from '../constants/recommendation';
 import type { StockRecommendation } from '../types/recommendation';
+import { buildAllocationRecommendationMeta } from '../services/recommendationProvenance';
+import type { AllocationRecommendationMeta } from '../services/recommendationProvenance';
+import { RecommendationProvenanceBlock } from './RecommendationProvenanceBlock';
 import { TermHint } from './TermHint';
 import { Card } from './ui/Card';
 import { theme } from '../theme';
@@ -8,6 +11,11 @@ import { theme } from '../theme';
 type Props = {
   recommendation: StockRecommendation;
   compact?: boolean;
+  symbol?: string;
+  name?: string;
+  selectionReason?: string;
+  recommendationMeta?: AllocationRecommendationMeta;
+  allocationPct?: number;
 };
 
 function scoreColor(score: number): { color: string } {
@@ -49,9 +57,33 @@ function DataStatusRow({ label, state }: { label: string; state: string }) {
   );
 }
 
-export function StockRecommendationPanel({ recommendation: rec, compact = false }: Props) {
+export function StockRecommendationPanel({
+  recommendation: rec,
+  compact = false,
+  symbol,
+  name,
+  selectionReason,
+  recommendationMeta,
+  allocationPct = 0,
+}: Props) {
+  const provenanceMeta =
+    recommendationMeta ??
+    (symbol != null
+      ? buildAllocationRecommendationMeta({
+          symbol,
+          name,
+          rec,
+          selectionReason: selectionReason ?? '',
+          allocationPct,
+        })
+      : null);
+
   return (
     <Card>
+      {provenanceMeta ? (
+        <RecommendationProvenanceBlock meta={provenanceMeta} symbol={symbol ?? ''} name={name} />
+      ) : null}
+
       <Text style={styles.title}>総合おすすめ度</Text>
       <Text style={[styles.total, scoreColor(rec.totalScore)]}>{rec.totalScore}/100</Text>
       <Text style={styles.disclaimer}>{rec.disclaimer}</Text>

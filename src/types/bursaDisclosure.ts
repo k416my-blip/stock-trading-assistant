@@ -664,3 +664,90 @@ export type BursaPhase10Analysis = {
   fetchedFields: string[];
   missingFields: string[];
 };
+
+/** Phase 11 — リアルタイム材料分析 */
+export type BursaMaterialSource =
+  | 'bursa_announcement'
+  | 'news_api'
+  | 'rss'
+  | 'x'
+  | 'reddit';
+
+export type BursaMaterialSentiment = '好材料' | '悪材料' | '中立';
+
+export type BursaMaterialSourceStatus = 'ok' | 'partial' | 'failed' | 'skipped' | 'unavailable';
+
+export type BursaMaterialItem = {
+  id: string;
+  source: BursaMaterialSource;
+  /** UI表示用（例: Reddit RSS） */
+  sourceLabelJa?: string;
+  sentiment: BursaMaterialSentiment;
+  title: string;
+  score: number;
+  reasonJa: string;
+  publishedAt: string | null;
+  url: string | null;
+};
+
+export type BursaMaterialScoreBreakdown = {
+  labelJa: string;
+  score: number;
+};
+
+export type BursaNewsApiDiagnostics = {
+  articleCount: number;
+  fetchedAt: string;
+  errorReason: string | null;
+  httpStatus: number | null;
+};
+
+export type BursaRedditFetchMethod = 'rss' | 'oauth' | 'none';
+
+export type RedditConfidenceJa = '高' | '中' | '低';
+
+export type BursaRedditFetchDiagnostics = {
+  fetchMethod: BursaRedditFetchMethod;
+  fetchUrl: string | null;
+  /** 有効件数（フィルタ・スコア後） */
+  articleCount: number;
+  /** RSS取得直後のユニーク件数 */
+  fetchedCount: number;
+  validCount: number;
+  excludedCount: number;
+  irrelevantRate: number;
+  confidenceJa: RedditConfidenceJa;
+  investmentConfidenceJa: RedditConfidenceJa;
+  qualityWarningJa: string | null;
+  titles: string[];
+  searchQueries: string[];
+  fetchedAt: string;
+  errorReason: string | null;
+  oauthConfigured: boolean;
+};
+
+export type BursaStockMaterialAnalysis = {
+  stockCode: string;
+  companyName: string | null;
+  materialScore: number;
+  scoreBreakdown: BursaMaterialScoreBreakdown[];
+  positiveMaterials: BursaMaterialItem[];
+  negativeMaterials: BursaMaterialItem[];
+  neutralMaterials: BursaMaterialItem[];
+  summaryLines: [string, string, string];
+  buyReasonsToday: string[];
+  sellReasonsToday: string[];
+  sourceStatus: Record<BursaMaterialSource, BursaMaterialSourceStatus>;
+  newsApiDiagnostics?: BursaNewsApiDiagnostics;
+  redditFetchDiagnostics?: BursaRedditFetchDiagnostics;
+  fetchedFields: string[];
+  missingFields: string[];
+};
+
+export type BursaPhase11Analysis = {
+  stocks: BursaStockMaterialAnalysis[];
+  topMaterial: BursaStockMaterialAnalysis | null;
+  monitoringNotifications: string[];
+  fetchedFields: string[];
+  missingFields: string[];
+};

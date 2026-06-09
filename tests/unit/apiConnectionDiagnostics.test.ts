@@ -63,7 +63,7 @@ describe('apiConnectionDiagnostics', () => {
   });
   it('labels key_saved_unverified separately from connected', () => {
     expect(statusLabelJa('key_saved_unverified')).toBe('APIキー保存済み・未確認');
-    expect(statusLabelJa('connected')).toBe('接続成功');
+    expect(statusLabelJa('connected')).toBe('実API接続成功');
   });
 
   it('rejects masked keys', () => {

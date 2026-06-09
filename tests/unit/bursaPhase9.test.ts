@@ -14,8 +14,9 @@ import {
 import { inMemoryMonitoringStorageBackend } from '../../src/services/bursa/bursaMonitoringStorage';
 import { buildBursaPhase6FromBundles } from '../../src/services/bursa/bursaPhase6Analysis';
 import { buildBursaPhase9FromBundles } from '../../src/services/bursa/bursaPhase9Analysis';
-import type { BursaDisclosureBundle } from '../../types/bursaDisclosure';
-import type { PortfolioPosition } from '../../types';
+import type { BursaDisclosureBundle } from '../../src/types/bursaDisclosure';
+import type { PortfolioPosition } from '../../src/types';
+import { bursaTestHolding } from '../helpers/bursaPortfolioFixture';
 
 const root = process.cwd();
 const VERIFY_CODES = ['1155', '1066', '5819', '5183'];
@@ -37,14 +38,15 @@ function loadBundle(code: string): BursaDisclosureBundle | null {
 }
 
 function verifyHoldings(): PortfolioPosition[] {
-  return VERIFY_CODES.map((code) => ({
-    id: `h-${code}`,
-    symbol: code,
-    market: 'bursa' as const,
-    shares: 1000,
-    currentPrice: null,
-    companyName: null,
-  }));
+  return VERIFY_CODES.map((code) =>
+    bursaTestHolding({
+      id: `h-${code}`,
+      symbol: code,
+      shares: 1000,
+      currentPrice: 0,
+      companyName: code,
+    }),
+  );
 }
 
 describe('bursa Phase9 market monitoring', () => {

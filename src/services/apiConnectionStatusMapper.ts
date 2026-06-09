@@ -71,7 +71,8 @@ export function errorTypeFromAiApiErrorCode(code: string): ApiConnectionErrorTyp
 
 /** Temporary OpenAI / transport failures eligible for one automatic retry. */
 export function isRetryableAiApiError(code: string): boolean {
-  if (code === 'timeout' || code === 'network' || code === 'http_429') return true;
+  if (code === 'timeout') return false;
+  if (code === 'network' || code === 'http_429') return true;
   if (code === 'response_failed' || code === 'empty response') return true;
   if (code.startsWith('HTTP 5')) return true;
   return false;

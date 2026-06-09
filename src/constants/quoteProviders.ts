@@ -1,6 +1,5 @@
 import type { Market } from '../types';
 import type { QuoteProviderId } from '../types/quoteProvider';
-import { isUsableApiKey } from '../services/apiKeyValidation';
 
 export const QUOTE_PROVIDER_LABELS: Record<QuoteProviderId, string> = {
   yahoo_finance: 'Yahoo Finance',
@@ -10,32 +9,45 @@ export const QUOTE_PROVIDER_LABELS: Record<QuoteProviderId, string> = {
   twelve_data: 'Twelve Data',
 };
 
-/** Twelve Data APIキーあり: Twelve → Yahoo → Alpha */
+/** Yahoo → Twelve → Alpha（APIキー有無に関係なく Yahoo 最優先） */
+export const QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
+  'yahoo_finance',
+  'twelve_data',
+  'alpha_vantage',
+];
+
+/** @deprecated use QUOTE_PROVIDER_ORDER */
 export const TWELVE_FIRST_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
   'twelve_data',
   'yahoo_finance',
   'alpha_vantage',
 ];
 
-/** APIキーなし: Yahoo → Alpha */
+/** @deprecated use QUOTE_PROVIDER_ORDER */
 export const NO_TWELVE_QUOTE_PROVIDER_ORDER: QuoteProviderId[] = [
   'yahoo_finance',
   'alpha_vantage',
 ];
 
 /** @deprecated 互換用 — getQuoteProviderOrder を使用 */
-export const BURSA_QUOTE_PROVIDER_ORDER = TWELVE_FIRST_QUOTE_PROVIDER_ORDER;
-/** @deprecated 互換用 — getQuoteProviderOrder を使用 */
-export const DEFAULT_QUOTE_PROVIDER_ORDER = TWELVE_FIRST_QUOTE_PROVIDER_ORDER;
+export const BURSA_QUOTE_PROVIDER_ORDER = QUOTE_PROVIDER_ORDER;
+/** @deprecated 互換用 — getQuoteProviderOrder を 사용 */
+export const DEFAULT_QUOTE_PROVIDER_ORDER = QUOTE_PROVIDER_ORDER;
 
 export function getQuoteProviderOrder(
   _market: Market,
-  twelveDataApiKey?: string,
+  _twelveDataApiKey?: string,
 ): QuoteProviderId[] {
-  if (isUsableApiKey(twelveDataApiKey)) {
-    return [...TWELVE_FIRST_QUOTE_PROVIDER_ORDER];
-  }
-  return [...NO_TWELVE_QUOTE_PROVIDER_ORDER];
+  return [...QUOTE_PROVIDER_ORDER];
+}
+
+/** 実価格として扱うプロバイダ（Twelve / Yahoo いずれかで PASS） */
+export function isLivePriceProvider(provider?: string | null): boolean {
+  return (
+    provider === 'twelve_data' ||
+    provider === 'yahoo_finance' ||
+    provider === 'rapidapi_yahoo'
+  );
 }
 
 /** テスト用 Bursa 銘柄（Yahoo 形式） */

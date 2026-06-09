@@ -1,4 +1,5 @@
 import { CANNOT_BUY_ONE_SHARE_WARNING } from '../constants/allocation';
+import { EMPTY_USER_SYMBOLS_ALLOCATION_JA } from '../constants/aiAnalysisScope';
 import { STOCK_CATEGORY_LABEL } from '../constants/stockCatalog';
 import { getStocksByMarket, getSamplePriceHistory } from '../data/sampleStocks';
 import type {
@@ -17,6 +18,23 @@ import { isMegaCap, isTooExpensiveForSlot, oneShareMYR } from './stockCatalog';
 import { analyzeTechnicals } from './technicalAnalysis';
 import { buildTradeSuggestion } from './tradeSuggestions';
 import type { AiLearningState } from './analysis/aiLearning';
+import {
+  buildAllocationRecommendationMeta,
+  conciergeRankBonus,
+  findConciergeEvidenceForSymbol,
+  findConciergeGuideForSymbol,
+  malaysiaV4ReferenceRankBonus,
+  metaToAuditEntry,
+} from './recommendationProvenance';
+import type { ConciergeEvidenceBundle } from '../types/conciergeEvidence';
+import {
+  countCommitteeJudgments,
+  filterAdoptableCandidates,
+  logCommitteeJudgmentCounts,
+  promoteCandidateForTrustFallback,
+  resolveFallbackPickCount,
+  selectWatchFallbackCandidates,
+} from './allocationCommitteeFallback';
 
 const MAX_SINGLE_PCT = 0.35;
 const MIN_CASH_PCT = 0.05;
@@ -57,10 +75,17 @@ function scoreStock(
   style: InvestmentStyle,
   risk: RiskLevel,
   budgetPerSlotMYR: number,
+  conciergeEvidence?: ConciergeEvidenceBundle,
   aiState?: AiLearningState,
 ): number {
   const rec = buildStockRecommendation(stock, { style, risk, budgetPerSlotMYR, aiState });
   let score = rec.totalScore;
+  const guide = findConciergeGuideForSymbol(
+    stock.symbol,
+    conciergeEvidence?.actionGuide.symbols,
+  );
+  score += conciergeRankBonus(stock.symbol, guide, rec);
+  score += malaysiaV4ReferenceRankBonus(stock.symbol);
   const oneShare = minAllocationForOneShare(stock);
   if (oneShare <= budgetPerSlotMYR) score += 8;
   else if (isTooExpensiveForSlot(stock, budgetPerSlotMYR, budgetPerSlotMYR * 10)) score -= 15;
@@ -124,11 +149,14 @@ function rankStocks(
   style: InvestmentStyle,
   risk: RiskLevel,
   budgetPerSlot: number,
+  conciergeEvidence?: ConciergeEvidenceBundle,
 ): ScoredStock[] {
   return universe
     .map((stock) => ({
       stock,
-      score: scoreStock(stock, style, risk, budgetPerSlot) + affordabilityBonus(stock, budgetPerSlot),
+      score:
+        scoreStock(stock, style, risk, budgetPerSlot, conciergeEvidence) +
+        affordabilityBonus(stock, budgetPerSlot),
     }))
     .sort((a, b) => b.score - a.score);
 }
@@ -251,15 +279,37 @@ function toCandidate(
   risk: RiskLevel,
   fractional: boolean,
   budgetPerSlotMYR: number,
+  conciergeEvidence?: ConciergeEvidenceBundle,
 ): AllocationCandidate {
   const { stock, amountMYR, adjusted } = slot;
   const sharePrice = priceMYR(stock);
   const estimatedShares = estimateShares(amountMYR, sharePrice, fractional);
   const technicals = analyzeTechnicals(getSamplePriceHistory(stock.symbol));
   const suggestion = buildTradeSuggestion(stock.price, technicals);
+  const selectionReason = buildSelectionReason(stock, style, risk, budgetPerSlotMYR);
+  const recommendation = buildStockRecommendation(stock, { style, risk, budgetPerSlotMYR });
+  const allocationPct = depositMYR > 0 ? (amountMYR / depositMYR) * 100 : 0;
+  const conciergeGuide = findConciergeGuideForSymbol(
+    stock.symbol,
+    conciergeEvidence?.actionGuide.symbols,
+  );
+  const conciergeSymbolEvidence = findConciergeEvidenceForSymbol(
+    stock.symbol,
+    conciergeEvidence?.symbols,
+  );
 
   const unpurchasableWarning =
     !fractional && estimatedShares < 1 ? CANNOT_BUY_ONE_SHARE_WARNING : undefined;
+
+  const recommendationMeta = buildAllocationRecommendationMeta({
+    symbol: stock.symbol,
+    name: stock.name,
+    rec: recommendation,
+    selectionReason,
+    allocationPct,
+    conciergeGuide,
+    conciergeEvidence: conciergeSymbolEvidence,
+  });
 
   return {
     symbol: stock.symbol,
@@ -269,7 +319,7 @@ function toCandidate(
     category: stock.category,
     categoryLabel: STOCK_CATEGORY_LABEL[stock.category],
     allocationMYR: amountMYR,
-    allocationPct: depositMYR > 0 ? (amountMYR / depositMYR) * 100 : 0,
+    allocationPct,
     estimatedShares,
     isFractionalShares: fractional,
     allocationAdjusted: adjusted,
@@ -277,9 +327,10 @@ function toCandidate(
     entryPrice: suggestion.entryPrice,
     stopLoss: suggestion.stopLoss,
     takeProfit: suggestion.takeProfit,
-    selectionReason: buildSelectionReason(stock, style, risk, budgetPerSlotMYR),
+    selectionReason,
     beginnerNote: buildBeginnerNote(stock, style),
-    recommendation: buildStockRecommendation(stock, { style, risk, budgetPerSlotMYR }),
+    recommendation,
+    recommendationMeta,
   };
 }
 
@@ -290,9 +341,13 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
     return { error: '入金額はRM100以上で入力してください。' };
   }
 
-  const universe = getStocksByMarket(market);
-  if (universe.length === 0) {
-    return { error: 'この市場のサンプル銘柄がありません。' };
+  const universe =
+    input.userUniverse !== undefined
+      ? input.userUniverse.filter((s) => s.market === market)
+      : getStocksByMarket(market);
+
+  if (input.userUniverse !== undefined && universe.length === 0) {
+    return { error: EMPTY_USER_SYMBOLS_ALLOCATION_JA };
   }
 
   const reservePct = Math.min(MAX_CASH_PCT, Math.max(MIN_CASH_PCT, cashReservePct(riskLevel)));
@@ -302,7 +357,7 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
   const countWanted = targetStockCount(depositMYR, universe.length);
   const budgetPerSlot = countWanted > 0 ? investableMYR / countWanted : investableMYR;
   const maxEach = depositMYR * MAX_SINGLE_PCT;
-  const ranked = rankStocks(universe, investmentStyle, riskLevel, budgetPerSlot);
+  const ranked = rankStocks(universe, investmentStyle, riskLevel, budgetPerSlot, input.conciergeEvidence);
 
   if (!fractionalSharesEnabled) {
     const affordable = ranked.filter((r) => fitsWholeShareCap(r.stock, maxEach));
@@ -355,11 +410,67 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
       riskLevel,
       fractionalSharesEnabled,
       budgetPerSlotFinal,
+      input.conciergeEvidence,
     ),
   );
 
   if (!fractionalSharesEnabled) {
     candidates = candidates.filter((c) => c.estimatedShares >= 1);
+  }
+
+  const allCandidates = candidates;
+  const judgmentCounts = countCommitteeJudgments(allCandidates);
+  logCommitteeJudgmentCounts(judgmentCounts);
+
+  let adoptable = filterAdoptableCandidates(allCandidates);
+
+  if (adoptable.length === 0 && allCandidates.length > 0) {
+    const pickCount = resolveFallbackPickCount(count);
+    const fallbackPicks = selectWatchFallbackCandidates(allCandidates, pickCount);
+    adoptable = fallbackPicks.map(promoteCandidateForTrustFallback);
+    logCommitteeJudgmentCounts(judgmentCounts, {
+      fallback: true,
+      fallbackPicked: adoptable.length,
+      symbols: adoptable.map((c) => c.symbol),
+    });
+  }
+
+  if (adoptable.length === 0 && ranked.length > 0) {
+    const pickCount = resolveFallbackPickCount(count);
+    const fallbackStocks = ranked.slice(0, pickCount).map((r) => r.stock);
+    const scoreMap = new Map(ranked.map((r) => [r.stock.symbol, r.score]));
+    const scores = fallbackStocks.map((s) => Math.max(scoreMap.get(s.symbol) ?? 1, 1));
+    const amounts = distributeAllocations(depositMYR, investableMYR, fallbackStocks, scores);
+    const budget = pickCount > 0 ? investableMYR / pickCount : budgetPerSlotFinal;
+    adoptable = fallbackStocks
+      .map((stock, i) =>
+        toCandidate(
+          { stock, amountMYR: amounts[i], adjusted: false },
+          depositMYR,
+          investmentStyle,
+          riskLevel,
+          fractionalSharesEnabled,
+          budget,
+          input.conciergeEvidence,
+        ),
+      )
+      .filter((c) => fractionalSharesEnabled || c.estimatedShares >= 1)
+      .map(promoteCandidateForTrustFallback);
+    logCommitteeJudgmentCounts(judgmentCounts, {
+      fallback: true,
+      fallbackFromRanked: true,
+      fallbackPicked: adoptable.length,
+      symbols: adoptable.map((c) => c.symbol),
+    });
+  }
+
+  candidates = adoptable;
+
+  if (candidates.length === 0) {
+    return {
+      error:
+        '配分候補を作成できませんでした。ウォッチリストに銘柄を追加するか、入金額を見直してください。',
+    };
   }
 
   const allocated = candidates.reduce((s, c) => s + c.allocationMYR, 0);
@@ -390,4 +501,43 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
       ? '株価が高い銘柄（例：米国メガキャップ）は、1株単位では配分上限内に収まらないため候補から外しました。ETF・低価格株・バルサ銘柄を優先しています。'
       : undefined,
   };
+}
+
+/** 投資憲章審議結果を監査ログに保存 */
+export async function persistAllocationPlanAudit(plan: AllocationPlan): Promise<void> {
+  const { appendRecommendationAuditEntries } = await import('./recommendationAuditLog');
+  const entries = plan.candidates
+    .filter((c) => c.recommendationMeta)
+    .map((c) =>
+      metaToAuditEntry(c.recommendationMeta!, {
+        symbol: c.symbol,
+        name: c.name,
+        context: 'allocation_plan',
+      }),
+    );
+  if (entries.length > 0) {
+    await appendRecommendationAuditEntries(entries);
+  }
+}
+
+/** OpenAI ナラティブ enrichment 後の監査（decisionHash + cacheHit/Miss） */
+export async function persistAllocationPlanEnrichmentAudit(
+  plan: AllocationPlan,
+  audits: Array<{ symbol: string; audit: import('../types/investmentCommitteeNarrative').RecommendationEnrichmentAudit }>,
+): Promise<void> {
+  const { appendRecommendationAuditEntries } = await import('./recommendationAuditLog');
+  const auditBySymbol = new Map(audits.map((a) => [a.symbol, a.audit]));
+  const entries = plan.candidates
+    .filter((c) => c.recommendationMeta)
+    .map((c) =>
+      metaToAuditEntry(c.recommendationMeta!, {
+        symbol: c.symbol,
+        name: c.name,
+        context: 'allocation_plan',
+        enrichmentAudit: auditBySymbol.get(c.symbol),
+      }),
+    );
+  if (entries.length > 0) {
+    await appendRecommendationAuditEntries(entries);
+  }
 }

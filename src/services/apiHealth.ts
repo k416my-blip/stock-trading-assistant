@@ -1,8 +1,14 @@
+import { isUsableApiKey, normalizeStoredApiKey } from './apiKeyValidation';
+import { loadApiKey } from './apiKeys';
 import { testTwelveDataConnection } from './marketDataService';
+import {
+  logTwelveDataConnectionTestFailure,
+  logTwelveDataConnectionTestProbe,
+  resolveTwelveDataKeyForTest,
+} from './twelveDataConnectionTest';
 import { testOpenAiResponsesConnection } from './openAiConnectionTest';
 import type { SupportedApiProviderId } from '../config/apiProviders';
-import { loadApiKey } from './apiKeys';
-import { normalizeStoredApiKey } from './apiKeyValidation';
+import { resolveApiKeyForConnectionTest } from './safeApiKey';
 
 const API_TIMEOUT_MS = 8000;
 const API_MAX_RETRIES = 2;
@@ -44,17 +50,29 @@ function result(ok: boolean, message: string): ApiConnectionResult {
   return { ok, message, checkedAt: new Date().toISOString() };
 }
 
+const REAL_API_CONNECTION_SUCCESS_JA = '実API接続成功';
+const REAL_API_CONNECTION_FAIL_JA = '実API接続失敗';
+
 async function testOpenAi(apiKey: string): Promise<ApiConnectionResult> {
   const tested = await testOpenAiResponsesConnection(apiKey, { timeoutMs: API_TIMEOUT_MS });
-  return result(tested.outcome === 'success', tested.messageJa);
+  return result(
+    tested.outcome === 'success',
+    tested.outcome === 'success' ? REAL_API_CONNECTION_SUCCESS_JA : tested.messageJa,
+  );
 }
 
 async function testTwelveData(apiKey: string): Promise<ApiConnectionResult> {
+  const resolved = await resolveTwelveDataKeyForTest(apiKey);
+  if (!isUsableApiKey(resolved)) {
+    return result(false, REAL_API_CONNECTION_FAIL_JA);
+  }
+  logTwelveDataConnectionTestProbe(resolved);
   try {
-    const quote = await testTwelveDataConnection(apiKey);
-    return result(Boolean(quote.price), 'AAPL quote 取得成功');
-  } catch {
-    return result(false, 'Twelve Data 接続失敗');
+    const quote = await testTwelveDataConnection(resolved);
+    return result(Boolean(quote.price), REAL_API_CONNECTION_SUCCESS_JA);
+  } catch (e) {
+    logTwelveDataConnectionTestFailure(e);
+    return result(false, REAL_API_CONNECTION_FAIL_JA);
   }
 }
 
@@ -62,12 +80,73 @@ async function testNewsApi(apiKey: string): Promise<ApiConnectionResult> {
   try {
     const url = `https://newsapi.org/v2/top-headlines?category=business&country=us&pageSize=1&apiKey=${encodeURIComponent(apiKey)}`;
     const res = await fetchWithTimeout(url, { method: 'GET' }, API_TIMEOUT_MS);
-    if (res.ok) return result(true, 'NewsAPI 接続成功');
+    const bodyText = await res.text();
+    let responseBody: unknown = bodyText;
+    try {
+      responseBody = JSON.parse(bodyText);
+    } catch {
+      /* keep text */
+    }
+    const { logNewsApiDebug, extractNewsApiErrorCode, extractNewsApiErrorMessage, buildOperationalNewsUrls } =
+      await import('./newsApiFetchDebug');
+    const { inspectNewsApiKeySources } = await import('./newsApiKeyResolver');
+    const keySources = await inspectNewsApiKeySources();
+    const operationalUrls = buildOperationalNewsUrls('business', apiKey);
+    logNewsApiDebug({
+      apiKeyExists: Boolean(apiKey.trim()),
+      apiKeyLength: apiKey.trim().length,
+      apiKeyOrigin: 'secure_store',
+      apiKeyFingerprint: apiKey.length > 8 ? `${apiKey.slice(0, 4)}…${apiKey.slice(-4)}` : null,
+      requestUrl: url.replace(/apiKey=[^&]+/i, 'apiKey=***'),
+      endpoint: 'top-headlines',
+      status: res.status,
+      responseBodyCode: extractNewsApiErrorCode(responseBody),
+      responseBodyMessage: extractNewsApiErrorMessage(responseBody),
+      articlesCount: Array.isArray((responseBody as { articles?: unknown[] })?.articles)
+        ? (responseBody as { articles: unknown[] }).articles.length
+        : 0,
+      responseBody,
+      operationalUrls,
+      error: res.ok ? null : String(res.status),
+      keySources,
+      keyComparison: {
+        operationalMatchesConnectionTest: true,
+        operationalMatchesSecureStore: true,
+        operationalMatchesFreshLoad: true,
+        connectionTestEndpoint: url.replace(/apiKey=[^&]+/i, 'apiKey=***'),
+        noteJa: '接続テスト — top-headlines（Settings）',
+      },
+    });
+    if (res.ok) return result(true, REAL_API_CONNECTION_SUCCESS_JA);
     if (res.status === 401 || res.status === 403) return result(false, 'NewsAPI キー無効');
     if (res.status === 429) return result(false, 'NewsAPI 利用上限');
     return result(false, `NewsAPI エラー (${res.status})`);
   } catch {
     return result(false, 'NewsAPI タイムアウト/接続失敗');
+  }
+}
+
+async function testRedditApi(apiKey: string): Promise<ApiConnectionResult> {
+  try {
+    const bearer = normalizeStoredApiKey(apiKey);
+    const res = await fetchWithTimeout(
+      'https://oauth.reddit.com/api/v1/me',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${bearer}`,
+          'User-Agent': 'stock-trading-assistant/1.0',
+        },
+      },
+      API_TIMEOUT_MS,
+    );
+    if (res.ok) return result(true, REAL_API_CONNECTION_SUCCESS_JA);
+    if (res.status === 401) return result(false, 'Bearer Token 無効または期限切れ');
+    if (res.status === 403) return result(false, 'Reddit API 権限不足');
+    if (res.status === 429) return result(false, 'Rate Limit 超過');
+    return result(false, `Reddit API エラー (${res.status})`);
+  } catch {
+    return result(false, 'Reddit API タイムアウト/接続失敗');
   }
 }
 
@@ -424,9 +503,13 @@ async function testFmp(apiKey: string, attempt = 1): Promise<ApiConnectionResult
 
 export async function testApiConnection(
   providerId: SupportedApiProviderId,
-  apiKey: string,
+  apiKeyInput: string,
 ): Promise<ApiConnectionResult> {
-  if (!apiKey.trim()) return result(false, 'APIキー未登録');
+  const apiKey = await resolveApiKeyForConnectionTest(providerId, apiKeyInput);
+  if (providerId === 'twelve_data') {
+    return testTwelveData(apiKey);
+  }
+  if (!apiKey.trim()) return result(false, REAL_API_CONNECTION_FAIL_JA);
   // FMP は同一URLを withRetry で3連打すると診断ログが混線するため単発実行
   if (providerId === 'fmp') {
     return testFmp(apiKey);
@@ -435,12 +518,12 @@ export async function testApiConnection(
     switch (providerId) {
       case 'openai':
         return testOpenAi(apiKey);
-      case 'twelve_data':
-        return testTwelveData(apiKey);
       case 'newsapi':
         return testNewsApi(apiKey);
       case 'x':
         return testXApi(apiKey);
+      case 'reddit':
+        return testRedditApi(apiKey);
       case 'alpha_vantage':
         return testAlphaVantage(apiKey);
       case 'finnhub':

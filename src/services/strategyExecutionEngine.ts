@@ -30,18 +30,37 @@ function clamp(n: number, lo = 0, hi = 100): number {
   return Math.max(lo, Math.min(hi, Math.round(n)));
 }
 
-function resolveAction(sym: ConciergeSymbolEvidence, regimeId: string, weight: number): StrategyAction {
+export type ResolveStrategyActionOptions = {
+  /** true のとき RSI 売られすぎガードをスキップ（矛盾検出用の生ルール） */
+  skipRsiOversoldGuard?: boolean;
+};
+
+/** 戦略ルール action（RSI&lt;30 時は急落 reduce を watch に抑止） */
+export function resolveStrategyAction(
+  sym: ConciergeSymbolEvidence,
+  regimeId: string,
+  weight: number,
+  rsi14?: number | null,
+  options?: ResolveStrategyActionOptions,
+): StrategyAction {
   const ch = sym.intradayChangePct ?? 0;
   const bear = sym.xSentiment?.bearishPct ?? 0;
   const flags = sym.unusualActivityFlags.length;
 
   if (regimeId === 'panic' && (ch < -4 || bear >= 60)) return 'avoid';
-  if (ch <= -5 || (bear >= 65 && flags > 0)) return 'reduce';
+  if (ch <= -5 || (bear >= 65 && flags > 0)) {
+    if (!options?.skipRsiOversoldGuard && rsi14 != null && rsi14 < 30) return 'watch';
+    return 'reduce';
+  }
   if (sym.portfolioHolding && ch > -2 && ch < 4 && bear < 50) return 'hold';
   if (ch >= 3 && bear < 45 && flags === 0 && regimeId !== 'panic') return 'buy';
   if (weight >= 20 && ch < -3) return 'reduce';
   if (flags > 0 || Math.abs(ch) >= 2.5) return 'watch';
   return 'hold';
+}
+
+function resolveAction(sym: ConciergeSymbolEvidence, regimeId: string, weight: number): StrategyAction {
+  return resolveStrategyAction(sym, regimeId, weight);
 }
 
 function resolveIntent(action: StrategyAction, confidence: number): StrategyIntent {

@@ -10,7 +10,9 @@ import {
   buildDataSourcesFromInput,
   formatEvaluatedAtJa,
 } from './portfolioAiEvaluationDisplay';
+import { resolvePortfolioBatchSourceLabel } from './portfolioBatchSourceDisplay';
 import type { AiSecondEvaluatorBatchResult, AiSecondEvaluatorSymbolInput } from '../types/aiSecondEvaluator';
+import type { RankingRuleResolution } from './hybridRankingConflict';
 import type {
   PortfolioAiEvaluationBundle,
   PortfolioAiSymbolEvaluation,
@@ -45,6 +47,7 @@ export type BuildPortfolioAiEvaluationInput = {
   batch: AiSecondEvaluatorBatchResult;
   ruleScoresBySymbol: Record<string, number>;
   symbolWeightPct: Record<string, number>;
+  rankingBySymbol?: Map<string, RankingRuleResolution>;
 };
 
 export function buildPortfolioAiEvaluation(
@@ -56,7 +59,9 @@ export function buildPortfolioAiEvaluation(
   for (const inp of input.enrichedInputs) {
     const sym = inp.symbol.toUpperCase();
     const ai = resolveAiResult(sym, input.batch, inp);
-    const ruleScore = input.ruleScoresBySymbol[sym] ?? 50;
+    const ranking = input.rankingBySymbol?.get(sym);
+    const ruleScore = ranking?.ruleScore ?? input.ruleScoresBySymbol[sym] ?? 50;
+    const finalAction = ranking?.finalAction ?? ai.action;
     const aiScore = actionConfidenceToDirectionScore(ai.action, ai.confidence);
     const finalScore = computeFinalHybridScore(ruleScore, aiScore);
     const weightPct = input.symbolWeightPct[sym] ?? 0;
@@ -65,7 +70,7 @@ export function buildPortfolioAiEvaluation(
       rank: 0,
       symbol: inp.symbol,
       displayLabelJa: inp.displayLabelJa,
-      action: ai.action,
+      action: finalAction,
       confidence: ai.confidence,
       rsi14: inp.rsi14,
       rsiSource: inp.rsiSource,
@@ -73,9 +78,10 @@ export function buildPortfolioAiEvaluation(
       finalScore,
       ruleScore,
       aiScore,
-      displayTone: actionToDisplayTone(ai.action),
+      displayTone: actionToDisplayTone(finalAction),
       dataSources: buildDataSourcesFromInput(inp),
       weightPct,
+      rankingConflict: ranking?.conflict ?? false,
     });
   }
 
@@ -116,7 +122,7 @@ export function buildPortfolioAiEvaluation(
     evaluatedAtJa: formatEvaluatedAtJa(generatedAt),
     portfolioScore,
     holdingCount: rankedHoldings.length,
-    batchSource: input.batch.source,
+    batchSource: resolvePortfolioBatchSourceLabel(input.batch, input.enrichedInputs),
     rankedHoldings,
     bestToday,
     worstToday,

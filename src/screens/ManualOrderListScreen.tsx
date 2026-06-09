@@ -23,6 +23,7 @@ export function ManualOrderListScreen() {
   const {
     state,
     confirmManualOrderAsExecuted,
+    updateManualOrderEntryPrice,
     clearCompletedManualOrders,
     readOnlyBlockedMessage,
   } = useApp();
@@ -30,6 +31,8 @@ export function ManualOrderListScreen() {
   const done = state.manualOrderList.filter((i) => i.completed);
 
   const [selected, setSelected] = useState<ManualOrderItem | null>(null);
+  const [editTarget, setEditTarget] = useState<ManualOrderItem | null>(null);
+  const [editEntryPrice, setEditEntryPrice] = useState('');
   const [shares, setShares] = useState('');
   const [executedPrice, setExecutedPrice] = useState('');
   const [memo, setMemo] = useState('');
@@ -42,9 +45,36 @@ export function ManualOrderListScreen() {
     setMemo('');
   };
 
+  const openEditEntry = (item: ManualOrderItem) => {
+    setEditTarget(item);
+    setEditEntryPrice(String(item.entryPrice));
+  };
+
   const closeConfirm = () => {
     if (saving) return;
     setSelected(null);
+  };
+
+  const closeEditEntry = () => {
+    if (saving) return;
+    setEditTarget(null);
+  };
+
+  const onSaveEntryPrice = () => {
+    if (!editTarget) return;
+    const priceNum = Number(editEntryPrice) || 0;
+    setSaving(true);
+    try {
+      const result = updateManualOrderEntryPrice(editTarget.id, priceNum);
+      if (!result.ok) {
+        Alert.alert('保存できません', result.error ?? '不明なエラー');
+        return;
+      }
+      Alert.alert('保存しました', 'Rakuten指値を登録しました。');
+      setEditTarget(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const onConfirmSave = async () => {
@@ -75,7 +105,7 @@ export function ManualOrderListScreen() {
       <Card>
         <Text style={styles.warn}>{MANUAL_ORDER_WARNING}</Text>
         <Text style={styles.hint}>
-          Rakuten Tradeで実際に注文を完了したあと、「タップして実行済みとして記録」から保有銘柄に反映します。
+          注文前: 「Rakuten指値を登録」で entryPrice を入力。約定後: 「実行済みとして記録」で保有に反映。
         </Text>
       </Card>
 
@@ -91,38 +121,38 @@ export function ManualOrderListScreen() {
         <>
           <Text style={styles.section}>未完了（{pending.length}件）</Text>
           {pending.map((item, index) => (
-            <Pressable
-              key={`manual-pending-${item.id}-${index}`}
-              onPress={() => openConfirm(item)}
-            >
-              <Card>
-                <Text style={styles.side}>{item.side === 'buy' ? '買い' : '売り'}</Text>
-                <Text style={styles.name}>
-                  {item.name}（{item.symbol}）
-                </Text>
-                <Text style={styles.row}>市場: {MARKET_LABEL[item.market]}</Text>
-                <Text style={styles.row}>
-                  {item.side === 'buy' ? '参考買値' : '現在株価'}: {CURRENCY_SYMBOL[item.currency]}
-                  {item.entryPrice.toFixed(2)}
-                </Text>
-                <Text style={styles.row}>
-                  {item.side === 'buy' ? '目安購入株数' : '保有株数'}: {item.estimatedShares}株
-                </Text>
-                {item.side === 'buy' ? (
-                  <Text style={styles.row}>推奨配分額: RM{item.allocationMYR.toLocaleString('ja-JP')}</Text>
-                ) : (
-                  <Text style={styles.row}>
-                    目安売却金額: RM
-                    {item.allocationMYR.toLocaleString('ja-JP', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </Text>
-                )}
-                <Text style={styles.row}>注文方法: {item.orderMethod}</Text>
+            <Card key={`manual-pending-${item.id}-${index}`}>
+              <Text style={styles.side}>{item.side === 'buy' ? '買い' : '売り'}</Text>
+              <Text style={styles.name}>
+                {item.name}（{item.symbol}）
+              </Text>
+              <Text style={styles.row}>市場: {MARKET_LABEL[item.market]}</Text>
+              <Text style={styles.row}>
+                Rakuten指値 (entryPrice): {CURRENCY_SYMBOL[item.currency]}
+                {item.entryPrice.toFixed(2)}
+              </Text>
+              <Text style={styles.row}>
+                注文金額: RM
+                {(item.entryPrice * item.estimatedShares).toLocaleString('ja-JP', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{' '}
+                （{item.estimatedShares}株）
+              </Text>
+              <Text style={styles.row}>allocationMYR: RM{item.allocationMYR.toLocaleString('ja-JP')}</Text>
+              <Text style={styles.row}>注文方法: {item.orderMethod}</Text>
+              {item.side === 'buy' ? (
+                <Button
+                  label="Rakuten指値を登録"
+                  onPress={() => openEditEntry(item)}
+                  variant="ghost"
+                  disabled={!!readOnlyBlockedMessage}
+                />
+              ) : null}
+              <Pressable onPress={() => openConfirm(item)}>
                 <Text style={styles.tap}>タップして実行済みとして記録</Text>
-              </Card>
-            </Pressable>
+              </Pressable>
+            </Card>
           ))}
         </>
       )}
@@ -142,6 +172,56 @@ export function ManualOrderListScreen() {
           </Pressable>
         </>
       ) : null}
+
+      <Modal visible={editTarget !== null} transparent animationType="slide" onRequestClose={closeEditEntry}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <Text style={styles.modalTitle}>Rakuten指値を登録</Text>
+              <Text style={styles.modalMessage}>
+                Rakuten Tradeで入力した指値価格を entryPrice として保存します。注文評価額 = 指値 × 株数
+              </Text>
+
+              {editTarget ? (
+                <>
+                  <Text style={styles.fieldLabel}>銘柄</Text>
+                  <Text style={styles.fieldValue}>
+                    {editTarget.name}（{editTarget.symbol}） · {editTarget.estimatedShares}株
+                  </Text>
+
+                  <Text style={styles.fieldLabel}>指値 (entryPrice) · MYR</Text>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="decimal-pad"
+                    value={editEntryPrice}
+                    onChangeText={setEditEntryPrice}
+                    editable={!saving}
+                    placeholder="例: 12.15"
+                    placeholderTextColor={theme.colors.textMuted}
+                  />
+
+                  <Text style={styles.fieldLabel}>注文金額（自動）</Text>
+                  <Text style={styles.fieldValue}>
+                    RM
+                    {(
+                      (Number(editEntryPrice) || 0) * editTarget.estimatedShares
+                    ).toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </Text>
+
+                  <View style={styles.modalActions}>
+                    <Button label="キャンセル" onPress={closeEditEntry} variant="ghost" disabled={saving} />
+                    <Button
+                      label={saving ? '保存中…' : '指値を保存'}
+                      onPress={onSaveEntryPrice}
+                      disabled={saving}
+                    />
+                  </View>
+                </>
+              ) : null}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={selected !== null} transparent animationType="slide" onRequestClose={closeConfirm}>
         <View style={styles.modalBackdrop}>

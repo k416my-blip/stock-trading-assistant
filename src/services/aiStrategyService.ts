@@ -2,6 +2,8 @@ import {
   AI_API_CHAT_URL,
   AI_API_MIN_INTERVAL_MS,
   AI_API_MODEL,
+  AI_API_MAX_OUTPUT_TOKENS,
+  AI_API_MAX_OUTPUT_TOKENS_ANALYSIS,
   AI_API_TIMEOUT_MS,
   AI_BOOT_CHECK_TIMEOUT_MS,
   AI_ERROR_API_KEY_LOAD_FAILED,
@@ -16,6 +18,7 @@ import {
 } from '../constants/aiStrategy';
 import {
   buildEphemeralApiUserPayload,
+  buildConciergeChatInstructions,
   buildFixedAiInstructions,
   containsHypeOrCertaintyLanguage,
   validateDisclosureCompliance,
@@ -70,6 +73,7 @@ import {
 import { recordOpenAiTokenEstimate } from './apiCostTracker';
 import { recordDiagnosticEvent } from './structuredDiagnostics';
 import { secureLog, secureWarn } from './secureLogger';
+import { markConciergeChatPerf } from './conciergeChatPerfLog';
 
 let lastApiCallAt = 0;
 
@@ -469,12 +473,28 @@ async function callAiApi(
   const apiContext = compressAiStrategyContextForApi(context);
 
   const userPayload = buildEphemeralApiUserPayload(userMessage, apiContext);
-  const instructions = buildFixedAiInstructions(explanationLevel, context.analysisMode);
+  const instructions = buildConciergeChatInstructions(explanationLevel, context.analysisMode);
   const userPayloadJson = JSON.stringify(userPayload, null, 2);
   void saveConciergePromptDebug(instructions, userPayloadJson);
 
+  const maxOutputTokens =
+    context.concierge.conversationMode === 'analysis'
+      ? AI_API_MAX_OUTPUT_TOKENS_ANALYSIS
+      : AI_API_MAX_OUTPUT_TOKENS;
+
   const { signal, dispose } = linkAbortSignals(AI_API_TIMEOUT_MS, externalSignal);
   const started = Date.now();
+  markConciergeChatPerf('openai_send');
+  console.warn(
+    '[CONCIERGE_OPENAI]',
+    JSON.stringify({
+      instructionsChars: instructions.length,
+      userPayloadChars: userPayloadJson.length,
+      totalPromptChars: instructions.length + userPayloadJson.length,
+      maxOutputTokens,
+      model: AI_API_MODEL,
+    }),
+  );
 
   try {
     if (signal.aborted) {
@@ -497,6 +517,7 @@ async function callAiApi(
           context.concierge.conversationMode,
         ),
         instructions,
+        max_output_tokens: maxOutputTokens,
         input: [
           {
             role: 'user',
@@ -599,6 +620,7 @@ async function callAiApi(
     }
 
     recordApiSuccess('openai');
+    markConciergeChatPerf('openai_response');
     return { ok: true, structured, text };
   } catch (e) {
     recordApiFailure('openai');
@@ -783,6 +805,8 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
       );
     }
 
+    markConciergeChatPerf('api_key_load');
+
     if (!shouldAllowOpenAiRequest(1200)) {
       emit('degraded');
       return attach(
@@ -926,6 +950,29 @@ export async function sendAiStrategyChat(input: SendAiStrategyChatInput): Promis
     });
 
     emit(failureStatus === 'timeout' ? 'timeout' : 'fallback_mock');
+    if (apiResult.error === 'timeout') {
+      return attach({
+        source: 'mock',
+        text: AI_ERROR_TIMEOUT,
+        structured: {
+          reason: AI_ERROR_TIMEOUT,
+          risk: '—',
+          market: input.context.marketRegimeLabel,
+          urgency: '—',
+          confidence: '—',
+          dataFreshness: '—',
+        },
+        apiConnected: true,
+        usedMockFallback: false,
+        isLoading: false,
+        errorJa: AI_ERROR_TIMEOUT,
+        statusJa: 'タイムアウト',
+        fallbackReasonJa: null,
+        connectionStatus: 'timeout',
+        staleHoldingsCount: staleCount,
+        requestStatus: 'timeout',
+      });
+    }
     const failStatus: ApiConnectionStatus =
       apiResult.error === 'http_401'
         ? 'auth_error'

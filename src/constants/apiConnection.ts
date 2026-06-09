@@ -4,7 +4,7 @@ export const API_CONNECTION_STATUS_LABELS_JA: Record<ApiConnectionStatus, string
   not_configured: '未設定',
   key_saved_unverified: 'APIキー保存済み・未確認',
   checking: '接続確認中',
-  connected: '接続成功',
+  connected: '実API接続成功',
   auth_error: '認証エラー',
   rate_limited: '利用制限',
   timeout: 'タイムアウト',

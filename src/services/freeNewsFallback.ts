@@ -6,6 +6,7 @@ import type { StockFundamentals } from '../types';
 import type { NewsSentimentLabel } from '../types/recommendation';
 import type { AnalysisApiKeys } from './analysisApiKeys';
 import { isUsableApiKey } from './apiKeyValidation';
+import { buildRedditSearchRssUrls, fetchRedditRssWithQuality } from './bursa/redditRssQuality';
 
 const FETCH_TIMEOUT_MS = 10_000;
 const POSITIVE = /\b(surge|rally|beat|growth|profit|upgrade|record|strong|上昇|好調|増益)\b/i;
@@ -90,6 +91,27 @@ export async function fetchGoogleNewsRss(stock: StockFundamentals): Promise<Free
     title,
     source: 'Google News RSS',
     sentiment: sentimentFromTitle(title),
+  }));
+}
+
+/** Reddit OAuth 不要 — 公開 search.rss（品質フィルタ付き） */
+export function buildRedditSearchRssUrl(stock: StockFundamentals): string {
+  const urls = buildRedditSearchRssUrls({
+    stockCode: stock.symbol,
+    companyName: stock.name !== stock.symbol ? stock.name : null,
+  });
+  return urls[0] ?? `https://www.reddit.com/search.rss?q=${encodeURIComponent(stock.name)}&sort=new`;
+}
+
+export async function fetchRedditSearchRss(stock: StockFundamentals): Promise<FreeNewsHeadline[]> {
+  const result = await fetchRedditRssWithQuality({
+    stockCode: stock.symbol,
+    companyName: stock.name !== stock.symbol ? stock.name : null,
+  });
+  return result.items.map((item) => ({
+    title: item.title,
+    source: 'Reddit RSS',
+    sentiment: sentimentFromTitle(item.title),
   }));
 }
 

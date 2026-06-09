@@ -31,6 +31,8 @@ export const AI_CONCIERGE_UI = {
   voiceError: '音声認識に失敗しました。もう一度お試しください。',
   openFromHome: '右下のAIボタンからいつでも会話できます',
   composingAnswer: '回答を作成中...',
+  statusSlow: '処理中・少し時間がかかっています',
+  statusTimeout: 'タイムアウトしました',
   statusThinking: '考え中…',
   statusRetrying: '再試行中…',
   statusReconnecting: '再接続中…',

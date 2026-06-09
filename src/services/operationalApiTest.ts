@@ -1,8 +1,14 @@
+import { logRealApiMode } from '../constants/realApiMode';
+import { isLivePriceProvider, QUOTE_PROVIDER_LABELS } from '../constants/quoteProviders';
+import type { QuoteProviderId } from '../types/quoteProvider';
 import { loadApiKey } from './apiKeys';
 import { normalizeStoredApiKey } from './apiKeyValidation';
 import { AI_API_TIMEOUT_MS } from '../constants/aiStrategy';
+import { fetchQuoteViaProviderChain } from './quoteProviderChain';
 
 const STOCK_SYMBOLS = ['AAPL', 'NVDA', 'TSLA', 'MSFT'] as const;
+/** 実運用テスト — Bursa Yahoo 経由株価（4707 / 1299 / 5183） */
+const BURSA_OPERATIONAL_SYMBOLS = ['4707.KL', '1299.KL', '5183.KL'] as const;
 const FETCH_TIMEOUT_MS = 12_000;
 
 export type StockQuoteOperationalResult = {
@@ -54,7 +60,68 @@ export type OperationalTestDisplayRow = {
   detail: string | null;
 };
 
+/** 実運用テスト — OpenAI / Twelve Data / Yahoo Finance / NewsAPI の要約行 */
+export function buildOperationalCoreApiRows(
+  report: Omit<OperationalApiTestReport, 'displayRows'>,
+): OperationalTestDisplayRow[] {
+  const twelveRows = report.stockQuotes.filter((q) => q.provider === 'Twelve Data');
+  const yahooRows = report.stockQuotes.filter((q) => q.provider === 'Yahoo Finance');
+  const twelveOk = twelveRows.some((q) => q.ok);
+  const yahooOk = yahooRows.some((q) => q.ok);
+  const priceFetchOk = yahooOk || twelveOk;
+  const twelveMs = twelveRows.reduce((max, q) => Math.max(max, q.elapsedMs), 0);
+  const yahooMs = yahooRows.reduce((max, q) => Math.max(max, q.elapsedMs), 0);
+  const twelveDetail = twelveOk
+    ? `${twelveRows.filter((q) => q.ok).length}/${twelveRows.length} symbol OK`
+    : twelveRows[0]?.error ?? 'api_key_not_configured';
+  const yahooDetail = yahooOk
+    ? `${yahooRows.filter((q) => q.ok).length}/${yahooRows.length} Bursa OK`
+    : yahooRows[0]?.error ?? 'fetch_failed';
+
+  return [
+    {
+      apiName: 'OpenAI',
+      ok: report.openAi.ok,
+      elapsedMs: report.openAi.elapsedMs,
+      detail: report.openAi.ok
+        ? report.openAi.analysisPreview
+        : report.openAi.error,
+    },
+    {
+      apiName: '株価取得',
+      ok: priceFetchOk,
+      elapsedMs: Math.max(twelveMs, yahooMs),
+      detail: priceFetchOk
+        ? [yahooOk ? `Yahoo ${yahooDetail}` : null, twelveOk ? `Twelve ${twelveDetail}` : null]
+            .filter(Boolean)
+            .join(' · ')
+        : yahooDetail !== 'fetch_failed'
+          ? yahooDetail
+          : twelveDetail,
+    },
+    {
+      apiName: 'Twelve Data',
+      ok: twelveOk,
+      elapsedMs: twelveMs,
+      detail: twelveDetail,
+    },
+    {
+      apiName: 'Yahoo Finance',
+      ok: yahooOk,
+      elapsedMs: yahooMs,
+      detail: yahooDetail,
+    },
+    {
+      apiName: 'NewsAPI',
+      ok: report.news.ok,
+      elapsedMs: report.news.elapsedMs,
+      detail: report.news.ok ? `${report.news.count}件取得` : report.news.error,
+    },
+  ];
+}
+
 export function buildOperationalTestDisplayRows(report: Omit<OperationalApiTestReport, 'displayRows'>): OperationalTestDisplayRow[] {
+  const core = buildOperationalCoreApiRows(report);
   const rows: OperationalTestDisplayRow[] = report.stockQuotes.map((q) => ({
     apiName: `${q.provider} · ${q.symbol}`,
     ok: q.ok,
@@ -258,6 +325,60 @@ async function runStockQuotes(): Promise<StockQuoteOperationalResult[]> {
   return results;
 }
 
+function providerDisplayLabel(provider: QuoteProviderId | string | undefined): string {
+  if (provider === 'yahoo_finance' || provider === 'rapidapi_yahoo') return 'Yahoo Finance';
+  if (provider === 'twelve_data') return 'Twelve Data';
+  if (provider && provider in QUOTE_PROVIDER_LABELS) {
+    return QUOTE_PROVIDER_LABELS[provider as QuoteProviderId];
+  }
+  return String(provider ?? 'unknown');
+}
+
+async function runBursaOperationalQuotes(): Promise<StockQuoteOperationalResult[]> {
+  const twelveKey = normalizeStoredApiKey(await loadApiKey('twelve_data'));
+  const results: StockQuoteOperationalResult[] = [];
+
+  for (const yahooSymbol of BURSA_OPERATIONAL_SYMBOLS) {
+    const core = yahooSymbol.replace(/\.KL$/i, '');
+    const started = Date.now();
+    try {
+      const chain = await fetchQuoteViaProviderChain({
+        market: 'bursa',
+        positionSymbol: core,
+        apiSymbol: yahooSymbol,
+        normalizedSymbol: core,
+        currency: 'MYR',
+        twelveDataApiKey: twelveKey,
+        timeoutMs: FETCH_TIMEOUT_MS,
+      });
+      const provider = chain.quote?.provider;
+      const price = chain.quote?.price ?? null;
+      const ok = isLivePriceProvider(provider) && price != null && price > 0;
+      results.push({
+        symbol: yahooSymbol,
+        provider: providerDisplayLabel(provider),
+        price,
+        fetchedAt: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        ok,
+        error: ok ? null : chain.summary?.slice(0, 160) ?? 'fetch_failed',
+      });
+    } catch (e) {
+      results.push({
+        symbol: yahooSymbol,
+        provider: 'Yahoo Finance',
+        price: null,
+        fetchedAt: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        ok: false,
+        error: e instanceof Error ? e.message.slice(0, 160) : String(e),
+      });
+    }
+  }
+
+  return results;
+}
+
 function missingKeyRow(provider: string, symbol: string): StockQuoteOperationalResult {
   return {
     symbol,
@@ -367,7 +488,9 @@ async function runXTest(): Promise<XOperationalResult> {
 }
 
 export async function runOperationalApiTest(): Promise<OperationalApiTestReport> {
-  const stockQuotes = await runStockQuotes();
+  logRealApiMode('operational_test_start');
+  const [usQuotes, bursaQuotes] = await Promise.all([runStockQuotes(), runBursaOperationalQuotes()]);
+  const stockQuotes = [...usQuotes, ...bursaQuotes];
   const [news, openAi, xApi] = await Promise.all([runNewsTest(), runOpenAiTest(), runXTest()]);
   const base = {
     generatedAt: new Date().toISOString(),
@@ -376,10 +499,14 @@ export async function runOperationalApiTest(): Promise<OperationalApiTestReport>
     openAi,
     xApi,
   };
+  const coreRows = buildOperationalCoreApiRows(base);
   const report: OperationalApiTestReport = {
     ...base,
     displayRows: buildOperationalTestDisplayRows(base),
   };
-  console.log('[operational-api-test]', JSON.stringify(report, null, 2));
+  logRealApiMode('operational_test_done', {
+    core: coreRows.map((r) => ({ api: r.apiName, ok: r.ok, ms: r.elapsedMs })),
+  });
+  console.log('[operational-api-test]', JSON.stringify({ coreRows, displayRows: report.displayRows }, null, 2));
   return report;
 }

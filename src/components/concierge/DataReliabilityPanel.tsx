@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { DATA_RELIABILITY_UI_LABELS_JA } from '../../constants/dataReliability';
 import type { DataReliabilityBundle } from '../../types/dataReliability';
+import { keyedLine, logDuplicateReactKeys } from '../../utils/reactKeyDiagnostics';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 
@@ -16,6 +17,10 @@ function tierColor(tier: DataReliabilityBundle['reliabilityTier']) {
 
 export function DataReliabilityPanel({ bundle }: Props) {
   const color = tierColor(bundle.reliabilityTier);
+  const symbolKeys = bundle.symbols.slice(0, 4).map((s, i) => `dr-sym-${i}-${s.symbol}`);
+  const lineageKeys = bundle.lineageSummaryJa.map((line, i) => keyedLine('lineage', line, i));
+  logDuplicateReactKeys('DataReliabilityPanel/symbols', 'DataReliabilityPanel', symbolKeys);
+  logDuplicateReactKeys('DataReliabilityPanel/lineage', 'DataReliabilityPanel', lineageKeys);
 
   return (
     <View style={styles.wrap} testID="concierge-data-reliability-panel">
@@ -42,14 +47,17 @@ export function DataReliabilityPanel({ bundle }: Props) {
         {bundle.aiInputGateOpen ? '開放' : '閉鎖（判断保留）'}
       </SelectableText>
 
-      {bundle.symbols.slice(0, 4).map((s) => (
-        <View key={s.symbol} style={styles.symBlock}>
+      {bundle.symbols.slice(0, 4).map((s, symIndex) => (
+        <View key={symbolKeys[symIndex]} style={styles.symBlock}>
           <SelectableText style={styles.symTitle}>
             {s.symbol} — {s.dataQualityScore}/100 ({s.tier})
           </SelectableText>
-          {s.issues.slice(0, 3).map((i) => (
-            <SelectableText key={i.code} style={styles.issue}>
-              · {i.labelJa}: {i.detailJa}
+          {s.issues.slice(0, 3).map((issue, issueIndex) => (
+            <SelectableText
+              key={`${symbolKeys[symIndex]}-issue-${issueIndex}-${issue.code}`}
+              style={styles.issue}
+            >
+              · {issue.labelJa}: {issue.detailJa}
             </SelectableText>
           ))}
         </View>
@@ -57,8 +65,8 @@ export function DataReliabilityPanel({ bundle }: Props) {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{DATA_RELIABILITY_UI_LABELS_JA.lineage}</Text>
-        {bundle.lineageSummaryJa.map((line) => (
-          <SelectableText key={line} style={styles.bullet}>
+        {bundle.lineageSummaryJa.map((line, index) => (
+          <SelectableText key={lineageKeys[index]} style={styles.bullet}>
             · {line}
           </SelectableText>
         ))}
