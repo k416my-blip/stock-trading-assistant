@@ -1,0 +1,42 @@
+{
+  "at": "2026-06-10T02:44:19.211Z",
+  "rows": [
+    {
+      "code": "1023",
+      "label": "CIMB",
+      "ok": false,
+      "reason": "fixture missing"
+    },
+    {
+      "code": "1295",
+      "label": "Public Bank",
+      "ok": false,
+      "reason": "fixture missing"
+    },
+    {
+      "code": "5347",
+      "label": "Tenaga",
+      "ok": false,
+      "reason": "fixture missing"
+    },
+    {
+      "code": "4707",
+      "label": "Nestle",
+      "ok": false,
+      "reason": "fixture missing"
+    },
+    {
+      "code": "6033",
+      "label": "Petronas Gas",
+      "ok": false,
+      "reason": "fixture missing"
+    },
+    {
+      "code": "1155",
+      "label": "Maybank",
+      "ok": true,
+      "reason": "phase11 ok"
+    }
+  ],
+  "allOk": false
+}

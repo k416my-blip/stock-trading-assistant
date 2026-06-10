@@ -1,0 +1,23 @@
+{
+  "status": "INTERRUPTED",
+  "reason": "User-requested partial stop before USB disconnect (17:00)",
+  "stoppedAt": "2026-06-10T03:12:00.000Z",
+  "plannedHours": 12,
+  "actualElapsedMinutes": 28,
+  "twelveHourLoopEntered": true,
+  "twelveHourLoopCompleted": false,
+  "overnightRerunPlanned": true,
+  "runnerPid": 33608,
+  "appPidAtStop": 29439,
+  "evidenceFiles": [
+    "docs/review/phase12-5-long-run/telemetry.jsonl",
+    "docs/review/phase12-5-long-run/runner.log",
+    "docs/review/phase12-5-long-run/checkpoint.json",
+    "docs/review/phase12-5-long-run/logcat-partial-stop.txt",
+    "docs/review/phase12-5-long-run/logcat-final.txt",
+    "docs/review/phase12-5-long-run/meminfo-baseline.txt",
+    "docs/review/phase12-5-long-run/meminfo-partial-stop.txt",
+    "docs/review/phase12-5-long-run/meminfo-hour-00.txt",
+    "docs/review/PHASE12_5_PARTIAL_REPORT.md"
+  ]
+}

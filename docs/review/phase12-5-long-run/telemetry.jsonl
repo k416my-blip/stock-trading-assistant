@@ -1,0 +1,42 @@
+{"type":"start","baseline":{"kb":769647,"file":"C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\meminfo-baseline.txt","at":"2026-06-10T01:52:22.407Z"},"hours":0.05}
+{"type":"ai_analysis","tag":"hour-0","ok":false,"stockCheck":{"rows":[{"code":"1155","label":"Maybank","found":true,"ok":true},{"code":"1023","label":"CIMB","found":false,"ok":false},{"code":"1295","label":"Public Bank","found":true,"ok":true},{"code":"5347","label":"Tenaga","found":false,"ok":false},{"code":"4707","label":"Nestle","found":false,"ok":false},{"code":"6033","label":"Petronas Gas","found":false,"ok":false}],"allOk":false},"at":"2026-06-10T01:53:51.509Z","screenshot":"docs/review/phase12-5-long-run/ai-hour-0.png"}
+{"type":"hourly","hour":0,"mem":{"kb":810943,"file":"C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\meminfo-hour-00.txt","at":"2026-06-10T01:53:51.923Z"},"cpu":{"percent":72.4,"raw":"30460 u0_a386      10 -10  46G 502M 165M R 72.4   6.8  10:24.81 com.assistant.stocktrading\r\n 8209 shell        20   0  10G 4.1M 3.4M S  0.0   0.0   0:00.01 grep com.assistant.stocktrading\r\n 8205 shell        20   0  10G 4.0M 3.3M S  0.0   0.0   0:00.00 sh -c top -n 1 -d 1 -b | grep com.assistant.stocktrading","at":"2026-06-10T01:53:52.320Z"},"storage":{"rkKb":1396,"totalKb":21696,"raw":"1396\tdatabases/RKStorage\r\n21696\t.","at":"2026-06-10T01:53:52.390Z"}}
+{"type":"price_refresh","tag":"h0-m0","ok":true,"hasError":false,"at":"2026-06-10T01:55:22.987Z"}
+{"type":"start","baseline":{"kb":877549,"file":"C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\meminfo-baseline.txt","at":"2026-06-10T01:58:40.900Z"},"hours":0.12}
+{"type":"stock_verify","code":"1155","ok":false,"reason":"card not found","at":"2026-06-10T02:02:04.552Z"}
+{"type":"stock_verify","code":"1023","ok":false,"reason":"card not found","at":"2026-06-10T02:02:35.274Z"}
+{"type":"stock_verify","code":"1295","ok":false,"reason":"card not found","at":"2026-06-10T02:03:06.763Z"}
+{"type":"stock_verify","code":"5347","ok":false,"reason":"card not found","at":"2026-06-10T02:03:37.565Z"}
+{"type":"stock_verify","code":"4707","ok":false,"reason":"card not found","at":"2026-06-10T02:04:09.273Z"}
+{"type":"stock_verify","code":"6033","ok":false,"reason":"card not found","at":"2026-06-10T02:04:43.184Z"}
+{"type":"ai_analysis","tag":"hour-0","ok":false,"material":{"tag":"hour-0","ok":true,"at":"2026-06-10T02:01:32.081Z"},"stockCheck":{"rows":[{"code":"1155","ok":false,"reason":"card not found"},{"code":"1023","ok":false,"reason":"card not found"},{"code":"1295","ok":false,"reason":"card not found"},{"code":"5347","ok":false,"reason":"card not found"},{"code":"4707","ok":false,"reason":"card not found"},{"code":"6033","ok":false,"reason":"card not found"}],"allOk":false},"at":"2026-06-10T02:04:45.438Z","screenshot":"docs/review/phase12-5-long-run/ai-hour-0.png"}
+{"type":"price_refresh","tag":"h0-m0","ok":true,"hasError":false,"at":"2026-06-10T02:05:58.600Z"}
+{"type":"stock_verify","code":"1155","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:12:59.864Z"}
+{"type":"stock_verify","code":"1023","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:14:29.246Z"}
+{"type":"stock_verify","code":"1295","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:15:57.270Z"}
+{"type":"stock_verify","code":"5347","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:17:28.507Z"}
+{"type":"stock_verify","code":"4707","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:18:57.302Z"}
+{"type":"stock_verify","code":"6033","ok":false,"reason":"screener tab not found","at":"2026-06-10T02:20:29.276Z"}
+{"type":"stock_verify","code":"1155","label":"Maybank","ok":false,"loaded":false,"visible":true,"hasError":false,"at":"2026-06-10T02:24:11.356Z"}
+{"type":"stock_verify","code":"1023","ok":false,"reason":"card not found","at":"2026-06-10T02:25:28.686Z"}
+{"type":"stock_verify","code":"1295","ok":false,"reason":"card not found","at":"2026-06-10T02:26:22.936Z"}
+{"type":"stock_verify","code":"5347","ok":false,"reason":"card not found","at":"2026-06-10T02:27:18.476Z"}
+{"type":"stock_verify","code":"4707","ok":false,"reason":"card not found","at":"2026-06-10T02:28:14.505Z"}
+{"type":"stock_verify","code":"6033","ok":false,"reason":"card not found","at":"2026-06-10T02:29:08.003Z"}
+{"type":"stock_verify","code":"1155","label":"Maybank","ok":false,"reason":"card not found","at":"2026-06-10T02:38:32.106Z"}
+{"type":"stock_verify","code":"1023","label":"CIMB","ok":false,"reason":"card not found","at":"2026-06-10T02:39:13.016Z"}
+{"type":"stock_verify","code":"1295","label":"Public Bank","ok":false,"reason":"card not found","at":"2026-06-10T02:39:56.124Z"}
+{"type":"stock_verify","code":"5347","label":"Tenaga","ok":false,"reason":"card not found","at":"2026-06-10T02:40:36.911Z"}
+{"type":"stock_verify","code":"4707","label":"Nestle","ok":false,"reason":"card not found","at":"2026-06-10T02:41:48.025Z"}
+{"type":"stock_verify","code":"6033","label":"Petronas Gas","ok":false,"reason":"card not found","at":"2026-06-10T02:42:58.537Z"}
+{"type":"start","baseline":{"kb":797764,"file":"C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\meminfo-baseline.txt","at":"2026-06-10T02:44:17.120Z"},"hours":12}
+{"type":"stock_verify","code":"1155","label":"Maybank","ok":false,"reason":"card not found","at":"2026-06-10T02:47:46.545Z"}
+{"type":"stock_verify","code":"1023","label":"CIMB","ok":false,"visible":false,"hasError":false,"at":"2026-06-10T02:49:12.819Z"}
+{"type":"stock_verify","code":"1295","label":"Public Bank","ok":true,"visible":true,"hasError":false,"at":"2026-06-10T02:50:10.989Z"}
+{"type":"stock_verify","code":"5347","label":"Tenaga","ok":false,"visible":false,"hasError":false,"at":"2026-06-10T02:51:06.019Z"}
+{"type":"stock_verify","code":"4707","label":"Nestle","ok":false,"visible":false,"hasError":false,"at":"2026-06-10T02:52:03.851Z"}
+{"type":"stock_verify","code":"6033","label":"Petronas Gas","ok":true,"visible":true,"hasError":false,"at":"2026-06-10T02:53:00.563Z"}
+{"type":"ai_analysis","tag":"hour-0","material":{"tag":"hour-0","ok":true,"at":"2026-06-10T02:47:07.049Z"},"stockCheck":{"rows":[{"code":"1155","label":"Maybank","ok":false,"reason":"card not found"},{"code":"1023","label":"CIMB","ok":false,"visible":false,"hasError":false},{"code":"1295","label":"Public Bank","ok":true,"visible":true,"hasError":false},{"code":"5347","label":"Tenaga","ok":false,"visible":false,"hasError":false},{"code":"4707","label":"Nestle","ok":false,"visible":false,"hasError":false},{"code":"6033","label":"Petronas Gas","ok":true,"visible":true,"hasError":false}],"allOk":false},"at":"2026-06-10T02:53:03.191Z","screenshot":"docs/review/phase12-5-long-run/ai-hour-0.png"}
+{"type":"price_refresh","tag":"h0-m0","ok":true,"hasError":false,"at":"2026-06-10T02:54:13.999Z"}
+{"type":"price_refresh","tag":"h0-m15","ok":true,"hasError":false,"at":"2026-06-10T03:10:37.769Z"}
+{"type":"partial_stop","at":"2026-06-10T03:12:00.000Z","reason":"user-requested stop before USB disconnect","plannedHours":12,"elapsedMinutes":28}

@@ -1,0 +1,66 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 14174470 Realtime: 14174470
+
+** MEMINFO in pid 30460 [com.assistant.stocktrading] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap   260331    90712   169576   376190   262332   690072   651849    30917
+  Dalvik Heap    23463    18520     4844      111    25288    29750    14875    14875
+ Dalvik Other    19733     4664      672      304    34588                           
+        Stack     3688     3612       76      776     3700                           
+       Ashmem       26        0        0        0      284                           
+    Other dev       16        0       16        0      680                           
+     .so mmap     2486       92      760      152    41856                           
+    .jar mmap     3022        0     1064        0    42560                           
+    .apk mmap    14353       24    12352      884    22468                           
+    .ttf mmap      450        0      352        0      688                           
+    .dex mmap    15566        0    15556        0    16464                           
+    .oat mmap       42        0       16        0     1928                           
+    .art mmap     6672     1248     4980     5127    24680                           
+   Other mmap     4385        4     4108        0     6184                           
+   EGL mtrack    29629    29629        0        0    29629                           
+    GL mtrack    10844    10844        0        0    10844                           
+      Unknown    31705    22804     8896      988    32484                           
+        TOTAL   810943   182153   223268   384532   556657   719822   666724    45792
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    24748                          49968
+         Native Heap:    90712                         262332
+                Code:    30280                         154812
+               Stack:     3612                           3700
+            Graphics:    40473                          40473
+       Private Other:   215596
+              System:   405522
+             Unknown:                                   45372
+ 
+           TOTAL PSS:   810943            TOTAL RSS:   556657       TOTAL SWAP PSS:   384532
+ 
+ Objects
+               Views:      535         ViewRootImpl:       53
+         AppContexts:        5           Activities:        1
+              Assets:       58        AssetManagers:        0
+       Local Binders:      106        Proxy Binders:       88
+       Parcel memory:       18         Parcel count:       72
+    Death Recipients:        1             WebViews:        0
+ 
+ Native Allocations
+                         Count                       Total(kB)
+                        ------                         ------
+    Other (malloced):     4009                            381
+ Other (nonmalloced):      701                            379
+   Bitmap (malloced):       80                           4698
+ 
+ SQL
+         MEMORY_USED:     1443
+  PAGECACHE_OVERFLOW:     1381          MALLOC_SIZE:      433
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4     1396             39 16997  2448     4  /data/user/0/com.assistant.stocktrading/databases/RKStorage
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+          16997          2449         19446  /data/user/0/com.assistant.stocktrading/databases/RKStorage

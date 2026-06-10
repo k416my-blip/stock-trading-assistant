@@ -1,0 +1,155 @@
+{
+  "startedAt": "2026-06-10T02:43:59.691Z",
+  "endedAt": "2026-06-10T03:12:00.000Z",
+  "status": "INTERRUPTED_PARTIAL",
+  "baselineMemKb": 797764,
+  "hourlyMemKb": [
+    {
+      "hour": 0,
+      "kb": 797764,
+      "at": "2026-06-10T02:44:17.120Z"
+    }
+  ],
+  "cpuSamples": [
+    {
+      "hour": 0,
+      "percent": 63.3,
+      "raw": "29439 u0_a386      10 -10  46G 470M 166M R 63.3   6.3  10:02.39 com.assistant.stocktrading\r\n12334 shell        20   0  10G 4.0M 3.3M S  0.0   0.0   0:00.01 grep com.assistant.stocktrading\r\n12330 shell        20   0  10G 4.1M 3.3M S  0.0   0.0   0:00.01 sh -c top -n 1 -d 1 -b | grep com.assistant.stocktrading",
+      "at": "2026-06-10T02:44:17.566Z"
+    }
+  ],
+  "storageSamples": [
+    {
+      "hour": 0,
+      "rkKb": 1396,
+      "totalKb": 21860,
+      "raw": "1396\tdatabases/RKStorage\r\n21860\t.",
+      "at": "2026-06-10T02:44:17.751Z"
+    }
+  ],
+  "priceRefreshRuns": [
+    {
+      "tag": "h0-m0",
+      "ok": true,
+      "hasError": false,
+      "at": "2026-06-10T02:54:13.999Z"
+    }
+  ],
+  "aiAnalysisRuns": [
+    {
+      "tag": "hour-0",
+      "material": {
+        "tag": "hour-0",
+        "ok": true,
+        "at": "2026-06-10T02:47:07.049Z"
+      },
+      "stockCheck": {
+        "rows": [
+          {
+            "code": "1155",
+            "label": "Maybank",
+            "ok": false,
+            "reason": "card not found"
+          },
+          {
+            "code": "1023",
+            "label": "CIMB",
+            "ok": false,
+            "visible": false,
+            "hasError": false
+          },
+          {
+            "code": "1295",
+            "label": "Public Bank",
+            "ok": true,
+            "visible": true,
+            "hasError": false
+          },
+          {
+            "code": "5347",
+            "label": "Tenaga",
+            "ok": false,
+            "visible": false,
+            "hasError": false
+          },
+          {
+            "code": "4707",
+            "label": "Nestle",
+            "ok": false,
+            "visible": false,
+            "hasError": false
+          },
+          {
+            "code": "6033",
+            "label": "Petronas Gas",
+            "ok": true,
+            "visible": true,
+            "hasError": false
+          }
+        ],
+        "allOk": false
+      },
+      "at": "2026-06-10T02:53:03.191Z",
+      "screenshot": "docs/review/phase12-5-long-run/ai-hour-0.png"
+    }
+  ],
+  "stockChecks": [
+    {
+      "hour": 0,
+      "rows": [
+        {
+          "code": "1155",
+          "label": "Maybank",
+          "ok": false,
+          "reason": "card not found"
+        },
+        {
+          "code": "1023",
+          "label": "CIMB",
+          "ok": false,
+          "visible": false,
+          "hasError": false
+        },
+        {
+          "code": "1295",
+          "label": "Public Bank",
+          "ok": true,
+          "visible": true,
+          "hasError": false
+        },
+        {
+          "code": "5347",
+          "label": "Tenaga",
+          "ok": false,
+          "visible": false,
+          "hasError": false
+        },
+        {
+          "code": "4707",
+          "label": "Nestle",
+          "ok": false,
+          "visible": false,
+          "hasError": false
+        },
+        {
+          "code": "6033",
+          "label": "Petronas Gas",
+          "ok": true,
+          "visible": true,
+          "hasError": false
+        }
+      ],
+      "allOk": false,
+      "at": "2026-06-10T02:53:03.191Z"
+    }
+  ],
+  "crashes": {
+    "fatal": 0,
+    "rnTypeError": 0,
+    "undefined": 0
+  },
+  "anrCount": 0,
+  "logcatBaselineSize": 0,
+  "pidLostEvents": 0,
+  "updatedAt": "2026-06-10T03:12:00.000Z"
+}

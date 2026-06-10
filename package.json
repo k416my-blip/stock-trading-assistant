@@ -11,6 +11,8 @@
     "verify:bursa-device": "node scripts/verify-bursa-phase1-device.mjs",
     "verify:news-api-test-device": "node scripts/verify-news-api-test-device.mjs",
     "verify:x-api-test-device": "node scripts/verify-x-api-test-device.mjs",
+    "verify:phase12": "node scripts/phase12-stability-test.mjs",
+    "verify:phase12-5": "node scripts/phase12-5-long-run.mjs",
     "android": "expo run:android",
     "build:android:preview": "eas build -p android --profile preview",
     "ios": "expo run:ios",
