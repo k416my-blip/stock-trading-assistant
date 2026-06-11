@@ -34,6 +34,7 @@ export type RawMaterialInput = {
   url: string | null;
   publishedAt: string | null;
   idSuffix?: string;
+  id?: string;
   /** UI表示用ソース名（例: Reddit RSS） */
   sourceLabelJa?: string;
 };
@@ -45,6 +46,22 @@ export function classifyMaterialSentiment(title: string): BursaMaterialSentiment
   if (STRONG_NEGATIVE.test(t) || (NEGATIVE.test(t) && !POSITIVE.test(t))) return '悪材料';
   if (POSITIVE.test(t) && NEGATIVE.test(t)) return '中立';
   return '中立';
+}
+
+/** Phase 材料スコアから sentiment を決定（Phase15〜23 共通） */
+export function materialSentimentFromScore(score: number): BursaMaterialSentiment {
+  if (score > 8) return '好材料';
+  if (score < -8) return '悪材料';
+  return '中立';
+}
+
+export function withAdjustedMaterialScore(item: BursaMaterialItem, score: number): BursaMaterialItem {
+  const clamped = Math.max(-100, Math.min(100, score));
+  return {
+    ...item,
+    score: clamped,
+    sentiment: materialSentimentFromScore(clamped),
+  };
 }
 
 function keywordStrength(title: string, sentiment: BursaMaterialSentiment): number {

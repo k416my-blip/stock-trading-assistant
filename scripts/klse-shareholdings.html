@@ -1,0 +1,3118 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>
+        Shareholdings | KLSE Screener
+    </title>
+    <link href="/v2/img/favicon_v2.ico" type="image/x-icon" rel="icon"/><link href="/v2/img/favicon_v2.ico" type="image/x-icon" rel="shortcut icon"/><link rel="stylesheet" type="text/css" href="//cdn.klsescreener.com/v2/css/chosen.min.css"/>    <link rel="apple-touch-icon" href="/v2/img/apple-touch-icon.png">
+    <link rel="icon" sizes="192x192" href="/v2/img/apple-touch-icon.png">
+    <script>
+        var $base_url = '/v2/';
+    </script>
+        <!-- <meta name="keywords" content="bursascreener, bursa screener, bursa malaysia, bursa, klse, kuala lumpur stock exchange, stock exchange, kuala lumpur, stock screener, screener, technical analysis, technical, analysis, research"> -->
+            <meta property="og:image" content="https://www.klsescreener.com/v2/img/icon_og-image.png" />
+        <meta property="og:title" content="Shareholdings">
+            <meta property="og:description" content="View the latest shareholding changes in Malaysian companies. Stay updated with significant shareholding changes, including direct and indirect ownership changes. Your source for KLSE shareholding data and insights.">
+        <meta name="description" content="View the latest shareholding changes in Malaysian companies. Stay updated with significant shareholding changes, including direct and indirect ownership changes. Your source for KLSE shareholding data and insights.">
+        <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.klsescreener.com/v2/shareholdings">
+    <!--
+    <meta property="og:description" content="">
+    -->
+    <meta property="og:site_name" content="KLSE Screener">
+    <meta property="fb:app_id" content="690278390997228">
+    <meta property="fb:pages" content="143760695752177">
+
+    <meta property="al:ios:app_store_id" content="593048150" />
+    <meta property="al:ios:app_name" content="KLSE Screener" />
+    <meta property="al:ios:url" content="https://www.klsescreener.com/v2/shareholdings" />
+
+    <meta property="al:android:package" content="net.neobie.klse" />
+    <meta property="al:android:app_name" content="KLSE Screener (Bursa)" />
+
+    
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <!-- <script src="//selectize.github.io/selectize.js/js/selectize.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.4/js.cookie.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.1.4/jquery.floatThead.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.0/autosize.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
+    <script src="https://fastly.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/chart.js-plugin-labels-dv@3.3.0/src/chartjs-plugin-labels.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/vanilla-lazyload@16.0.0/dist/lazyload.min.js"></script>
+    <script>
+        var lazyLoadInstance = new LazyLoad({
+            elements_selector: ".lazy"
+            // ... more custom settings?
+        });
+    </script>
+    <script>
+        function isMobileDevice() {
+            return /iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        </script>
+    <style>
+        ins.adsbygoogle[data-ad-status="unfilled"] {
+            display: none !important;
+        }
+    </style>
+
+    <!-- JavaScript -->
+    <script src="https://fastly.jsdelivr.net/npm/alertifyjs@1.11.4/build/alertify.min.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/alertifyjs@1.11.4/build/css/alertify.min.css" />
+    <!-- Default theme -->
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/alertifyjs@1.11.4/build/css/themes/default.css" />
+
+    <!--Material-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <!--
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    -->
+
+
+    <!--bootstrap select-->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.10/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+    <!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>-->
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.10/js/bootstrap-select.min.js"></script>
+
+
+    <script src="https://fastly.jsdelivr.net/npm/bootbox@5.3.0/bootbox.all.min.js"></script>
+
+    <!-- <link href="https://selectize.dev/css/selectize.default.css" rel="stylesheet" />
+    <link href="https://selectize.dev/css/selectize.bootstrap4.css" rel="stylesheet" /> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.bootstrap4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans:400,700" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/flick/jquery-ui.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0/css/bootstrap.min.css" rel="stylesheet" /> -->
+    <!--
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    -->
+
+    <!-- Optional theme -->
+    <!--
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    -->
+
+    <!-- Latest compiled and minified JavaScript -->
+
+    <script src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js' type='text/javascript'></script>
+        <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/chosen.jquery.min.js"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/stupidtable.min.js"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/autogrow.min.js"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/jquery.mentionsInput.js"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/jquery.elastic.js"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/jquery.events.input.js"></script>    <script type="text/javascript" src="https://zurb.github.io/tribute/example/tribute.js"></script>
+    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/main.js?16466688000"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/post.js?16830432000"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/attachment.js?16256736000"></script>    <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/social.js?16226496001"></script>        <link rel="stylesheet" type="text/css" href="//cdn.klsescreener.com/v2/css/style.css?1777996800.0"/>            <link rel="stylesheet" id="bootstrap-dark" href="/v2/css/flatly/main.css?1" type="text/css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="//cdn.klsescreener.com/v2/css/zaker.css?1586016000.0"/>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel='stylesheet' type='text/css'>
+
+    <!-- <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/react@16/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@16/umd/react-dom.production.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/7.4.0/firebase-app.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "DUMMY_FIXTURE_FIREBASE_KEY",
+            authDomain: "klsescreener.com",
+            databaseURL: "https://api-project-30333546014.firebaseio.com",
+            projectId: "api-project-30333546014",
+            storageBucket: "api-project-30333546014.appspot.com",
+            messagingSenderId: "30333546014",
+            appId: "1:30333546014:web:4c7821f3621fa2d40cc80f"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>
+        //alertify.set({transition:''});
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+        }
+        toastr.options.newestOnTop = false;
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            var contact_container = $(".contact_container");
+            var contact_form = contact_container.find("form");
+
+            $(".contact_container > .close_button").click(function() {
+                contact_container.hide();
+            })
+
+
+            contact_form.submit(function() {
+                $.post("/v2/../contact.php", $(this).serialize(), function(data) {
+                    if (data == "SUCCESS") {
+                        contact_container.html("Suggestion submitted.").fadeTo(5000, 0, function() {
+                            $("#suggestion").dropdown('toggle');
+                            $(this).css("opacity", 1);
+                        });
+
+                    } else if (data == "INCOMPLETE") {
+                        contact_container.find(".suggestion_message").html("Incomplete form cannot be sent.");
+                    } else if (data == "ERROR") {
+                        contact_container.find(".suggestion_message").html("Error on sending mail.");
+                    } else if (data == "INVALID_EMAIL") {
+                        contact_container.find(".suggestion_message").html("Invalid E-mail.");
+                    } else {
+                        contact_container.find(".suggestion_message").html("Failed to send feedback.");
+                    }
+                });
+                return false;
+            });
+        });
+
+        $(function() {
+
+            $("#searchquote").focus(function() {
+                $(".autocomplete-navbar").show();
+            });
+            $("#searchquote").autocomplete({
+                    delay: 500,
+                    classes: {
+                        "ui-autocomplete": "ui-autocomplete-fixed autocomplete-navbar"
+                    },
+                    search: function(event, ui) {
+                        $("#quote_loading").html("<span class='fa fa-spinner fa-spin'></span>");
+                    },
+                    open: function(event, ui) {
+                        $(this).autocomplete('widget').css('z-index', 1100);
+                        $("#quote_loading").html("");
+                    },
+                    close: function(event, ui) {
+                        //$("#quote_loading").html("");
+                    },
+                    response: function(event, ui) {
+                        if (ui.content.length == 0) {
+                            $("#quote_loading").html("");
+                        } else {
+                            $("#quote_loading").html("");
+                        }
+                    },
+                    source: "/v2/stocks/all.json",
+                    minLength: 2,
+                    select: function(event, ui) {
+                        if (ui.item.desc != null) {
+                            window.location = "/v2/stocks/view/" + ui.item.value + "/" + ui.item.desc.slug();
+                        } else {
+                            window.location = "/v2/stocks/view/" + ui.item.value;
+                        }
+                        //window.location = "/v2/../detail.php?code=" + ui.item.value;
+                    }
+                })
+                .autocomplete("instance")._renderItem = function(ul, item) {
+                    return $("<li>")
+                        .append("<div class='search-item'><span>" + item.label + "</span><br/><span class='text-muted small'>" + item.value + "</span><span style='float:right' class='" + (item.price_change > 0 ? "increasing" : item.price_change < 0 ? "decreasing" : "") + "'>" + item.price + "</span></div>")
+                        .appendTo(ul);
+                };
+            console.log($("#searchquote").autocomplete().data() + "hey");
+            /** who this belongs to and cause js error ???? 2016-11-29
+        .autocomplete('widget').addClass('ui-autocomplete-fixed').data("ui-autocomplete")._renderItem = function( ul, item ) {
+            if (item.desc == null) item.desc = " ";
+        return $("<li></li>")
+            .append( "<a><div>" + item.label + "</div><div class='stock-description'>" + item.desc + "</div></a>" )
+            .appendTo( ul );
+        };
+             **/
+            ;
+
+            /*
+            $( "#searchquote" ).focus( function() {
+            	if ( $(this).val() == "Search stock" ) {
+            		$(this).val("");
+            		$(this).css("color","black");
+            	}
+            });
+            $( "#searchquote" ).blur( function() {
+            	if ( $(this).val() == "" ) {
+            		$(this).val("Search stock");
+            		$(this).css("color","grey");
+            	}
+            });
+            */
+        });
+
+        $(document).ready(function() {
+            return;
+            var content_wrapper = $("#content > div");
+            var skyscraper = $("#ad_responsive");
+            var offset = 20;
+            var posLeft = content_wrapper.width() + content_wrapper.offset().left + offset;
+
+            //if ( content_wrapper.height() >= 600 && content_wrapper.width() <= 1000 && $(document).width() >= content_wrapper.offset().left + content_wrapper.width() + skyscraper.width() + offset ) {
+            skyscraper.css("position", "absolute")
+                .offset({
+                    top: content_wrapper.offset().top,
+                    left: posLeft
+                })
+                //.offset({top:content_wrapper.offset().top, left: $(document).width() - skyscraper.width() - ( $(document).width() - wrapper_content.width() ) / 2 })
+                .show();
+            //$("#skyscraper").sticky({topSpacing:160});
+            //} else {
+            //skyscraper.remove();
+            //}
+
+            var offsetTop = 30;
+            var offsetBottom = 30;
+
+            $(window).scroll(function() { // scroll event
+                var windowTop = $(window).scrollTop(); // returns number
+                var windowLeft = $(window).scrollLeft();
+
+                /**
+                if ( skyscraper.offset().top >= content_wrapper.offset().top && (skyscraper.offset().top + skyscraper.height()) <= (content_wrapper.offset().top + content_wrapper.height()) ) {
+                	skyscraper.offset({ top:windowTop + offsetTop });
+                	//skyscraper.css('position', 'fixed');
+                }
+                if ( skyscraper.offset().top < content_wrapper.offset().top ) {
+                	skyscraper.offset({top:content_wrapper.offset().top});
+                	//skyscraper.css('position', 'absolute');
+                }
+                if ( skyscraper.offset().top + skyscraper.height() > content_wrapper.offset().top + content_wrapper.height()) {
+                	skyscraper.offset({top: content_wrapper.offset().top + content_wrapper.height() - skyscraper.height() });
+                	//skyscraper.css('position', 'absolute');
+                }
+                **/
+
+
+                /**
+			if ( windowTop + offsetTop > content_wrapper.offset().top && windowTop + offsetTop + skyscraper.height() < content_wrapper.offset().top + content_wrapper.height() ) {
+				skyscraper.css('position', 'fixed');
+				skyscraper.css('top', offsetTop );
+				skyscraper.css('left', posLeft - windowLeft);
+
+			}
+
+			if ( windowTop + offsetTop < content_wrapper.offset().top ) {
+				skyscraper.css('position', 'absolute');
+				skyscraper.css('top', content_wrapper.offset().top );
+				skyscraper.css('left', posLeft);
+			}
+
+			if ( windowTop + offsetTop + skyscraper.height() > content_wrapper.offset().top + content_wrapper.height() ) {
+				skyscraper.css('position', 'absolute');
+				skyscraper.css('top', content_wrapper.offset().top + content_wrapper.height() - skyscraper.height() );
+				skyscraper.css('left', posLeft);
+			}
+			**/
+            });
+
+        })
+
+        $(function() {
+            $('.contact_container').click(function(e) {
+                e.stopPropagation();
+            });
+        })
+    </script>
+    <script type="text/javascript">
+        // window.smartlook||(function(d) {
+        //     var o=smartlook=function(){ o.api.push(arguments)},s=d.getElementsByTagName('script')[0];
+        //     var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+        //     c.charset='utf-8';c.src='//rec.getsmartlook.com/bundle.js';s.parentNode.insertBefore(c,s);
+        // })(document);
+        // smartlook('init', '921a42a437a7053aa25ac2ed392a5181864cfaa5');
+    </script>
+            <script>
+            (function(i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function() {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+            ga('create', 'UA-26069580-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26069580-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-26069580-1');
+        </script>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-JWSNSL1GQW"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        // function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-JWSNSL1GQW');
+        </script>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-STLJ53Z1C6"></script> <!--WEB only-->
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-STLJ53Z1C6');
+        </script>
+        
+    
+    <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({
+            google_ad_client: "ca-pub-3964569253220025",
+            // enable_page_level_ads: true,
+            // overlays: {bottom: true}
+        });
+    </script> -->
+   
+
+</head>
+
+<body id="Shareholdings-index" >
+
+    <div>
+        <!--class="container-fluid"-->
+        
+
+    <nav class="navbar navbar-expand-md sticky-top navbar-dark bg-primary" style="padding: 0.1rem 1rem;">
+
+<!--        <div class="container-fluid">-->
+
+
+            <a class="navbar-brand" href="/v2/">
+                <img alt="KLSE Screener" class="d-inline-block align-middle" src="/v2/img/icon_navbar.png" style="height:30px;" />
+                <span class="d-md-none">KLSE Screener</span>
+            </a>
+
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon" style="font-size:0.7em;"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <form class="formSearch form-inline" role="search" action="/v2/search" >
+                    <div class="input-group input-group-sm form-inline">
+                        <input type="search" class="form-control form-control-sm" id="searchquote" name="q" value="" placeholder="Search ticker" style="min-width:100px;">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-light">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                    <span id="quote_loading" style="width:16px;">
+
+                    </span>
+                </form>
+
+                <ul class="nav navbar-nav mr-auto">
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-lg fa-filter fa-fw"></i><span>&nbsp;</span><span class="d-md-none d-xl-inline" title="Screener" >Screener</span></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="/v2/">Stock Screener</a>
+                            <a class="dropdown-item" href="/v2/screener-warrants">Warrant Screener</a>
+                        </div>
+
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-lg fa-globe fa-fw"></i><span>&nbsp;</span><span class="d-md-none d-lg-inline" title="Market">Market</span></a>
+                        <div class="dropdown-menu" role="menu">
+                            <a class="dropdown-item" href="/v2/markets">Overview</a>
+                            <a class="dropdown-item" href="/v2/stocks/heatmap">Heatmap</a>
+                        </div>
+                    </li>
+
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i title="Entitlements" class="fa fa-lg fa-euro-sign fa-fw"></i><span>&nbsp;</span><span class="d-md-none d-xl-inline" title="Entitlements">Entitlements</span></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/v2/entitlements/dividends">Dividend</a>
+                            <a class="dropdown-item" href="/v2/entitlements/shares-issue">Share issued</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item "><a class="nav-link" href="/v2/financial-reports"><span title="Financial" class="fa fa-fw fa-lg fa-money-bill-alt"></span><span>&nbsp;</span><span class="d-md-none d-lg-inline" title="Financial">Financial</span></a></li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i title="News" class="fa fa-lg fa-newspaper fa-fw"></i><span>&nbsp;</span><span class="d-md-none d-xl-inline" title="News">News</span></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/v2/news"><i title="News" class="fa fa-lg fa-newspaper fa-fw"></i> News</a>
+                            <a class="dropdown-item" href="/v2/announcements"><i title="Announcements" class="fa fa-lg fa-bullhorn fa-fw"></i> Announcements</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i title="Discussions" class="fa fa-lg fa-comment-dollar fa-fw"></i><span>&nbsp;</span><span class="d-md-none d-xl-inline" title="Discussions">Discussions</span></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/v2/discussion">Comments</a>
+                            <a class="dropdown-item" href="/v2/posts/all">Ideas</a>
+                        </div>
+                    </li>
+                </ul>
+
+
+
+                <ul class="nav navbar-nav ml-auto">
+                                            <li class="nav-item">
+                            <a class="nav-link" href="/v2/users/login?url=shareholdings"><i class="fa fa-user"></i> Login</a>
+                        </li>
+                    
+                    <li class="nav-item">
+                        <a id="suggestion" class="nav-link" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-lg fa-question"></i><span>&nbsp;</span><span class="d-md-none">Feedback</span></a>
+                        <div class="contact_container dropdown-menu dropdown-menu-right" role="menu" style="min-width:300px;margin-bottom:10px;padding:10px;">
+                            <strong>Help</strong>
+                            <br/><br/>
+                            <p><a href="https://www.klsescreener.com/v2/contact">Contact us</a></p>
+<!--                            <form method="post" action="contact.php" onclick="">-->
+<!--                                <input type="hidden" name="a" value="suggestion">-->
+<!--                                <input type="hidden" name="url" value="--><!--">-->
+<!--                                Your E-mail:<br/>-->
+<!--                                <input type="text" class="form-control" name="email"><br/>-->
+<!--                                Message:<br/>-->
+<!--                                <textarea name="content"  class="form-control" rows="4" cols="30"></textarea><br/>-->
+<!--                                <input type="submit" class="btn btn-primary" value="Send">-->
+<!--                            </form>-->
+
+                            <p class="suggestion_message"></p>
+                        </div>
+                    </li>
+                </ul>
+
+                
+            </div>
+<!--        </div>-->
+
+    </nav>
+        <div id="content" class="mt-2">
+
+            <div id="aLegMYzGHfnR" style="margin-top:-20px; display:none;">
+                Our website is made possible by displaying non-intrusive online advertisements to our visitors.<br />
+                Please consider supporting us by disabling or pausing your ad blocker.<br />
+            </div>
+
+            
+            <div class="container-fluid">
+                            </div>
+
+            <div class="wrapper-disabled">
+                                <div class="container-fluid">
+
+    <h2>Changes of Shareholdings</h2>
+
+    <form method="get">
+        <div class="row">
+            <div class="col-sm-6 col-xs-12 mb-1">
+                <input type="search" class="form form-control" name="name" placeholder="Name" value="" >
+            </div>
+            <div class="col col-xs-6">
+                <input class="form form-control" type="date" name="date" value="">
+            </div>
+            <div class="col col-xs-3">
+            <input class="form form-control" type="code" name="code" placeholder="Stock code" value="">
+            </div>
+            <div class="col col-xs-3">
+                <button class="btn btn-primary" type="submit"><span class="fa fa-search"></span> Search</button>
+            </div>
+        </div>
+    </form>
+
+    <br/><br/>
+
+    <div id="table-shareholdings" class="table table-responsive d-none d-md-block">
+        <table>
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Stock</th>
+                <th>Name</th>
+                <th>Trans Date</th>
+                <th>Type</th>
+                <th>Shares</th>
+                <th>Direct Unit</th>
+                <th>Direct %</th>
+                <th>Doc</th>
+            </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0138">ZETRIX</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+WONG+THEAN+SOON">MR WONG THEAN SOON</a></td> -->
+        <td>MR WONG THEAN SOON<br/>
+        <small class="text-muted">Wong Thean Soon</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>800,000</td>
+        <td>1,204,321,008</td>
+        <td>15.195%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674382" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/2429">TANCO</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATO%27+SRI+ANDREW+TAN+JUN+SUAN">DATO' SRI ANDREW TAN JUN SUAN</a></td> -->
+        <td>DATO' SRI ANDREW TAN JUN SUAN<br/>
+        <small class="text-muted">Andrew Tan Jun Suan</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>590,000</td>
+        <td>1,153,490,192</td>
+        <td>19.144%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674374" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/2429">TANCO</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATO%27+SRI+ANDREW+TAN+JUN+SUAN">DATO' SRI ANDREW TAN JUN SUAN</a></td> -->
+        <td>DATO' SRI ANDREW TAN JUN SUAN<br/>
+        <small class="text-muted">Andrew Tan Jun Suan</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>600,000</td>
+        <td>1,152,900,192</td>
+        <td>19.134%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674367" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/3247">GUH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATUK+SERI+KENNETH+H%27NG+BAK+TEE">DATUK SERI KENNETH H'NG BAK TEE</a></td> -->
+        <td>DATUK SERI KENNETH H'NG BAK TEE<br/>
+        <small class="text-muted">H'NG CHUN LI</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>592,600</td>
+        <td>16,732,103</td>
+        <td>5.867%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674340" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5025">AURO</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATO%27+TAN+LIK+HOUE">DATO' TAN LIK HOUE</a></td> -->
+        <td>DATO' TAN LIK HOUE<br/>
+        <small class="text-muted">Kenanga Nominees (Tempatan) Sdn Bhd pledged securities account for Tan Lik Houe</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>4,680,000</td>
+        <td>97,788,800</td>
+        <td>15.36%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674190" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0108">N2N</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=QUAH+CHOON+WAH">QUAH CHOON WAH</a></td> -->
+        <td>QUAH CHOON WAH<br/>
+        <small class="text-muted">QUAH CHOON WAH</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="">Transferred</span>
+                </td>
+        <td>140,600</td>
+        <td>52,910,490</td>
+        <td>9.479%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674055" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/7089">LIIHEN</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+CHUA+YONG+HAUP">MR CHUA YONG HAUP</a></td> -->
+        <td>MR CHUA YONG HAUP<br/>
+        <small class="text-muted">CHUA YONG HAUP</small>
+        </td>
+        <td>2026-06-08</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>100,000</td>
+        <td>2,935,000</td>
+        <td>0.544%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674047" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0138">ZETRIX</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+WONG+THEAN+SOON">MR WONG THEAN SOON</a></td> -->
+        <td>MR WONG THEAN SOON<br/>
+        <small class="text-muted">Wong Thean Soon</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>756,400</td>
+        <td>1,204,321,008</td>
+        <td>15.195%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674382" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5878">KPJ</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>2,000,000</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674362" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5878">KPJ</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>17,200</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674362" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0220">OVH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MAJUCO+MOTOR+SDN.+BHD.">MAJUCO MOTOR SDN. BHD.</a></td> -->
+        <td>MAJUCO MOTOR SDN. BHD.<br/>
+        <small class="text-muted">MAJUCO MOTOR SDN. BHD.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>22,700</td>
+        <td>53,049,956</td>
+        <td>12.339%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674348" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0220">OVH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=PUAN+SHARIFAH+NUR+FARESHA+BINTI+WAN+ABDUL+KHALEG">PUAN SHARIFAH NUR FARESHA BINTI WAN ABDUL KHALEG</a></td> -->
+        <td>PUAN SHARIFAH NUR FARESHA BINTI WAN ABDUL KHALEG<br/>
+        <small class="text-muted">MAJUCO MOTOR SDN. BHD.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>22,700</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674347" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/1155">MAYBANK</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%28%22KWAP%22%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>521,000</td>
+        <td>577,411,587</td>
+        <td>4.774%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674339" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0317">EPB</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+YEOH+CHEE+MIN">MR YEOH CHEE MIN</a></td> -->
+        <td>MR YEOH CHEE MIN<br/>
+        <small class="text-muted">Yeoh Chee Min</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>200,000</td>
+        <td>148,551,851</td>
+        <td>39.933%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674333" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0317">EPB</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MADAM+OOI+KIM+KEW">MADAM OOI KIM KEW</a></td> -->
+        <td>MADAM OOI KIM KEW<br/>
+        <small class="text-muted">Yeoh Chee Min</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>200,000</td>
+        <td>55,760,100</td>
+        <td>14.989%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674331" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/7113">TOPGLOV</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>1,211,800</td>
+        <td>442,703,250</td>
+        <td>5.521%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674329" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/8311">PESONA</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+WIE+HOCK+KIONG">MR WIE HOCK KIONG</a></td> -->
+        <td>MR WIE HOCK KIONG<br/>
+        <small class="text-muted">Kombinasi Emas Sdn Bhd</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>260,500</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674327" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5348">ORKIM</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>117,200</td>
+        <td>58,000,000</td>
+        <td>5.8%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674325" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/8311">PESONA</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KOMBINASI+EMAS+SDN+BHD">KOMBINASI EMAS SDN BHD</a></td> -->
+        <td>KOMBINASI EMAS SDN BHD<br/>
+        <small class="text-muted">Kombinasi Emas Sdn Bhd</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>260,500</td>
+        <td>314,118,010</td>
+        <td>45.198%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674324" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5285">SDG</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">Kumpulan Wang Persaraan (Diperbadankan)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>500,000</td>
+        <td>505,514,178</td>
+        <td>7.31%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674320" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0045">SSB8</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+GAN+YEE+HIN">MR GAN YEE HIN</a></td> -->
+        <td>MR GAN YEE HIN<br/>
+        <small class="text-muted">Gan Yee Hin</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>421,400</td>
+        <td>322,784,900</td>
+        <td>14.203%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674307" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5250">SEM</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DETIK+RIA+SDN+BHD">DETIK RIA SDN BHD</a></td> -->
+        <td>DETIK RIA SDN BHD<br/>
+        <small class="text-muted">Detik Ria Sdn Bhd</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>3,000</td>
+        <td>111,771,944</td>
+        <td>10.078%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674302" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/7160">PENTA</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">Kumpulan Wang Persaraan (Diperbadankan)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>68,300</td>
+        <td>42,012,775</td>
+        <td>5.906%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674295" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5319">MKHOP</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=CHEN+CHOY+%26+SONS+REALTY+SDN.+BHD.">CHEN CHOY & SONS REALTY SDN. BHD.</a></td> -->
+        <td>CHEN CHOY & SONS REALTY SDN. BHD.<br/>
+        <small class="text-muted">CHEN CHOY & SONS REALTY SDN. BHD.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>0</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674294" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0298">WENTEL</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+SIOW+CHIN+HOW">MR SIOW CHIN HOW</a></td> -->
+        <td>MR SIOW CHIN HOW<br/>
+        <small class="text-muted">SIOW CHIN HOW</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>200,000</td>
+        <td>2,578,600</td>
+        <td>0.224%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674288" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/3239">BJASSET</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DETIK+RIA+SDN+BHD">DETIK RIA SDN BHD</a></td> -->
+        <td>DETIK RIA SDN BHD<br/>
+        <small class="text-muted">Detik Ria Sdn Bhd</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>725,500</td>
+        <td>469,102,200</td>
+        <td>18.337%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674274" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/4197">SIME</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KWAP</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>2,579,000</td>
+        <td>453,549,249</td>
+        <td>6.655%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674266" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/4197">SIME</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KWAP's Fund Manager</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>220,000</td>
+        <td>453,549,249</td>
+        <td>6.655%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674266" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/7277">DIALOG</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>347,300</td>
+        <td>468,983,000</td>
+        <td>8.31%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674247" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5204">AWANTEC</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=LEMBAGA+TABUNG+AMANAH+WARISAN+NEGERI+TERENGGANU">LEMBAGA TABUNG AMANAH WARISAN NEGERI TERENGGANU</a></td> -->
+        <td>LEMBAGA TABUNG AMANAH WARISAN NEGERI TERENGGANU<br/>
+        <small class="text-muted">Lembaga Tabung Amanah Warisan Negeri Terengganu</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>50,000</td>
+        <td>46,595,300</td>
+        <td>5.911%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674242" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6599">AEON</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">Kumpulan Wang Persaraan (Diperbadankan)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>2,000,000</td>
+        <td>52,119,500</td>
+        <td>3.712%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674241" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5106">AXREIT</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">Kumpulan Wang Persaraan (Diperbadankan)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>76,800</td>
+        <td>129,504,590</td>
+        <td>6.396%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674237" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5212">PAVREIT</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>342,300</td>
+        <td>165,203,800</td>
+        <td>4.206%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674228" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/4863">TM</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%5BKWAP%5D">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) [KWAP]</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN) [KWAP]<br/>
+        <small class="text-muted">KWAP</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>168,200</td>
+        <td>358,422,498</td>
+        <td>9.339%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674225" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0339">CBHB</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MRS+LIM+BEE+HUA">MRS LIM BEE HUA</a></td> -->
+        <td>MRS LIM BEE HUA<br/>
+        <small class="text-muted">Lim Bee Hua</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>100,000</td>
+        <td></td>
+        <td></td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674216" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/7170">LFECORP</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+CHUAH+CHONG+EWE">MR CHUAH CHONG EWE</a></td> -->
+        <td>MR CHUAH CHONG EWE<br/>
+        <small class="text-muted">Chuah Chong Ewe</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>109,700</td>
+        <td>161,644,600</td>
+        <td>13.886%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674205" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0363">PMCK</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=ENCIK+HASSAN+BIN+HUSSAIN">ENCIK HASSAN BIN HUSSAIN</a></td> -->
+        <td>ENCIK HASSAN BIN HUSSAIN<br/>
+        <small class="text-muted">Hassan Bin Hussain</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>113,800</td>
+        <td>68,522,100</td>
+        <td>6.283%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674203" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5789">LBS</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">Kumpulan Wang Persaraan (Diperbadankan)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>414,900</td>
+        <td>115,803,926</td>
+        <td>7.561%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674193" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6033">PETGAS</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%28%22KWAP%22%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>4,000</td>
+        <td>194,815,723</td>
+        <td>9.845%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674192" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5025">AURO</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATO%27+TAN+LIK+HOUE">DATO' TAN LIK HOUE</a></td> -->
+        <td>DATO' TAN LIK HOUE<br/>
+        <small class="text-muted">Kenanga Nominees (Tempatan) Sdn Bhd pledged securities account for Tan Lik Houe</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>4,680,000</td>
+        <td>97,788,800</td>
+        <td>15.36%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674191" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/1295">PBBANK</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>62,600</td>
+        <td>1,047,890,500</td>
+        <td>5.4%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674189" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/1295">PBBANK</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></td> -->
+        <td>KUMPULAN WANG PERSARAAN (DIPERBADANKAN)<br/>
+        <small class="text-muted">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>750,000</td>
+        <td>1,047,890,500</td>
+        <td>5.4%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674189" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5037">COMPUGT</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MR+GOH+KHENG+PEOW">MR GOH KHENG PEOW</a></td> -->
+        <td>MR GOH KHENG PEOW<br/>
+        <small class="text-muted">See Thoo Chan</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>80,100</td>
+        <td>379,289,013</td>
+        <td>6.269%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674183" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/5037">COMPUGT</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=MADAM+SEE+THOO+CHAN">MADAM SEE THOO CHAN</a></td> -->
+        <td>MADAM SEE THOO CHAN<br/>
+        <small class="text-muted">See Thoo Chan</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-success">Acquired</span>
+                </td>
+        <td>80,100</td>
+        <td>787,900,740</td>
+        <td>13.022%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674182" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/0215">SLVEST</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATO%27+CHONG+CHUN+SHIONG">DATO' CHONG CHUN SHIONG</a></td> -->
+        <td>DATO' CHONG CHUN SHIONG<br/>
+        <small class="text-muted">Chong Chun Shiong</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>100,000</td>
+        <td>24,418,750</td>
+        <td>2.557%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674159" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/4022">MAXIM</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=TAN+SRI+DATUK+SERI+GAN+SEONG+LIAM">TAN SRI DATUK SERI GAN SEONG LIAM</a></td> -->
+        <td>TAN SRI DATUK SERI GAN SEONG LIAM<br/>
+        <small class="text-muted">RHB Capital Nominees (Tempatan) Sdn Bhd - Gan Seong Liam</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="">Others</span>
+                <!-- <div><small class="text-muted">Pursuant to valid acceptances received in relation to the Unconditional Mandatory Take-Over Offer</small></div> -->
+                </td>
+        <td>7,480</td>
+        <td>274,405,380</td>
+        <td>37.332%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674154" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6114">MKH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=DATUK+CHEN+FOOK+WAH">DATUK CHEN FOOK WAH</a></td> -->
+        <td>DATUK CHEN FOOK WAH<br/>
+        <small class="text-muted">Chen Choy & Sons Realty Sdn. Bhd.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>21,700,000</td>
+        <td>163,354</td>
+        <td>0.028%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674144" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6114">MKH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=CHEN+CHOY+%26+SONS+REALTY+SDN.+BHD.">CHEN CHOY & SONS REALTY SDN. BHD.</a></td> -->
+        <td>CHEN CHOY & SONS REALTY SDN. BHD.<br/>
+        <small class="text-muted">Chen Choy & Sons Realty Sdn. Bhd.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>21,700,000</td>
+        <td>65,880,658</td>
+        <td>11.422%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674143" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6114">MKH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=TAN+SRI+DATUK+CHEN+LOK+LOI">TAN SRI DATUK CHEN LOK LOI</a></td> -->
+        <td>TAN SRI DATUK CHEN LOK LOI<br/>
+        <small class="text-muted">Chen Choy & Sons Realty Sdn. Bhd.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>21,700,000</td>
+        <td>10,602,844</td>
+        <td>1.838%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674140" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>2026-06-08</td>
+        <td><a href="/v2/stocks/view/6114">MKH</a></td>
+        <!-- <td><a href="/v2/shareholdings?name=TAN+SRI+DATO%27+CHEN+KOOI+CHIEW+%40+CHENG+NGI+CHONG">TAN SRI DATO' CHEN KOOI CHIEW @ CHENG NGI CHONG</a></td> -->
+        <td>TAN SRI DATO' CHEN KOOI CHIEW @ CHENG NGI CHONG<br/>
+        <small class="text-muted">Chen Choy & Sons Realty Sdn. Bhd.</small>
+        </td>
+        <td>2026-06-05</td>
+        <td><span class="btn-sm btn-danger">Disposed</span>
+                </td>
+        <td>21,700,000</td>
+        <td>1,277,080</td>
+        <td>0.221%</td>
+        <td>
+            <a href="https://disclosure.bursamalaysia.com/FileAccess/viewHtml?e=3674138" target="_blank">
+                <span class="fa fa-book"></span>
+            </a>
+        </td>
+    </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="cards-shareholdings" class="col-sm d-block d-md-none">
+            <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+WONG+THEAN+SOON">MR WONG THEAN SOON</a></div> -->
+                <div class="col-9">MR WONG THEAN SOON</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0138">ZETRIX</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">800,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATO%27+SRI+ANDREW+TAN+JUN+SUAN">DATO' SRI ANDREW TAN JUN SUAN</a></div> -->
+                <div class="col-9">DATO' SRI ANDREW TAN JUN SUAN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/2429">TANCO</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">590,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATO%27+SRI+ANDREW+TAN+JUN+SUAN">DATO' SRI ANDREW TAN JUN SUAN</a></div> -->
+                <div class="col-9">DATO' SRI ANDREW TAN JUN SUAN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/2429">TANCO</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">600,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATUK+SERI+KENNETH+H%27NG+BAK+TEE">DATUK SERI KENNETH H'NG BAK TEE</a></div> -->
+                <div class="col-9">DATUK SERI KENNETH H'NG BAK TEE</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/3247">GUH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">592,600</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATO%27+TAN+LIK+HOUE">DATO' TAN LIK HOUE</a></div> -->
+                <div class="col-9">DATO' TAN LIK HOUE</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5025">AURO</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">4,680,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=QUAH+CHOON+WAH">QUAH CHOON WAH</a></div> -->
+                <div class="col-9">QUAH CHOON WAH</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0108">N2N</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="">Transferred</span></div>
+                <div class="col-3 text-right">140,600</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-08</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+CHUA+YONG+HAUP">MR CHUA YONG HAUP</a></div> -->
+                <div class="col-9">MR CHUA YONG HAUP</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/7089">LIIHEN</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">100,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+WONG+THEAN+SOON">MR WONG THEAN SOON</a></div> -->
+                <div class="col-9">MR WONG THEAN SOON</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0138">ZETRIX</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">756,400</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5878">KPJ</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">2,000,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5878">KPJ</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">17,200</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MAJUCO+MOTOR+SDN.+BHD.">MAJUCO MOTOR SDN. BHD.</a></div> -->
+                <div class="col-9">MAJUCO MOTOR SDN. BHD.</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0220">OVH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">22,700</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=PUAN+SHARIFAH+NUR+FARESHA+BINTI+WAN+ABDUL+KHALEG">PUAN SHARIFAH NUR FARESHA BINTI WAN ABDUL KHALEG</a></div> -->
+                <div class="col-9">PUAN SHARIFAH NUR FARESHA BINTI WAN ABDUL KHALEG</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0220">OVH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">22,700</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%28%22KWAP%22%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/1155">MAYBANK</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">521,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+YEOH+CHEE+MIN">MR YEOH CHEE MIN</a></div> -->
+                <div class="col-9">MR YEOH CHEE MIN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0317">EPB</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">200,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MADAM+OOI+KIM+KEW">MADAM OOI KIM KEW</a></div> -->
+                <div class="col-9">MADAM OOI KIM KEW</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0317">EPB</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">200,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/7113">TOPGLOV</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">1,211,800</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+WIE+HOCK+KIONG">MR WIE HOCK KIONG</a></div> -->
+                <div class="col-9">MR WIE HOCK KIONG</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/8311">PESONA</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">260,500</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5348">ORKIM</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">117,200</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KOMBINASI+EMAS+SDN+BHD">KOMBINASI EMAS SDN BHD</a></div> -->
+                <div class="col-9">KOMBINASI EMAS SDN BHD</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/8311">PESONA</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">260,500</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5285">SDG</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">500,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+GAN+YEE+HIN">MR GAN YEE HIN</a></div> -->
+                <div class="col-9">MR GAN YEE HIN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0045">SSB8</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">421,400</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DETIK+RIA+SDN+BHD">DETIK RIA SDN BHD</a></div> -->
+                <div class="col-9">DETIK RIA SDN BHD</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5250">SEM</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">3,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/7160">PENTA</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">68,300</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=CHEN+CHOY+%26+SONS+REALTY+SDN.+BHD.">CHEN CHOY & SONS REALTY SDN. BHD.</a></div> -->
+                <div class="col-9">CHEN CHOY & SONS REALTY SDN. BHD.</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5319">MKHOP</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">0</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+SIOW+CHIN+HOW">MR SIOW CHIN HOW</a></div> -->
+                <div class="col-9">MR SIOW CHIN HOW</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0298">WENTEL</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">200,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DETIK+RIA+SDN+BHD">DETIK RIA SDN BHD</a></div> -->
+                <div class="col-9">DETIK RIA SDN BHD</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/3239">BJASSET</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">725,500</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/4197">SIME</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">2,579,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/4197">SIME</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">220,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/7277">DIALOG</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">347,300</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=LEMBAGA+TABUNG+AMANAH+WARISAN+NEGERI+TERENGGANU">LEMBAGA TABUNG AMANAH WARISAN NEGERI TERENGGANU</a></div> -->
+                <div class="col-9">LEMBAGA TABUNG AMANAH WARISAN NEGERI TERENGGANU</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5204">AWANTEC</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">50,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6599">AEON</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">2,000,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5106">AXREIT</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">76,800</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5212">PAVREIT</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">342,300</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%5BKWAP%5D">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) [KWAP]</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) [KWAP]</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/4863">TM</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">168,200</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MRS+LIM+BEE+HUA">MRS LIM BEE HUA</a></div> -->
+                <div class="col-9">MRS LIM BEE HUA</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0339">CBHB</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">100,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+CHUAH+CHONG+EWE">MR CHUAH CHONG EWE</a></div> -->
+                <div class="col-9">MR CHUAH CHONG EWE</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/7170">LFECORP</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">109,700</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=ENCIK+HASSAN+BIN+HUSSAIN">ENCIK HASSAN BIN HUSSAIN</a></div> -->
+                <div class="col-9">ENCIK HASSAN BIN HUSSAIN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0363">PMCK</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">113,800</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5789">LBS</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">414,900</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29+%28%22KWAP%22%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN) ("KWAP")</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6033">PETGAS</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">4,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATO%27+TAN+LIK+HOUE">DATO' TAN LIK HOUE</a></div> -->
+                <div class="col-9">DATO' TAN LIK HOUE</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5025">AURO</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">4,680,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/1295">PBBANK</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">62,600</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=KUMPULAN+WANG+PERSARAAN+%28DIPERBADANKAN%29">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</a></div> -->
+                <div class="col-9">KUMPULAN WANG PERSARAAN (DIPERBADANKAN)</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/1295">PBBANK</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">750,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MR+GOH+KHENG+PEOW">MR GOH KHENG PEOW</a></div> -->
+                <div class="col-9">MR GOH KHENG PEOW</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5037">COMPUGT</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">80,100</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=MADAM+SEE+THOO+CHAN">MADAM SEE THOO CHAN</a></div> -->
+                <div class="col-9">MADAM SEE THOO CHAN</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/5037">COMPUGT</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-success">Acquired</span></div>
+                <div class="col-3 text-right">80,100</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATO%27+CHONG+CHUN+SHIONG">DATO' CHONG CHUN SHIONG</a></div> -->
+                <div class="col-9">DATO' CHONG CHUN SHIONG</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/0215">SLVEST</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">100,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=TAN+SRI+DATUK+SERI+GAN+SEONG+LIAM">TAN SRI DATUK SERI GAN SEONG LIAM</a></div> -->
+                <div class="col-9">TAN SRI DATUK SERI GAN SEONG LIAM</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/4022">MAXIM</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="">Others</span></div>
+                <div class="col-3 text-right">7,480</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=DATUK+CHEN+FOOK+WAH">DATUK CHEN FOOK WAH</a></div> -->
+                <div class="col-9">DATUK CHEN FOOK WAH</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6114">MKH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">21,700,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=CHEN+CHOY+%26+SONS+REALTY+SDN.+BHD.">CHEN CHOY & SONS REALTY SDN. BHD.</a></div> -->
+                <div class="col-9">CHEN CHOY & SONS REALTY SDN. BHD.</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6114">MKH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">21,700,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=TAN+SRI+DATUK+CHEN+LOK+LOI">TAN SRI DATUK CHEN LOK LOI</a></div> -->
+                <div class="col-9">TAN SRI DATUK CHEN LOK LOI</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6114">MKH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">21,700,000</div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-6">2026-06-08</div>
+                <div class="col-6 text-right"><span class="text-muted">on</span> 2026-06-05</div>
+            </div>
+
+            <div class="row mt-2 mb-2">
+                <!-- <div class="col-9"><a href="/v2/shareholdings?name=TAN+SRI+DATO%27+CHEN+KOOI+CHIEW+%40+CHENG+NGI+CHONG">TAN SRI DATO' CHEN KOOI CHIEW @ CHENG NGI CHONG</a></div> -->
+                <div class="col-9">TAN SRI DATO' CHEN KOOI CHIEW @ CHENG NGI CHONG</div>
+                <div class="col-3"><strong><a href="/v2/stocks/view/6114">MKH</a></strong></div>
+            </div>
+
+            <div class="row">
+                <div class="col-3"><span class="btn-sm btn-danger">Disposed</span></div>
+                <div class="col-3 text-right">21,700,000</div>
+            </div>
+
+        </div>
+    </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col">
+            <a id="next" class="btn btn-light btn-block" data-page="2">
+                Next
+                <div class="loader-small mx-auto" style="visibility: hidden"></div>
+            </a>
+        </div>
+        <div class="col-3"></div>
+    </div>
+
+
+</div>
+
+<script>
+    $(function() {
+        $("#next").click(function(){
+
+            var $a = $(this);
+            var $page = $a.data('page');
+            $a.find('.loader-small').css('visibility', 'visible');
+
+            $.get("/v2/shareholdings/index?page=" + $page + "&name=&date=&code=", function(data) {
+                $loading = false;
+                $("div#table-shareholdings tbody").append(data.table_html);
+                $("div#cards-shareholdings").append(data.cards_html);
+
+                $page++;
+                $a.data('page', $page);
+                $a.attr('data-page', $page);
+
+                $a.find('.loader-small').css('visibility', 'hidden');
+
+                if (data.count > 0)
+                {
+                    $a.show();
+                } else {
+                    $a.hide();
+                }
+            }, 'json');
+
+        });
+    })
+</script>            </div>
+        </div>
+
+                        <footer class="footer" id="footer">
+    <div class="footer_container">
+        <div class="wrapper-disabled container">
+
+            <div class="row">
+
+                <div class="col-6 col-md">
+                    <h4>Announcements</h4>
+                    <p><a href="/v2/ipos" target="_blank">IPO</a></p>
+                    <p><a href="/v2/shareholdings" target="_blank">Shareholdings</a></p>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>Discussion</h4>
+                    <p><a href="/v2/discussion"><span class="fa fa-comment"></span> Comments</a></p>
+                    <p><a href="/v2/pages/posting_guidelines"><span class="fa fa-info-circle"></span> Guidelines</a></p>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>About</h4>
+                    <p><a href="/v2/.."><i class="fa fa-home"></i> Home</a></p>
+                    <p><a href="/v2/contact"><i class="fa fa-envelope"></i> Contact Us</a></p>
+                    <p><a href="/v2/pages/about"><i class="fa fa-info-circle"></i> About us</a></p>
+                    <h4>Follow us</h4>
+                    <p><a href="https://fb.com/klsescreener" target="_blank"><span class="fab fa-facebook-square"></span> Facebook</a></p>
+                </div>
+
+                <div class="col-6 col-md">
+                    <p>Also available on</p>
+
+                    <p><a href="https://play.google.com/store/apps/details?id=net.neobie.klse" target="_blank">
+                            <img alt="Android app on Google Play" src="https://play.google.com/intl/en_gb/badges/images/badge_new.png" title="Android app on Google Play" width="129" />
+                        </a>
+
+                    <p><a href="https://itunes.apple.com/my/app/klse-screener/id593048150"  target="_blank"><img src="//cdn.klsescreener.com/v2/../themes/images/app_store.png" alt="iOS App on AppStore" width="129"></a></p>
+
+                    <p><a href="https://appgallery.cloud.huawei.com/marketshare/app/C101209183" target="_blank"><img src="//cdn.klsescreener.com/v2/../themes/images/20200220_AppGallery_Badge_Black.png" alt="Huawei AppGallery" width="129"></a></p>
+
+                    <p><a href="http://www.windowsphone.com/ms-my/store/app/klse-screener/d92bdf04-adf1-46f8-ada3-f2e62cb974dc"  target="_blank"><img src="/v2/../themes/images/154x40_WPS_Download_cyan.png" alt="WP8 App on Windows Phone Store" width="129"></a></p>
+
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!--        <div id="skyscraper" style="width:160px;height:600px;background-color:#efefef;display:none;">-->
+<!--            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
+<!--            <ins class="adsbygoogle"-->
+<!--                 style="display:inline-block;width:160px;height:600px"-->
+<!--                 data-ad-client="ca-pub-3964569253220025"-->
+<!--                 data-ad-slot="4641395135"></ins>-->
+<!--            <script>-->
+<!--                (adsbygoogle = window.adsbygoogle || []).push({});-->
+<!--            </script>-->
+<!--        </div>-->
+    
+    <div id="modal-container">
+
+
+
+    </div>
+
+    <div class="footer_bottom">
+        <div class="wrapper-disabled">
+            <small>
+            &copy; KLSE Screener 2026 | Neobie Enterprise
+            |
+            <span><a href="/v2/pages/terms">Terms of Use</a></span>
+            |
+            <span><a href="/v2/pages/privacy">Privacy Policy</a></span>
+            </small>
+        </div>
+
+    </div>
+</footer>
+        <div id="notify">
+            <div class="ads" style="width:1px;">
+            </div>
+        </div>
+
+
+        <script>
+            $(function() {
+                if (localStorage.getItem("darkSwitch") !== null && localStorage.getItem("darkSwitch") === "dark") {
+                    setCookie("darkSwitch", "dark", 30);
+                    $(".table-theme").addClass('table-dark');
+                } else {
+                    setCookie("darkSwitch", "", 0);
+                    $(".table-theme").removeClass('table-dark');
+                }
+            });
+        </script>
+
+        <script>
+            $(function() {
+                var $notifications_loaded = false;
+                $("#icon_notification").click(function() {
+                    if ($notifications_loaded) {
+                        console.log('loaded');
+                        return;
+                    }
+
+                    $.get('/v2/notifications', function(data) {
+                        $("#icon_notification span.num").remove();
+                        $("#notification-scroll").html(data.html);
+                        $notifications_loaded = true;
+
+                        $.ajax({
+                            url: "/v2/notifications/update_notif_last_check",
+                            method: "PUT"
+                        });
+                    }, 'json');
+                });
+            });
+        </script>
+
+                <script>
+            $(function() {
+                // $.post('/v2/users/device', {adblock: window.adblock}, function(data) {
+                // }, 'json');
+            });
+        </script>
+        
+                <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/dark-mode-switch.js?5"></script>        <script>
+
+        </script>
+
+
+        <div id="fb-root"></div>
+        <script>
+            (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s);
+                js.id = id;
+                js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=690278390997228";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        </script>
+
+                <script>
+            lazyLoadInstance.update();
+            $(document).ajaxSuccess(function(event, xhr, settings) {
+                lazyLoadInstance.update();
+            });
+            
+            // Fix for navbar/content gap issue at different zoom levels
+            function adjustContentPosition() {
+                var navbarHeight = $('.navbar').outerHeight() || 56; // Default to 56px if not calculated
+                
+                // For mobile devices, use a slightly different approach
+                // if ($(window).width() < 768) {
+                //     // On mobile, ensure no gap exists
+                //     $('#content').css({
+                //         'margin-top': '-1px',
+                //         'padding-top': '0'
+                //     });
+                //     // $('body').css('padding-top', (navbarHeight - 1) + 'px');
+                // } else {
+                //     // On desktop, use standard approach
+                //     $('#content').css('margin-top', '0');
+                //     // $('body').css('padding-top', navbarHeight + 'px');
+                // }
+                
+                // For specific zoom level issues
+                var zoomLevel = Math.round((window.outerWidth / window.innerWidth) * 100);
+                if (zoomLevel > 100) {
+                    // If zoomed in, make sure there's no gap
+                    $('#content').css('margin-top', '-1px');
+                }
+            }
+            
+            // Run on initial load
+            $(document).ready(function() {
+                adjustContentPosition();
+                
+                // Additional check after a short delay to handle any rendering delays
+                setTimeout(adjustContentPosition, 100);
+            });
+            
+            // Run on window resize to handle zoom changes
+            $(window).resize(function() {
+                // Debounce to prevent excessive calls
+                clearTimeout(window.adjustContentTimeout);
+                window.adjustContentTimeout = setTimeout(function() {
+                    adjustContentPosition();
+                }, 250);
+            });
+            
+            // Also run when the page is shown again (important for mobile browsers)
+            window.addEventListener('pageshow', adjustContentPosition);
+        </script>
+
+        <script type="text/javascript" src="//cdn.klsescreener.com/v2/js/prebid-ads.js"></script>
+
+        <script>
+            function isBrave() {
+                if (window.navigator.brave != undefined) {
+                    if (window.navigator.brave.isBrave.name == "isBrave") {
+                    return true;
+                    } else {
+                    return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            
+                        if (isBrave()) {
+                gtag('set', 'user_properties', {
+                    isBrave: '1',
+                });
+            } else {
+                gtag('set', 'user_properties', {
+                    isBrave: '0',
+                });
+            }
+                        
+        </script>
+
+        <script type="text/javascript">
+            console.log("_ad", getCookie("_ad") )
+            if ( getCookie("_ad") != "" && getCookie("_ad") != "0" ) {
+                document.getElementById('aLegMYzGHfnR').style.display = 'block';
+            }
+
+        </script>
+        <script>
+            // $(function() {
+            //     var adblock = 0;
+            //     if (window.canRunAds === undefined) {
+            //         adblock = 1;
+            //     }
+            //     checkAdBlock(adblock);
+            //     // console.log("adblock " + adblock);
+            // });
+            
+            //
+            // $(document).ready(function(){
+            //     alert($(".ads").css('display'));
+            //     if($("#notify").width() > 0) {
+            //         alert('No AdBlocker');
+            //     } else {
+            //         alert('AdBlocker Detected');
+            //     }
+            // });
+        </script>
+
+        <script  type="text/javascript">
+            // $(function() {
+            //     if (!isBrave()) {
+            //         // window.adblock = 0;
+            //         window.onload = function () { //not working on brave
+            //             setTimeout(function () {
+            //                 var ad = document.querySelector("ins.adsbygoogle");
+            //                 var adblock = 0;
+            //                 if (ad && ad.innerHTML.replace(/\s/g, "").length == 0) {
+            //                     adblock = 1;
+            //                     // window.adblock=1;
+            //                 }
+
+            //                 alert(adblock);
+            //                 checkAdBlock(adblock);
+            //             }, 0);
+            //         }
+            //     }
+            // });
+
+        </script>
+
+        <script>
+
+			async function getFullMachineID() {
+    try {
+        // --- HELPER 1: Canvas Signature ---
+        const getCanvasSignature = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = "top";
+            ctx.font = "14px 'Arial'";
+            ctx.fillText("KLSE_PRO_2026_CHECK", 2, 2);
+            return canvas.toDataURL();
+        };
+
+        // --- HELPER 2: GPU Renderer ---
+        const getGPU = () => {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            const debugInfo = gl?.getExtension('WEBGL_debug_renderer_info');
+            return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'unknown';
+        };
+
+        // 1. Fetch IP (With a strict 2-second timeout)
+        const response = await fetch('https://api64.ipify.org?format=json', { 
+            signal: AbortSignal.timeout(10000) 
+        });
+        if (!response.ok) return null;
+        const ipData = await response.json();
+
+        // 2. Gather Ingredients
+        const ingredients = {
+            ip: ipData.ip,
+            ua: navigator.userAgent,
+            canvas: getCanvasSignature(), // Successfully called helper
+            gpu: getGPU(),               // Successfully called helper
+            cores: navigator.hardwareConcurrency || 0,
+            mem: navigator.deviceMemory || 0,
+            screen: `${screen.width}x${screen.height}`
+        };
+
+        // 3. Generate SHA-256 Hash
+        const dataString = JSON.stringify(ingredients);
+        const encoder = new TextEncoder();
+        const data = encoder.encode(dataString);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        
+        const machineID = Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+
+        return { machineID, ingredients };
+
+    } catch (error) {
+        // console.error("MachineID Generation Failed:", error);
+        return null; // Return null so the $.post doesn't fire
+    }
+}
+
+            var checkAdBlock = function(adblock) {
+                if (adblock) {
+                    // adblocker detected, show fallback
+                    document.getElementById('aLegMYzGHfnR').style.display = 'block';
+                    adblock = 1;
+                                            // ga('send', 'event', 'adblock', 'enable', 1);
+                        
+                        var $ad = getCookie("_ad") === "" ? 0 : getCookie("_ad");
+                        setCookie("_ad", ++$ad, 7);
+                        var mod = 3;
+                                                if ($ad % mod == 0) {
+                            // alert("Our website is made possible by displaying non-intrusive online advertisements to our visitors.\n" +
+                            //     "Please consider supporting us by disabling or pausing your ad blocker.");
+                        }
+                        // _gaq.push(['_setCustomVar',
+                        //     1,
+                        //     'Adblock',
+                        //     '1',
+                        // ]);
+                    
+                    getFullMachineID().then(result => {
+						// if (result == null) return;
+						const muid = (result && result.machineID) ? result.machineID : '';
+						console.log("device", muid);
+																		$.post('/v2/users/device', {
+							adblock: adblock, 
+							brave: isBrave() ? 1 : 0, 
+							muid: muid // The actual SHA-256 hash
+						}, function(data) {
+							console.log("Device linked successfully.");
+						}, 'json');
+											});
+
+                                        gtag('set', 'user_properties', {
+                        adblock: '1',
+                        browserBrave: window.navigator.brave ? 1 : 0,
+                    });
+                    
+                } else {
+                    //alert('adblock not detected');
+                    document.getElementById('aLegMYzGHfnR').style.display = 'none';
+                    adblock = 0;
+                    setCookie("_ad", 0, 7);
+                                            gtag('set', 'user_properties', {
+                            adblock: '0'
+                        });
+                    					//
+					 getFullMachineID().then(result => {
+                        // if (result == null) return;
+						const muid = (result && result.machineID) ? result.machineID : '';
+						console.log("device", muid);
+											$.post('/v2/users/device', {
+							adblock: adblock, 
+							brave: isBrave() ? 1 : 0, 
+							muid: muid // The actual SHA-256 hash
+						}, function(data) {
+							console.log("Device linked successfully.");
+						}, 'json');
+										});
+                }
+            }
+
+        if (isBrave() || true)
+        {
+            document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                var adsElements = document.querySelectorAll('ins.adsbygoogle');
+
+                if (adsElements.length > 0) {
+                    // console.log("Found adsbygoogle elements.");
+
+                    var adblock = false;
+                    var ad = document.querySelector("ins.adsbygoogle");
+                    if (ad && ad.innerHTML.replace(/\s/g, "").length == 0) {
+                        adblock = true;
+                    }
+
+                    adsElements.forEach(function(ad) {
+                        if (ad.innerHTML.replace(/\s/g, "").length > 0) {
+                            adblock = false; // If any ad has non-empty innerHTML, set adblock to false
+                        }
+                    });
+
+                    var adsElement = document.querySelector('ins.adsbygoogle[data-adsbygoogle-status]');
+                    if (adsElement == null) {
+                        // console.log("No adsbygoogle element with data-adsbygoogle-status attribute found.");
+                        adblock = true;
+                    }
+
+                    adsElements.forEach(function(adElement) {
+                        var iframe = adElement.querySelector('iframe');
+
+                        if (iframe) {
+                            var iframeWidth = iframe.style.width;
+                            var iframeHeight = iframe.style.height;
+
+                            if (iframeWidth === '1px' || iframeHeight === '1px') {
+                                console.log("The iframe inside <ins> has an inline width or height of 1px.");
+                                adblock = true;
+                                document.getElementById('aLegMYzGHfnR').style.display = 'block';
+                            } else {
+                                console.log("The iframe inside <ins> has an inline width and height different from 1px.");
+                            }
+                        }
+                    });
+                    
+                    if (adblock) {
+                        checkAdBlock(1);
+
+                        // if not realtime user
+                                                    // var mod = 3;
+                            // var seconds = 8;
+                            var mod = 3;
+                            var seconds = 5;
+                                                    if ( getCookie("_ad") % mod == 2) {
+                            var ad = getCookie("_ad") == "" ? 0 : getCookie("_ad");
+                            setCookie("_ad", --ad, 7);
+                            var message = `<h3>Hey there!</h3><p>We noticed that you\'re using an ad blocker. While we understand the desire for a seamless browsing experience, we kindly ask you to consider turning it off for our site. Ads help us keep our content free and accessible to everyone, supporting the work we do. Thank you for your understanding and support!
+                                                        <p>
+                            <a href="/v2/plans/index/index" target="_blank"><img src="//cdn.klsescreener.com/v2/../img/realtime-1080.png" style="max-width:100%"></a>
+                            <figcaption  class="text-center"><a href="/v2/plans/index/index" target="_blank">Check out the real-time plans</a></figcaption>
+                            </p>
+                                                        `;
+                            var dialog = bootbox.dialog({
+                                message: message,
+                                size: 'large',
+                                closeButton: false,
+                                onEscape: false,
+                                buttons: {
+                                    ok: {
+                                        label: "I'm an OK button!",
+                                        className: 'btn-info',
+                                        callback: function() {
+                                            console.log('Custom OK clicked');
+                                        }
+                                    }
+                                }
+                            });
+
+                            $(".bootbox-accept").attr("disabled", "disabled");
+                            $(".bootbox-accept").text("Close in " + seconds);
+                            var countdown = setInterval(function(){
+                                seconds--;
+                                // $('#countdown').text(seconds);
+                                $('.bootbox-accept').text("Close in " + seconds);
+                                if(seconds <= 0){
+                                    $(".bootbox-accept").removeAttr("disabled");
+                                    $('.bootbox-accept').text('Close');
+                                    clearInterval(countdown);
+                                    setCookie("_ad", ++ad, 7);
+                                                                    }
+                                
+                            }, 1000);
+                        }
+                        
+                    } else {
+                        checkAdBlock(0);
+                    }
+                } else {
+                    // console.log("No adsbygoogle elements found.");
+                }
+            }, 2000)
+            
+        });
+        }
+       
+        </script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a08d4bf1afe19a8c',t:'MTc4MDk3ODMzMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+
+</html>

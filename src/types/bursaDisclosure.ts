@@ -1,4 +1,5 @@
 /** Bursa Malaysia 開示データ（KLSE Screener 経由・Phase 1） */
+import type { BursaEarningsCallAnalysis } from './bursaEarningsCall';
 
 export type BursaDisclosureSource = 'klse_screener' | 'none';
 
@@ -685,6 +686,10 @@ export type BursaMaterialItem = {
   sentiment: BursaMaterialSentiment;
   title: string;
   score: number;
+  /** UI表示用スコア文字列（例: +12） */
+  scoreJa?: string;
+  /** 詳細評価（Phase Intelligence 材料用） */
+  detailJa?: string;
   reasonJa: string;
   publishedAt: string | null;
   url: string | null;
@@ -740,6 +745,17 @@ export type BursaStockMaterialAnalysis = {
   sourceStatus: Record<BursaMaterialSource, BursaMaterialSourceStatus>;
   newsApiDiagnostics?: BursaNewsApiDiagnostics;
   redditFetchDiagnostics?: BursaRedditFetchDiagnostics;
+  /** Phase13 — Earnings Call 解析（optional） */
+  earningsCall?: BursaEarningsCallAnalysis | null;
+  /** Phase14 — Analyst Consensus（optional） */
+  analystConsensus?: import('./bursaAnalystConsensus').BursaAnalystConsensusAnalysis | null;
+  /** Phase15 — Insider Trading（optional） */
+  insiderTrading?: import('./bursaInsiderTrading').BursaInsiderTradingAnalysis | null;
+  institutionalOwnership?: import('./bursaInstitutionalOwnership').BursaInstitutionalOwnershipAnalysis | null;
+  institutionalTrend?: import('./bursaInstitutionalTrend').BursaInstitutionalTrendAnalysis | null;
+  historicalOwnership?: import('./bursaHistoricalOwnership').BursaHistoricalOwnershipAnalysis | null;
+  /** Phase16.7 — Fixed Institutional Basket（optional） */
+  fixedInstitutionalBasket?: import('./bursaFixedInstitutionalBasket').BursaFixedInstitutionalBasketAnalysis | null;
   fetchedFields: string[];
   missingFields: string[];
 };
