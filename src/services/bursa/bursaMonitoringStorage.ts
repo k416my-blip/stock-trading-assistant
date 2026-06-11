@@ -8,6 +8,7 @@ import type {
   BursaMonitoringSnapshot,
   BursaWatchlistEntry,
 } from '../../types/bursaDisclosure';
+import { normalizeMonitoringSnapshot } from './bursaPayloadNormalize';
 
 const MAX_ALERT_HISTORY = 200;
 const MAX_WATCHLIST = 50;
@@ -15,8 +16,15 @@ const MAX_WATCHLIST = 50;
 export async function readMonitoringSnapshot(): Promise<BursaMonitoringSnapshot | null> {
   try {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.bursaMonitoringSnapshot);
-    if (!raw) return null;
-    return JSON.parse(raw) as BursaMonitoringSnapshot;
+    if (!raw || raw.trim() === '') return null;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      await AsyncStorage.removeItem(STORAGE_KEYS.bursaMonitoringSnapshot);
+      return null;
+    }
+    return normalizeMonitoringSnapshot(parsed);
   } catch {
     return null;
   }

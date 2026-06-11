@@ -20,14 +20,14 @@ export async function fetchBursaPeerSnapshot(stockCode: string): Promise<BursaPe
   const latestFy = annual[0] ?? null;
 
   let roePct: number | null = null;
-  for (const q of quarterly.quarterlyHistory) {
+  for (const q of quarterly.quarterlyHistory ?? []) {
     if (q.quarter === '4' && q.roePct != null) {
       roePct = q.roePct;
       break;
     }
   }
   if (roePct == null) {
-    const withRoe = quarterly.quarterlyHistory.find((q) => q.roePct != null);
+    const withRoe = (quarterly.quarterlyHistory ?? []).find((q) => q.roePct != null);
     roePct = withRoe?.roePct ?? null;
   }
 
@@ -58,14 +58,14 @@ export function peerSnapshotFromBundle(bundle: BursaDisclosureBundle): BursaPeer
   const latestFy = annual[0] ?? null;
 
   let roePct: number | null = null;
-  for (const q of quarterly.quarterlyHistory) {
+  for (const q of quarterly.quarterlyHistory ?? []) {
     if (q.quarter === '4' && q.roePct != null) {
       roePct = q.roePct;
       break;
     }
   }
   if (roePct == null) {
-    roePct = quarterly.quarterlyHistory.find((q) => q.roePct != null)?.roePct ?? null;
+    roePct = (quarterly.quarterlyHistory ?? []).find((q) => q.roePct != null)?.roePct ?? null;
   }
 
   const status: BursaPeerSnapshot['status'] =

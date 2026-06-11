@@ -84,8 +84,8 @@ export async function buildBursaPhase7Analysis(input: {
 
   const universeBundles = bundles.filter((b) => universeCodes.includes(b.stockCode));
   const phase6 = buildBursaPhase6FromBundles({ bundles: universeBundles, holdings });
-  fetchedFields.push(...phase6.fetchedFields);
-  missingFields.push(...phase6.missingFields);
+  fetchedFields.push(...(phase6.fetchedFields ?? []));
+  missingFields.push(...(phase6.missingFields ?? []));
 
   const rankedByCode = buildFullRankedMap(bundles, snapshots);
   const universeScoredCount = phase6.scoredCount;

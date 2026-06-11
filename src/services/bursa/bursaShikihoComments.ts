@@ -70,7 +70,7 @@ export function buildBursaShikihoComments(input: {
 
   let dividendJa = MISSING;
   const dy = input.bundle.profile.dividendYieldPct;
-  const divCount = input.bundle.dividend.history.length;
+  const divCount = (input.bundle.dividend.history ?? []).length;
   if (dy != null) {
     dividendJa = `配当利回り ${dy.toFixed(2)}% · KLSE配当履歴 ${divCount}件`;
   } else if (divCount > 0) {

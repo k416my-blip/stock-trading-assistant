@@ -63,7 +63,7 @@ function assemblePhase8(input: {
     holdings: input.holdings,
   });
 
-  const allRanked = [...phase6.rankedTop100];
+  const allRanked = [...(phase6.rankedTop100 ?? [])];
   const phase5ByCode = buildPhase5Map(input.bundles, allRanked, snapshots);
 
   const buyTop10 = buildBuyTop10({ ranked: allRanked, phase5ByCode });
@@ -81,8 +81,8 @@ function assemblePhase8(input: {
     primaryAction,
   });
 
-  const fetchedFields = [...input.fetchedFields];
-  const missingFields = [...input.missingFields];
+  const fetchedFields = [...(input.fetchedFields ?? [])];
+  const missingFields = [...(input.missingFields ?? [])];
 
   if (buyTop10.length > 0) fetchedFields.push('phase8.buyTop10');
   else missingFields.push('phase8.buyTop10');

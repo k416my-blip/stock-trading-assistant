@@ -73,9 +73,9 @@ export function scoreBySource(items: BursaMaterialItem[]): Record<BursaMaterialS
 
 export function buildSourceScoreBreakdown(stock: BursaStockMaterialAnalysis): SourceScoreRow[] {
   const items = [
-    ...stock.positiveMaterials,
-    ...stock.negativeMaterials,
-    ...stock.neutralMaterials,
+    ...(stock.positiveMaterials ?? []),
+    ...(stock.negativeMaterials ?? []),
+    ...(stock.neutralMaterials ?? []),
   ];
   const bySource = scoreBySource(items);
   const order: BursaMaterialSource[] = [
@@ -97,14 +97,15 @@ export function buildSourceScoreBreakdown(stock: BursaStockMaterialAnalysis): So
 }
 
 export function computeMaterialDataQuality(
-  sourceStatus: Record<BursaMaterialSource, BursaMaterialSourceStatus>,
+  sourceStatus: Record<BursaMaterialSource, BursaMaterialSourceStatus> | null | undefined,
 ): MaterialDataQuality {
+  const status = sourceStatus ?? ({} as Record<BursaMaterialSource, BursaMaterialSourceStatus>);
   const has = {
-    bursa: isSourceConnected(sourceStatus.bursa_announcement),
-    rss: isSourceConnected(sourceStatus.rss),
-    news: isSourceConnected(sourceStatus.news_api),
-    x: isSourceConnected(sourceStatus.x),
-    reddit: isSourceConnected(sourceStatus.reddit),
+    bursa: isSourceConnected(status.bursa_announcement),
+    rss: isSourceConnected(status.rss),
+    news: isSourceConnected(status.news_api),
+    x: isSourceConnected(status.x),
+    reddit: isSourceConnected(status.reddit),
   };
 
   const parts: string[] = [];

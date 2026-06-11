@@ -62,7 +62,7 @@ export function extractBursaDerivedMetrics(
         ? marketCap / profile.sharesOutstanding
         : null;
 
-  const completedAnnual = quarterly.annualRecords.filter((r) => {
+  const completedAnnual = (quarterly.annualRecords ?? []).filter((r) => {
     const y = calendarYearFromFinancialLabel(r.financialYear);
     if (y == null) return false;
     return r.revenue != null && r.netProfit != null && r.revenue > 1_000_000_000;
@@ -120,7 +120,7 @@ export function extractBursaDerivedMetrics(
   const dividendContinuityYears =
     latestYear != null ? countConsecutiveDividendYears(divMap, latestYear) : null;
 
-  if (dividendContinuityYears === 0 && dividend.history.length > 0) {
+  if (dividendContinuityYears === 0 && (dividend.history ?? []).length > 0) {
     /* 配当履歴があれば最低1年 */
   }
 
@@ -135,11 +135,11 @@ export function extractBursaDerivedMetrics(
     dividendContinuityYears:
       dividendContinuityYears != null && dividendContinuityYears > 0
         ? dividendContinuityYears
-        : dividend.history.filter((d) => d.amountPerShare != null && d.amountPerShare > 0).length > 0
+        : (dividend.history ?? []).filter((d) => d.amountPerShare != null && d.amountPerShare > 0).length > 0
           ? Math.min(
               5,
               new Set(
-                dividend.history
+                (dividend.history ?? [])
                   .map((d) => calendarYearFromFinancialLabel(d.financialYear))
                   .filter((y): y is number => y != null),
               ).size,
@@ -194,7 +194,7 @@ export function computeBursaDimensionScores(
     if (derived.profitMarginPct != null) {
       parts.push(Math.max(0, Math.min(100, Math.round(derived.profitMarginPct * 2.5 + 20))));
     }
-    const eps = bundle.quarterly.annualRecords[0]?.eps ?? bundle.quarterly.latestQuarter?.eps;
+    const eps = (bundle.quarterly.annualRecords ?? [])[0]?.eps ?? bundle.quarterly.latestQuarter?.eps;
     if (eps != null && eps > 0) {
       parts.push(Math.max(0, Math.min(100, Math.round(Math.log10(eps + 1) * 25))));
     }

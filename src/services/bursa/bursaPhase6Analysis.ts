@@ -214,8 +214,8 @@ function buildFromScored(
     replacementSuggestions: buildReplacementSuggestions(holdings, rankedTop100),
     universeSize: codes.length,
     scoredCount: rankedStocks.length,
-    fetchedFields,
-    missingFields,
+    fetchedFields: fetchedFields ?? [],
+    missingFields: missingFields ?? [],
   };
 }
 

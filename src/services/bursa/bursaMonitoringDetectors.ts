@@ -85,7 +85,7 @@ export function buildEarningsChanges(input: {
 
     const annual = filterCompleteFyAnnual(bundle.quarterly.annualRecords);
     const latest = annual[0] ?? bundle.quarterly.latestQuarter;
-    const previous = annual[1] ?? bundle.quarterly.quarterlyHistory[1] ?? null;
+    const previous = annual[1] ?? (bundle.quarterly.quarterlyHistory ?? [])[1] ?? null;
 
     const trend = buildBursaFiveYearTrend(bundle);
     const divLatest = trend.dividend[trend.dividend.length - 1] ?? null;
