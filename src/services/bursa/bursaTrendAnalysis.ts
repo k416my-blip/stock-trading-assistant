@@ -38,9 +38,9 @@ function isCompleteFyRow(r: BursaQuarterlyRecord): boolean {
   return true;
 }
 
-function roeByYear(quarterlyRows: BursaQuarterlyRecord[]): Map<number, number> {
+function roeByYear(quarterlyRows: BursaQuarterlyRecord[] | null | undefined): Map<number, number> {
   const map = new Map<number, number>();
-  for (const r of quarterlyRows) {
+  for (const r of quarterlyRows ?? []) {
     const y = calendarYearFromFinancialLabel(r.financialYear);
     if (y == null || r.roePct == null) continue;
     const q = Number.parseInt(r.quarter ?? '', 10);
@@ -53,8 +53,10 @@ function roeByYear(quarterlyRows: BursaQuarterlyRecord[]): Map<number, number> {
   return map;
 }
 
-export function filterCompleteFyAnnual(records: BursaQuarterlyRecord[]): BursaQuarterlyRecord[] {
-  const rows = records.filter(isCompleteFyRow);
+export function filterCompleteFyAnnual(
+  records: BursaQuarterlyRecord[] | null | undefined,
+): BursaQuarterlyRecord[] {
+  const rows = (records ?? []).filter(isCompleteFyRow);
   if (rows.length >= 2 && rows[0].revenue != null && rows[1].revenue != null) {
     if (rows[0].revenue < rows[1].revenue * 0.35) return rows.slice(1);
   }
@@ -83,7 +85,7 @@ export function buildBursaFiveYearTrend(bundle: BursaDisclosureBundle): BursaFiv
     if (!annualByYear.has(y)) annualByYear.set(y, r);
   }
 
-  const roeMap = roeByYear(bundle.quarterly.quarterlyHistory);
+  const roeMap = roeByYear(bundle.quarterly.quarterlyHistory ?? []);
 
   const divMap = dividendByYear(bundle);
 

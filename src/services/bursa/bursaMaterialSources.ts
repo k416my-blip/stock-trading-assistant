@@ -31,7 +31,7 @@ export type MaterialFetchResult = {
   redditFetchDiagnostics?: BursaRedditFetchDiagnostics;
 };
 
-function emptyStatus(): MaterialFetchResult['sourceStatus'] {
+export function emptyMaterialSourceStatus(): MaterialFetchResult['sourceStatus'] {
   return {
     bursa_announcement: 'unavailable',
     news_api: 'skipped',
@@ -78,12 +78,13 @@ async function fetchNewsApiHeadlines(input: {
     });
     const bodyText = await res.text();
     if (!res.ok) {
+      const tempRateLimit = res.status === 429;
       return {
         items: [],
         diagnostics: {
           articleCount: 0,
           fetchedAt,
-          errorReason: `HTTP ${res.status}: ${bodyText.slice(0, 200)}`,
+          errorReason: tempRateLimit ? 'NEWSAPI_TEMP_RATE_LIMIT' : `HTTP ${res.status}: ${bodyText.slice(0, 200)}`,
           httpStatus: res.status,
         },
       };
@@ -340,7 +341,7 @@ async function fetchRedditHeadlines(input: {
 
 export function buildDisclosureMaterialInputs(bundle: BursaDisclosureBundle): RawMaterialInput[] {
   const out: RawMaterialInput[] = [];
-  const divs = bundle.dividend.history;
+  const divs = bundle.dividend.history ?? [];
   if (divs.length >= 2) {
     const latest = divs[0]?.amountPerShare;
     const prev = divs[1]?.amountPerShare;
@@ -365,7 +366,7 @@ export function buildDisclosureMaterialInputs(bundle: BursaDisclosureBundle): Ra
     }
   }
 
-  const qHist = bundle.quarterly.quarterlyHistory;
+  const qHist = bundle.quarterly.quarterlyHistory ?? [];
   if (qHist.length >= 2) {
     const latest = qHist[0]?.netProfit;
     const prev = qHist[1]?.netProfit;
@@ -422,7 +423,7 @@ export async function fetchAllMaterialSources(input: {
   apiKeys: AnalysisApiKeys;
   fetchLiveExternal: boolean;
 }): Promise<MaterialFetchResult> {
-  const status = emptyStatus();
+  const status = emptyMaterialSourceStatus();
   const headlines: RawMaterialInput[] = [];
 
   let html = input.stockHtml;
@@ -489,6 +490,7 @@ export async function fetchAllMaterialSources(input: {
       url: null,
       publishedAt: null,
       idSuffix: `rss-${h.source}-${h.title.slice(0, 12)}`,
+      sourceLabelJa: h.source,
     });
   }
   status.rss = rssItems.length > 0 ? 'ok' : 'failed';
@@ -508,6 +510,7 @@ export async function fetchAllMaterialSources(input: {
             url: null,
             publishedAt: snap.fetchedAt,
             idSuffix: `x-word-${i}`,
+            sourceLabelJa: 'X',
           });
         }
         if (snap.summaryJa?.trim() && snap.analysisBasis === 'fetched_posts') {
@@ -517,6 +520,7 @@ export async function fetchAllMaterialSources(input: {
             url: null,
             publishedAt: snap.fetchedAt,
             idSuffix: 'x-summary',
+            sourceLabelJa: 'X',
           });
         }
       }

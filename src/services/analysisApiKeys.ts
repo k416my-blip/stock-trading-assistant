@@ -9,6 +9,10 @@ export interface AnalysisApiKeys {
   earningsApiKey: string;
   redditApiKey: string;
   xApiKey: string;
+  /** Phase14 — Alpha Vantage（optional） */
+  alphaVantageApiKey?: string;
+  /** Phase14 — FMP（optional） */
+  fmpApiKey?: string;
 }
 
 const EMPTY: AnalysisApiKeys = {
@@ -17,9 +21,14 @@ const EMPTY: AnalysisApiKeys = {
   earningsApiKey: '',
   redditApiKey: '',
   xApiKey: '',
+  alphaVantageApiKey: '',
+  fmpApiKey: '',
 };
 
 const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY'] as const;
+const ALPHA_ENV = ['ALPHA_VANTAGE_API_KEY', 'EXPO_PUBLIC_ALPHA_VANTAGE_API_KEY'] as const;
+const FMP_ENV = ['FMP_API_KEY', 'EXPO_PUBLIC_FMP_API_KEY'] as const;
+const FINNHUB_ENV = ['FINNHUB_API_KEY', 'EARNINGS_API_KEY', 'EXPO_PUBLIC_EARNINGS_API_KEY'] as const;
 
 function readEnvKey(names: readonly string[]): string {
   if (typeof process === 'undefined' || !process.env) return '';
@@ -32,24 +41,34 @@ function readEnvKey(names: readonly string[]): string {
 
 export async function loadAnalysisApiKeys(): Promise<AnalysisApiKeys> {
   try {
-    const [news, sns, earnings, reddit, x] = await Promise.all([
+    const [news, sns, earnings, reddit, x, alpha, fmp, finnhub] = await Promise.all([
       getSecret('newsApiKey'),
       getSecret('snsApiKey'),
       getSecret('earningsApiKey'),
       getSecret('redditApiKey'),
       getSecret('xApiKey'),
+      getSecret('alphaVantageApiKey'),
+      getSecret('fmpApiKey'),
+      getSecret('finnhubApiKey'),
     ]);
     const newsApiKey = isUsableApiKey(news) ? news.trim() : readEnvKey(NEWS_ENV);
     const xFromStore = isUsableApiKey(x) ? x.trim() : '';
     const xFromEnv = readXBearerFromEnv();
     const xApiKey = xFromStore || xFromEnv;
     const snsApiKey = isUsableApiKey(sns) ? sns.trim() : xApiKey;
+    const earningsFromStore = isUsableApiKey(earnings)
+      ? earnings.trim()
+      : isUsableApiKey(finnhub)
+        ? finnhub.trim()
+        : readEnvKey(FINNHUB_ENV);
     return {
       newsApiKey,
       snsApiKey,
-      earningsApiKey: isUsableApiKey(earnings) ? earnings.trim() : '',
+      earningsApiKey: earningsFromStore,
       redditApiKey: isUsableApiKey(reddit) ? reddit.trim() : '',
       xApiKey,
+      alphaVantageApiKey: isUsableApiKey(alpha) ? alpha.trim() : readEnvKey(ALPHA_ENV),
+      fmpApiKey: isUsableApiKey(fmp) ? fmp.trim() : readEnvKey(FMP_ENV),
     };
   } catch {
     return { ...EMPTY };

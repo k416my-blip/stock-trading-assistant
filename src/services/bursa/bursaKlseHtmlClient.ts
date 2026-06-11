@@ -70,6 +70,60 @@ export async function fetchKlseShareholdingsHtml(stockCode: string): Promise<{
   return fetchKlseHtmlByUrl(klseShareholdingsUrl(stockCode), stockCode);
 }
 
+export type KlseShareholdingsIndexPage = {
+  table_html?: string;
+  cards_html?: string;
+  count?: number;
+};
+
+export function klseShareholdingsIndexUrl(stockCode: string, page: number): string {
+  const code = encodeURIComponent(normalizeBursaStockCode(stockCode));
+  return `https://www.klsescreener.com/v2/shareholdings/index?page=${page}&name=&date=&code=${code}`;
+}
+
+/** KLSE Shareholdings ページネーション（page 2 から追加行） */
+export async function fetchKlseShareholdingsIndexPage(
+  stockCode: string,
+  page: number,
+): Promise<KlseShareholdingsIndexPage | null> {
+  const code = normalizeBursaStockCode(stockCode);
+  await rateLimitWait();
+  try {
+    const { response, bodyText } = await fetchHttpWithRetry(klseShareholdingsIndexUrl(code, page), {
+      timeoutMs: 15000,
+      logLabel: 'klse_screener',
+      symbol: code,
+    });
+    lastFetchAt = Date.now();
+    if (!response.ok || !bodyText.trim()) return null;
+    return JSON.parse(bodyText) as KlseShareholdingsIndexPage;
+  } catch {
+    lastFetchAt = Date.now();
+    return null;
+  }
+}
+
+/** 初回ページ + index API で最大 maxPages まで結合 */
+export async function fetchKlseShareholdingsHistoryHtml(
+  stockCode: string,
+  maxPages = 12,
+): Promise<{ html: string; pagesFetched: number } | null> {
+  const first = await fetchKlseShareholdingsHtml(stockCode);
+  if (!first?.html) return null;
+
+  let html = first.html;
+  let pagesFetched = 1;
+
+  for (let page = 2; page <= maxPages; page++) {
+    const chunk = await fetchKlseShareholdingsIndexPage(stockCode, page);
+    if (!chunk?.table_html?.trim() || (chunk.count ?? 0) <= 0) break;
+    html += chunk.table_html;
+    pagesFetched += 1;
+  }
+
+  return { html, pagesFetched };
+}
+
 export async function fetchKlseFinancialReportHtml(
   stockCode: string,
   quarterEndDate: string,

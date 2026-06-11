@@ -113,6 +113,13 @@ export function snapshotFor(
   );
 }
 
+/** 追加シンボルをバッチ取得（Phase19 原油・金など） */
+export async function fetchYahooSnapshotsForSymbols(
+  symbols: string[],
+): Promise<Record<string, YahooInstrumentSnapshot>> {
+  return fetchBatch(symbols);
+}
+
 /** 互換: 単一シンボル取得 */
 export async function fetchYahooInstrumentSnapshot(
   yahooSymbol: string,
