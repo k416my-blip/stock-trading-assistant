@@ -20,6 +20,7 @@ import {
   type AssetMgmtReport,
 } from '../services/bursa/bursaAssetManagementService';
 import { buildBursaPhase7Analysis } from '../services/bursa/bursaPhase7Analysis';
+import { mapBursaAnalysisError } from '../services/bursa/bursaAnalysisDiagnostics';
 import { theme } from '../theme';
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -86,7 +87,7 @@ export function AssetManagementScreen() {
       const phase7 = await buildBursaPhase7Analysis({ holdings: state.portfolio });
       setReport(formatAssetManagementReport(phase7));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(mapBursaAnalysisError('AssetManagement', e, ASSET_MGMT_MISSING_JA));
     } finally {
       setLoading(false);
     }

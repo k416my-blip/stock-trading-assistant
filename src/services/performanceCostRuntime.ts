@@ -70,9 +70,21 @@ export function isAppForeground(): boolean {
   return appState === 'active';
 }
 
+function isTwelveHourBackgroundBypass(): boolean {
+  try {
+    const { isTwelveHourBackgroundOpsAllowed } = require('./twelveHourTestMonitor');
+    return isTwelveHourBackgroundOpsAllowed();
+  } catch {
+    return false;
+  }
+}
+
 export function shouldPauseApiRequests(): boolean {
-  if (appState !== 'active') return true;
-  if (offlineMode) return true;
+  if (offlineMode && !isTwelveHourBackgroundBypass()) return true;
+  if (appState !== 'active') {
+    if (isTwelveHourBackgroundBypass()) return false;
+    return true;
+  }
   return false;
 }
 

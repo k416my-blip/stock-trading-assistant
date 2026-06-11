@@ -318,6 +318,15 @@ export function useAppApiKeys({
           ).length;
           recordRefreshSessionEnd({ result, holdingsBefore, holdingsAfter });
 
+          if (result.successCount > 0) {
+            const { noteTwelveHourPriceUpdate } = await import('../../services/twelveHourTestMonitor');
+            noteTwelveHourPriceUpdate({
+              updatedCount: result.updatedCount,
+              successCount: result.successCount,
+              silent,
+            });
+          }
+
           setState(nextState);
           stateRef.current = nextState;
 

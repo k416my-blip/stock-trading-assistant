@@ -25,6 +25,7 @@ import {
   removeBursaWatchlistEntry,
 } from '../services/bursa/bursaMonitoringStorage';
 import { buildBursaPhase9Analysis } from '../services/bursa/bursaPhase9Analysis';
+import { mapBursaAnalysisError } from '../services/bursa/bursaAnalysisDiagnostics';
 import { theme } from '../theme';
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -61,7 +62,7 @@ export function MarketMonitoringScreen() {
       const phase9 = await buildBursaPhase9Analysis({ holdings: state.portfolio });
       setReport(formatMarketMonitoringReport(phase9));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(mapBursaAnalysisError('MarketMonitoring', e, MONITORING_MISSING_JA));
     } finally {
       setLoading(false);
     }

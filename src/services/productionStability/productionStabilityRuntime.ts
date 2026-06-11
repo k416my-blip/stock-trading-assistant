@@ -116,6 +116,16 @@ export function setOrchestratorProactiveGates(input: {
 
 /** バックグラウンド / オフライン / 緊急モード時は AI 処理を止める */
 export function shouldPauseConciergeAi(): boolean {
+  try {
+    const { isTwelveHourBackgroundOpsAllowed } = require('../twelveHourTestMonitor');
+    if (isTwelveHourBackgroundOpsAllowed()) {
+      const level = getEmergencySafeModeLevel();
+      if (level >= 2) return true;
+      return orchestratorPauseProactive;
+    }
+  } catch {
+    /* monitor optional */
+  }
   if (shouldPauseApiRequests()) return true;
   const level = getEmergencySafeModeLevel();
   if (level >= 2) return true;
@@ -203,6 +213,25 @@ export function recordUiCrash(message: string): void {
 export { markOfflinePending };
 
 export function initProductionStabilityRuntime(): void {
+  void import('../twelveHourTestMonitor').then(({ startTwelveHourTestMonitor }) => {
+    const { TWELVE_HOUR_TEST_MONITOR_ENABLED } = require('../../constants/twelveHourTestMonitor');
+    if (TWELVE_HOUR_TEST_MONITOR_ENABLED) {
+      void startTwelveHourTestMonitor({ allowBackground: true, targetHours: 12 });
+    }
+  });
+  void import('../../constants/deviceLiveApiAudit').then(({ DEVICE_LIVE_API_AUDIT_ENABLED }) => {
+    if (!DEVICE_LIVE_API_AUDIT_ENABLED) return;
+    void import('../deviceLiveApiAudit').then(({ runDeviceLiveApiAudit }) => {
+      setTimeout(() => {
+        void runDeviceLiveApiAudit().catch((e) => {
+          productionDebugLog(
+            `device live api audit failed: ${e instanceof Error ? e.message : String(e)}`,
+            'warn',
+          );
+        });
+      }, 8000);
+    });
+  });
   if (initDone) return;
   initDone = true;
 

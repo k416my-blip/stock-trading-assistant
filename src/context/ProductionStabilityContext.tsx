@@ -16,6 +16,7 @@ import {
 } from '../services/productionStability/productionStabilityRuntime';
 import { usePerformanceCostOptional } from './PerformanceCostContext';
 import { setStabilityRuntimeOverlay } from '../services/productionStability/productionStabilityRuntime';
+import { useTwelveHourTestRuntime } from '../hooks/useTwelveHourTestRuntime';
 
 type ProductionStabilityContextValue = {
   snapshot: ProductionStabilitySnapshot;
@@ -34,6 +35,8 @@ export function ProductionStabilityProvider({ children }: { children: ReactNode 
     initProductionStabilityRuntime();
     return subscribeProductionStability(setSnapshot);
   }, []);
+
+  useTwelveHourTestRuntime();
 
   useEffect(() => {
     if (perf) {

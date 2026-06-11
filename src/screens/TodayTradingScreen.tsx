@@ -15,6 +15,7 @@ import { useApp } from '../context/AppContext';
 import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import { buildBursaPhase8Analysis } from '../services/bursa/bursaPhase8Analysis';
+import { mapBursaAnalysisError } from '../services/bursa/bursaAnalysisDiagnostics';
 import { BURSA_TODAY_BUDGETS_MYR } from '../services/bursa/bursaStockUniverse';
 import {
   formatTodayTradingReport,
@@ -60,7 +61,7 @@ export function TodayTradingScreen() {
       });
       setReport(formatTodayTradingReport(phase8));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(mapBursaAnalysisError('TodayTrading', e, TODAY_TRADING_MISSING_JA));
     } finally {
       setLoading(false);
     }

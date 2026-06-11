@@ -5,6 +5,12 @@ import { lazy, Suspense, type ComponentType } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
+import { wrapBursaScreen } from '../components/BursaDataErrorBoundary';
+import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
+import { MATERIAL_ANALYSIS_MISSING_JA } from '../services/bursa/bursaMaterialAnalysisService';
+import { MONITORING_MISSING_JA } from '../services/bursa/bursaMarketMonitoringService';
+import { TODAY_TRADING_MISSING_JA } from '../services/bursa/bursaTodayTradingService';
+import { ASSET_MGMT_MISSING_JA } from '../services/bursa/bursaAssetManagementService';
 import { AllocationPlanScreen } from '../screens/AllocationPlanScreen';
 import PortfolioScreen from '../screens/PortfolioScreen';
 import { theme } from '../theme';
@@ -80,18 +86,50 @@ function lazyScreen(Component: ComponentType, title: string) {
   };
 }
 
+function lazyBursaScreen(
+  Component: ComponentType,
+  title: string,
+  screen: Parameters<typeof wrapBursaScreen>[0],
+  fallbackJa: string,
+) {
+  const Wrapped = wrapBursaScreen(screen, Component, fallbackJa);
+  return lazyScreen(Wrapped, title);
+}
+
 const HomeTabScreen = lazyScreen(LazyHomeScreen, TAB_TITLES.Home);
 const AllocationPlanTabScreen = AllocationPlanScreen;
 const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, TAB_TITLES.Screener);
 const PortfolioTabScreen = PortfolioScreen;
-const AssetManagementTabScreen = lazyScreen(LazyAssetManagementScreen, TAB_TITLES.AssetManagement);
-const TodayTradingTabScreen = lazyScreen(LazyTodayTradingScreen, TAB_TITLES.TodayTrading);
-const MarketMonitoringTabScreen = lazyScreen(
+const AssetManagementTabScreen = lazyBursaScreen(
+  LazyAssetManagementScreen,
+  TAB_TITLES.AssetManagement,
+  'AssetManagement',
+  ASSET_MGMT_MISSING_JA,
+);
+const TodayTradingTabScreen = lazyBursaScreen(
+  LazyTodayTradingScreen,
+  TAB_TITLES.TodayTrading,
+  'TodayTrading',
+  TODAY_TRADING_MISSING_JA,
+);
+const MarketMonitoringTabScreen = lazyBursaScreen(
   LazyMarketMonitoringScreen,
   TAB_TITLES.MarketMonitoring,
+  'MarketMonitoring',
+  MONITORING_MISSING_JA,
 );
-const AiNotificationsTabScreen = lazyScreen(LazyAiNotificationsScreen, TAB_TITLES.AiNotifications);
-const MaterialAnalysisTabScreen = lazyScreen(LazyMaterialAnalysisScreen, TAB_TITLES.MaterialAnalysis);
+const AiNotificationsTabScreen = lazyBursaScreen(
+  LazyAiNotificationsScreen,
+  TAB_TITLES.AiNotifications,
+  'AiNotifications',
+  CONCIERGE_NOTIFY_MISSING_JA,
+);
+const MaterialAnalysisTabScreen = lazyBursaScreen(
+  LazyMaterialAnalysisScreen,
+  TAB_TITLES.MaterialAnalysis,
+  'MaterialAnalysis',
+  MATERIAL_ANALYSIS_MISSING_JA,
+);
 const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
 const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
 

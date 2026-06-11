@@ -7,7 +7,12 @@ import { VERBOSE_DEV_LOGS } from './devLog';
 const ALLOWED_LOG_SUBSTRINGS = [
   '[device-smoke-test]',
   '[device-smoke-test-summary]',
-  '[degraded-mode]',
+  '[DEVICE-LIVE-AUDIT]',
+  '[News API テスト]',
+  '[X API テスト]',
+  '[12H-MONITOR]',
+  '[Reddit]',
+  '[Phase11 MaterialAnalysisService]',
   '[execution-journal]',
   '[network]',
   '[GLOBAL ERROR HANDLER]',

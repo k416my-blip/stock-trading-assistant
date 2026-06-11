@@ -621,6 +621,11 @@ async function callAiApi(
 
     recordApiSuccess('openai');
     markConciergeChatPerf('openai_response');
+    void import('./twelveHourTestMonitor').then(({ noteTwelveHourAiResponse, isTwelveHourTestMonitorActive }) => {
+      if (isTwelveHourTestMonitorActive()) {
+        noteTwelveHourAiResponse({ source: 'ai_strategy_chat' });
+      }
+    });
     return { ok: true, structured, text };
   } catch (e) {
     recordApiFailure('openai');

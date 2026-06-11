@@ -47,9 +47,9 @@ export class AppErrorBoundary extends Component<Props, State> {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>{this.props.fallbackTitle ?? '起動復旧モード'}</Text>
+        <Text style={styles.title}>{this.props.fallbackTitle ?? 'データ取得エラー'}</Text>
         <Text style={styles.message}>
-          データは保持されています。起動または画面表示で問題が発生したため、復旧表示に切り替えました。
+          データは保持されています。画面表示で問題が発生したため、復旧表示に切り替えました。
         </Text>
         {this.state.showLogs && this.state.message ? (
           <Text style={styles.detail} numberOfLines={3}>
