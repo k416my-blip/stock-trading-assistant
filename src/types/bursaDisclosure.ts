@@ -768,6 +768,10 @@ export type BursaStockMaterialAnalysis = {
   valuationIntelligence?: import('./bursaValuationIntelligence').BursaValuationIntelligenceAnalysis | null;
   /** Phase21 — Fair Value Intelligence（optional） */
   fairValueIntelligence?: import('./bursaFairValueIntelligence').BursaFairValueIntelligenceAnalysis | null;
+  /** Phase22 — Analyst Target Intelligence（optional） */
+  analystTargetIntelligence?: import('./bursaAnalystTargetIntelligence').BursaAnalystTargetIntelligenceAnalysis | null;
+  /** Phase22.1 — Valuation Gap Intelligence（optional） */
+  valuationGapIntelligence?: import('./bursaValuationGapIntelligence').BursaValuationGapIntelligenceAnalysis | null;
   fetchedFields: string[];
   missingFields: string[];
 };
