@@ -132,6 +132,433 @@ function StockMaterialCard({
         </>
       ) : null}
 
+      <Text style={styles.subLabel}>Phase13 Earnings Call</Text>
+      <Text style={styles.item}>{row.earningsCallEvaluationJa}</Text>
+      {row.earningsCallDisplayJa ? (
+        <>
+          <Text style={styles.item}>経営陣トーン: {row.earningsCallDisplayJa.managementTone}</Text>
+          <Text style={styles.item}>ガイダンス: {row.earningsCallDisplayJa.guidance}</Text>
+          <Text style={styles.item}>Q&A警戒点: {row.earningsCallDisplayJa.qaWatchpoints}</Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase14 Analyst Consensus</Text>
+      <Text style={styles.item}>{row.analystConsensusEvaluationJa}</Text>
+      {row.analystConsensusDisplayJa ? (
+        <>
+          <Text style={styles.item}>Rating: {row.analystConsensusDisplayJa.rating}</Text>
+          <Text style={styles.item}>
+            Target Price: {row.analystConsensusDisplayJa.targetPrice}（Upside{' '}
+            {row.analystConsensusDisplayJa.upside}）
+          </Text>
+          <Text style={styles.item}>Analyst Count: {row.analystConsensusDisplayJa.analystCount}</Text>
+          <Text style={styles.item}>EPS Forecast: {row.analystConsensusDisplayJa.epsForecast}</Text>
+          <Text style={styles.item}>
+            Revenue Forecast: {row.analystConsensusDisplayJa.revenueForecast}
+          </Text>
+          <Text style={styles.item}>Consensus Trend: {row.analystConsensusDisplayJa.trend}</Text>
+          <Text style={styles.item}>
+            Confidence Score: {row.analystConsensusDisplayJa.confidence}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase15 Insider Trading</Text>
+      <Text style={styles.item}>{row.insiderTradingEvaluationJa}</Text>
+      {row.insiderTradingDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            最新取引日: {row.insiderTradingDisplayJa.latestTransactionDate}
+          </Text>
+          <Text style={styles.item}>売買区分: {row.insiderTradingDisplayJa.transactionType}</Text>
+          <Text style={styles.item}>
+            Insider: {row.insiderTradingDisplayJa.insiderName}（{row.insiderTradingDisplayJa.insiderRole}）
+          </Text>
+          <Text style={styles.item}>株数: {row.insiderTradingDisplayJa.transactionValue}</Text>
+          <Text style={styles.item}>
+            90日 買{row.insiderTradingDisplayJa.buyCount90d} / 売{row.insiderTradingDisplayJa.sellCount90d}
+          </Text>
+          <Text style={styles.item}>ネット: {row.insiderTradingDisplayJa.netActivity}</Text>
+          <Text style={styles.item}>
+            Confidence: {row.insiderTradingDisplayJa.confidence}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase16 Institutional Ownership</Text>
+      <Text style={styles.item}>{row.institutionalOwnershipEvaluationJa}</Text>
+      {row.institutionalOwnershipDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            保有機関数: {row.institutionalOwnershipDisplayJa.holderCount}
+          </Text>
+          <Text style={styles.item}>
+            上位3機関: {row.institutionalOwnershipDisplayJa.topHolders}
+          </Text>
+          <Text style={styles.item}>
+            直近増減: {row.institutionalOwnershipDisplayJa.recentChange}
+          </Text>
+          <Text style={styles.item}>Net Flow: {row.institutionalOwnershipDisplayJa.netFlow}</Text>
+          <Text style={styles.item}>
+            Confidence: {row.institutionalOwnershipDisplayJa.confidence}
+          </Text>
+          {row.institutionalOwnershipDisplayJa.holders.map((h, i) => (
+            <Text key={`inst-${i}`} style={styles.item}>
+              {h.name}: {h.holdingPct}（{h.changeRate}）最新 {h.latestReportDate}
+            </Text>
+          ))}
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase16.5 Institutional Trend</Text>
+      <Text style={styles.item}>{row.institutionalTrendEvaluationJa}</Text>
+      {row.institutionalTrendDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            前回 {row.institutionalTrendDisplayJa.previousHoldingPercent} → 現在{' '}
+            {row.institutionalTrendDisplayJa.currentHoldingPercent}
+          </Text>
+          <Text style={styles.item}>増減率: {row.institutionalTrendDisplayJa.changePercent}</Text>
+          <Text style={styles.item}>
+            3M: {row.institutionalTrendDisplayJa.threeMonthTrend} / 6M:{' '}
+            {row.institutionalTrendDisplayJa.sixMonthTrend} / 12M:{' '}
+            {row.institutionalTrendDisplayJa.twelveMonthTrend}
+          </Text>
+          <Text style={styles.item}>Trend: {row.institutionalTrendDisplayJa.trendDirection}</Text>
+          <Text style={styles.item}>
+            Confidence: {row.institutionalTrendDisplayJa.trendConfidence}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase16.6 Historical Ownership</Text>
+      <Text style={styles.item}>{row.historicalOwnershipEvaluationJa}</Text>
+      {row.historicalOwnershipDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            履歴件数: {row.historicalOwnershipDisplayJa.recordCount}
+          </Text>
+          <Text style={styles.item}>
+            3M: {row.historicalOwnershipDisplayJa.threeMonthTrend} / 6M:{' '}
+            {row.historicalOwnershipDisplayJa.sixMonthTrend} / 12M:{' '}
+            {row.historicalOwnershipDisplayJa.twelveMonthTrend}
+          </Text>
+          <Text style={styles.item}>
+            Trend: {row.historicalOwnershipDisplayJa.trendDirection}
+          </Text>
+          <Text style={styles.item}>
+            Confidence: {row.historicalOwnershipDisplayJa.trendConfidence}
+          </Text>
+          <Text style={styles.item}>
+            直近履歴: {row.historicalOwnershipDisplayJa.topHistory}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase16.8 TOP30 Institution Basket</Text>
+      <Text style={styles.item}>{row.fixedInstitutionalBasketEvaluationJa}</Text>
+      {row.fixedInstitutionalBasketDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            対象機関: {row.fixedInstitutionalBasketDisplayJa.pairedInstitutions}（
+            {row.fixedInstitutionalBasketDisplayJa.pairedCount}件）
+          </Text>
+          <Text style={styles.item}>
+            3M: {row.fixedInstitutionalBasketDisplayJa.threeMonthTrend} / 6M:{' '}
+            {row.fixedInstitutionalBasketDisplayJa.sixMonthTrend} / 12M:{' '}
+            {row.fixedInstitutionalBasketDisplayJa.twelveMonthTrend}
+          </Text>
+          <Text style={styles.item}>
+            Trend: {row.fixedInstitutionalBasketDisplayJa.trendDirection}
+          </Text>
+          <Text style={styles.item}>
+            旧→新比較: {row.fixedInstitutionalBasketDisplayJa.comparisonSummary}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase17 Dividend Intelligence</Text>
+      <Text style={styles.item}>{row.dividendIntelligenceEvaluationJa}</Text>
+      {row.dividendIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            利回り: {row.dividendIntelligenceDisplayJa.dividendYield} / 配当性向:{' '}
+            {row.dividendIntelligenceDisplayJa.payoutRatio}
+          </Text>
+          <Text style={styles.item}>
+            増配率: {row.dividendIntelligenceDisplayJa.dividendGrowthRate} / 連続:{' '}
+            {row.dividendIntelligenceDisplayJa.consecutiveDividendYears}年
+          </Text>
+          <Text style={styles.item}>
+            5Y CAGR: {row.dividendIntelligenceDisplayJa.fiveYearCagr} / 頻度:{' '}
+            {row.dividendIntelligenceDisplayJa.dividendFrequency}
+          </Text>
+          <Text style={styles.item}>
+            Ex-Date: {row.dividendIntelligenceDisplayJa.exDividendDate} / 支払:{' '}
+            {row.dividendIntelligenceDisplayJa.paymentDate}
+          </Text>
+          <Text style={styles.item}>
+            特別配当: {row.dividendIntelligenceDisplayJa.specialDividend} / 持続性:{' '}
+            {row.dividendIntelligenceDisplayJa.sustainabilityScore}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase18 News Intelligence</Text>
+      <Text style={styles.item}>{row.newsIntelligenceEvaluationJa}</Text>
+      {row.newsIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            記事: {row.newsIntelligenceDisplayJa.articleCount} / 24h:{' '}
+            {row.newsIntelligenceDisplayJa.last24hCount}
+          </Text>
+          <Text style={styles.item}>
+            Sentiment B/N/Be: {row.newsIntelligenceDisplayJa.bullishCount} /{' '}
+            {row.newsIntelligenceDisplayJa.neutralCount} / {row.newsIntelligenceDisplayJa.bearishCount}
+          </Text>
+          <Text style={styles.item}>
+            Impact: {row.newsIntelligenceDisplayJa.aggregateImpact} (Top{' '}
+            {row.newsIntelligenceDisplayJa.topImpactScore}) / ソース:{' '}
+            {row.newsIntelligenceDisplayJa.sourceCoverage}
+          </Text>
+          <Text style={styles.item}>
+            {row.newsIntelligenceDisplayJa.impactEngine} · Top [
+            {row.newsIntelligenceDisplayJa.topEventType}]: {row.newsIntelligenceDisplayJa.topHeadline}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase19 Macro Intelligence</Text>
+      <Text style={styles.item}>{row.macroIntelligenceEvaluationJa}</Text>
+      {row.macroIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Macro Score: {row.macroIntelligenceDisplayJa.macroScore} (
+            {row.macroIntelligenceDisplayJa.macroSentiment})
+          </Text>
+          <Text style={styles.item}>
+            Dashboard B/N/Be: {row.macroIntelligenceDisplayJa.bullishCount} /{' '}
+            {row.macroIntelligenceDisplayJa.neutralCount} / {row.macroIntelligenceDisplayJa.bearishCount}{' '}
+            · Live {row.macroIntelligenceDisplayJa.liveIndicators}
+          </Text>
+          <Text style={styles.item}>
+            Sector Impact: {row.macroIntelligenceDisplayJa.sectorImpact} (
+            {row.macroIntelligenceDisplayJa.sectorSentiment})
+          </Text>
+          <Text style={styles.item}>
+            Bullish: {row.macroIntelligenceDisplayJa.topBullish} · Bearish:{' '}
+            {row.macroIntelligenceDisplayJa.topBearish}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase19.5 Sector Rotation</Text>
+      <Text style={styles.item}>{row.sectorRotationEvaluationJa}</Text>
+      {row.sectorRotationDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            MI Score: {row.sectorRotationDisplayJa.macroIntelligenceScore} (Macro{' '}
+            {row.sectorRotationDisplayJa.macroScore} + Rotation{' '}
+            {row.sectorRotationDisplayJa.sectorRotationScore})
+          </Text>
+          <Text style={styles.item}>
+            Rank: {row.sectorRotationDisplayJa.sectorRank} · {row.sectorRotationDisplayJa.scoreDistribution}
+          </Text>
+          <Text style={styles.item}>
+            Top 3: {row.sectorRotationDisplayJa.top3Sectors}
+          </Text>
+          <Text style={styles.item}>
+            Bottom 3: {row.sectorRotationDisplayJa.bottom3Sectors}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase20 Valuation Intelligence</Text>
+      <Text style={styles.item}>{row.valuationIntelligenceEvaluationJa}</Text>
+      {row.valuationIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Score: {row.valuationIntelligenceDisplayJa.valuationScore} · Rating:{' '}
+            {row.valuationIntelligenceDisplayJa.valuationRating}
+          </Text>
+          <Text style={styles.item}>
+            PER: {row.valuationIntelligenceDisplayJa.pe} · PBR:{' '}
+            {row.valuationIntelligenceDisplayJa.pb} · ROE:{' '}
+            {row.valuationIntelligenceDisplayJa.roe}
+          </Text>
+          <Text style={styles.item}>
+            Revenue Growth: {row.valuationIntelligenceDisplayJa.revenueGrowth} · EPS Growth:{' '}
+            {row.valuationIntelligenceDisplayJa.epsGrowth} · D/E:{' '}
+            {row.valuationIntelligenceDisplayJa.debtEquity}
+          </Text>
+          <Text style={styles.item}>
+            Fair Value: {row.valuationIntelligenceDisplayJa.fairValueJudgment} · 取得率:{' '}
+            {row.valuationIntelligenceDisplayJa.fieldAcquisitionRate}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase21 Fair Value Intelligence</Text>
+      <Text style={styles.item}>{row.fairValueIntelligenceEvaluationJa}</Text>
+      {row.fairValueIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            現在: {row.fairValueIntelligenceDisplayJa.currentPrice} · 適正:{' '}
+            {row.fairValueIntelligenceDisplayJa.fairValueMid} · Range:{' '}
+            {row.fairValueIntelligenceDisplayJa.fairValueLow} —{' '}
+            {row.fairValueIntelligenceDisplayJa.fairValueHigh}
+          </Text>
+          <Text style={styles.item}>
+            Upside: {row.fairValueIntelligenceDisplayJa.upsidePct} · Downside:{' '}
+            {row.fairValueIntelligenceDisplayJa.downsidePct} · MoS:{' '}
+            {row.fairValueIntelligenceDisplayJa.marginOfSafetyPct}
+          </Text>
+          <Text style={styles.item}>
+            DCF: {row.fairValueIntelligenceDisplayJa.dcfFairPrice} [
+            {row.fairValueIntelligenceDisplayJa.dcfSource}] · DDM:{' '}
+            {row.fairValueIntelligenceDisplayJa.ddmFairPrice} [
+            {row.fairValueIntelligenceDisplayJa.ddmSource}] · PER:{' '}
+            {row.fairValueIntelligenceDisplayJa.perFairPrice} [
+            {row.fairValueIntelligenceDisplayJa.perSource}]
+          </Text>
+          <Text style={styles.item}>
+            Score: {row.fairValueIntelligenceDisplayJa.fairValueScore} · 推奨:{' '}
+            {row.fairValueIntelligenceDisplayJa.recommendation} · 取得率:{' '}
+            {row.fairValueIntelligenceDisplayJa.fieldAcquisitionRate}
+          </Text>
+          <Text style={styles.item}>
+            使用モデル: {row.fairValueIntelligenceDisplayJa.modelsUsed} · 主モデル:{' '}
+            {row.fairValueIntelligenceDisplayJa.primaryModel} · 信頼度:{' '}
+            {row.fairValueIntelligenceDisplayJa.confidence}
+          </Text>
+          <Text style={styles.item}>
+            DCF未取得理由: {row.fairValueIntelligenceDisplayJa.dcfUnavailableReason}
+          </Text>
+          <Text style={styles.item}>
+            DDM未取得理由: {row.fairValueIntelligenceDisplayJa.ddmUnavailableReason}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase22 Analyst Target Intelligence</Text>
+      <Text style={styles.item}>{row.analystTargetIntelligenceEvaluationJa}</Text>
+      {row.analystTargetIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Target Median: {row.analystTargetIntelligenceDisplayJa.targetMedian} · Mean:{' '}
+            {row.analystTargetIntelligenceDisplayJa.targetMean}
+          </Text>
+          <Text style={styles.item}>
+            Bull: {row.analystTargetIntelligenceDisplayJa.bullTarget} · Bear:{' '}
+            {row.analystTargetIntelligenceDisplayJa.bearTarget} · Coverage:{' '}
+            {row.analystTargetIntelligenceDisplayJa.coverageCount}
+          </Text>
+          <Text style={styles.item}>
+            現在: {row.analystTargetIntelligenceDisplayJa.currentPrice} · Upside:{' '}
+            {row.analystTargetIntelligenceDisplayJa.upsidePct} · Downside:{' '}
+            {row.analystTargetIntelligenceDisplayJa.downsidePct}
+          </Text>
+          <Text style={styles.item}>
+            Target Trend: {row.analystTargetIntelligenceDisplayJa.targetTrend} · 推奨分布:{' '}
+            {row.analystTargetIntelligenceDisplayJa.recommendationDistribution}
+          </Text>
+          <Text style={styles.item}>
+            Analyst Score: {row.analystTargetIntelligenceDisplayJa.analystScore} · 取得率:{' '}
+            {row.analystTargetIntelligenceDisplayJa.fieldAcquisitionRate} · 出典:{' '}
+            {row.analystTargetIntelligenceDisplayJa.source}
+          </Text>
+          <Text style={styles.item}>
+            Fair Value: {row.analystTargetIntelligenceDisplayJa.fairValueMid} vs Analyst Target:{' '}
+            {row.analystTargetIntelligenceDisplayJa.targetMedian} · 差:{' '}
+            {row.analystTargetIntelligenceDisplayJa.fairValueVsAnalystDiffPct} · 判定:{' '}
+            {row.analystTargetIntelligenceDisplayJa.fairValueVsAnalystJudgment}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase22.1 Valuation Gap Intelligence</Text>
+      <Text style={styles.item}>{row.valuationGapIntelligenceEvaluationJa}</Text>
+      {row.valuationGapIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Fair Value: {row.valuationGapIntelligenceDisplayJa.fairValue} · Analyst Target:{' '}
+            {row.valuationGapIntelligenceDisplayJa.analystTarget}
+          </Text>
+          <Text style={styles.item}>
+            Gap: {row.valuationGapIntelligenceDisplayJa.gapPct} · 分類:{' '}
+            {row.valuationGapIntelligenceDisplayJa.gapClassification}
+          </Text>
+          <Text style={styles.item}>
+            Valuation Gap Score: {row.valuationGapIntelligenceDisplayJa.valuationGapScore}
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase23 Earnings Revision Intelligence</Text>
+      <Text style={styles.item}>{row.earningsRevisionIntelligenceEvaluationJa}</Text>
+      {row.earningsRevisionIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            EPS Estimate: {row.earningsRevisionIntelligenceDisplayJa.epsEstimateCurrentFy} →{' '}
+            {row.earningsRevisionIntelligenceDisplayJa.epsEstimateNextFy}
+          </Text>
+          <Text style={styles.item}>
+            EPS Revision 30D: {row.earningsRevisionIntelligenceDisplayJa.epsRevision30d} · 90D:{' '}
+            {row.earningsRevisionIntelligenceDisplayJa.epsRevision90d}
+          </Text>
+          <Text style={styles.item}>
+            Revenue Revision 30D: {row.earningsRevisionIntelligenceDisplayJa.revenueRevision30d}
+          </Text>
+          <Text style={styles.item}>
+            Upgrade: {row.earningsRevisionIntelligenceDisplayJa.upgradeCount} · Downgrade:{' '}
+            {row.earningsRevisionIntelligenceDisplayJa.downgradeCount}
+          </Text>
+          <Text style={styles.item}>
+            Direction: {row.earningsRevisionIntelligenceDisplayJa.revisionDirection} · Score:{' '}
+            {row.earningsRevisionIntelligenceDisplayJa.revisionScore}
+          </Text>
+          <Text style={styles.item}>
+            Confidence: {row.earningsRevisionIntelligenceDisplayJa.revisionConfidence} · Source:{' '}
+            {row.earningsRevisionIntelligenceDisplayJa.source}
+          </Text>
+          {row.earningsRevisionIntelligenceDisplayJa.unavailableReason !== 'データ未取得' ? (
+            <Text style={styles.item}>
+              未取得理由: {row.earningsRevisionIntelligenceDisplayJa.unavailableReason}
+            </Text>
+          ) : null}
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase22.2 Conviction Intelligence</Text>
+      <Text style={styles.item}>{row.convictionIntelligenceEvaluationJa}</Text>
+      {row.convictionIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Fair Value: {row.convictionIntelligenceDisplayJa.fairValue} · Analyst:{' '}
+            {row.convictionIntelligenceDisplayJa.analystTarget} · Gap:{' '}
+            {row.convictionIntelligenceDisplayJa.gapPct}
+          </Text>
+          <Text style={styles.item}>
+            Coverage: {row.convictionIntelligenceDisplayJa.coverageCount} · Trend:{' '}
+            {row.convictionIntelligenceDisplayJa.analystTrend} · FV Confidence:{' '}
+            {row.convictionIntelligenceDisplayJa.valuationConfidence}
+          </Text>
+          <Text style={styles.item}>
+            DCF: {row.convictionIntelligenceDisplayJa.dcfUsed} · DDM:{' '}
+            {row.convictionIntelligenceDisplayJa.ddmUsed} · 信頼:{' '}
+            {row.convictionIntelligenceDisplayJa.trustedSource}
+          </Text>
+          <Text style={styles.item}>
+            Conviction: {row.convictionIntelligenceDisplayJa.convictionLevel} · Confidence:{' '}
+            {row.convictionIntelligenceDisplayJa.convictionConfidence} · Score:{' '}
+            {row.convictionIntelligenceDisplayJa.convictionScore}
+          </Text>
+          <Text style={styles.item}>{row.convictionIntelligenceDisplayJa.reasonLine1}</Text>
+          <Text style={styles.item}>{row.convictionIntelligenceDisplayJa.reasonLine2}</Text>
+          <Text style={styles.item}>{row.convictionIntelligenceDisplayJa.reasonLine3}</Text>
+        </>
+      ) : null}
+
       <Text style={styles.subLabel}>好材料</Text>
       {row.positive.length === 0 ? (
         <Text style={styles.empty}>該当なし</Text>

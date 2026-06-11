@@ -11,7 +11,7 @@ import type {
 } from '../../types/bursaDisclosure';
 import type { AnalysisApiKeys } from '../analysisApiKeys';
 import { fetchBursaDisclosureBundle } from './bursaDisclosureService';
-import { fetchAllMaterialSources } from './bursaMaterialSources';
+import { fetchAllMaterialSources, emptyMaterialSourceStatus } from './bursaMaterialSources';
 import {
   aggregateMaterialScore,
   buildBuyReasonsToday,
@@ -20,6 +20,23 @@ import {
   scoreMaterialItem,
 } from './bursaMaterialSentiment';
 import { buildBursaPhase9FromBundles } from './bursaPhase9Analysis';
+import { enrichStockWithEarningsCall } from './bursaPhase13Analysis';
+import { enrichStockWithAnalystConsensus } from './bursaPhase14Analysis';
+import { enrichStockWithInsiderTrading } from './bursaPhase15Analysis';
+import { enrichStockWithInstitutionalOwnership } from './bursaPhase16Analysis';
+import { enrichStockWithHistoricalOwnership } from './bursaPhase16HistoricalAnalysis';
+import { enrichStockWithFixedInstitutionalBasket } from './bursaPhase16BasketAnalysis';
+import { enrichStockWithInstitutionalTrend } from './bursaPhase16TrendAnalysis';
+import { enrichStockWithDividendIntelligence } from './bursaPhase17Analysis';
+import { enrichStockWithNewsIntelligence } from './bursaPhase18Analysis';
+import { enrichStockWithMacroIntelligence } from './bursaPhase19Analysis';
+import { enrichStockWithSectorRotationIntelligence } from './bursaPhase19_5Analysis';
+import { enrichStockWithValuationIntelligence } from './bursaPhase20Analysis';
+import { enrichStockWithFairValueIntelligence } from './bursaPhase21Analysis';
+import { enrichStockWithAnalystTargetIntelligence } from './bursaPhase22Analysis';
+import { enrichStockWithValuationGapIntelligence } from './bursaPhase22_1Analysis';
+import { enrichStockWithEarningsRevisionIntelligence } from './bursaPhase23Analysis';
+import { enrichStockWithConvictionIntelligence } from './bursaPhase22_2Analysis';
 import { getSectorPeerCodes } from './bursaSectorPeers';
 import { getBursaUniverseStockCodes } from './bursaStockUniverse';
 
@@ -127,7 +144,7 @@ async function analyzeOneStock(input: {
     summaryLines: ['', '', ''] as [string, string, string],
     buyReasonsToday: buildBuyReasonsToday(positiveMaterials),
     sellReasonsToday: buildSellReasonsToday(negativeMaterials),
-    sourceStatus: fetched.sourceStatus,
+    sourceStatus: fetched.sourceStatus ?? emptyMaterialSourceStatus(),
     newsApiDiagnostics: fetched.newsApiDiagnostics,
     redditFetchDiagnostics: fetched.redditFetchDiagnostics,
     fetchedFields,
@@ -135,14 +152,101 @@ async function analyzeOneStock(input: {
   };
   stock.summaryLines = buildMaterialSummaryLines(stock);
 
-  for (const [src, st] of Object.entries(fetched.sourceStatus)) {
+  for (const [src, st] of Object.entries(fetched.sourceStatus ?? {})) {
     if (st === 'ok' || st === 'partial') fetchedFields.push(`phase11.${src}`);
     else missingFields.push(`phase11.${src}`);
   }
   if (items.length > 0) fetchedFields.push('phase11.materials');
   else missingFields.push('phase11.materials');
 
-  return stock;
+  const sector = input.bundle.profile.sector;
+  const { stockHtml, bundle, apiKeys, fetchLiveExternal } = input;
+
+  let enriched = stock;
+  enriched = await enrichStockWithEarningsCall({
+    stock: enriched,
+    bundle,
+    stockHtml,
+    apiKeys,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithAnalystConsensus({
+    stock: enriched,
+    apiKeys,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithInsiderTrading({
+    stock: enriched,
+    stockHtml,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithInstitutionalOwnership({
+    stock: enriched,
+    stockHtml,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithHistoricalOwnership({
+    stock: enriched,
+    stockHtml,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithFixedInstitutionalBasket({
+    stock: enriched,
+    stockHtml,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithInstitutionalTrend({
+    stock: enriched,
+    stockHtml,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithDividendIntelligence({
+    stock: enriched,
+    stockHtml,
+    bundle,
+    apiKeys,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithNewsIntelligence({
+    stock: enriched,
+    stockHtml,
+    bundle,
+    apiKeys,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithMacroIntelligence({
+    stock: enriched,
+    sector,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithSectorRotationIntelligence({
+    stock: enriched,
+    sector,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithValuationIntelligence({
+    stock: enriched,
+    sector,
+    fetchLiveExternal,
+  });
+  enriched = await enrichStockWithFairValueIntelligence({
+    stock: enriched,
+    sector,
+    fetchLiveExternal,
+    bursaBundle: bundle,
+  });
+  const withAnalystTarget = await enrichStockWithAnalystTargetIntelligence({
+    stock: enriched,
+    fetchLiveExternal,
+  });
+  const withValuationGap = enrichStockWithValuationGapIntelligence({ stock: withAnalystTarget });
+  const withEarningsRevision = await enrichStockWithEarningsRevisionIntelligence({
+    stock: withValuationGap,
+    fetchLiveExternal,
+  });
+  return enrichStockWithConvictionIntelligence({
+    stock: withEarningsRevision,
+  });
 }
 
 function buildMonitoringNotifications(stocks: BursaStockMaterialAnalysis[]): string[] {

@@ -5,11 +5,28 @@ import type { AiChatStructuredReply } from '../types/aiChat';
 import type {
   AiRecommendedActionJa,
   ConciergeEnhancedAnalysisReport,
+  ConciergeSourceEvaluations,
   OverallTradeJudgmentJa,
 } from '../types/conciergeEnhancedAnalysis';
 import type { ConciergeEvidenceBundle } from '../types/conciergeEvidence';
 import type { MaterialStockRow } from './bursa/bursaMaterialAnalysisService';
 import { MATERIAL_MISSING_JA } from './bursa/bursaMaterialSentiment';
+import {
+  EARNINGS_CALL_UNAVAILABLE_JA,
+} from '../types/bursaEarningsCall';
+import { ANALYST_CONSENSUS_UNAVAILABLE_JA } from '../types/bursaAnalystConsensus';
+import { INSIDER_TRADING_UNAVAILABLE_JA } from '../types/bursaInsiderTrading';
+import { INSTITUTIONAL_OWNERSHIP_UNAVAILABLE_JA } from '../types/bursaInstitutionalOwnership';
+import { INSTITUTIONAL_TREND_UNAVAILABLE_JA } from '../types/bursaInstitutionalTrend';
+import { DIVIDEND_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaDividendIntelligence';
+import { MACRO_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaMacroIntelligence';
+import { VALUATION_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaValuationIntelligence';
+import { FAIR_VALUE_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaFairValueIntelligence';
+import { ANALYST_TARGET_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaAnalystTargetIntelligence';
+import { VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaValuationGapIntelligence';
+import { CONVICTION_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaConvictionIntelligence';
+import { EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaEarningsRevisionIntelligence';
+import { NEWS_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaNewsIntelligence';
 
 function fmtPrice(n: number | null | undefined, currency: string): string {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -167,6 +184,109 @@ function summarizeReddit(
   return sym.market === 'bursa' ? 'Reddit — 未取得' : 'Reddit — 対象外';
 }
 
+function summarizeEarningsCall(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.earningsCallEvaluationJa) return EARNINGS_CALL_UNAVAILABLE_JA;
+  return materialRow.earningsCallEvaluationJa;
+}
+
+function summarizeAnalystConsensus(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.analystConsensusEvaluationJa) return ANALYST_CONSENSUS_UNAVAILABLE_JA;
+  return materialRow.analystConsensusEvaluationJa;
+}
+
+function summarizeInsiderTrading(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.insiderTradingEvaluationJa) return INSIDER_TRADING_UNAVAILABLE_JA;
+  return materialRow.insiderTradingEvaluationJa;
+}
+
+function summarizeInstitutionalOwnership(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.institutionalOwnershipEvaluationJa) return INSTITUTIONAL_OWNERSHIP_UNAVAILABLE_JA;
+  return materialRow.institutionalOwnershipEvaluationJa;
+}
+
+function summarizeInstitutionalTrend(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.institutionalTrendEvaluationJa) return INSTITUTIONAL_TREND_UNAVAILABLE_JA;
+  return materialRow.institutionalTrendEvaluationJa;
+}
+
+function summarizeDividendIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.dividendIntelligenceEvaluationJa) return DIVIDEND_INTELLIGENCE_UNAVAILABLE_JA;
+  return materialRow.dividendIntelligenceEvaluationJa;
+}
+
+function summarizeNewsIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.newsIntelligenceEvaluationJa) return NEWS_INTELLIGENCE_UNAVAILABLE_JA;
+  return materialRow.newsIntelligenceEvaluationJa;
+}
+
+function summarizeMacroIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.macroIntelligenceEvaluationJa) return MACRO_INTELLIGENCE_UNAVAILABLE_JA;
+  return materialRow.macroIntelligenceEvaluationJa;
+}
+
+function summarizeValuationIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.valuationIntelligenceEvaluationJa) return VALUATION_INTELLIGENCE_UNAVAILABLE_JA;
+  return materialRow.valuationIntelligenceEvaluationJa;
+}
+
+function summarizeFairValueIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.fairValueIntelligenceEvaluationJa) return FAIR_VALUE_INTELLIGENCE_UNAVAILABLE_JA;
+  return materialRow.fairValueIntelligenceEvaluationJa;
+}
+
+function summarizeAnalystTargetIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.analystTargetIntelligenceEvaluationJa) {
+    return ANALYST_TARGET_INTELLIGENCE_UNAVAILABLE_JA;
+  }
+  return materialRow.analystTargetIntelligenceEvaluationJa;
+}
+
+function summarizeValuationGapIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.valuationGapIntelligenceEvaluationJa) {
+    return VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA;
+  }
+  return materialRow.valuationGapIntelligenceEvaluationJa;
+}
+
+function summarizeConvictionIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.convictionIntelligenceEvaluationJa) {
+    return CONVICTION_INTELLIGENCE_UNAVAILABLE_JA;
+  }
+  return materialRow.convictionIntelligenceEvaluationJa;
+}
+
+function summarizeEarningsRevisionIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.earningsRevisionIntelligenceEvaluationJa) {
+    return EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA;
+  }
+  return materialRow.earningsRevisionIntelligenceEvaluationJa;
+}
+
+function defaultSourceEvaluations(
+  materialRow: MaterialStockRow | null | undefined,
+  sym: ConciergeEvidenceBundle['symbols'][0],
+): ConciergeSourceEvaluations {
+  return {
+    earningsCall: summarizeEarningsCall(materialRow),
+    analystConsensus: summarizeAnalystConsensus(materialRow),
+    insiderTrading: summarizeInsiderTrading(materialRow),
+    institutionalOwnership: summarizeInstitutionalOwnership(materialRow),
+    institutionalTrend: summarizeInstitutionalTrend(materialRow),
+    dividendIntelligence: summarizeDividendIntelligence(materialRow),
+    newsIntelligence: summarizeNewsIntelligence(materialRow),
+    macroIntelligence: summarizeMacroIntelligence(materialRow),
+    valuationIntelligence: summarizeValuationIntelligence(materialRow),
+    fairValueIntelligence: summarizeFairValueIntelligence(materialRow),
+    analystTargetIntelligence: summarizeAnalystTargetIntelligence(materialRow),
+    valuationGapIntelligence: summarizeValuationGapIntelligence(materialRow),
+    convictionIntelligence: summarizeConvictionIntelligence(materialRow),
+    earningsRevisionIntelligence: summarizeEarningsRevisionIntelligence(materialRow),
+    news: summarizeNews(materialRow, sym),
+    x: summarizeX(materialRow, sym),
+    reddit: summarizeReddit(materialRow, sym),
+  };
+}
+
 function collectMaterials(
   materialRow: MaterialStockRow | null | undefined,
   kind: 'positive' | 'negative',
@@ -308,6 +428,48 @@ export function buildConciergeEnhancedAnalysis(input: {
       x: summarizeX(materialRow, sym),
       reddit: summarizeReddit(materialRow, sym),
     },
+    sourceEvaluationsJa: defaultSourceEvaluations(materialRow, sym),
+    earningsCallDetailJa: materialRow?.earningsCallDisplayJa ?? null,
+    analystConsensusDetailJa: materialRow?.analystConsensusDisplayJa ?? null,
+    insiderTradingDetailJa: materialRow?.insiderTradingDisplayJa ?? null,
+    institutionalOwnershipDetailJa: materialRow?.institutionalOwnershipDisplayJa ?? null,
+    institutionalTrendDetailJa: materialRow?.institutionalTrendDisplayJa ?? null,
+    dividendIntelligenceDetailJa: materialRow?.dividendIntelligenceDisplayJa ?? null,
+    newsIntelligenceDetailJa: materialRow?.newsIntelligenceDisplayJa ?? null,
+    macroIntelligenceDetailJa: materialRow?.macroIntelligenceDisplayJa ?? null,
+    valuationIntelligenceDetailJa: materialRow?.valuationIntelligenceDisplayJa
+      ? {
+          valuationScore: materialRow.valuationIntelligenceDisplayJa.valuationScore,
+          valuationRating: materialRow.valuationIntelligenceDisplayJa.valuationRating,
+          pe: materialRow.valuationIntelligenceDisplayJa.pe,
+          pb: materialRow.valuationIntelligenceDisplayJa.pb,
+          roe: materialRow.valuationIntelligenceDisplayJa.roe,
+          revenueGrowth: materialRow.valuationIntelligenceDisplayJa.revenueGrowth,
+          epsGrowth: materialRow.valuationIntelligenceDisplayJa.epsGrowth,
+          debtEquity: materialRow.valuationIntelligenceDisplayJa.debtEquity,
+          fairValueJudgment: materialRow.valuationIntelligenceDisplayJa.fairValueJudgment,
+          fieldAcquisitionRate: materialRow.valuationIntelligenceDisplayJa.fieldAcquisitionRate,
+        }
+      : null,
+    fairValueIntelligenceDetailJa: materialRow?.fairValueIntelligenceDisplayJa ?? null,
+    analystTargetIntelligenceDetailJa: materialRow?.analystTargetIntelligenceDisplayJa ?? null,
+    valuationGapIntelligenceDetailJa: materialRow?.valuationGapIntelligenceDisplayJa ?? null,
+    convictionIntelligenceDetailJa: materialRow?.convictionIntelligenceDisplayJa ?? null,
+    earningsRevisionIntelligenceDetailJa: materialRow?.earningsRevisionIntelligenceDisplayJa
+      ? {
+          epsEstimateCurrentFy: materialRow.earningsRevisionIntelligenceDisplayJa.epsEstimateCurrentFy,
+          epsEstimateNextFy: materialRow.earningsRevisionIntelligenceDisplayJa.epsEstimateNextFy,
+          epsRevision30d: materialRow.earningsRevisionIntelligenceDisplayJa.epsRevision30d,
+          epsRevision90d: materialRow.earningsRevisionIntelligenceDisplayJa.epsRevision90d,
+          revenueRevision30d: materialRow.earningsRevisionIntelligenceDisplayJa.revenueRevision30d,
+          upgradeCount: materialRow.earningsRevisionIntelligenceDisplayJa.upgradeCount,
+          downgradeCount: materialRow.earningsRevisionIntelligenceDisplayJa.downgradeCount,
+          revisionDirection: materialRow.earningsRevisionIntelligenceDisplayJa.revisionDirection,
+          revisionScore: materialRow.earningsRevisionIntelligenceDisplayJa.revisionScore,
+          revisionConfidence: materialRow.earningsRevisionIntelligenceDisplayJa.revisionConfidence,
+          source: materialRow.earningsRevisionIntelligenceDisplayJa.source,
+        }
+      : null,
     positiveMaterialsJa,
     negativeMaterialsJa,
     nextCheckpointsJa,

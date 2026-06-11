@@ -8,14 +8,18 @@ import {
   type ReactNode,
 } from 'react';
 import { useApp } from './AppContext';
-import { formatConciergeNotificationReport } from '../services/bursa/bursaConciergeNotificationService';
+import {
+  formatConciergeNotificationReport,
+  CONCIERGE_NOTIFY_MISSING_JA,
+  type ConciergeNotificationReport,
+} from '../services/bursa/bursaConciergeNotificationService';
+import { mapBursaAnalysisError } from '../services/bursa/bursaAnalysisDiagnostics';
 import {
   markAllConciergeNotificationsRead,
   markConciergeNotificationRead,
   writeConciergeSoundEnabled,
 } from '../services/bursa/bursaConciergeNotificationStorage';
 import { refreshBursaConciergeOnBoot } from '../services/bursa/bursaPhase10Analysis';
-import type { ConciergeNotificationReport } from '../services/bursa/bursaConciergeNotificationService';
 
 type BursaConciergeContextValue = {
   report: ConciergeNotificationReport | null;
@@ -42,7 +46,7 @@ export function BursaConciergeProvider({ children }: { children: ReactNode }) {
       const phase10 = await refreshBursaConciergeOnBoot({ holdings: state.portfolio });
       setReport(formatConciergeNotificationReport(phase10));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(mapBursaAnalysisError('AiNotifications', e, CONCIERGE_NOTIFY_MISSING_JA));
     } finally {
       setLoading(false);
     }

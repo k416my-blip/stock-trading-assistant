@@ -16,6 +16,23 @@ import {
   type SourceScoreRow,
 } from './bursaMaterialDataQuality';
 import { MATERIAL_MISSING_JA } from './bursaMaterialSentiment';
+import { EARNINGS_CALL_UNAVAILABLE_JA } from '../../types/bursaEarningsCall';
+import { ANALYST_CONSENSUS_UNAVAILABLE_JA } from '../../types/bursaAnalystConsensus';
+import { INSIDER_TRADING_UNAVAILABLE_JA } from '../../types/bursaInsiderTrading';
+import { INSTITUTIONAL_OWNERSHIP_UNAVAILABLE_JA } from '../../types/bursaInstitutionalOwnership';
+import { INSTITUTIONAL_TREND_UNAVAILABLE_JA } from '../../types/bursaInstitutionalTrend';
+import { HISTORICAL_OWNERSHIP_UNAVAILABLE_JA } from '../../types/bursaHistoricalOwnership';
+import { FIXED_BASKET_UNAVAILABLE_JA } from '../../types/bursaFixedInstitutionalBasket';
+import { DIVIDEND_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaDividendIntelligence';
+import { MACRO_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaMacroIntelligence';
+import { SECTOR_ROTATION_UNAVAILABLE_JA } from '../../types/bursaSectorRotation';
+import { VALUATION_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaValuationIntelligence';
+import { FAIR_VALUE_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaFairValueIntelligence';
+import { ANALYST_TARGET_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaAnalystTargetIntelligence';
+import { VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaValuationGapIntelligence';
+import { CONVICTION_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaConvictionIntelligence';
+import { EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaEarningsRevisionIntelligence';
+import { NEWS_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaNewsIntelligence';
 
 export const MATERIAL_ANALYSIS_MISSING_JA = MATERIAL_MISSING_JA;
 
@@ -58,6 +75,40 @@ export type MaterialStockRow = {
   itemCountBySource: Record<string, number>;
   redditFetchDiagnostics: import('../../types/bursaDisclosure').BursaRedditFetchDiagnostics | null;
   sources: Array<{ sourceJa: string; statusJa: string }>;
+  earningsCallEvaluationJa: string;
+  earningsCallDisplayJa: import('../../types/bursaEarningsCall').EarningsCallDisplayFields | null;
+  analystConsensusEvaluationJa: string;
+  analystConsensusDisplayJa: import('../../types/bursaAnalystConsensus').AnalystConsensusDisplayFields | null;
+  insiderTradingEvaluationJa: string;
+  insiderTradingDisplayJa: import('../../types/bursaInsiderTrading').InsiderTradingDisplayFields | null;
+  institutionalOwnershipEvaluationJa: string;
+  institutionalOwnershipDisplayJa: import('../../types/bursaInstitutionalOwnership').InstitutionalOwnershipDisplayFields | null;
+  institutionalTrendEvaluationJa: string;
+  institutionalTrendDisplayJa: import('../../types/bursaInstitutionalTrend').InstitutionalTrendDisplayFields | null;
+  historicalOwnershipEvaluationJa: string;
+  historicalOwnershipDisplayJa: import('../../types/bursaHistoricalOwnership').HistoricalOwnershipDisplayFields | null;
+  fixedInstitutionalBasketEvaluationJa: string;
+  fixedInstitutionalBasketDisplayJa: import('../../types/bursaFixedInstitutionalBasket').FixedBasketDisplayFields | null;
+  dividendIntelligenceEvaluationJa: string;
+  dividendIntelligenceDisplayJa: import('../../types/bursaDividendIntelligence').DividendIntelligenceDisplayFields | null;
+  newsIntelligenceEvaluationJa: string;
+  newsIntelligenceDisplayJa: import('../../types/bursaNewsIntelligence').NewsIntelligenceDisplayFields | null;
+  macroIntelligenceEvaluationJa: string;
+  macroIntelligenceDisplayJa: import('../../types/bursaMacroIntelligence').MacroIntelligenceDisplayFields | null;
+  sectorRotationEvaluationJa: string;
+  sectorRotationDisplayJa: import('../../types/bursaSectorRotation').SectorRotationDisplayFields | null;
+  valuationIntelligenceEvaluationJa: string;
+  valuationIntelligenceDisplayJa: import('../../types/bursaValuationIntelligence').ValuationIntelligenceDisplayFields | null;
+  fairValueIntelligenceEvaluationJa: string;
+  fairValueIntelligenceDisplayJa: import('../../types/bursaFairValueIntelligence').FairValueIntelligenceDisplayFields | null;
+  analystTargetIntelligenceEvaluationJa: string;
+  analystTargetIntelligenceDisplayJa: import('../../types/bursaAnalystTargetIntelligence').AnalystTargetIntelligenceDisplayFields | null;
+  valuationGapIntelligenceEvaluationJa: string;
+  valuationGapIntelligenceDisplayJa: import('../../types/bursaValuationGapIntelligence').ValuationGapIntelligenceDisplayFields | null;
+  convictionIntelligenceEvaluationJa: string;
+  convictionIntelligenceDisplayJa: import('../../types/bursaConvictionIntelligence').ConvictionIntelligenceDisplayFields | null;
+  earningsRevisionIntelligenceEvaluationJa: string;
+  earningsRevisionIntelligenceDisplayJa: import('../../types/bursaEarningsRevisionIntelligence').EarningsRevisionIntelligenceDisplayFields | null;
 };
 
 export type MaterialAnalysisReport = {
@@ -86,9 +137,9 @@ function materialSourceLabel(item: { source: string; sourceLabelJa?: string }): 
 
 function countItemsBySource(stock: BursaStockMaterialAnalysis): Record<string, number> {
   const items = [
-    ...stock.positiveMaterials,
-    ...stock.negativeMaterials,
-    ...stock.neutralMaterials,
+    ...(stock.positiveMaterials ?? []),
+    ...(stock.negativeMaterials ?? []),
+    ...(stock.neutralMaterials ?? []),
   ];
   const counts: Record<string, number> = {};
   for (const item of items) {
@@ -102,19 +153,20 @@ function countItemsBySource(stock: BursaStockMaterialAnalysis): Record<string, n
 }
 
 function buildApiConnections(s: BursaStockMaterialAnalysis): ApiConnectionRow[] {
+  const sourceStatus = s.sourceStatus ?? ({} as BursaStockMaterialAnalysis['sourceStatus']);
   return PAID_API_SOURCES.map((src) => {
     if (src === 'reddit') {
       return {
         apiJa: PAID_API_UI_LABEL[src],
         connectionJa: formatRedditApiConnection(
-          s.sourceStatus.reddit,
+          sourceStatus.reddit,
           s.redditFetchDiagnostics?.fetchMethod,
         ),
       };
     }
     return {
       apiJa: PAID_API_UI_LABEL[src],
-      connectionJa: formatPaidApiConnection(s.sourceStatus[src]),
+      connectionJa: formatPaidApiConnection(sourceStatus[src]),
     };
   });
 }
@@ -133,17 +185,17 @@ function mapStock(s: BursaStockMaterialAnalysis): MaterialStockRow {
     })),
     sourceScoreBreakdown: buildSourceScoreBreakdown(s),
     dataQuality,
-    positive: s.positiveMaterials.map((m) => ({
+    positive: (s.positiveMaterials ?? []).map((m) => ({
       title: m.title,
       scoreJa: fmtScore(m.score),
       sourceJa: materialSourceLabel(m),
     })),
-    negative: s.negativeMaterials.map((m) => ({
+    negative: (s.negativeMaterials ?? []).map((m) => ({
       title: m.title,
       scoreJa: fmtScore(m.score),
       sourceJa: materialSourceLabel(m),
     })),
-    neutral: s.neutralMaterials.map((m) => ({
+    neutral: (s.neutralMaterials ?? []).map((m) => ({
       title: m.title,
       sourceJa: materialSourceLabel(m),
     })),
@@ -152,10 +204,60 @@ function mapStock(s: BursaStockMaterialAnalysis): MaterialStockRow {
     apiConnections: buildApiConnections(s),
     itemCountBySource: countItemsBySource(s),
     redditFetchDiagnostics: s.redditFetchDiagnostics ?? null,
-    sources: Object.entries(s.sourceStatus).map(([k, v]) => ({
+    sources: Object.entries(s.sourceStatus ?? {}).map(([k, v]) => ({
       sourceJa: DEFAULT_SOURCE_LABEL[k] ?? k,
       statusJa: STATUS_LABEL[v] ?? v,
     })),
+    earningsCallEvaluationJa: s.earningsCall?.evaluationJa ?? EARNINGS_CALL_UNAVAILABLE_JA,
+    earningsCallDisplayJa: s.earningsCall?.displayJa ?? null,
+    analystConsensusEvaluationJa: s.analystConsensus?.evaluationJa ?? ANALYST_CONSENSUS_UNAVAILABLE_JA,
+    analystConsensusDisplayJa: s.analystConsensus?.displayJa ?? null,
+    insiderTradingEvaluationJa: s.insiderTrading?.evaluationJa ?? INSIDER_TRADING_UNAVAILABLE_JA,
+    insiderTradingDisplayJa: s.insiderTrading?.displayJa ?? null,
+    institutionalOwnershipEvaluationJa:
+      s.institutionalOwnership?.evaluationJa ?? INSTITUTIONAL_OWNERSHIP_UNAVAILABLE_JA,
+    institutionalOwnershipDisplayJa: s.institutionalOwnership?.displayJa ?? null,
+    institutionalTrendEvaluationJa:
+      s.institutionalTrend?.evaluationJa ?? INSTITUTIONAL_TREND_UNAVAILABLE_JA,
+    institutionalTrendDisplayJa: s.institutionalTrend?.displayJa ?? null,
+    historicalOwnershipEvaluationJa:
+      s.historicalOwnership?.evaluationJa ?? HISTORICAL_OWNERSHIP_UNAVAILABLE_JA,
+    historicalOwnershipDisplayJa: s.historicalOwnership?.displayJa ?? null,
+    fixedInstitutionalBasketEvaluationJa:
+      s.fixedInstitutionalBasket?.evaluationJa ?? FIXED_BASKET_UNAVAILABLE_JA,
+    fixedInstitutionalBasketDisplayJa: s.fixedInstitutionalBasket?.displayJa ?? null,
+    dividendIntelligenceEvaluationJa:
+      s.dividendIntelligence?.evaluationJa ?? DIVIDEND_INTELLIGENCE_UNAVAILABLE_JA,
+    dividendIntelligenceDisplayJa: s.dividendIntelligence?.displayJa ?? null,
+    newsIntelligenceEvaluationJa:
+      s.newsIntelligence?.evaluationJa ?? NEWS_INTELLIGENCE_UNAVAILABLE_JA,
+    newsIntelligenceDisplayJa: s.newsIntelligence?.displayJa ?? null,
+    macroIntelligenceEvaluationJa:
+      s.sectorRotation?.evaluationJa ??
+      s.macroIntelligence?.evaluationJa ??
+      MACRO_INTELLIGENCE_UNAVAILABLE_JA,
+    macroIntelligenceDisplayJa: s.macroIntelligence?.displayJa ?? null,
+    sectorRotationEvaluationJa:
+      s.sectorRotation?.evaluationJa ?? SECTOR_ROTATION_UNAVAILABLE_JA,
+    sectorRotationDisplayJa: s.sectorRotation?.displayJa ?? null,
+    valuationIntelligenceEvaluationJa:
+      s.valuationIntelligence?.evaluationJa ?? VALUATION_INTELLIGENCE_UNAVAILABLE_JA,
+    valuationIntelligenceDisplayJa: s.valuationIntelligence?.displayJa ?? null,
+    fairValueIntelligenceEvaluationJa:
+      s.fairValueIntelligence?.evaluationJa ?? FAIR_VALUE_INTELLIGENCE_UNAVAILABLE_JA,
+    fairValueIntelligenceDisplayJa: s.fairValueIntelligence?.displayJa ?? null,
+    analystTargetIntelligenceEvaluationJa:
+      s.analystTargetIntelligence?.evaluationJa ?? ANALYST_TARGET_INTELLIGENCE_UNAVAILABLE_JA,
+    analystTargetIntelligenceDisplayJa: s.analystTargetIntelligence?.displayJa ?? null,
+    valuationGapIntelligenceEvaluationJa:
+      s.valuationGapIntelligence?.evaluationJa ?? VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA,
+    valuationGapIntelligenceDisplayJa: s.valuationGapIntelligence?.displayJa ?? null,
+    convictionIntelligenceEvaluationJa:
+      s.convictionIntelligence?.evaluationJa ?? CONVICTION_INTELLIGENCE_UNAVAILABLE_JA,
+    convictionIntelligenceDisplayJa: s.convictionIntelligence?.displayJa ?? null,
+    earningsRevisionIntelligenceEvaluationJa:
+      s.earningsRevisionIntelligence?.evaluationJa ?? EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA,
+    earningsRevisionIntelligenceDisplayJa: s.earningsRevisionIntelligence?.displayJa ?? null,
   };
 }
 
@@ -164,7 +266,7 @@ export function logPhase11NewsApiDiagnostics(phase11: BursaPhase11Analysis): voi
     const d = stock.newsApiDiagnostics;
     const newsCount =
       d?.articleCount ??
-      [...stock.positiveMaterials, ...stock.negativeMaterials, ...stock.neutralMaterials].filter(
+      [...(stock.positiveMaterials ?? []), ...(stock.negativeMaterials ?? []), ...(stock.neutralMaterials ?? [])].filter(
         (m) => m.source === 'news_api',
       ).length;
     console.log(

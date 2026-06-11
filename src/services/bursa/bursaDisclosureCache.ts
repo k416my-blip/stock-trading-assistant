@@ -1,5 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../../constants/storageKeys';
+import type {
+  BursaCompanyProfile,
+  BursaDividendBundle,
+  BursaQuarterlyBundle,
+} from '../../types/bursaDisclosure';
+import {
+  normalizeCompanyProfile,
+  normalizeDividendBundle,
+  normalizeQuarterlyBundle,
+} from './bursaPayloadNormalize';
 
 export type BursaCacheCategory = 'profile' | 'quarterly' | 'dividend' | 'peerSnapshot' | 'shareholdings' | 'financialReport';
 
@@ -22,19 +32,47 @@ function cacheKey(category: BursaCacheCategory, stockCode: string): string {
   return `${STORAGE_KEYS.bursaDisclosureCache}:${category}:${stockCode}`;
 }
 
+function normalizeCachedPayload<T>(
+  category: BursaCacheCategory,
+  stockCode: string,
+  payload: T,
+): T {
+  switch (category) {
+    case 'profile':
+      return normalizeCompanyProfile(payload as BursaCompanyProfile, stockCode) as T;
+    case 'quarterly':
+      return normalizeQuarterlyBundle(payload as BursaQuarterlyBundle, stockCode) as T;
+    case 'dividend':
+      return normalizeDividendBundle(payload as BursaDividendBundle, stockCode) as T;
+    default:
+      return payload;
+  }
+}
+
 export async function readBursaCache<T>(
   category: BursaCacheCategory,
   stockCode: string,
 ): Promise<{ payload: T; cached: true } | null> {
   try {
     const raw = await AsyncStorage.getItem(cacheKey(category, stockCode));
-    if (!raw) return null;
-    const env = JSON.parse(raw) as CacheEnvelope<T>;
+    if (!raw || raw.trim() === '') return null;
+    let env: CacheEnvelope<T>;
+    try {
+      env = JSON.parse(raw) as CacheEnvelope<T>;
+    } catch {
+      await AsyncStorage.removeItem(cacheKey(category, stockCode));
+      return null;
+    }
+    if (!env || env.payload == null || !env.expiresAt) {
+      await AsyncStorage.removeItem(cacheKey(category, stockCode));
+      return null;
+    }
     if (Date.now() > Date.parse(env.expiresAt)) {
       await AsyncStorage.removeItem(cacheKey(category, stockCode));
       return null;
     }
-    return { payload: env.payload, cached: true };
+    const payload = normalizeCachedPayload(category, stockCode, env.payload);
+    return { payload, cached: true };
   } catch {
     return null;
   }

@@ -151,7 +151,13 @@ function minimalMaterialRow(): MaterialStockRow {
       oauthConfigured: false,
     },
     sources: [],
-  };
+    earningsCallEvaluationJa: 'Earnings Call — やや強気 · 上方・改善トーン',
+    earningsCallDisplayJa: {
+      managementTone: '経営陣トーン: やや強気（CEO やや強気 / CFO 中立 · 強気語2 / 弱気語0）',
+      guidance: 'ガイダンス: 上方・改善トーン',
+      qaWatchpoints: 'データ未取得',
+    },
+  } as unknown as MaterialStockRow;
 }
 
 describe('buildConciergeEnhancedAnalysis', () => {
@@ -176,7 +182,7 @@ describe('buildConciergeEnhancedAnalysis', () => {
     ).toBe('追加購入');
   });
 
-  it('builds all 15 mandatory sections', () => {
+  it('builds all 20 mandatory sections', () => {
     const report = buildConciergeEnhancedAnalysis({
       evidence: minimalEvidence(),
       materialRow: minimalMaterialRow(),
@@ -190,7 +196,10 @@ describe('buildConciergeEnhancedAnalysis', () => {
     expect(report!.overallJudgmentJa).toBe('買い');
     expect(report!.confidencePct).toBe(72);
     expect(report!.judgmentReasonsJa.length).toBeGreaterThan(0);
-    expect(report!.sourceSummariesJa.news).toContain('News');
+    expect(report!.sourceEvaluationsJa.news).toContain('News');
+    expect(report!.sourceEvaluationsJa.earningsCall).toContain('Earnings Call');
+    expect(report!.sourceEvaluationsJa.analystConsensus).toBe('データ未取得');
+    expect(report!.earningsCallDetailJa?.managementTone).toContain('経営陣トーン');
     expect(report!.positiveMaterialsJa.length).toBeGreaterThan(0);
     expect(report!.recommendedActionJa).toBeTruthy();
     expect(report!.sourceScoresJa.bursa).toBe(15);

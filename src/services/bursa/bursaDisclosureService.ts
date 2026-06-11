@@ -8,6 +8,7 @@ import { fetchKlseStockPageHtml, normalizeBursaStockCode } from './bursaKlseHtml
 import { parseBursaCompanyProfileFromHtml, parseProfileExtras } from './bursaCompanyProfileService';
 import { parseBursaQuarterlyFromHtml } from './bursaQuarterlyService';
 import { parseBursaDividendFromHtml } from './bursaDividendService';
+import { normalizeDisclosureBundle } from './bursaPayloadNormalize';
 
 export async function fetchBursaDisclosureBundle(symbol: string): Promise<BursaDisclosureBundle> {
   const stockCode = normalizeBursaStockCode(symbol);
@@ -62,19 +63,19 @@ export async function fetchBursaDisclosureBundle(symbol: string): Promise<BursaD
   const extras = html ? parseProfileExtras(html) : { companyOverview: null };
 
   const fetchedFields = [
-    ...profile.fetchedFields.map((f) => `bursa.profile.${f}`),
-    ...quarterly.fetchedFields.map((f) => `bursa.quarterly.${f}`),
-    ...dividend.fetchedFields.map((f) => `bursa.dividend.${f}`),
+    ...(profile.fetchedFields ?? []).map((f) => `bursa.profile.${f}`),
+    ...(quarterly.fetchedFields ?? []).map((f) => `bursa.quarterly.${f}`),
+    ...(dividend.fetchedFields ?? []).map((f) => `bursa.dividend.${f}`),
   ];
   const missingFields = [
-    ...profile.missingFields.map((f) => `bursa.profile.${f}`),
-    ...quarterly.missingFields.map((f) => `bursa.quarterly.${f}`),
-    ...dividend.missingFields.map((f) => `bursa.dividend.${f}`),
+    ...(profile.missingFields ?? []).map((f) => `bursa.profile.${f}`),
+    ...(quarterly.missingFields ?? []).map((f) => `bursa.quarterly.${f}`),
+    ...(dividend.missingFields ?? []).map((f) => `bursa.dividend.${f}`),
   ];
 
   const dataSource = profile.source === 'klse_screener' ? 'klse_screener' : 'none';
 
-  return {
+  return normalizeDisclosureBundle({
     stockCode,
     profile,
     quarterly,
@@ -87,7 +88,7 @@ export async function fetchBursaDisclosureBundle(symbol: string): Promise<BursaD
       'KLSE Screener HTML: APIキー不要・非公式スクレイピング（429/構造変更リスク）',
       extras.companyOverview ? 'companyOverview: og:description より取得' : '',
     ].filter(Boolean),
-  };
+  });
 }
 
 export { parseBursaCompanyProfileFromHtml } from './bursaCompanyProfileService';
