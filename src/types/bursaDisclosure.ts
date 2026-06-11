@@ -756,6 +756,14 @@ export type BursaStockMaterialAnalysis = {
   historicalOwnership?: import('./bursaHistoricalOwnership').BursaHistoricalOwnershipAnalysis | null;
   /** Phase16.7 — Fixed Institutional Basket（optional） */
   fixedInstitutionalBasket?: import('./bursaFixedInstitutionalBasket').BursaFixedInstitutionalBasketAnalysis | null;
+  /** Phase17 — Dividend Intelligence（optional） */
+  dividendIntelligence?: import('./bursaDividendIntelligence').BursaDividendIntelligenceAnalysis | null;
+  /** Phase18 — News Intelligence（optional） */
+  newsIntelligence?: import('./bursaNewsIntelligence').BursaNewsIntelligenceAnalysis | null;
+  /** Phase19 — Macro Intelligence（optional） */
+  macroIntelligence?: import('./bursaMacroIntelligence').BursaMacroIntelligenceAnalysis | null;
+  /** Phase19.5 — Sector Rotation Intelligence（optional） */
+  sectorRotation?: import('./bursaSectorRotation').BursaSectorRotationAnalysis | null;
   fetchedFields: string[];
   missingFields: string[];
 };
