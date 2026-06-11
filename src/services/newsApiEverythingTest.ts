@@ -6,6 +6,11 @@
 import { isUsableApiKey, normalizeStoredApiKey } from './apiKeyValidation';
 import { loadApiKey } from './apiKeys';
 import { resolveApiKeyForConnectionTest } from './safeApiKey';
+import {
+  classifyNewsApiFailure,
+  isNewsApiTempRateLimit,
+  NEWSAPI_TEMP_RATE_LIMIT,
+} from '../constants/newsApiRateLimit';
 
 const NEWS_EVERYTHING_TEST_URL = 'https://newsapi.org/v2/everything?q=Maybank&pageSize=5';
 const NEWS_API_TEST_TIMEOUT_MS = 12_000;
@@ -18,6 +23,9 @@ export type NewsApiEverythingTestResult = {
   titles: string[];
   testedAt: string;
   errorReason: string | null;
+  /** 429 + rateLimited の一時制限（キー障害ではない） */
+  tempRateLimit?: boolean;
+  failureClass?: ReturnType<typeof classifyNewsApiFailure>;
 };
 
 async function resolveNewsApiKeyForTest(inputKey?: string): Promise<string> {
@@ -55,18 +63,25 @@ export async function runNewsApiEverythingTest(
     const responseBody = await res.text();
 
     if (!res.ok) {
+      const tempRateLimit = isNewsApiTempRateLimit({ httpStatus: res.status, responseBody });
       return {
-        ok: false,
+        ok: tempRateLimit,
         httpStatus: res.status,
         responseBody,
         articleCount: 0,
         titles: [],
         testedAt,
-        errorReason: `HTTP ${res.status}`,
+        errorReason: tempRateLimit ? NEWSAPI_TEMP_RATE_LIMIT : `HTTP ${res.status}`,
+        tempRateLimit,
+        failureClass: classifyNewsApiFailure({
+          httpStatus: res.status,
+          responseBody,
+          hasApiKey: true,
+        }),
       };
     }
 
-    let json: { articles?: Array<{ title?: string }>; status?: string; message?: string };
+    let json: { articles?: Array<{ title?: string }>; status?: string; message?: string; code?: string };
     try {
       json = JSON.parse(responseBody) as typeof json;
     } catch {
@@ -82,14 +97,27 @@ export async function runNewsApiEverythingTest(
     }
 
     if (json.status === 'error') {
+      const tempRateLimit = isNewsApiTempRateLimit({
+        httpStatus: res.status,
+        responseBody,
+        errorCode: json.code,
+      });
       return {
-        ok: false,
+        ok: tempRateLimit,
         httpStatus: res.status,
         responseBody,
         articleCount: 0,
         titles: [],
         testedAt,
-        errorReason: json.message ?? 'News API error',
+        errorReason: tempRateLimit
+          ? NEWSAPI_TEMP_RATE_LIMIT
+          : json.message ?? 'News API error',
+        tempRateLimit,
+        failureClass: classifyNewsApiFailure({
+          httpStatus: res.status,
+          responseBody,
+          hasApiKey: true,
+        }),
       };
     }
 

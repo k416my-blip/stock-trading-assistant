@@ -1,0 +1,12 @@
+/** 12時間実機テスト監視 — ChatGPT監査用 */
+
+export const TWELVE_HOUR_HEARTBEAT_MS = 15 * 60 * 1000;
+export const TWELVE_HOUR_STALL_WARNING_MS = 30 * 60 * 1000;
+export const TWELVE_HOUR_SLEEP_DETECT_GAP_MS = 3 * 60 * 1000;
+export const TWELVE_HOUR_TARGET_HOURS = 12;
+
+export const TWELVE_HOUR_LOG_TAG = '[12H-MONITOR]';
+
+/** EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR=1 で有効化 */
+export const TWELVE_HOUR_TEST_MONITOR_ENABLED =
+  process.env.EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR === '1';

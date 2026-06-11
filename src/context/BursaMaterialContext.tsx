@@ -8,8 +8,10 @@ import {
   type ReactNode,
 } from 'react';
 import { useApp } from './AppContext';
+import { isTwelveHourTestMonitorActive } from '../services/twelveHourTestMonitor';
 import {
   formatMaterialAnalysisReport,
+  MATERIAL_ANALYSIS_MISSING_JA,
   type MaterialAnalysisReport,
 } from '../services/bursa/bursaMaterialAnalysisService';
 import {
@@ -17,6 +19,7 @@ import {
   type MaterialApiAuditReport,
 } from '../services/bursa/bursaMaterialApiAudit';
 import { buildBursaPhase11Analysis } from '../services/bursa/bursaPhase11Analysis';
+import { mapBursaAnalysisError } from '../services/bursa/bursaAnalysisDiagnostics';
 
 type BursaMaterialContextValue = {
   report: MaterialAnalysisReport | null;
@@ -48,8 +51,13 @@ export function BursaMaterialProvider({ children }: { children: ReactNode }) {
       ]);
       setReport(formatMaterialAnalysisReport(phase11));
       setAuditReport(audit);
+      const { noteTwelveHourNewsFetch } = await import('../services/twelveHourTestMonitor');
+      noteTwelveHourNewsFetch({
+        stockCount: phase11.stocks.length,
+        sources: phase11.stocks.map((s) => s.stockCode),
+      });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(mapBursaAnalysisError('MaterialAnalysis', e, MATERIAL_ANALYSIS_MISSING_JA));
     } finally {
       setLoading(false);
     }
@@ -59,6 +67,14 @@ export function BursaMaterialProvider({ children }: { children: ReactNode }) {
     if (appLoading) return;
     void refresh();
   }, [appLoading, refresh]);
+
+  useEffect(() => {
+    if (!isTwelveHourTestMonitorActive()) return;
+    const timer = setInterval(() => {
+      void refresh();
+    }, 60 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, [refresh]);
 
   const value = useMemo(
     () => ({ report, auditReport, loading, error, refresh }),

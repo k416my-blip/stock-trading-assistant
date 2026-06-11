@@ -324,6 +324,21 @@ export function SettingsScreen() {
     }
   };
 
+  const [deviceAuditRunning, setDeviceAuditRunning] = useState(false);
+
+  const onRunDeviceLiveApiAudit = async () => {
+    setDeviceAuditRunning(true);
+    try {
+      const { runDeviceLiveApiAudit } = await import('../services/deviceLiveApiAudit');
+      await runDeviceLiveApiAudit();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.log('[DEVICE-LIVE-AUDIT]', JSON.stringify({ phase: 'error', message: msg }));
+    } finally {
+      setDeviceAuditRunning(false);
+    }
+  };
+
   const onRunOperationalTest = async () => {
     setOperationalRunning(true);
     setOperationalReport(null);
@@ -528,6 +543,12 @@ export function SettingsScreen() {
             label={operationalRunning ? 'テスト実行中…' : '実運用テスト実行'}
             onPress={() => void onRunOperationalTest()}
             disabled={operationalRunning}
+          />
+          <Button
+            label={deviceAuditRunning ? '監査中…' : '実機監査（6銘柄）'}
+            onPress={() => void onRunDeviceLiveApiAudit()}
+            disabled={deviceAuditRunning || operationalRunning}
+            variant="ghost"
           />
           {operationalReport ? (
             <View style={styles.operationalResults}>

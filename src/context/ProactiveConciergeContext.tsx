@@ -371,7 +371,14 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
     if (shouldPauseConciergeAi()) return;
     const { shouldOrchestratorBlockBackgroundRefresh, getLastRuntimeOrchestratorSnapshot } =
       await import('../runtime/orchestrator/runtimeOrchestratorIntegration');
-    if (shouldOrchestratorBlockBackgroundRefresh() && !isAppForeground()) return;
+    const { isTwelveHourBackgroundOpsAllowed } = await import('../services/twelveHourTestMonitor');
+    if (
+      shouldOrchestratorBlockBackgroundRefresh() &&
+      !isAppForeground() &&
+      !isTwelveHourBackgroundOpsAllowed()
+    ) {
+      return;
+    }
     void getLastRuntimeOrchestratorSnapshot;
     if (shouldDeferAsyncWork('orchestration')) return;
     if (!acquireRenderBudget()) return;
@@ -2818,6 +2825,8 @@ export function ProactiveConciergeProvider({ children }: { children: ReactNode }
       lastPushRef.current = result.nextLastPushByKey;
     }
     noteProactiveRefreshForMetrics(Date.now() - refreshStartedAt);
+      const { noteTwelveHourAiResponse } = await import('../services/twelveHourTestMonitor');
+      noteTwelveHourAiResponse({ source: 'proactive_refresh' });
     } catch (err) {
       console.warn(
         '[proactive-refresh] failed (non-fatal)',
