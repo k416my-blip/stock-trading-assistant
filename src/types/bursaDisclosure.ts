@@ -764,6 +764,10 @@ export type BursaStockMaterialAnalysis = {
   macroIntelligence?: import('./bursaMacroIntelligence').BursaMacroIntelligenceAnalysis | null;
   /** Phase19.5 — Sector Rotation Intelligence（optional） */
   sectorRotation?: import('./bursaSectorRotation').BursaSectorRotationAnalysis | null;
+  /** Phase20 — Valuation Intelligence（optional） */
+  valuationIntelligence?: import('./bursaValuationIntelligence').BursaValuationIntelligenceAnalysis | null;
+  /** Phase21 — Fair Value Intelligence（optional） */
+  fairValueIntelligence?: import('./bursaFairValueIntelligence').BursaFairValueIntelligenceAnalysis | null;
   fetchedFields: string[];
   missingFields: string[];
 };
