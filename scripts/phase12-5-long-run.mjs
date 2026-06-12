@@ -17,6 +17,7 @@ import {
   finalizeLogcatSnapshot,
   parseLogcatMetrics,
 } from './lib/phase12-5-logcat-finalization.mjs';
+import { saveUiDumpSnapshot } from './lib/phase12-5-ui-dump-finalization.mjs';
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'docs/review/phase12-5-long-run');
@@ -58,6 +59,8 @@ const state = {
   pidLostEvents: 0,
   logFinalizationWarnings: [],
   logcatSnapshotPaths: [],
+  uiDumpWarnings: [],
+  uiDumpPaths: [],
   stopReason: null,
 };
 
@@ -135,11 +138,24 @@ function sampleAsyncStorageKb() {
   return { rkKb, totalKb, raw, at: new Date().toISOString() };
 }
 
+function recordUiDumpWarning(warning) {
+  if (!warning) return;
+  state.uiDumpWarnings.push(warning);
+  console.warn('[p12.5] WARN ui dump:', warning.message ?? warning);
+}
+
 function dumpUi(name) {
   sh('adb shell uiautomator dump /sdcard/p125-ui.xml', { allowFail: true });
   const raw = sh('adb shell cat /sdcard/p125-ui.xml', { allowFail: true });
-  fs.writeFileSync(path.join(OUT_DIR, `${name}.xml`), raw);
-  return raw;
+  const result = saveUiDumpSnapshot({
+    outDir: OUT_DIR,
+    label: name,
+    content: raw,
+    mockFail: process.env.PHASE12_5_UI_DUMP_MOCK_FAIL === '1',
+  });
+  if (result.path) state.uiDumpPaths.push(result.path);
+  if (result.warning) recordUiDumpWarning(result.warning);
+  return result.content ?? raw ?? '';
 }
 
 function findLabels(xml, pred) {
@@ -444,10 +460,12 @@ function evaluateTestBodyPass() {
 function evaluateWarnings() {
   return {
     logFinalizationWarnings: state.logFinalizationWarnings,
+    uiDumpWarnings: state.uiDumpWarnings,
     stocksOk: stocksPass(),
     memOk: memoryLeakPass(),
     memIncreasePct: memIncreasePct(),
     logcatSnapshots: state.logcatSnapshotPaths,
+    uiDumpSnapshots: state.uiDumpPaths,
   };
 }
 
@@ -506,6 +524,7 @@ function writeProgressReport(status, detail = null) {
     '| 条件 | 判定 | 結果 |',
     '|------|------|------|',
     `| logcat finalization | ${eval_.logFinalizationWarnings.length ? 'WARN' : 'PASS'} | ${eval_.logFinalizationWarnings.length} 件 |`,
+    `| UI dump 保存 | ${eval_.uiDumpWarnings.length ? 'WARN' : 'PASS'} | ${eval_.uiDumpWarnings.length} 件 · timestamp 付き \`ui-dump-*.xml\` |`,
     `| 全銘柄UI表示 | ${eval_.stocksOk ? 'PASS' : 'WARN'} | adb UI card not found 等 |`,
     `| メモリ増加20%以内 | ${eval_.memOk ? 'PASS' : 'WARN'} | ${eval_.memIncreasePct != null ? `+${eval_.memIncreasePct}%` : '—'} |`,
     '',
@@ -515,6 +534,16 @@ function writeProgressReport(status, detail = null) {
           '',
           ...eval_.logFinalizationWarnings.map(
             (w) => `- ${w.at ?? '—'}: \`${w.code ?? 'WARN'}\` — ${w.message ?? JSON.stringify(w)}`,
+          ),
+          '',
+        ]
+      : []),
+    ...(eval_.uiDumpWarnings.length
+      ? [
+          '#### uiDumpWarnings',
+          '',
+          ...eval_.uiDumpWarnings.map(
+            (w) => `- ${w.at ?? '—'}: \`${w.code ?? 'WARN'}\` label=${w.label ?? '—'} — ${w.message ?? JSON.stringify(w)}`,
           ),
           '',
         ]
@@ -557,6 +586,7 @@ function writeProgressReport(status, detail = null) {
       : ['- snapshot: `docs/review/phase12-5-long-run/logcat-snapshot-*.txt`（timestamp 付き）']),
     '- `docs/review/twelve-hour-test/adb-logcat-final-*.log`（終了時コピー）',
     '- `docs/review/phase12-5-long-run/meminfo-hour-*.txt`',
+    '- `docs/review/phase12-5-long-run/ui-dump-*.xml`（timestamp 付き · 固定 `dismiss.xml` は不使用）',
     '',
     '### 再実行',
     '',
@@ -683,6 +713,9 @@ async function main() {
   console.log(`[p12.5] COMPLETED — body ${eval_.overall ? 'PASS' : 'FAIL'}`);
   if (warnings.logFinalizationWarnings.length) {
     console.warn(`[p12.5] WARN log finalization issues: ${warnings.logFinalizationWarnings.length}`);
+  }
+  if (warnings.uiDumpWarnings.length) {
+    console.warn(`[p12.5] WARN ui dump issues: ${warnings.uiDumpWarnings.length}`);
   }
   console.log(`[p12.5] Report: ${REPORT_PATH}`);
   process.exit(eval_.overall ? 0 : 1);
