@@ -1,15 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildJapaneseEvaluationJa,
   computeAnalystConsensusScore,
+  computeBuyHoldSellBalance,
+  computeImpliedUpside,
   collectAnalystConsensusWarnings,
   resolveAnalystConsensusConfidence,
+  buildAnalystConsensusIntelligenceAnalysis,
 } from '../../src/services/bursa/bursaAnalystConsensusIntelligenceService';
 import {
+  AUDIT_MOCK_FIXTURES,
   buildAnalystConsensusPartialFromPhase14,
+  createUnavailableProvider,
+  fetchAllAnalystConsensusIntelligencePartials,
+  getMockFixtureForStock,
   mergeAnalystConsensusIntelligencePartials,
   MOCK_ANALYST_CONSENSUS_FIXTURE,
 } from '../../src/services/bursa/bursaAnalystConsensusIntelligenceProviders';
 import { enrichStockWithAnalystConsensusIntelligence } from '../../src/services/bursa/bursaPhase24Analysis';
+import { AUDIT_ANALYST_CONSENSUS_STOCKS } from '../../src/constants/bursaAnalystConsensusIntelligence';
 import {
   ANALYST_CONSENSUS_SCORE_MAX,
   ANALYST_CONSENSUS_SCORE_MIN,
@@ -71,6 +80,40 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(score).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
   });
 
+  it('computeImpliedUpside derives from target and current price', () => {
+    expect(computeImpliedUpside(11.0, 10.0, null)).toBeCloseTo(10, 1);
+    expect(computeImpliedUpside(null, 10.0, null)).toBeNull();
+    expect(computeImpliedUpside(11.0, null, null)).toBeNull();
+    expect(computeImpliedUpside(11.0, 10.0, 12.5)).toBe(12.5);
+  });
+
+  it('computeBuyHoldSellBalance formats Japanese label', () => {
+    const balance = computeBuyHoldSellBalance({
+      analystCount: 10,
+      buyCount: 6,
+      holdCount: 3,
+      sellCount: 1,
+    });
+    expect(balance.buyPct).toBeCloseTo(60, 0);
+    expect(balance.labelJa).toContain('Buy 60%');
+  });
+
+  it('buildJapaneseEvaluationJa includes consensus and warnings', () => {
+    const ja = buildJapaneseEvaluationJa({
+      consensusRating: 'Buy（買い）',
+      buyHoldSellLabelJa: 'Buy 60% / Hold 30% / Sell 10%',
+      targetPrice: 'MYR 11.00',
+      currentPrice: 'MYR 10.00',
+      impliedUpsidePct: '+10.0%',
+      targetRevisionDirection: 'Upgraded（上方改定）',
+      consensusScore: '+12',
+      confidence: 'High',
+      warnings: ['high_dispersion'],
+    });
+    expect(ja).toContain('アナリスト・コンセンサス評価');
+    expect(ja).toContain('high_dispersion');
+  });
+
   it('resolveAnalystConsensusConfidence lowers confidence for low analyst count', () => {
     expect(
       resolveAnalystConsensusConfidence({
@@ -108,7 +151,7 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(warnings).toContain('stale_data');
   });
 
-  it('mergeAnalystConsensusIntelligencePartials prefers mock revision fields over phase14', () => {
+  it('mergeAnalystConsensusIntelligencePartials prefers phase14 base with mock revision fill', () => {
     const phase14 = buildAnalystConsensusPartialFromPhase14({
       availability: 'available',
       rating: 'Buy',
@@ -136,18 +179,82 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(merged?.source).toBe('phase14_consensus');
   });
 
-  it('enrichStockWithAnalystConsensusIntelligence uses mock fixture without external API', async () => {
-    const enriched = await enrichStockWithAnalystConsensusIntelligence({
-      stock: minimalStock(),
+  it('merge priority ranks yahoo phase14 above mock_fixture', () => {
+    const yahooLike: typeof MOCK_ANALYST_CONSENSUS_FIXTURE = {
+      ...MOCK_ANALYST_CONSENSUS_FIXTURE,
+      source: 'yahoo_finance',
+      analystCount: 20,
+    };
+    const mock = { ...MOCK_ANALYST_CONSENSUS_FIXTURE, analystCount: 5 };
+    const merged = mergeAnalystConsensusIntelligencePartials([mock, yahooLike]);
+    expect(merged?.source).toBe('yahoo_finance');
+    expect(merged?.analystCount).toBe(20);
+  });
+
+  it('provider error with no data yields safe unavailable analysis', async () => {
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: '9999',
+      useMockFixture: false,
+      fetchLiveExternal: false,
+    });
+    expect(analysis.availability).toBe('unavailable');
+    expect(analysis.warnings).toContain('no_consensus_data');
+  });
+
+  it('unavailable provider partial is excluded from merge', async () => {
+    const unavailable = await createUnavailableProvider().fetch('9999');
+    const merged = mergeAnalystConsensusIntelligencePartials([unavailable!]);
+    expect(merged).toBeNull();
+  });
+
+  it('buildAnalystConsensusPartialFromPhase14 derives rating from counts', () => {
+    const partial = buildAnalystConsensusPartialFromPhase14({
+      availability: 'available',
+      rating: null,
+      ratingCounts: { strongBuy: 5, buy: 4, hold: 2, sell: 0, strongSell: 0, analystCount: 11 },
+      averageTargetPrice: 10.2,
+      currentPrice: 9.5,
+      targetPriceUpsidePct: 7.4,
+      epsForecast: { currentFy: 1, nextFy: 1.1 },
+      revenueForecast: { currentFy: null, nextFy: null },
+      consensusTrend: 'Upgraded',
+      confidenceScore: 70,
+      displayJa: {} as never,
+      evaluationJa: '',
+      hasRatingOrTarget: true,
+      fetchedAt: new Date().toISOString(),
+      availabilityLabelJa: '',
+      source: 'finnhub',
+    });
+    expect(partial?.consensusRating).toBe('Strong Buy');
+    expect(partial?.source).toBe('phase14_consensus');
+  });
+
+  it.each(AUDIT_ANALYST_CONSENSUS_STOCKS)('mock fixture %s builds without crash', async (code) => {
+    const fixture = getMockFixtureForStock(code);
+    expect(fixture).not.toBeNull();
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: code,
       useMockFixture: true,
       fetchLiveExternal: false,
     });
-    expect(enriched.analystConsensusIntelligence?.availability).toBe('available');
-    expect(enriched.analystConsensusIntelligence?.consensusScore).toBeGreaterThan(0);
-    expect(enriched.fetchedFields).toContain('phase24.analyst_consensus_intelligence');
+    expect(analysis.availability).toBe('available');
+    expect(analysis.hasExtractableData).toBe(true);
+    expect(analysis.evaluationJa).toContain('アナリスト');
   });
 
-  it('enrichStockWithAnalystConsensusIntelligence returns unavailable without mock or phase14', async () => {
+  it('enrichStockWithAnalystConsensusIntelligence auto-mocks audit stocks offline', async () => {
+    for (const code of AUDIT_ANALYST_CONSENSUS_STOCKS) {
+      const enriched = await enrichStockWithAnalystConsensusIntelligence({
+        stock: minimalStock(code),
+        fetchLiveExternal: false,
+      });
+      expect(enriched.analystConsensusIntelligence?.availability).toBe('available');
+      expect(enriched.fetchedFields).toContain('phase24.analyst_consensus_intelligence');
+    }
+  });
+
+  it('enrichStock returns unavailable for unknown stock without mock', async () => {
     const enriched = await enrichStockWithAnalystConsensusIntelligence({
       stock: minimalStock('9999'),
       useMockFixture: false,
@@ -155,5 +262,23 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     });
     expect(enriched.analystConsensusIntelligence?.availability).toBe('unavailable');
     expect(enriched.missingFields).toContain('phase24.analyst_consensus_intelligence');
+  });
+
+  it('fetchAll with fetchLiveExternal adds provider_error path without live call', async () => {
+    const partial = await fetchAllAnalystConsensusIntelligencePartials({
+      stockCode: '9999',
+      useMockFixture: false,
+      fetchLiveExternal: true,
+    });
+    expect(partial?.providerError).toContain('Live external fetch disabled');
+  });
+
+  it('4707 mock fixture has negative upside score', async () => {
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: '4707',
+      useMockFixture: true,
+    });
+    expect(AUDIT_MOCK_FIXTURES['4707'].impliedUpsidePct).toBeLessThan(0);
+    expect(analysis.consensusScore).toBeLessThan(0);
   });
 });

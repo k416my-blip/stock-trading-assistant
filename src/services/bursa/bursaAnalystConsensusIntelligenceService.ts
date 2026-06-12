@@ -72,7 +72,7 @@ function sourceLabel(source: string): string {
     case 'phase14_consensus':
       return 'Phase14 Analyst Consensus';
     case 'mock_fixture':
-      return 'Mock Fixture (Step 3)';
+      return 'Mock Fixture (offline audit)';
     default:
       return ANALYST_CONSENSUS_INTELLIGENCE_FIELD_MISSING_JA;
   }
@@ -88,6 +88,67 @@ function computeImpliedUpside(
   }
   if (targetPrice == null || currentPrice == null || currentPrice === 0) return null;
   return ((targetPrice - currentPrice) / Math.abs(currentPrice)) * 100;
+}
+
+export { computeImpliedUpside };
+
+export function computeBuyHoldSellBalance(input: {
+  analystCount: number | null;
+  buyCount: number | null;
+  holdCount: number | null;
+  sellCount: number | null;
+}): {
+  buyPct: number | null;
+  holdPct: number | null;
+  sellPct: number | null;
+  labelJa: string;
+} {
+  const total =
+    input.analystCount ??
+    (input.buyCount ?? 0) + (input.holdCount ?? 0) + (input.sellCount ?? 0);
+  if (total <= 0) {
+    return {
+      buyPct: null,
+      holdPct: null,
+      sellPct: null,
+      labelJa: ANALYST_CONSENSUS_INTELLIGENCE_FIELD_MISSING_JA,
+    };
+  }
+  const buyPct = input.buyCount != null ? (input.buyCount / total) * 100 : null;
+  const holdPct = input.holdCount != null ? (input.holdCount / total) * 100 : null;
+  const sellPct = input.sellCount != null ? (input.sellCount / total) * 100 : null;
+  const fmt = (n: number | null) => (n != null ? `${n.toFixed(0)}%` : '—');
+  return {
+    buyPct,
+    holdPct,
+    sellPct,
+    labelJa: `Buy ${fmt(buyPct)} / Hold ${fmt(holdPct)} / Sell ${fmt(sellPct)}`,
+  };
+}
+
+export function buildJapaneseEvaluationJa(input: {
+  consensusRating: string;
+  buyHoldSellLabelJa: string;
+  targetPrice: string;
+  currentPrice: string;
+  impliedUpsidePct: string;
+  targetRevisionDirection: string;
+  consensusScore: string;
+  confidence: AnalystConsensusIntelligenceConfidence;
+  warnings: AnalystConsensusIntelligenceWarning[];
+}): string {
+  const warn =
+    input.warnings.length > 0 ? `注意: ${input.warnings.join(', ')}` : null;
+  return [
+    'アナリスト・コンセンサス評価',
+    input.consensusRating,
+    input.buyHoldSellLabelJa,
+    `目標 ${input.targetPrice} · 現在 ${input.currentPrice} · Upside ${input.impliedUpsidePct}`,
+    `改定 ${input.targetRevisionDirection} · Score ${input.consensusScore} · 信頼度 ${input.confidence}`,
+    warn,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 export function computeAnalystConsensusScore(input: {
@@ -313,6 +374,10 @@ export async function buildAnalystConsensusIntelligenceAnalysis(input: {
     );
   }
 
+  if (warnings.includes('provider_error') && !merged.analystCount && !merged.targetPrice && !merged.consensusRating) {
+    return emptyAnalysis(merged.providerError ?? 'Provider error — safe fallback');
+  }
+
   const impliedUpsidePct = computeImpliedUpside(
     merged.targetPrice,
     merged.currentPrice,
@@ -339,6 +404,13 @@ export async function buildAnalystConsensusIntelligenceAnalysis(input: {
     fieldCount: fieldAcquisitionCount,
     hasTargetAndPrice,
     warnings,
+  });
+
+  const balance = computeBuyHoldSellBalance({
+    analystCount: merged.analystCount,
+    buyCount: merged.buyCount,
+    holdCount: merged.holdCount,
+    sellCount: merged.sellCount,
   });
 
   const displayJa: AnalystConsensusIntelligenceDisplayFields = {
@@ -370,12 +442,17 @@ export async function buildAnalystConsensusIntelligenceAnalysis(input: {
     updatedAt: merged.updatedAt ?? ANALYST_CONSENSUS_INTELLIGENCE_FIELD_MISSING_JA,
   };
 
-  const evaluationJa = [
-    'Analyst Consensus Intelligence',
-    displayJa.consensusRating,
-    `Upside ${displayJa.impliedUpsidePct} · Score ${displayJa.consensusScore}`,
-    `Confidence ${confidence}`,
-  ].join(' · ');
+  const evaluationJa = buildJapaneseEvaluationJa({
+    consensusRating: displayJa.consensusRating,
+    buyHoldSellLabelJa: balance.labelJa,
+    targetPrice: displayJa.targetPrice,
+    currentPrice: displayJa.currentPrice,
+    impliedUpsidePct: displayJa.impliedUpsidePct,
+    targetRevisionDirection: displayJa.targetRevisionDirection,
+    consensusScore: displayJa.consensusScore,
+    confidence,
+    warnings,
+  });
 
   return {
     availability: 'available',

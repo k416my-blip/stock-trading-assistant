@@ -21,6 +21,7 @@ import { saveUiDumpSnapshot } from './lib/phase12-5-ui-dump-finalization.mjs';
 import { checkMetroListening } from './lib/phase12-5-metro-watchdog.mjs';
 import { runInvalidDetectorPass } from './lib/phase12-5-invalid-detectors.mjs';
 import { writeInvalidReasonArtifacts } from './lib/phase12-5-graceful-invalid.mjs';
+import { resolvePhase125RuntimeMode } from './lib/phase12-5-runtime-mode.mjs';
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'docs/review/phase12-5-long-run');
@@ -81,6 +82,8 @@ const state = {
   uiDumpWarnings: [],
   uiDumpPaths: [],
   stopReason: null,
+  runtimeMode: resolvePhase125RuntimeMode(),
+  bundleWarnCount: 0,
 };
 
 function sh(cmd, opts = {}) {
@@ -441,6 +444,7 @@ function runInvalidDetectors() {
     currentAppPid,
     runnerStartedMs: state.runnerStartedMs ?? Date.now(),
     nowMs: Date.now(),
+    runtimeMode: state.runtimeMode,
     checkWatch: fs.existsSync(PRE_RUN_WATCH_PATH),
   });
   if (result.metro) applyDetectorMetroFields(result.metro, result.metroDownAt ? result : null);
@@ -457,6 +461,12 @@ function runInvalidDetectors() {
   }
   if (result.watchWarn) {
     console.warn(`[p12.5] WARN pre-run-watch stale ${result.watch?.ageSec ?? '?'}s`);
+  }
+  if (result.bundleWarn && result.bundle) {
+    state.bundleWarnCount = (state.bundleWarnCount ?? 0) + 1;
+    console.warn(
+      `[p12.5] WARN bundle_error (${state.runtimeMode} mode): ${(result.bundle.matchingLine ?? result.detail ?? '').slice(0, 120)}`,
+    );
   }
   if (result.stop && result.stopReason === 'bundle_error' && result.bundle) {
     state.bundleErrorAt = result.bundle.bundleErrorAt ?? new Date().toISOString();
@@ -549,7 +559,7 @@ function evaluateTestBodyPass() {
   const pidOk = state.pidLostEvents === 0 && (state.pidChangedEvents ?? 0) === 0;
   const adbConnected = adbOk();
   const metro = checkMetroListening({ execSync: sh });
-  const metroListening = metro.listening;
+  const metroListening = state.runtimeMode === 'apk' ? true : metro.listening;
   const priceOk = !hasUnrecoverablePriceFailure();
   return {
     overall: crashFree && anrFree && pidOk && adbConnected && metroListening && priceOk,
@@ -622,7 +632,7 @@ function writeProgressReport(status, detail = null) {
     `| ANR0 | ${eval_.anrFree ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ANR=${state.anrCount} |`,
     `| プロセス消失0 | ${eval_.pidOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | pidLost=${state.pidLostEvents} |`,
     `| adb device | ${eval_.adbConnected ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${eval_.adbConnected ? 'connected' : 'missing'} |`,
-    `| Metro :8081 | ${eval_.metroListening ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${eval_.metroListening ? 'LISTENING' : 'down'} |`,
+    `| Metro :8081 | ${state.runtimeMode === 'apk' ? 'N/A (apk mode)' : eval_.metroListening ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${state.runtimeMode === 'apk' ? 'skipped' : eval_.metroListening ? 'LISTENING' : 'down'} |`,
     `| 価格更新復帰 | ${eval_.priceOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | 直近4回連続失敗でFAIL |`,
     '',
     '### WARN 条件（B — 本体FAILにしない）',
@@ -760,6 +770,8 @@ async function main() {
 
   state.startedAt = new Date().toISOString();
   state.runnerStartedMs = Date.now();
+  state.runtimeMode = resolvePhase125RuntimeMode();
+  console.log(`[p12.5] runtimeMode=${state.runtimeMode}`);
   fs.mkdirSync(TWELVE_HOUR_LOG_DIR, { recursive: true });
   state.logcatScanOffset = fs.existsSync(LIVE_LOGCAT_PATH) ? fs.statSync(LIVE_LOGCAT_PATH).size : 0;
   sh('adb logcat -c', { allowFail: true });

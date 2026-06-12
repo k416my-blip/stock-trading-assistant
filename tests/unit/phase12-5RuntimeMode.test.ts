@@ -36,6 +36,20 @@ describe('phase12-5 runtime mode', () => {
     expect(cfg.primarySignals).toContain('bundle_error');
   });
 
+  it('runInvalidDetectorPass dev mode stops on metro down', () => {
+    const result = runInvalidDetectorPass({
+      fs,
+      execSync: () => '',
+      liveLogcatPath: null,
+      watchLogPath: null,
+      runtimeMode: 'dev',
+      checkPid: false,
+      checkWatch: false,
+    });
+    expect(result.stop).toBe(true);
+    expect(result.stopReason).toBe('metro_down');
+  });
+
   it('runInvalidDetectorPass apk mode ignores metro down', () => {
     const result = runInvalidDetectorPass({
       fs,

@@ -10,6 +10,7 @@ export const INVALID_REASON_MD = 'PHASE12_5_INVALID_REASON_SUMMARY.md';
 export function buildInvalidReasonPayload(state) {
   return {
     stopReason: state.stopReason ?? null,
+    runtimeMode: state.runtimeMode ?? null,
     endedAt: state.endedAt ?? new Date().toISOString(),
     startedAt: state.startedAt ?? null,
     baselineAppPid: state.baselineAppPid ?? null,
@@ -42,6 +43,7 @@ export function buildInvalidReasonMarkdown(payload) {
     '| 項目 | 値 |',
     '|------|-----|',
     `| baselineAppPid | ${payload.baselineAppPid ?? '—'} |`,
+    `| runtimeMode | ${payload.runtimeMode ?? 'dev'} |`,
     `| metroDownAt | ${payload.metroDownAt ?? '—'} |`,
     `| metroPid | ${payload.metroPid ?? '—'} |`,
     `| lastMetroCheck | ${payload.lastMetroCheck ?? '—'} |`,
