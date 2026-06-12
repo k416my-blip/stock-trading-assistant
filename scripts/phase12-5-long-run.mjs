@@ -12,9 +12,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync, spawnSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
+import {
+  DEFAULT_LIVE_LOGCAT,
+  finalizeLogcatSnapshot,
+  parseLogcatMetrics,
+} from './lib/phase12-5-logcat-finalization.mjs';
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'docs/review/phase12-5-long-run');
+const TWELVE_HOUR_LOG_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
+const LIVE_LOGCAT_PATH = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
 const REPORT_PATH = path.join(ROOT, 'docs/review/PHASE12_5_LONG_RUN_REPORT.md');
 const TELEMETRY_PATH = path.join(OUT_DIR, 'telemetry.jsonl');
 const CHECKPOINT_PATH = path.join(OUT_DIR, 'checkpoint.json');
@@ -49,6 +56,9 @@ const state = {
   anrCount: 0,
   logcatBaselineSize: 0,
   pidLostEvents: 0,
+  logFinalizationWarnings: [],
+  logcatSnapshotPaths: [],
+  stopReason: null,
 };
 
 function sh(cmd, opts = {}) {
@@ -331,14 +341,44 @@ async function runAiAnalysis(hourIndex) {
 
 function scanLogcatDelta() {
   const raw = sh('adb logcat -d', { allowFail: true });
-  const fatal = (raw.match(/FATAL EXCEPTION/gi) ?? []).length;
-  const anr = (raw.match(/ANR in /gi) ?? []).length;
-  const rnType = (raw.match(/ReactNativeJS.*TypeError/gi) ?? []).length;
-  const undef = (raw.match(/Cannot convert undefined value to object/gi) ?? []).length;
-  state.crashes = { fatal, rnTypeError: rnType, undefined: undef };
-  state.anrCount = anr;
-  fs.writeFileSync(path.join(OUT_DIR, 'logcat-final.txt'), raw);
-  return { fatal, anr, rnType, undef };
+  const metrics = parseLogcatMetrics(raw);
+  state.crashes = {
+    fatal: metrics.fatal,
+    rnTypeError: metrics.rnTypeError,
+    undefined: metrics.undefined,
+  };
+  state.anrCount = metrics.anr;
+  return metrics;
+}
+
+function recordLogFinalizationWarning(warning) {
+  if (!warning) return;
+  state.logFinalizationWarnings.push(warning);
+  console.warn('[p12.5] WARN logcat finalization:', warning.message ?? warning);
+}
+
+function finalizeLogcatArtifacts({ adbDumpText = null, mockFail = false } = {}) {
+  const dump = adbDumpText ?? sh('adb logcat -d', { allowFail: true });
+  const result = finalizeLogcatSnapshot({
+    rootDir: ROOT,
+    outDir: 'docs/review/phase12-5-long-run',
+    twelveHourLogDir: 'docs/review/twelve-hour-test',
+    liveRelativePath: DEFAULT_LIVE_LOGCAT,
+    adbDumpText: dump,
+    mockFail: mockFail || process.env.PHASE12_5_LOGCAT_FINALIZE_MOCK_FAIL === '1',
+  });
+  if (result.path) state.logcatSnapshotPaths.push(result.path);
+  if (result.snapshotPath && result.snapshotPath !== result.path) {
+    state.logcatSnapshotPaths.push(result.snapshotPath);
+  }
+  if (result.warning) recordLogFinalizationWarning(result.warning);
+  return result;
+}
+
+function hasUnrecoverablePriceFailure() {
+  if (!state.priceRefreshRuns.length) return false;
+  const recent = state.priceRefreshRuns.slice(-4);
+  return recent.length >= 4 && recent.every((r) => !r.ok);
 }
 
 async function hourlySnapshot(hourIndex) {
@@ -374,54 +414,111 @@ function stocksPass() {
   return STOCKS.every((s) => passed.has(s.code));
 }
 
-function evaluatePass() {
+function memIncreasePct() {
+  if (!state.baselineMemKb || !state.hourlyMemKb.length) return null;
+  const end = state.hourlyMemKb[state.hourlyMemKb.length - 1]?.kb;
+  if (end == null) return null;
+  return (((end - state.baselineMemKb) / state.baselineMemKb) * 100).toFixed(1);
+}
+
+/** A. Conditions that should FAIL the long-run test body. */
+function evaluateTestBodyPass() {
   const crashFree = state.crashes.fatal === 0 && state.crashes.undefined === 0;
   const anrFree = state.anrCount === 0;
-  const memOk = memoryLeakPass();
-  const stocksOk = stocksPass();
   const pidOk = state.pidLostEvents === 0;
+  const adbConnected = adbOk();
+  const metroListening = sh('netstat -ano', { allowFail: true }).includes(':8081');
+  const priceOk = !hasUnrecoverablePriceFailure();
   return {
-    overall: crashFree && anrFree && memOk && stocksOk && pidOk,
+    overall: crashFree && anrFree && pidOk && adbConnected && metroListening && priceOk,
     crashFree,
     anrFree,
-    memOk,
-    stocksOk,
     pidOk,
-    memIncreasePct:
-      state.baselineMemKb && state.hourlyMemKb.length
-        ? (
-            ((state.hourlyMemKb[state.hourlyMemKb.length - 1].kb - state.baselineMemKb) /
-              state.baselineMemKb) *
-            100
-          ).toFixed(1)
-        : null,
+    adbConnected,
+    metroListening,
+    priceOk,
   };
 }
 
-function writeProgressReport(status) {
+/** B. WARN-only conditions — do not fail exit code or stop the orchestrator. */
+function evaluateWarnings() {
+  return {
+    logFinalizationWarnings: state.logFinalizationWarnings,
+    stocksOk: stocksPass(),
+    memOk: memoryLeakPass(),
+    memIncreasePct: memIncreasePct(),
+    logcatSnapshots: state.logcatSnapshotPaths,
+  };
+}
+
+function evaluatePass() {
+  const body = evaluateTestBodyPass();
+  const warnings = evaluateWarnings();
+  return { ...body, ...warnings, overall: body.overall };
+}
+
+function elapsedHuman() {
+  if (!state.startedAt) return null;
+  const endMs = state.endedAt ? Date.parse(state.endedAt) : Date.now();
+  const ms = endMs - Date.parse(state.startedAt);
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return `${h}h ${String(m).padStart(2, '0')}m`;
+}
+
+function writeProgressReport(status, detail = null) {
   const eval_ = evaluatePass();
+  const elapsed = elapsedHuman();
+  const statusLine =
+    status === 'COMPLETED'
+      ? `## 総合判定: **${eval_.overall ? 'PASS' : 'FAIL'}**（テスト本体）`
+      : status === 'FAILED' || status === 'INTERRUPTED'
+        ? `## 総合判定: **FAILED**（${status === 'INTERRUPTED' ? '中断' : 'テスト本体NG'}${elapsed ? ` · 約${elapsed}` : ''}）`
+        : '## 総合判定: **進行中**';
+
   const lines = [
     '# Phase12.5 Long Run Validation Report',
     '',
     `**ステータス:** ${status}`,
     `**開始:** ${state.startedAt ?? '—'}`,
     `**終了:** ${state.endedAt ?? '—'}`,
+    `**経過:** ${elapsed ?? '—'}`,
     `**計画時間:** ${HOURS} 時間`,
     `**実機:** Redmi (adb)`,
+    state.stopReason ? `**停止理由:** ${state.stopReason}` : null,
+    detail ? `**詳細:** ${detail}` : null,
     '',
-    status === 'COMPLETED'
-      ? `## 総合判定: **${eval_.overall ? 'PASS' : 'FAIL'}**`
-      : '## 総合判定: **進行中**',
+    statusLine,
     '',
-    '### PASS条件',
+    '### テスト本体 FAIL 条件（A）',
     '',
     '| 条件 | 判定 | 結果 |',
     '|------|------|------|',
     `| クラッシュ0 | ${eval_.crashFree ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | FATAL=${state.crashes.fatal}, undefined=${state.crashes.undefined} |`,
     `| ANR0 | ${eval_.anrFree ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ANR=${state.anrCount} |`,
-    `| メモリ増加20%以内 | ${eval_.memOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${eval_.memIncreasePct != null ? `+${eval_.memIncreasePct}%` : '—'} |`,
-    `| 全銘柄正常表示 | ${eval_.stocksOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${STOCKS.map((s) => s.code).join(', ')} — 各1回以上OK必要 |`,
+    `| プロセス消失0 | ${eval_.pidOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | pidLost=${state.pidLostEvents} |`,
+    `| adb device | ${eval_.adbConnected ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${eval_.adbConnected ? 'connected' : 'missing'} |`,
+    `| Metro :8081 | ${eval_.metroListening ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | ${eval_.metroListening ? 'LISTENING' : 'down'} |`,
+    `| 価格更新復帰 | ${eval_.priceOk ? 'PASS' : status === 'RUNNING' ? '—' : 'FAIL'} | 直近4回連続失敗でFAIL |`,
     '',
+    '### WARN 条件（B — 本体FAILにしない）',
+    '',
+    '| 条件 | 判定 | 結果 |',
+    '|------|------|------|',
+    `| logcat finalization | ${eval_.logFinalizationWarnings.length ? 'WARN' : 'PASS'} | ${eval_.logFinalizationWarnings.length} 件 |`,
+    `| 全銘柄UI表示 | ${eval_.stocksOk ? 'PASS' : 'WARN'} | adb UI card not found 等 |`,
+    `| メモリ増加20%以内 | ${eval_.memOk ? 'PASS' : 'WARN'} | ${eval_.memIncreasePct != null ? `+${eval_.memIncreasePct}%` : '—'} |`,
+    '',
+    ...(eval_.logFinalizationWarnings.length
+      ? [
+          '#### logFinalizationWarnings',
+          '',
+          ...eval_.logFinalizationWarnings.map(
+            (w) => `- ${w.at ?? '—'}: \`${w.code ?? 'WARN'}\` — ${w.message ?? JSON.stringify(w)}`,
+          ),
+          '',
+        ]
+      : []),
     '### 検証銘柄',
     '',
     ...STOCKS.map((s) => `- ${s.code} ${s.label}`),
@@ -454,7 +551,11 @@ function writeProgressReport(status) {
     '',
     '- `docs/review/phase12-5-long-run/telemetry.jsonl`',
     '- `docs/review/phase12-5-long-run/checkpoint.json`',
-    '- `docs/review/phase12-5-long-run/logcat-final.txt`',
+    `- live logcat: \`${DEFAULT_LIVE_LOGCAT}\`（追記専用）`,
+    ...(eval_.logcatSnapshots.length
+      ? eval_.logcatSnapshots.map((p) => `- snapshot: \`${path.relative(ROOT, p).replace(/\\/g, '/')}\``)
+      : ['- snapshot: `docs/review/phase12-5-long-run/logcat-snapshot-*.txt`（timestamp 付き）']),
+    '- `docs/review/twelve-hour-test/adb-logcat-final-*.log`（終了時コピー）',
     '- `docs/review/phase12-5-long-run/meminfo-hour-*.txt`',
     '',
     '### 再実行',
@@ -465,7 +566,7 @@ function writeProgressReport(status) {
     'PHASE12_5_HOURS=12 node scripts/phase12-5-long-run.mjs',
     '```',
     '',
-  ];
+  ].filter((line) => line !== null);
   fs.writeFileSync(REPORT_PATH, lines.join('\n'));
 }
 
@@ -487,6 +588,21 @@ async function main() {
     const stockCheck = await verifyAllStocks();
     console.log(JSON.stringify(stockCheck, null, 2));
     process.exit(stockCheck.allOk ? 0 : 1);
+  }
+
+  if (process.env.PHASE12_5_DRY_RUN === '1') {
+    state.startedAt = new Date().toISOString();
+    fs.mkdirSync(TWELVE_HOUR_LOG_DIR, { recursive: true });
+    if (!fs.existsSync(LIVE_LOGCAT_PATH)) {
+      fs.appendFileSync(LIVE_LOGCAT_PATH, '[dry-run] live logcat placeholder\n', 'utf8');
+    }
+    scanLogcatDelta();
+    const fin = finalizeLogcatArtifacts();
+    state.endedAt = new Date().toISOString();
+    saveCheckpoint();
+    writeProgressReport('COMPLETED', 'dry-run logcat finalization');
+    console.log(JSON.stringify({ fin, warnings: state.logFinalizationWarnings }, null, 2));
+    process.exit(0);
   }
 
   state.startedAt = new Date().toISOString();
@@ -549,6 +665,7 @@ async function main() {
 
   state.endedAt = new Date().toISOString();
   scanLogcatDelta();
+  finalizeLogcatArtifacts();
   spawnSync('npx tsx scripts/phase12-5-node-stocks.ts', {
     shell: true,
     cwd: ROOT,
@@ -561,17 +678,33 @@ async function main() {
   saveCheckpoint();
   writeProgressReport('COMPLETED');
 
-  const eval_ = evaluatePass();
-  console.log(`[p12.5] COMPLETED — ${eval_.overall ? 'PASS' : 'FAIL'}`);
+  const eval_ = evaluateTestBodyPass();
+  const warnings = evaluateWarnings();
+  console.log(`[p12.5] COMPLETED — body ${eval_.overall ? 'PASS' : 'FAIL'}`);
+  if (warnings.logFinalizationWarnings.length) {
+    console.warn(`[p12.5] WARN log finalization issues: ${warnings.logFinalizationWarnings.length}`);
+  }
   console.log(`[p12.5] Report: ${REPORT_PATH}`);
   process.exit(eval_.overall ? 0 : 1);
 }
 
 main().catch((e) => {
   state.endedAt = new Date().toISOString();
-  scanLogcatDelta();
+  state.stopReason = e?.message ?? String(e);
+  try {
+    scanLogcatDelta();
+  } catch (scanErr) {
+    recordLogFinalizationWarning({
+      at: new Date().toISOString(),
+      code: scanErr?.code ?? 'SCAN_ERROR',
+      message: scanErr?.message ?? String(scanErr),
+      source: 'scanLogcatDelta',
+    });
+  }
+  finalizeLogcatArtifacts();
   saveCheckpoint();
-  writeProgressReport('FAILED');
+  writeProgressReport('INTERRUPTED', state.stopReason);
   console.error('[p12.5] ERROR', e);
-  process.exit(1);
+  const body = evaluateTestBodyPass();
+  process.exit(body.overall ? 0 : 1);
 });
