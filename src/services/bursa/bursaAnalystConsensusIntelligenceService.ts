@@ -86,7 +86,8 @@ function computeImpliedUpside(
   if (impliedFromProvider != null && Number.isFinite(impliedFromProvider)) {
     return impliedFromProvider;
   }
-  if (targetPrice == null || currentPrice == null || currentPrice === 0) return null;
+  if (targetPrice == null || currentPrice == null || currentPrice <= 0) return null;
+  if (targetPrice <= 0) return null;
   return ((targetPrice - currentPrice) / Math.abs(currentPrice)) * 100;
 }
 
@@ -103,9 +104,11 @@ export function computeBuyHoldSellBalance(input: {
   sellPct: number | null;
   labelJa: string;
 } {
+  const sum = (input.buyCount ?? 0) + (input.holdCount ?? 0) + (input.sellCount ?? 0);
   const total =
-    input.analystCount ??
-    (input.buyCount ?? 0) + (input.holdCount ?? 0) + (input.sellCount ?? 0);
+    input.analystCount != null && sum > 0 && input.analystCount !== sum
+      ? sum
+      : (input.analystCount ?? sum);
   if (total <= 0) {
     return {
       buyPct: null,
@@ -162,9 +165,11 @@ export function computeAnalystConsensusScore(input: {
   ratingRevisionDirection: AnalystRevisionDirectionLabel | null;
 }): number {
   let score = 0;
+  const sum = (input.buyCount ?? 0) + (input.holdCount ?? 0) + (input.sellCount ?? 0);
   const total =
-    input.analystCount ??
-    (input.buyCount ?? 0) + (input.holdCount ?? 0) + (input.sellCount ?? 0);
+    input.analystCount != null && sum > 0 && input.analystCount !== sum
+      ? sum
+      : (input.analystCount ?? sum);
 
   if (total > 0 && input.buyCount != null) {
     const buyRatio = input.buyCount / total;
@@ -279,7 +284,7 @@ export function collectAnalystConsensusWarnings(input: {
     }
   }
 
-  return warnings;
+  return [...new Set(warnings)];
 }
 
 function countAcquiredFields(p: AnalystConsensusIntelligencePartial): number {
@@ -362,7 +367,7 @@ export async function buildAnalystConsensusIntelligenceAnalysis(input: {
     stockCode: input.stockCode,
     analystConsensus: input.analystConsensus,
     useMockFixture: input.useMockFixture,
-    fetchLiveExternal: false,
+    fetchLiveExternal: input.fetchLiveExternal ?? false,
   });
 
   const warnings = collectAnalystConsensusWarnings({ partial: merged });

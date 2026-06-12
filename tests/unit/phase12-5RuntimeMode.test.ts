@@ -93,4 +93,40 @@ describe('phase12-5 runtime mode', () => {
     expect(flags.checkMetro).toBe(true);
     expect(flags.checkBundle).toBe(true);
   });
+
+  it('defaults to dev when PHASE12_5_RUNTIME_MODE is unset', () => {
+    expect(resolvePhase125RuntimeMode({})).toBe('dev');
+    expect(resolvePhase125RuntimeMode({ PHASE12_5_RUNTIME_MODE: undefined })).toBe('dev');
+  });
+
+  it('normalizes uppercase and whitespace to apk', () => {
+    expect(resolvePhase125RuntimeMode({ PHASE12_5_RUNTIME_MODE: '  APK  ' })).toBe('apk');
+    expect(resolvePhase125RuntimeMode({ PHASE12_5_RUNTIME_MODE: 'ApK' })).toBe('apk');
+  });
+
+  it('falls back to dev for unknown runtime mode values', () => {
+    expect(resolvePhase125RuntimeMode({ PHASE12_5_RUNTIME_MODE: 'production' })).toBe('dev');
+    expect(resolvePhase125RuntimeMode({ PHASE12_5_RUNTIME_MODE: '' })).toBe('dev');
+  });
+
+  it('runInvalidDetectorPass dev mode treats bundle_error as INVALID', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'p125-dev-bundle-'));
+    const live = join(dir, 'adb-logcat-live.log');
+    writeFileSync(live, 'Could not load bundle\n', 'utf8');
+    try {
+      const result = runInvalidDetectorPass({
+        fs,
+        execSync: () => '  TCP  0.0.0.0:8081  LISTENING  1\n',
+        liveLogcatPath: live,
+        runtimeMode: 'dev',
+        checkPid: false,
+        checkWatch: false,
+      });
+      expect(result.stop).toBe(true);
+      expect(result.stopReason).toBe('bundle_error');
+      expect(result.bundleWarn).toBeUndefined();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

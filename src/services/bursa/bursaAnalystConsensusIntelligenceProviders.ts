@@ -393,5 +393,12 @@ export async function fetchAllAnalystConsensusIntelligencePartials(input: {
     if (unavailable) partials.push(unavailable);
   }
 
-  return mergeAnalystConsensusIntelligencePartials(partials) ?? partials.find((p) => p.providerError) ?? null;
+  const merged = mergeAnalystConsensusIntelligencePartials(partials);
+  const externalProviderError = input.fetchLiveExternal
+    ? partials.find((p) => p.providerError)?.providerError
+    : null;
+  if (merged && externalProviderError && !merged.providerError) {
+    merged.providerError = externalProviderError;
+  }
+  return merged ?? partials.find((p) => p.providerError) ?? null;
 }

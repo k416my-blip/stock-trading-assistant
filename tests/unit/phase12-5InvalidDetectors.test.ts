@@ -166,4 +166,32 @@ describe('phase12-5 invalid detectors', () => {
     const joined = BUNDLE_ERROR_PATTERNS.map((p) => p.source).join('|');
     expect(joined).toMatch(/AppErrorBoundary/);
   });
+
+  it('scanFileForBundleErrors handles offset beyond file size safely', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'p125-offset-'));
+    const filePath = join(dir, 'live.log');
+    writeFileSync(filePath, 'hello\n', 'utf8');
+    try {
+      const size = fs.statSync(filePath).size;
+      const result = scanFileForBundleErrors({ fs, filePath, offset: size + 9999 });
+      expect(result.detected).toBe(false);
+      expect(result.newOffset).toBe(size + 9999);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('runInvalidDetectorPass apk mode does not INVALID on metro_down', () => {
+    const result = runInvalidDetectorPass({
+      fs,
+      execSync: () => '',
+      liveLogcatPath: null,
+      watchLogPath: null,
+      runtimeMode: 'apk',
+      checkPid: false,
+      checkWatch: false,
+    });
+    expect(result.stop).toBe(false);
+    expect(result.stopReason).toBeUndefined();
+  });
 });

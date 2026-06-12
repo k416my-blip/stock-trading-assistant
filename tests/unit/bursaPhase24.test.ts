@@ -282,3 +282,179 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(analysis.consensusScore).toBeLessThan(0);
   });
 });
+
+describe('bursaPhase24 edge cases', () => {
+  it('computeAnalystConsensusScore handles analystCount 0 without throwing', () => {
+    const score = computeAnalystConsensusScore({
+      analystCount: 0,
+      buyCount: 0,
+      holdCount: 0,
+      sellCount: 0,
+      impliedUpsidePct: null,
+      targetRevisionDirection: null,
+      targetRevisionPct: null,
+      ratingRevisionDirection: null,
+    });
+    expect(score).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
+    expect(score).toBeLessThanOrEqual(ANALYST_CONSENSUS_SCORE_MAX);
+  });
+
+  it('computeBuyHoldSellBalance returns missing label when all counts are zero', () => {
+    const balance = computeBuyHoldSellBalance({
+      analystCount: 0,
+      buyCount: 0,
+      holdCount: 0,
+      sellCount: 0,
+    });
+    expect(balance.labelJa).toContain('データ未取得');
+  });
+
+  it('computeBuyHoldSellBalance uses sum when analystCount mismatches buy+hold+sell', () => {
+    const balance = computeBuyHoldSellBalance({
+      analystCount: 20,
+      buyCount: 5,
+      holdCount: 3,
+      sellCount: 2,
+    });
+    expect(balance.buyPct).toBeCloseTo(50, 0);
+  });
+
+  it('computeImpliedUpside returns null for missing or non-positive prices', () => {
+    expect(computeImpliedUpside(null, 10, null)).toBeNull();
+    expect(computeImpliedUpside(10, null, null)).toBeNull();
+    expect(computeImpliedUpside(10, 0, null)).toBeNull();
+    expect(computeImpliedUpside(-5, 10, null)).toBeNull();
+    expect(computeImpliedUpside(10, -3, null)).toBeNull();
+  });
+
+  it('computeAnalystConsensusScore clamps extreme upside and downside', () => {
+    const high = computeAnalystConsensusScore({
+      analystCount: 20,
+      buyCount: 18,
+      holdCount: 1,
+      sellCount: 1,
+      impliedUpsidePct: 250,
+      targetRevisionDirection: 'Upgraded',
+      targetRevisionPct: 20,
+      ratingRevisionDirection: 'Upgraded',
+    });
+    const low = computeAnalystConsensusScore({
+      analystCount: 20,
+      buyCount: 1,
+      holdCount: 1,
+      sellCount: 18,
+      impliedUpsidePct: -250,
+      targetRevisionDirection: 'Downgraded',
+      targetRevisionPct: -20,
+      ratingRevisionDirection: 'Downgraded',
+    });
+    expect(high).toBeLessThanOrEqual(ANALYST_CONSENSUS_SCORE_MAX);
+    expect(low).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
+  });
+
+  it('resolveAnalystConsensusConfidence handles dispersion 0 and 100', () => {
+    expect(
+      resolveAnalystConsensusConfidence({
+        analystCount: 12,
+        consensusDispersion: 0,
+        fieldCount: 11,
+        hasTargetAndPrice: true,
+        warnings: [],
+      }),
+    ).toBe('High');
+    expect(
+      resolveAnalystConsensusConfidence({
+        analystCount: 12,
+        consensusDispersion: 100,
+        fieldCount: 10,
+        hasTargetAndPrice: true,
+        warnings: ['high_dispersion'],
+      }),
+    ).toBe('Medium');
+  });
+
+  it('collectAnalystConsensusWarnings deduplicates entries', () => {
+    const staleDate = new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString();
+    const warnings = collectAnalystConsensusWarnings({
+      partial: {
+        ...MOCK_ANALYST_CONSENSUS_FIXTURE,
+        targetPrice: null,
+        currentPrice: null,
+        analystCount: 1,
+        consensusDispersion: 90,
+        updatedAt: staleDate,
+        providerError: 'err',
+      },
+    });
+    const unique = new Set(warnings);
+    expect(unique.size).toBe(warnings.length);
+    expect(warnings).toContain('missing_target_price');
+    expect(warnings).toContain('stale_data');
+  });
+
+  it('buildAnalystConsensusPartialFromPhase14 handles partial missing fields', () => {
+    const partial = buildAnalystConsensusPartialFromPhase14({
+      availability: 'available',
+      rating: null,
+      ratingCounts: null,
+      averageTargetPrice: 9.5,
+      currentPrice: null,
+      targetPriceUpsidePct: null,
+      epsForecast: { currentFy: null, nextFy: null },
+      revenueForecast: { currentFy: null, nextFy: null },
+      consensusTrend: null,
+      confidenceScore: 0,
+      displayJa: {} as never,
+      evaluationJa: '',
+      hasRatingOrTarget: true,
+      fetchedAt: null,
+      availabilityLabelJa: '',
+      source: 'none',
+    });
+    expect(partial?.targetPrice).toBe(9.5);
+    expect(partial?.currentPrice).toBeNull();
+    expect(partial?.consensusRating).toBeNull();
+  });
+
+  it('provider error with partial mock data still returns available analysis', async () => {
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: '1155',
+      useMockFixture: true,
+      fetchLiveExternal: true,
+    });
+    expect(analysis.availability).toBe('available');
+    expect(analysis.warnings).toContain('provider_error');
+    expect(analysis.consensusScore).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
+  });
+
+  it('provider error with no data returns unavailable', async () => {
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: '9999',
+      useMockFixture: false,
+      fetchLiveExternal: true,
+    });
+    expect(analysis.availability).toBe('unavailable');
+    expect(analysis.warnings).toContain('no_consensus_data');
+  });
+
+  it.each(AUDIT_ANALYST_CONSENSUS_STOCKS)(
+    'mock fixture %s score stays within -20..+20',
+    async (code) => {
+      const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+        stockCode: code,
+        useMockFixture: true,
+      });
+      expect(analysis.consensusScore).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
+      expect(analysis.consensusScore).toBeLessThanOrEqual(ANALYST_CONSENSUS_SCORE_MAX);
+    },
+  );
+
+  it('Japanese evaluationJa is non-empty for available mock analysis', async () => {
+    const analysis = await buildAnalystConsensusIntelligenceAnalysis({
+      stockCode: '1155',
+      useMockFixture: true,
+    });
+    expect(analysis.evaluationJa.trim().length).toBeGreaterThan(10);
+    expect(analysis.displayJa.consensusRating).not.toBe('データ未取得');
+  });
+});
