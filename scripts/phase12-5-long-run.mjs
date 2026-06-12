@@ -18,11 +18,15 @@ import {
   parseLogcatMetrics,
 } from './lib/phase12-5-logcat-finalization.mjs';
 import { saveUiDumpSnapshot } from './lib/phase12-5-ui-dump-finalization.mjs';
+import { checkMetroListening } from './lib/phase12-5-metro-watchdog.mjs';
+import { runInvalidDetectorPass } from './lib/phase12-5-invalid-detectors.mjs';
+import { writeInvalidReasonArtifacts } from './lib/phase12-5-graceful-invalid.mjs';
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'docs/review/phase12-5-long-run');
 const TWELVE_HOUR_LOG_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
 const LIVE_LOGCAT_PATH = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
+const PRE_RUN_WATCH_PATH = path.join(TWELVE_HOUR_LOG_DIR, 'pre-run-watch.log');
 const REPORT_PATH = path.join(ROOT, 'docs/review/PHASE12_5_LONG_RUN_REPORT.md');
 const TELEMETRY_PATH = path.join(OUT_DIR, 'telemetry.jsonl');
 const CHECKPOINT_PATH = path.join(OUT_DIR, 'checkpoint.json');
@@ -57,6 +61,21 @@ const state = {
   anrCount: 0,
   logcatBaselineSize: 0,
   pidLostEvents: 0,
+  pidChangedEvents: 0,
+  baselineAppPid: null,
+  logcatScanOffset: 0,
+  metroDownAt: null,
+  metroPid: null,
+  lastMetroCheck: null,
+  metroCheckDetails: null,
+  bundleErrorAt: null,
+  bundleMatchingLine: null,
+  bundleSourceFile: null,
+  watchDeadAt: null,
+  previousPid: null,
+  currentPid: null,
+  detectorErrors: [],
+  runnerStartedMs: null,
   logFinalizationWarnings: [],
   logcatSnapshotPaths: [],
   uiDumpWarnings: [],
@@ -397,6 +416,92 @@ function hasUnrecoverablePriceFailure() {
   return recent.length >= 4 && recent.every((r) => !r.ok);
 }
 
+function applyDetectorMetroFields(metro, metroDown) {
+  if (metro) {
+    state.lastMetroCheck = metro.checkedAt ?? new Date().toISOString();
+    state.metroPid = metro.pid ?? null;
+  }
+  if (metroDown) {
+    state.metroDownAt = metroDown.metroDownAt ?? state.lastMetroCheck;
+    state.metroCheckDetails = metroDown.metroCheckDetails ?? null;
+  } else if (metro && !metro.listening && !state.metroDownAt) {
+    state.metroDownAt = state.lastMetroCheck;
+  }
+}
+
+function runInvalidDetectors() {
+  const currentAppPid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim();
+  const result = runInvalidDetectorPass({
+    fs,
+    execSync: sh,
+    liveLogcatPath: LIVE_LOGCAT_PATH,
+    watchLogPath: PRE_RUN_WATCH_PATH,
+    logcatScanOffset: state.logcatScanOffset,
+    baselineAppPid: state.baselineAppPid,
+    currentAppPid,
+    runnerStartedMs: state.runnerStartedMs ?? Date.now(),
+    nowMs: Date.now(),
+    checkWatch: fs.existsSync(PRE_RUN_WATCH_PATH),
+  });
+  if (result.metro) applyDetectorMetroFields(result.metro, result.metroDownAt ? result : null);
+  if (result.metroDownAt) {
+    state.metroDownAt = result.metroDownAt;
+    state.metroCheckDetails = result.metroCheckDetails ?? state.metroCheckDetails;
+  }
+  if (result.newLogcatScanOffset != null) {
+    state.logcatScanOffset = result.newLogcatScanOffset;
+  }
+  if (result.detectorError) {
+    state.detectorErrors.push(`${new Date().toISOString()}: ${result.detectorError}`);
+    console.warn('[p12.5] WARN detector pass:', result.detectorError);
+  }
+  if (result.watchWarn) {
+    console.warn(`[p12.5] WARN pre-run-watch stale ${result.watch?.ageSec ?? '?'}s`);
+  }
+  if (result.stop && result.stopReason === 'bundle_error' && result.bundle) {
+    state.bundleErrorAt = result.bundle.bundleErrorAt ?? new Date().toISOString();
+    state.bundleMatchingLine = result.bundle.matchingLine ?? result.detail ?? null;
+    state.bundleSourceFile = result.bundle.sourceFile ?? LIVE_LOGCAT_PATH;
+  }
+  if (result.stop && result.stopReason === 'watch_dead') {
+    state.watchDeadAt = new Date().toISOString();
+  }
+  if (result.previousPid !== undefined) state.previousPid = result.previousPid;
+  if (result.currentPid !== undefined) state.currentPid = result.currentPid;
+  if (result.stop && result.stopReason === 'app_pid_lost') {
+    state.pidLostEvents += 1;
+  }
+  if (result.stop && result.stopReason === 'app_pid_changed') {
+    state.pidChangedEvents += 1;
+  }
+  return result;
+}
+
+async function gracefulInvalidExit(stopReason, detail) {
+  state.stopReason = stopReason;
+  state.endedAt = new Date().toISOString();
+  console.error(`[p12.5] INVALID stopReason=${stopReason} ${detail ?? ''}`);
+  try {
+    scanLogcatDelta();
+  } catch (scanErr) {
+    recordLogFinalizationWarning({
+      at: new Date().toISOString(),
+      code: scanErr?.code ?? 'SCAN_ERROR',
+      message: scanErr?.message ?? String(scanErr),
+      source: 'scanLogcatDelta',
+    });
+  }
+  try {
+    finalizeLogcatArtifacts();
+  } catch {
+    /* ignore */
+  }
+  writeInvalidReasonArtifacts({ logDir: TWELVE_HOUR_LOG_DIR, state });
+  saveCheckpoint();
+  writeProgressReport('FAILED', detail ?? stopReason);
+  process.exit(1);
+}
+
 async function hourlySnapshot(hourIndex) {
   console.log(`[p12.5] hourly snapshot ${hourIndex}`);
   wakeDevice();
@@ -441,9 +546,10 @@ function memIncreasePct() {
 function evaluateTestBodyPass() {
   const crashFree = state.crashes.fatal === 0 && state.crashes.undefined === 0;
   const anrFree = state.anrCount === 0;
-  const pidOk = state.pidLostEvents === 0;
+  const pidOk = state.pidLostEvents === 0 && (state.pidChangedEvents ?? 0) === 0;
   const adbConnected = adbOk();
-  const metroListening = sh('netstat -ano', { allowFail: true }).includes(':8081');
+  const metro = checkMetroListening({ execSync: sh });
+  const metroListening = metro.listening;
   const priceOk = !hasUnrecoverablePriceFailure();
   return {
     overall: crashFree && anrFree && pidOk && adbConnected && metroListening && priceOk,
@@ -603,14 +709,18 @@ function writeProgressReport(status, detail = null) {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
   if (!adbOk()) {
-    console.error('[p12.5] FAIL: adb device not found');
-    process.exit(2);
-  }
-
-  try {
-    sh('adb reverse tcp:8081 tcp:8081', { allowFail: true });
-  } catch {
-    /* ignore */
+    if (process.env.PHASE12_5_DRY_RUN === '1') {
+      console.warn('[p12.5] WARN dry-run: adb device not found — logcat finalization only');
+    } else {
+      console.error('[p12.5] FAIL: adb device not found');
+      process.exit(2);
+    }
+  } else {
+    try {
+      sh('adb reverse tcp:8081 tcp:8081', { allowFail: true });
+    } catch {
+      /* ignore */
+    }
   }
 
   if (process.env.PHASE12_5_SMOKE === '1' && HOURS < 1) {
@@ -626,8 +736,21 @@ async function main() {
     if (!fs.existsSync(LIVE_LOGCAT_PATH)) {
       fs.appendFileSync(LIVE_LOGCAT_PATH, '[dry-run] live logcat placeholder\n', 'utf8');
     }
-    scanLogcatDelta();
-    const fin = finalizeLogcatArtifacts();
+    if (adbOk()) {
+      scanLogcatDelta();
+    } else {
+      const tail = fs.readFileSync(LIVE_LOGCAT_PATH, 'utf8').slice(-65536);
+      const metrics = parseLogcatMetrics(tail);
+      state.crashes = {
+        fatal: metrics.fatal,
+        rnTypeError: metrics.rnTypeError,
+        undefined: metrics.undefined,
+      };
+      state.anrCount = metrics.anr;
+    }
+    const fin = finalizeLogcatArtifacts({
+      adbDumpText: adbOk() ? null : '[dry-run] adb unavailable — live log only\n',
+    });
     state.endedAt = new Date().toISOString();
     saveCheckpoint();
     writeProgressReport('COMPLETED', 'dry-run logcat finalization');
@@ -636,8 +759,13 @@ async function main() {
   }
 
   state.startedAt = new Date().toISOString();
+  state.runnerStartedMs = Date.now();
+  fs.mkdirSync(TWELVE_HOUR_LOG_DIR, { recursive: true });
+  state.logcatScanOffset = fs.existsSync(LIVE_LOGCAT_PATH) ? fs.statSync(LIVE_LOGCAT_PATH).size : 0;
   sh('adb logcat -c', { allowFail: true });
   await ensureAppForeground();
+  state.baselineAppPid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim() || null;
+  console.log(`[p12.5] baselineAppPid=${state.baselineAppPid ?? 'none'}`);
 
   const baseline = sampleMemory('baseline');
   state.baselineMemKb = baseline.kb;
@@ -664,6 +792,11 @@ async function main() {
   lastPriceMs = Date.now();
 
   while (Date.now() - startMs < DURATION_MS) {
+    const detector = runInvalidDetectors();
+    if (detector.stop) {
+      await gracefulInvalidExit(detector.stopReason, detector.detail);
+    }
+
     await sleep(TICK_MS);
     const elapsed = Date.now() - startMs;
     const hourIndex = Math.floor(elapsed / HOUR_MS);
@@ -678,13 +811,6 @@ async function main() {
       const minuteIndex = Math.floor((elapsed % HOUR_MS) / (15 * 60 * 1000)) * 15;
       await runPriceRefresh(hourIndex, minuteIndex);
       lastPriceMs = Date.now();
-    }
-
-    const pid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim();
-    if (!pid) {
-      state.pidLostEvents += 1;
-      console.warn('[p12.5] pid lost — restarting app');
-      await ensureAppForeground();
     }
 
     if (Math.floor(elapsed / 60000) % 10 === 0) {
@@ -721,7 +847,7 @@ async function main() {
   process.exit(eval_.overall ? 0 : 1);
 }
 
-main().catch((e) => {
+main().catch(async (e) => {
   state.endedAt = new Date().toISOString();
   state.stopReason = e?.message ?? String(e);
   try {
@@ -735,9 +861,11 @@ main().catch((e) => {
     });
   }
   finalizeLogcatArtifacts();
+  if (state.stopReason && state.stopReason !== 'completed') {
+    writeInvalidReasonArtifacts({ logDir: TWELVE_HOUR_LOG_DIR, state });
+  }
   saveCheckpoint();
   writeProgressReport('INTERRUPTED', state.stopReason);
   console.error('[p12.5] ERROR', e);
-  const body = evaluateTestBodyPass();
-  process.exit(body.overall ? 0 : 1);
+  process.exit(1);
 });
