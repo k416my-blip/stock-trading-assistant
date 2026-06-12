@@ -2,6 +2,7 @@
  * Phase12.5 invalid-condition detectors — bundle errors, PID drift, watch staleness.
  */
 import { buildMetroDownResult, checkMetroListening } from './phase12-5-metro-watchdog.mjs';
+import { resolveInvalidDetectorFlags } from './phase12-5-runtime-mode.mjs';
 
 export const BUNDLE_ERROR_PATTERNS = [
   /Could not load bundle/i,
@@ -132,7 +133,22 @@ export function checkWatchLogStale({
 
 /**
  * Run all injectable detectors; never throws.
- * @returns {{ stop: boolean, stopReason?: string, detail?: string, metro?: object, watch?: object, newLogcatScanOffset?: number, watchWarn?: boolean, detectorError?: string, metroDownAt?: string, lastMetroCheck?: string, metroCheckDetails?: object, previousPid?: string|null, currentPid?: string|null, bundle?: object }}
+ * @param {object} opts
+ * @param {import('node:fs')} opts.fs
+ * @param {Function} [opts.execSync]
+ * @param {string|null} [opts.liveLogcatPath]
+ * @param {string|null} [opts.watchLogPath]
+ * @param {number} [opts.logcatScanOffset]
+ * @param {string|number|null} [opts.baselineAppPid]
+ * @param {string} [opts.currentAppPid]
+ * @param {number} [opts.runnerStartedMs]
+ * @param {number} [opts.nowMs]
+ * @param {string} [opts.runtimeMode]
+ * @param {boolean} [opts.checkWatch]
+ * @param {boolean} [opts.checkMetro]
+ * @param {boolean} [opts.checkBundle]
+ * @param {boolean} [opts.checkPid]
+ * @returns {{ stop: boolean, stopReason?: string, detail?: string, metro?: object, watch?: object, newLogcatScanOffset?: number, watchWarn?: boolean, bundleWarn?: boolean, runtimeMode?: string, detectorError?: string, metroDownAt?: string, lastMetroCheck?: string, metroCheckDetails?: object, previousPid?: string|null, currentPid?: string|null, bundle?: object }}
  */
 export function runInvalidDetectorPass({
   fs,
@@ -144,14 +160,26 @@ export function runInvalidDetectorPass({
   currentAppPid = '',
   runnerStartedMs = 0,
   nowMs = Date.now(),
-  checkWatch = true,
-  checkMetro = true,
-  checkBundle = true,
-  checkPid = true,
+  runtimeMode = undefined,
+  checkWatch = undefined,
+  checkMetro = undefined,
+  checkBundle = undefined,
+  checkPid = undefined,
 }) {
-  const out = { stop: false, newLogcatScanOffset: logcatScanOffset };
+  const flags = resolveInvalidDetectorFlags({
+    runtimeMode,
+    checkWatch,
+    checkMetro,
+    checkBundle,
+    checkPid,
+  });
+  const out = {
+    stop: false,
+    newLogcatScanOffset: logcatScanOffset,
+    runtimeMode: flags.runtimeMode,
+  };
   try {
-    if (checkMetro) {
+    if (flags.checkMetro) {
       const metro = checkMetroListening({ execSync });
       out.metro = metro;
       if (!metro.listening) {
@@ -166,21 +194,26 @@ export function runInvalidDetectorPass({
       }
     }
 
-    if (checkBundle && fs && liveLogcatPath) {
+    if (flags.checkBundle && fs && liveLogcatPath) {
       const bundle = scanFileForBundleErrors({ fs, filePath: liveLogcatPath, offset: logcatScanOffset });
       out.newLogcatScanOffset = bundle.newOffset ?? logcatScanOffset;
       if (bundle.detected) {
-        return {
-          ...out,
-          stop: true,
-          stopReason: 'bundle_error',
-          detail: bundle.matchingLine,
-          bundle,
-        };
+        if (flags.bundleErrorSeverity === 'warn') {
+          out.bundleWarn = true;
+          out.bundle = bundle;
+        } else {
+          return {
+            ...out,
+            stop: true,
+            stopReason: 'bundle_error',
+            detail: bundle.matchingLine,
+            bundle,
+          };
+        }
       }
     }
 
-    if (checkPid) {
+    if (flags.checkPid) {
       const pidCheck = checkAppPid({ currentPid: currentAppPid, baselinePid: baselineAppPid });
       if (!pidCheck.ok) {
         return {
@@ -194,7 +227,7 @@ export function runInvalidDetectorPass({
       }
     }
 
-    if (checkWatch && fs && watchLogPath) {
+    if (flags.checkWatch && fs && watchLogPath) {
       const exists = fs.existsSync(watchLogPath);
       const mtimeMs = exists ? fs.statSync(watchLogPath).mtimeMs : 0;
       const watch = checkWatchLogStale({

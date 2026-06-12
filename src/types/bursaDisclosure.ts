@@ -776,6 +776,8 @@ export type BursaStockMaterialAnalysis = {
   convictionIntelligence?: import('./bursaConvictionIntelligence').BursaConvictionIntelligenceAnalysis | null;
   /** Phase23 — Earnings Revision Intelligence（optional） */
   earningsRevisionIntelligence?: import('./bursaEarningsRevisionIntelligence').BursaEarningsRevisionIntelligenceAnalysis | null;
+  /** Phase24 — Analyst Consensus Intelligence（optional） */
+  analystConsensusIntelligence?: import('./bursaAnalystConsensusIntelligence').BursaAnalystConsensusIntelligenceAnalysis | null;
   fetchedFields: string[];
   missingFields: string[];
 };

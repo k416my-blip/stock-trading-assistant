@@ -136,7 +136,7 @@ describe('phase12-5 invalid detectors', () => {
         watchLogPath: undefined,
         checkPid: false,
         checkWatch: false,
-      } as Parameters<typeof runInvalidDetectorPass>[0]);
+      } as unknown as Parameters<typeof runInvalidDetectorPass>[0]);
       expect(result.stop).toBe(true);
       expect(result.stopReason).toBe('bundle_error');
     } finally {
@@ -157,7 +157,7 @@ describe('phase12-5 invalid detectors', () => {
       checkPid: false,
       checkWatch: true,
       watchLogPath: '/nope',
-    } as Parameters<typeof runInvalidDetectorPass>[0]);
+    } as unknown as Parameters<typeof runInvalidDetectorPass>[0]);
     expect(result.stop).toBe(false);
     expect((result as { detectorError?: string }).detectorError).toContain('fs boom');
   });
