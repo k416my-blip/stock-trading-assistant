@@ -51,6 +51,7 @@ export function isLogWriteWarningError(err) {
     code === 'EPERM' ||
     code === 'EACCES' ||
     code === 'ENOENT' ||
+    code === 'EMFILE' ||
     code === 'UNKNOWN' ||
     errno === -4094 ||
     errno === -4082

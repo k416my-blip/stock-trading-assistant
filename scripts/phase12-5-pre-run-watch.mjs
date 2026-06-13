@@ -11,6 +11,11 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { checkMetroListening } from './lib/phase12-5-metro-watchdog.mjs';
+import {
+  DEFAULT_LOGCAT_TAIL_BYTES,
+  extractLastMonitor,
+  readLogcatTailBytes,
+} from './lib/phase12-5-logcat-monitor-parse.mjs';
 
 const ROOT = process.cwd();
 const LOG_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
@@ -51,28 +56,6 @@ function logcatStats() {
   return { size: stat.size, ageSec };
 }
 
-function readLogcatTailKb(maxBytes = 4096) {
-  if (!fs.existsSync(LOGCAT_PATH)) return '';
-  const stat = fs.statSync(LOGCAT_PATH);
-  const start = Math.max(0, stat.size - maxBytes);
-  const fd = fs.openSync(LOGCAT_PATH, 'r');
-  const buf = Buffer.alloc(stat.size - start);
-  fs.readSync(fd, buf, 0, buf.length, start);
-  fs.closeSync(fd);
-  return buf.toString('utf8');
-}
-
-function extractLastMonitor(tail, kind) {
-  const re =
-    kind === 'heartbeat'
-      ? /(\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}).*12H-MONITOR.*heartbeat/
-      : /price_update[^\n]*(\d{4}-\d{2}-\d{2}T[\d:.]+Z)/;
-  const matches = [...tail.matchAll(new RegExp(re.source, 'g'))];
-  const m = matches.pop();
-  if (!m) return 'none';
-  return kind === 'heartbeat' ? m[1] : m[1];
-}
-
 async function tick(baselinePidRef) {
   const ts = new Date().toISOString();
   const adbOut = shTimeout('adb devices -l');
@@ -97,7 +80,7 @@ async function tick(baselinePidRef) {
     .join(' | ');
   const stay = shTimeout('adb shell settings get global stay_on_while_plugged_in') || '?';
   const { size: logcatSize, ageSec: logcatAgeSec } = logcatStats();
-  const tail = readLogcatTailKb();
+  const tail = readLogcatTailBytes(LOGCAT_PATH, DEFAULT_LOGCAT_TAIL_BYTES, fs);
   const lastHb = extractLastMonitor(tail, 'heartbeat');
   const lastPrice = extractLastMonitor(tail, 'price_update');
   const alerts = [];

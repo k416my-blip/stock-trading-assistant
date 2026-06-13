@@ -23,6 +23,15 @@ import { runInvalidDetectorPass } from './lib/phase12-5-invalid-detectors.mjs';
 import { writeInvalidReasonArtifacts } from './lib/phase12-5-graceful-invalid.mjs';
 import { resolvePhase125RuntimeMode } from './lib/phase12-5-runtime-mode.mjs';
 import {
+  advancePriceSlot,
+  initialPriceSlot,
+  isPriceRefreshDue,
+} from './lib/phase12-5-price-schedule.mjs';
+import {
+  writeCheckpointEmergency,
+  writeCheckpointWithRetry,
+} from './lib/phase12-5-checkpoint.mjs';
+import {
   clearSearchField,
   dumpCurrentFocus,
   ensurePortrait,
@@ -152,7 +161,11 @@ const state = {
   stopReason: null,
   runtimeMode: resolvePhase125RuntimeMode(),
   bundleWarnCount: 0,
+  checkpointWriteWarnings: [],
+  checkpointBackupPath: null,
 };
+
+let checkpointExitInProgress = false;
 
 function sh(cmd, opts = {}) {
   try {
@@ -179,8 +192,33 @@ function appendTelemetry(entry) {
   fs.appendFileSync(TELEMETRY_PATH, `${JSON.stringify(entry)}\n`, 'utf8');
 }
 
-function saveCheckpoint() {
-  fs.writeFileSync(CHECKPOINT_PATH, JSON.stringify({ ...state, updatedAt: new Date().toISOString() }, null, 2));
+function recordCheckpointWriteWarning(warning) {
+  if (!warning) return;
+  state.checkpointWriteWarnings.push(warning);
+}
+
+async function saveCheckpoint({ allowGracefulExit = true } = {}) {
+  if (checkpointExitInProgress) {
+    return { ok: false, skipped: true };
+  }
+  const result = await writeCheckpointWithRetry({
+    checkpointPath: CHECKPOINT_PATH,
+    state,
+    mockFail: process.env.PHASE12_5_CHECKPOINT_MOCK_FAIL === '1',
+    mockFailAfterAttempt: Number(process.env.PHASE12_5_CHECKPOINT_MOCK_FAIL_AFTER ?? '999'),
+  });
+  if (result.backupPath) {
+    state.checkpointBackupPath = result.backupPath;
+  }
+  if (result.ok) {
+    return result;
+  }
+  recordCheckpointWriteWarning(result.warning);
+  if (allowGracefulExit) {
+    checkpointExitInProgress = true;
+    await gracefulInvalidExit('checkpoint_write_failed', result.warning?.message ?? 'checkpoint write failed');
+  }
+  return result;
 }
 
 function wakeDevice() {
@@ -971,7 +1009,19 @@ async function gracefulInvalidExit(stopReason, detail) {
     /* ignore */
   }
   writeInvalidReasonArtifacts({ logDir: TWELVE_HOUR_LOG_DIR, state });
-  saveCheckpoint();
+  const cpResult = await writeCheckpointWithRetry({
+    checkpointPath: CHECKPOINT_PATH,
+    state,
+    mockFail: false,
+  });
+  if (cpResult.backupPath) state.checkpointBackupPath = cpResult.backupPath;
+  if (!cpResult.ok) {
+    recordCheckpointWriteWarning(cpResult.warning);
+    const emergency = await writeCheckpointEmergency({ checkpointPath: CHECKPOINT_PATH, state });
+    if (emergency.path) {
+      state.checkpointEmergencyPath = emergency.path;
+    }
+  }
   writeProgressReport('FAILED', detail ?? stopReason);
   process.exit(1);
 }
@@ -986,7 +1036,7 @@ async function hourlySnapshot(hourIndex) {
   state.cpuSamples.push({ hour: hourIndex, ...cpu });
   state.storageSamples.push({ hour: hourIndex, ...storage });
   appendTelemetry({ type: 'hourly', hour: hourIndex, mem, cpu, storage });
-  saveCheckpoint();
+  await saveCheckpoint();
   writeProgressReport('RUNNING');
   return { mem, cpu, storage };
 }
@@ -1255,7 +1305,7 @@ async function main() {
       adbDumpText: adbOk() ? null : '[dry-run] adb unavailable — live log only\n',
     });
     state.endedAt = new Date().toISOString();
-    saveCheckpoint();
+    await saveCheckpoint({ allowGracefulExit: false });
     writeProgressReport('COMPLETED', 'dry-run logcat finalization');
     console.log(JSON.stringify({ fin, warnings: state.logFinalizationWarnings }, null, 2));
     process.exit(0);
@@ -1291,9 +1341,11 @@ async function main() {
   const startMs = Date.now();
   let lastHour = 0;
   let lastPriceMs = startMs;
+  let nextPriceSlot = initialPriceSlot();
 
   await runAiAnalysis(0);
-  await runPriceRefresh(0, 0);
+  await runPriceRefresh(nextPriceSlot.hourIndex, nextPriceSlot.minuteIndex);
+  nextPriceSlot = advancePriceSlot(nextPriceSlot.hourIndex, nextPriceSlot.minuteIndex);
   lastPriceMs = Date.now();
 
   while (Date.now() - startMs < DURATION_MS) {
@@ -1306,21 +1358,21 @@ async function main() {
     const elapsed = Date.now() - startMs;
     const hourIndex = Math.floor(elapsed / HOUR_MS);
 
+    if (isPriceRefreshDue(Date.now(), lastPriceMs, PRICE_INTERVAL_MS)) {
+      await runPriceRefresh(nextPriceSlot.hourIndex, nextPriceSlot.minuteIndex);
+      nextPriceSlot = advancePriceSlot(nextPriceSlot.hourIndex, nextPriceSlot.minuteIndex);
+      lastPriceMs = Date.now();
+    }
+
     if (hourIndex > lastHour) {
       lastHour = hourIndex;
       await hourlySnapshot(hourIndex);
       await runAiAnalysis(hourIndex);
     }
 
-    if (Date.now() - lastPriceMs >= PRICE_INTERVAL_MS) {
-      const minuteIndex = Math.floor((elapsed % HOUR_MS) / (15 * 60 * 1000)) * 15;
-      await runPriceRefresh(hourIndex, minuteIndex);
-      lastPriceMs = Date.now();
-    }
-
     if (Math.floor(elapsed / 60000) % 10 === 0) {
       scanLogcatDelta();
-      saveCheckpoint();
+      await saveCheckpoint();
     }
   }
 
@@ -1336,7 +1388,7 @@ async function main() {
   const finalMem = sampleMemory('final');
   state.hourlyMemKb.push({ hour: 'final', kb: finalMem.kb, at: finalMem.at });
 
-  saveCheckpoint();
+  await saveCheckpoint({ allowGracefulExit: false });
   writeProgressReport('COMPLETED');
 
   const eval_ = evaluateTestBodyPass();
@@ -1369,7 +1421,12 @@ main().catch(async (e) => {
   if (state.stopReason && state.stopReason !== 'completed') {
     writeInvalidReasonArtifacts({ logDir: TWELVE_HOUR_LOG_DIR, state });
   }
-  saveCheckpoint();
+  const cpResult = await writeCheckpointWithRetry({ checkpointPath: CHECKPOINT_PATH, state });
+  if (cpResult.backupPath) state.checkpointBackupPath = cpResult.backupPath;
+  if (!cpResult.ok) {
+    recordCheckpointWriteWarning(cpResult.warning);
+    await writeCheckpointEmergency({ checkpointPath: CHECKPOINT_PATH, state });
+  }
   writeProgressReport('INTERRUPTED', state.stopReason);
   console.error('[p12.5] ERROR', e);
   process.exit(1);
