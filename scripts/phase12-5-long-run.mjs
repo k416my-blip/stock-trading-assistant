@@ -22,6 +22,28 @@ import { checkMetroListening } from './lib/phase12-5-metro-watchdog.mjs';
 import { runInvalidDetectorPass } from './lib/phase12-5-invalid-detectors.mjs';
 import { writeInvalidReasonArtifacts } from './lib/phase12-5-graceful-invalid.mjs';
 import { resolvePhase125RuntimeMode } from './lib/phase12-5-runtime-mode.mjs';
+import {
+  clearSearchField,
+  dumpCurrentFocus,
+  ensurePortrait,
+  findMalaysiaMarketFilter,
+  findStockSearchCards,
+  isDetailLoading,
+  isStockDetailVisible,
+  MAX_DETAIL_WAIT_MS,
+  MAX_STOCK_VERIFY_MS,
+  MAX_TAB_SCROLL,
+  MALAYSIA_FILTER_FALLBACK,
+  pickBestStockCard,
+  pickStockCardTapTargets,
+  isWrongStockDetail,
+  safeEnsureAppForeground,
+  safeInputText,
+  SCREENER_TAB_FALLBACK,
+  screenerSearchFieldCenter,
+  stockSearchInputText,
+  stockSearchQueries,
+} from './lib/phase12-5-device-ui.mjs';
 
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, 'docs/review/phase12-5-long-run');
@@ -40,12 +62,55 @@ const PRICE_INTERVAL_MS = 15 * 60 * 1000;
 const TICK_MS = 60 * 1000;
 
 const STOCKS = [
-  { code: '1155', label: 'Maybank', patterns: ['1155', 'Maybank', 'マレー'] },
-  { code: '1023', label: 'CIMB', patterns: ['1023', 'CIMB'] },
-  { code: '1295', label: 'Public Bank', patterns: ['1295', 'Public', 'パブリック'] },
-  { code: '5347', label: 'Tenaga', patterns: ['5347', 'Tenaga', 'テナガ'] },
-  { code: '4707', label: 'Nestle', patterns: ['4707', 'Nestle', 'ネスレ'] },
-  { code: '6033', label: 'Petronas Gas', patterns: ['6033', 'Petronas Gas', 'ペトロナス'] },
+  {
+    code: '1155',
+    label: 'Maybank',
+    query: 'Maybank',
+    aliases: ['Malayan Banking', 'MAYBANK'],
+    patterns: ['1155', 'Maybank', 'マレー'],
+  },
+  {
+    code: '1023',
+    label: 'CIMB',
+    query: 'CIMB',
+    aliases: ['CIMB Group'],
+    patterns: ['1023', 'CIMB'],
+  },
+  {
+    code: '1295',
+    label: 'Public Bank',
+    query: 'Public Bank',
+    aliases: ['Public', 'PBBANK'],
+    patterns: ['1295', 'Public', 'パブリック', 'PBBANK'],
+    screenerSymbols: ['5225'],
+    cardNames: ['Public Bank Berhad'],
+    detailExclude: ['IHH', 'Healthcare'],
+  },
+  {
+    code: '5347',
+    label: 'Tenaga',
+    query: 'Tenaga',
+    aliases: ['Tenaga Nasional', 'TNB'],
+    patterns: ['5347', 'Tenaga', 'テナガ', 'TNB'],
+  },
+  {
+    code: '4707',
+    label: 'Nestle',
+    query: 'Nestle',
+    aliases: ['(Malaysia)', 'Nestlé (Malaysia)'],
+    patterns: ['4707', 'Nestle', 'ネスレ', 'Nestlé'],
+    cardNames: ['Nestlé (Malaysia) Berhad'],
+  },
+  {
+    code: '6033',
+    label: 'Petronas Gas',
+    query: 'Petronas',
+    aliases: ['Petronas Gas', 'PETGAS'],
+    patterns: ['6033', 'Petronas Gas', 'Petronas', 'ペトロナス', 'PETGAS'],
+    cardNames: ['Petronas Gas Berhad'],
+    cardMustInclude: ['Gas'],
+    cardExclude: ['Chemicals'],
+  },
 ];
 
 const state = {
@@ -196,27 +261,68 @@ function tap(item) {
   sh(`adb shell input tap ${item.cx} ${item.cy}`, { allowFail: true });
 }
 
+async function guardedTap(item, label) {
+  const fg = await requireStockForeground(`tap-${label}`);
+  if (!fg.ok) return fg;
+  tap(item);
+  return { ok: true, foreground: fg.foreground };
+}
+
+function adbForegroundCtx(label = '') {
+  return {
+    sh,
+    pkg: PKG,
+    wakeDevice,
+    sleep,
+    label,
+  };
+}
+
+async function requireStockForeground(label) {
+  const fg = await safeEnsureAppForeground(adbForegroundCtx(label));
+  if (!fg.ok) {
+    console.warn(`[p12.5] FAIL foreground guard: ${fg.reason} pkg=${fg.foreground}`);
+    appendTelemetry({ type: 'foreground_guard_fail', label, ...fg, at: new Date().toISOString() });
+    return fg;
+  }
+  return fg;
+}
+
 async function tapTab(label) {
+  await requireStockForeground(`tapTab-${label}`);
   let xml = dumpUi(`tab-pre-${label}`);
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < MAX_TAB_SCROLL; i++) {
     const tabs = findLabels(xml, (l) => l === label || l.endsWith(label) || l.includes(`, ${label}`));
     if (tabs.length) {
       tap(tabs.sort((a, b) => a.cx - b.cx)[0]);
-      await sleep(5000);
+      await sleep(4000);
       return true;
     }
     sh('adb shell input swipe 900 2620 300 2620 350', { allowFail: true });
     await sleep(600);
     xml = dumpUi(`tab-scroll-${label}-${i}`);
   }
+  const fallback =
+    label === '銘柄検索'
+      ? SCREENER_TAB_FALLBACK
+      : label === '保有銘柄'
+        ? { cx: 388, cy: 2486 }
+        : null;
+  if (fallback) {
+    sh(`adb shell input tap ${fallback.cx} ${fallback.cy}`, { allowFail: true });
+    await sleep(4000);
+    return true;
+  }
   return false;
 }
 
 async function ensureAppForeground() {
-  wakeDevice();
-  sh(`adb shell am start -W -n ${PKG}/.MainActivity`, { allowFail: true });
-  await sleep(6000);
+  ensurePortrait(sh);
+  const fg = await requireStockForeground('ensureAppForeground');
+  if (!fg.ok) return false;
   for (const label of ['スキップ', '閉じる', 'OK', '後で']) {
+    const check = await requireStockForeground(`dismiss-${label}`);
+    if (!check.ok) return false;
     const xml = dumpUi('dismiss');
     const btn = findLabels(xml, (l) => l === label);
     if (btn[0]) {
@@ -226,6 +332,75 @@ async function ensureAppForeground() {
   }
   const pid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim();
   return Boolean(pid);
+}
+
+async function openScreenerMalaysia() {
+  await requireStockForeground('openScreenerMalaysia');
+  await tapTab('銘柄検索');
+  await sleep(1500);
+  return ensureMalaysiaFilterActive('open');
+}
+
+async function ensureMalaysiaFilterActive(tag) {
+  await requireStockForeground(`malaysia-filter-${tag}`);
+  let xml = dumpUi(`screener-${tag}`);
+  const bursa = findMalaysiaMarketFilter(xml, findLabels);
+  if (bursa) {
+    const tapFilter = await guardedTap(bursa, `malaysia-${tag}`);
+    if (!tapFilter.ok) {
+      sh(`adb shell input tap ${MALAYSIA_FILTER_FALLBACK.cx} ${MALAYSIA_FILTER_FALLBACK.cy}`, {
+        allowFail: true,
+      });
+    }
+  } else {
+    sh(`adb shell input tap ${MALAYSIA_FILTER_FALLBACK.cx} ${MALAYSIA_FILTER_FALLBACK.cy}`, {
+      allowFail: true,
+    });
+  }
+  await sleep(1200);
+  return dumpUi(`screener-bursa-${tag}`);
+}
+
+function recordStockVerifyFailure(stock, reason, extra = {}) {
+  const focus = dumpCurrentFocus(sh);
+  const shotPath = path.join(OUT_DIR, `search-fail-${stock.code}.png`);
+  sh('adb shell screencap -p /sdcard/p125-fail.png', { allowFail: true });
+  sh(`adb pull /sdcard/p125-fail.png "${shotPath}"`, { allowFail: true });
+  dumpUi(`search-fail-${stock.code}`);
+  return {
+    code: stock.code,
+    label: stock.label,
+    query: stockSearchInputText(stock),
+    queriesTried: extra.queriesTried ?? stockSearchQueries(stock),
+    ok: false,
+    reason,
+    foreground: focus.package,
+    focus,
+    screenshot: `docs/review/phase12-5-long-run/search-fail-${stock.code}.png`,
+    ...extra,
+  };
+}
+
+function recordDetailFailure(stock, reason, extra = {}) {
+  const focus = dumpCurrentFocus(sh);
+  const shotPath = path.join(OUT_DIR, `detail-fail-${stock.code}.png`);
+  sh('adb shell screencap -p /sdcard/p125-detail-fail.png', { allowFail: true });
+  sh(`adb pull /sdcard/p125-detail-fail.png "${shotPath}"`, { allowFail: true });
+  dumpUi(`detail-fail-${stock.code}`);
+  return {
+    code: stock.code,
+    label: stock.label,
+    query: extra.winningQuery ?? stockSearchInputText(stock),
+    queriesTried: extra.queriesTried ?? stockSearchQueries(stock),
+    cardFound: true,
+    ok: false,
+    visible: false,
+    reason,
+    foreground: focus.package,
+    focus,
+    screenshot: `docs/review/phase12-5-long-run/detail-fail-${stock.code}.png`,
+    ...extra,
+  };
 }
 
 async function runPriceRefresh(hourIndex, minuteIndex) {
@@ -260,51 +435,268 @@ async function runPriceRefresh(hourIndex, minuteIndex) {
   return result;
 }
 
-async function verifyStockDevice(stock) {
-  console.log(`[p12.5] verify stock ${stock.code} ${stock.label}`);
-  await ensureAppForeground();
+async function trySearchQuery(stock, queryText, tag) {
+  const preInput = await requireStockForeground(`verify-search-${stock.code}-${tag}`);
+  if (!preInput.ok) {
+    return { ok: false, reason: 'wrong_foreground_before_input', phase: 'search', queryText };
+  }
+
+  await ensureMalaysiaFilterActive(`pre-${stock.code}-${tag}`);
+
+  let xml = dumpUi(`search-pre-${stock.code}-${tag}`);
+  const field = screenerSearchFieldCenter(xml);
+  const tapField = await guardedTap({ cx: field.cx, cy: field.cy, label: 'search-field' }, `${stock.code}-field`);
+  if (!tapField.ok) return { ok: false, reason: tapField.reason ?? 'tap_field_failed', queryText };
+
+  await sleep(400);
+  await clearSearchField(sh, sleep);
+
+  const typed = await safeInputText({
+    sh,
+    pkg: PKG,
+    text: queryText,
+    sleep,
+    ensureForeground: () => requireStockForeground(`input-${stock.code}-${tag}`),
+  });
+  if (!typed.ok) {
+    return {
+      ok: false,
+      reason: typed.reason ?? 'input_failed',
+      queryText,
+      foreground: typed.foreground,
+    };
+  }
+
+  await sleep(10000);
+  xml = dumpUi(`search-${stock.code}-${tag}`);
+  const cards = findStockSearchCards(xml, stock, findLabels);
+  const notFound = xml.includes('該当する銘柄が見つかりません') || (xml.includes('0件') && !cards.length);
+  return { ok: cards.length > 0, cards, queryText, notFound, xml };
+}
+
+async function performStockSearch(stock) {
+  const queriesTried = stockSearchQueries(stock);
+  await openScreenerMalaysia();
+
+  /** @type {Array<{ queryText: string, ok: boolean, notFound?: boolean }>} */
+  const attempts = [];
+
+  for (let i = 0; i < queriesTried.length; i++) {
+    const queryText = queriesTried[i];
+    console.log(`[p12.5] search ${stock.code} try ${i + 1}/${queriesTried.length} query="${queryText}"`);
+    const result = await trySearchQuery(stock, queryText, `q${i}`);
+    attempts.push({ queryText, ok: result.ok, notFound: result.notFound });
+    if (result.ok && result.cards?.length) {
+      return {
+        ok: true,
+        cards: result.cards,
+        winningQuery: queryText,
+        queriesTried: attempts.map((a) => a.queryText),
+        attempts,
+      };
+    }
+    if (i < queriesTried.length - 1) {
+      await requireStockForeground(`search-next-query-${stock.code}`);
+    }
+  }
+
+  return {
+    ok: false,
+    queriesTried: attempts.map((a) => a.queryText),
+    attempts,
+    notFound: true,
+  };
+}
+
+async function waitForStockDetail(stock, winningQuery) {
+  const deadline = Date.now() + MAX_DETAIL_WAIT_MS;
+  let detail = '';
+  let lastForeground = PKG;
+
+  while (Date.now() < deadline) {
+    const fg = await requireStockForeground(`detail-wait-${stock.code}`);
+    if (!fg.ok) {
+      return {
+        detail,
+        hasError: false,
+        visible: false,
+        reason: 'wrong_foreground_detail',
+        foreground: fg.foreground,
+        retryable: true,
+      };
+    }
+    lastForeground = fg.foreground ?? lastForeground;
+    detail = dumpUi(`detail-${stock.code}`);
+    const hasError =
+      detail.includes('Cannot convert undefined') ||
+      detail.includes('Unfortunately') ||
+      detail.includes('クラッシュ');
+    if (hasError) return { detail, hasError: true, visible: false, foreground: lastForeground };
+    if (isWrongStockDetail(detail, stock)) {
+      return {
+        detail,
+        hasError: false,
+        visible: false,
+        wrongStock: true,
+        reason: 'wrong_detail_stock',
+        foreground: lastForeground,
+        retryable: true,
+        winningQuery,
+      };
+    }
+    if (isStockDetailVisible(detail, stock)) {
+      return { detail, hasError: false, visible: true, foreground: lastForeground, winningQuery };
+    }
+    if (isDetailLoading(detail)) {
+      await sleep(2500);
+      continue;
+    }
+    await sleep(2000);
+  }
+
+  return {
+    detail,
+    hasError: false,
+    visible: false,
+    reason: 'detail_not_visible',
+    foreground: lastForeground,
+    retryable: true,
+    winningQuery,
+  };
+}
+
+async function verifyStockDeviceOnce(stock, deviceAttempt) {
+  const started = Date.now();
+  const queriesPlanned = stockSearchQueries(stock);
+  console.log(
+    `[p12.5] verify stock ${stock.code} ${stock.label} queries=[${queriesPlanned.join(', ')}] attempt=${deviceAttempt}`,
+  );
+
+  wakeDevice();
+  const boot = await requireStockForeground(`verify-${stock.code}-a${deviceAttempt}`);
+  if (!boot.ok) {
+    return recordStockVerifyFailure(stock, 'wrong_foreground_before_verify', {
+      phase: 'boot',
+      deviceAttempt,
+      queriesTried: queriesPlanned,
+    });
+  }
+
   sh('adb shell input keyevent 4', { allowFail: true });
   await sleep(500);
-  await tapTab('ホーム');
-  await sleep(1500);
-  sh('adb shell input tap 277 2486', { allowFail: true });
-  await sleep(2500);
-  sh('adb shell input tap 484 828', { allowFail: true });
-  await sleep(600);
-  for (let i = 0; i < 12; i++) sh('adb shell input keyevent 67', { allowFail: true });
-  sh(`adb shell input text ${stock.code}`, { allowFail: true });
-  await sleep(4500);
-  const xml = dumpUi(`search-${stock.code}`);
-  const cards = findLabels(
-    xml,
-    (l) =>
-      l.includes(`${stock.code} ·`) ||
-      (l.includes(stock.code) &&
-        !l.includes('マレーシア市場') &&
-        !l.includes('銘柄名') &&
-        !l.includes('ティッカー')),
-  );
-  if (!cards.length) {
-    return { code: stock.code, label: stock.label, ok: false, reason: 'card not found' };
+
+  const search = await performStockSearch(stock);
+  if (!search.ok) {
+    return recordStockVerifyFailure(stock, 'card not found', {
+      phase: 'search_result',
+      queriesTried: search.queriesTried,
+      attempts: search.attempts,
+      notFound: search.notFound,
+      deviceAttempt,
+    });
   }
-  tap(cards.sort((a, b) => a.cy - b.cy).find((c) => c.label.includes('·')) ?? cards[0]);
-  await sleep(12000);
-  const detail = dumpUi(`detail-${stock.code}`);
-  const hasError =
-    detail.includes('Cannot convert undefined') ||
-    detail.includes('Unfortunately') ||
-    detail.includes('クラッシュ');
-  const visible =
-    detail.includes(stock.code) || stock.patterns.some((p) => detail.includes(p));
+
+  if (Date.now() - started > MAX_STOCK_VERIFY_MS) {
+    return recordStockVerifyFailure(stock, 'verify_timeout', {
+      phase: 'search_wait',
+      queriesTried: search.queriesTried,
+      deviceAttempt,
+    });
+  }
+
+  const card = pickBestStockCard(stock, search.cards);
+  if (!card) {
+    return recordStockVerifyFailure(stock, 'card not found', {
+      phase: 'pick_card',
+      queriesTried: search.queriesTried,
+      deviceAttempt,
+    });
+  }
+
+  const tapTargets = pickStockCardTapTargets(stock, search.cards);
+  /** @type {{ visible?: boolean, hasError?: boolean, reason?: string, foreground?: string, winningQuery?: string, wrongStock?: boolean, retryable?: boolean, detail?: string } | null} */
+  let detailResult = null;
+
+  for (let tapIdx = 0; tapIdx < tapTargets.length; tapIdx++) {
+    const target = tapTargets[tapIdx];
+    const tapCard = await guardedTap(target, `${stock.code}-card-${tapIdx}`);
+    if (!tapCard.ok) {
+      if (tapIdx === tapTargets.length - 1) {
+        return recordStockVerifyFailure(stock, tapCard.reason ?? 'tap_card_failed', {
+          phase: 'tap_card',
+          queriesTried: search.queriesTried,
+          winningQuery: search.winningQuery,
+          deviceAttempt,
+        });
+      }
+      continue;
+    }
+
+    detailResult = await waitForStockDetail(stock, search.winningQuery);
+    if (detailResult.visible && !detailResult.hasError) {
+      sh('adb shell input keyevent 4', { allowFail: true });
+      await sleep(800);
+      return {
+        code: stock.code,
+        label: stock.label,
+        query: search.winningQuery,
+        queriesTried: search.queriesTried,
+        cardFound: true,
+        ok: true,
+        visible: true,
+        hasError: false,
+        foreground: dumpCurrentFocus(sh).package,
+        deviceAttempt,
+        tapLabel: target.label,
+      };
+    }
+
+    if (detailResult.wrongStock) {
+      console.warn(
+        `[p12.5] WARN wrong detail ${stock.code} tap=${tapIdx} label="${target.label}"`,
+      );
+    }
+
+    sh('adb shell input keyevent 4', { allowFail: true });
+    await sleep(800);
+    await requireStockForeground(`detail-back-${stock.code}-${tapIdx}`);
+
+    if (tapIdx < tapTargets.length - 1) {
+      await sleep(500);
+      continue;
+    }
+  }
+
   sh('adb shell input keyevent 4', { allowFail: true });
   await sleep(800);
-  return {
-    code: stock.code,
-    label: stock.label,
-    ok: visible && !hasError,
-    visible,
-    hasError,
-  };
+
+  return recordDetailFailure(stock, detailResult?.reason ?? 'detail_not_visible', {
+    hasError: detailResult?.hasError ?? false,
+    foreground: detailResult?.foreground,
+    winningQuery: search.winningQuery,
+    queriesTried: search.queriesTried,
+    retryable: detailResult?.retryable ?? true,
+    deviceAttempt,
+  });
+}
+
+async function verifyStockDevice(stock) {
+  let result = await verifyStockDeviceOnce(stock, 0);
+  if (
+    !result.ok &&
+    result.retryable &&
+    (result.reason === 'detail_not_visible' ||
+      result.reason === 'wrong_detail_stock' ||
+      result.reason === 'wrong_foreground_detail' ||
+      result.cardFound)
+  ) {
+    console.warn(`[p12.5] WARN retry whole verify ${stock.code} reason=${result.reason}`);
+    await requireStockForeground(`verify-retry-${stock.code}`);
+    await sleep(1000);
+    result = await verifyStockDeviceOnce(stock, 1);
+    result.retried = true;
+  }
+  return result;
 }
 
 async function verifyAllStocks() {
@@ -734,10 +1126,39 @@ async function main() {
   }
 
   if (process.env.PHASE12_5_SMOKE === '1' && HOURS < 1) {
+    ensurePortrait(sh);
+    const bootFg = await requireStockForeground('smoke-boot');
+    if (!bootFg.ok) {
+      console.error('[p12.5] smoke FAIL: app not in foreground', bootFg);
+      process.exit(2);
+    }
     await ensureAppForeground();
     const stockCheck = await verifyAllStocks();
-    console.log(JSON.stringify(stockCheck, null, 2));
-    process.exit(stockCheck.allOk ? 0 : 1);
+    const priceRefresh = await runPriceRefresh(0, 0);
+    const logMetrics = scanLogcatDelta();
+    const pid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim();
+    const monitorLines = sh(`adb logcat -d --pid=${pid}`, { allowFail: true })
+      .split('\n')
+      .filter((l) => l.includes('12H-MONITOR'));
+    const bundleHit = sh(`adb logcat -d --pid=${pid}`, { allowFail: true }).includes('Could not load bundle');
+    const payload = {
+      stockCheck,
+      priceRefresh,
+      logMetrics,
+      monitorLineCount: monitorLines.length,
+      monitorSample: monitorLines.slice(-3),
+      bundleError: bundleHit,
+      foreground: dumpCurrentFocus(sh),
+      pid,
+    };
+    console.log(JSON.stringify(payload, null, 2));
+    const smokeOk =
+      stockCheck.allOk &&
+      !bundleHit &&
+      logMetrics.fatal === 0 &&
+      logMetrics.anr === 0 &&
+      bootFg.ok;
+    process.exit(smokeOk ? 0 : 1);
   }
 
   if (process.env.PHASE12_5_DRY_RUN === '1') {

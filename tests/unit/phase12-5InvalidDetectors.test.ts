@@ -115,6 +115,8 @@ describe('phase12-5 invalid detectors', () => {
       execSync: () => '',
       liveLogcatPath: null,
       watchLogPath: null,
+      runtimeMode: 'dev',
+      checkMetro: true,
       checkBundle: false,
       checkPid: false,
       checkWatch: false,
@@ -134,6 +136,9 @@ describe('phase12-5 invalid detectors', () => {
         execSync: () => '  TCP  0.0.0.0:8081  LISTENING  1\n',
         liveLogcatPath: live,
         watchLogPath: undefined,
+        runtimeMode: 'dev',
+        checkMetro: false,
+        checkBundle: true,
         checkPid: false,
         checkWatch: false,
       } as unknown as Parameters<typeof runInvalidDetectorPass>[0]);
