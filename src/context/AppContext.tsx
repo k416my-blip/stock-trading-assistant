@@ -13,7 +13,10 @@ import {
   apiHealthSummaryForConcierge,
   buildApiHealthDashboard,
 } from '../services/apiHealthDashboard';
-import { createEmptyHealthSnapshot } from '../services/apiHealthStorage';
+import { createEmptyHealthSnapshot, loadApiHealthSnapshot } from '../services/apiHealthStorage';
+import { loadAnalysisApiKeys } from '../services/analysisApiKeys';
+import { loadAiApiKey } from '../services/aiApiKey';
+import { loadTwelveDataApiKey } from '../services/marketDataApiKey';
 import { buildAiStrategyContext, sendAiStrategyChat } from '../services/aiStrategyService';
 import { logXBearerEnvAtStartup } from '../services/xBearerToken';
 import type { ApiHealthDashboard, ApiProviderHealth, ApiProviderId } from '../types/apiSetup';
@@ -238,6 +241,7 @@ interface AppContextValue {
   saveAnalysisApiKeys: (keys: Partial<AnalysisApiKeys>) => Promise<{ savedFields: string[] }>;
   refresh: () => Promise<void>;
   resetAllAppData: (clearApiKeys: boolean) => Promise<{ failedKeys: string[] }>;
+  reloadStoredApiKeys: () => Promise<void>;
   addScreenerCandidateToManualList: (stock: RankedStock) => { ok: boolean; error?: string };
   marketRegime: MarketRegimeResult;
   crossAssetFlow: CrossAssetFlowSnapshot;
@@ -583,9 +587,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const resetAllAppData = useCallback(async (clearApiKeys: boolean) => {
-    void clearApiKeys;
     blockEmptyBootPersistenceRef.current = 'user_reset';
-    const clearResult = await clearAllPersistedAppData(true);
+    const clearResult = await clearAllPersistedAppData(clearApiKeys);
     await clearAiChatHistory();
     await resetMarketDataDiagnostics();
     resetQuoteCacheForReset();
@@ -604,10 +607,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     resetPortfolioRefreshCoordinator();
     setPriceSync({ loading: false, marketClosedHint: false });
     setAiPreferences({ ...DEFAULT_AI_PREFERENCES });
+    if (clearApiKeys) {
       setTwelveDataApiKey('');
-      setAnalysisApiKeys({ newsApiKey: '', snsApiKey: '', earningsApiKey: '', redditApiKey: '', xApiKey: '' });
-    setApiHealthDashboard(buildApiHealthDashboard(createEmptyHealthSnapshot()));
+      setAnalysisApiKeys({
+        newsApiKey: '',
+        snsApiKey: '',
+        earningsApiKey: '',
+        redditApiKey: '',
+        xApiKey: '',
+      });
+      setApiHealthDashboard(buildApiHealthDashboard(createEmptyHealthSnapshot()));
       setAiApiKey('');
+    } else {
+      const [apiKey, analysisKeys, aiKey, healthSnap] = await Promise.all([
+        loadTwelveDataApiKey(),
+        loadAnalysisApiKeys(),
+        loadAiApiKey(),
+        loadApiHealthSnapshot(),
+      ]);
+      setTwelveDataApiKey(apiKey);
+      setAnalysisApiKeys(analysisKeys);
+      setAiApiKey(aiKey);
+      setApiHealthDashboard(buildApiHealthDashboard(healthSnap));
+    }
     setKillSwitches(resetKillSwitches);
     setBootMode('normal');
     setSecurityWarnings([]);
@@ -626,6 +648,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setEnvironmentIssues,
     setHealthReport,
   ]);
+
+  const reloadStoredApiKeys = useCallback(async () => {
+    const [apiKey, analysisKeys, aiKey, healthSnap] = await Promise.all([
+      loadTwelveDataApiKey(),
+      loadAnalysisApiKeys(),
+      loadAiApiKey(),
+      loadApiHealthSnapshot(),
+    ]);
+    setTwelveDataApiKey(apiKey);
+    setAnalysisApiKeys(analysisKeys);
+    setAiApiKey(aiKey);
+    setApiHealthDashboard(buildApiHealthDashboard(healthSnap));
+  }, []);
 
   const priceSyncStateValue = useMemo<PriceSyncStateContextValue>(
     () => ({ priceSync }),
@@ -695,6 +730,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saveAnalysisApiKeys,
       refresh,
       resetAllAppData,
+      reloadStoredApiKeys,
       addScreenerCandidateToManualList,
       marketRegime,
       crossAssetFlow,
@@ -776,6 +812,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saveAnalysisApiKeys,
       refresh,
       resetAllAppData,
+      reloadStoredApiKeys,
       addScreenerCandidateToManualList,
       marketRegime,
       crossAssetFlow,

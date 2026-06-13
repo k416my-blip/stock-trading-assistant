@@ -47,3 +47,14 @@ export function hasSavedKey(providerId: SupportedApiProviderId, value: string): 
   if (providerId === 'twelve_data') return canPersistTwelveDataApiKey(value);
   return canPersistApiKeyValue(value);
 }
+
+/** 明示確認付き — すべての API キーを SecureStore から削除 */
+export async function deleteAllApiKeysUserConfirmed(
+  userConfirmed: boolean,
+): Promise<{ deletedKeys: string[]; failedKeys: string[] }> {
+  if (!userConfirmed) {
+    return { deletedKeys: [], failedKeys: [] };
+  }
+  const { deleteAllSecretsWithReport } = await import('./secretStorage');
+  return deleteAllSecretsWithReport();
+}

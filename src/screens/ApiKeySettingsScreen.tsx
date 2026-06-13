@@ -9,50 +9,42 @@ import { API_KEY_SETTINGS } from '../constants/apiSettings';
 import { MARKET_DATA_MESSAGES } from '../constants/marketData';
 import { useApp } from '../context/AppContext';
 import { usePriceSyncActions } from '../context/PriceSyncContext';
-import { hasSavedKey } from '../services/apiKeys';
-import { safeGetApiKey } from '../services/safeApiKey';
+import {
+  formatConfiguredStatusLine,
+  loadApiKeyConfiguredStatus,
+} from '../services/apiKeyUiState';
 import { theme } from '../theme';
 
 export function ApiKeySettingsScreen() {
-  const { twelveDataApiKey, analysisApiKeys, saveAnalysisApiKeys } = useApp();
+  const { saveAnalysisApiKeys, reloadStoredApiKeys } = useApp();
   const { saveTwelveDataApiKey, testTwelveDataConnection } = usePriceSyncActions();
-  const [input, setInput] = useState(twelveDataApiKey);
-  const [newsKey, setNewsKey] = useState(analysisApiKeys.newsApiKey);
-  const [redditKey, setRedditKey] = useState(analysisApiKeys.redditApiKey);
-  const [snsKey, setSnsKey] = useState(analysisApiKeys.snsApiKey);
-  const [earningsKey, setEarningsKey] = useState(analysisApiKeys.earningsApiKey);
-  const [twelveSaved, setTwelveSaved] = useState(false);
-  const [newsSaved, setNewsSaved] = useState(false);
-  const [redditSaved, setRedditSaved] = useState(false);
+  const [input, setInput] = useState('');
+  const [newsKey, setNewsKey] = useState('');
+  const [redditKey, setRedditKey] = useState('');
+  const [snsKey, setSnsKey] = useState('');
+  const [earningsKey, setEarningsKey] = useState('');
+  const [twelveStatus, setTwelveStatus] = useState('未設定');
+  const [newsStatus, setNewsStatus] = useState('未設定');
+  const [redditStatus, setRedditStatus] = useState('未設定');
   const [twelveConn, setTwelveConn] = useState<'未テスト' | '成功' | '失敗'>('未テスト');
   const [testing, setTesting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savingAnalysis, setSavingAnalysis] = useState(false);
 
-  useEffect(() => {
-    void (async () => {
-      const twelve = await safeGetApiKey('twelve_data');
-      const news = await safeGetApiKey('newsapi');
-      const reddit = await safeGetApiKey('reddit');
-      setTwelveSaved(hasSavedKey('twelve_data', twelve));
-      setNewsSaved(hasSavedKey('newsapi', news));
-      setRedditSaved(hasSavedKey('reddit', reddit));
-      if (twelve) setInput(twelve);
-      if (news) setNewsKey(news);
-      if (reddit) setRedditKey(reddit);
-    })();
-  }, [twelveDataApiKey, analysisApiKeys.newsApiKey, analysisApiKeys.redditApiKey]);
+  const refreshStatuses = async () => {
+    const [twelve, news, reddit] = await Promise.all([
+      loadApiKeyConfiguredStatus('twelve_data'),
+      loadApiKeyConfiguredStatus('newsapi'),
+      loadApiKeyConfiguredStatus('reddit'),
+    ]);
+    setTwelveStatus(formatConfiguredStatusLine(twelve));
+    setNewsStatus(formatConfiguredStatusLine(news));
+    setRedditStatus(formatConfiguredStatusLine(reddit));
+  };
 
   useEffect(() => {
-    setInput(twelveDataApiKey);
-  }, [twelveDataApiKey]);
-
-  useEffect(() => {
-    setNewsKey(analysisApiKeys.newsApiKey);
-    setRedditKey(analysisApiKeys.redditApiKey);
-    setSnsKey(analysisApiKeys.snsApiKey);
-    setEarningsKey(analysisApiKeys.earningsApiKey);
-  }, [analysisApiKeys]);
+    void refreshStatuses();
+  }, []);
 
   const onSave = async () => {
     setSaving(true);
@@ -65,7 +57,9 @@ export function ApiKeySettingsScreen() {
       );
       return;
     }
-    setTwelveSaved(true);
+    setInput('');
+    await reloadStoredApiKeys();
+    await refreshStatuses();
     setTwelveConn('未テスト');
     Alert.alert('保存しました', 'Twelve Data APIキーを端末に保存しました。');
   };
@@ -108,13 +102,13 @@ export function ApiKeySettingsScreen() {
       <Card>
         <Text style={styles.label}>Twelve Data APIキー</Text>
         <Text style={styles.statusLine}>
-          保存状態: {twelveSaved ? '保存済み' : '未保存'} · 接続状態: {twelveConn}
+          保存状態: {twelveStatus} · 接続状態: {twelveConn}
         </Text>
         <TextInput
           style={styles.input}
           value={input}
           onChangeText={setInput}
-          placeholder="APIキーを入力"
+          placeholder="新しいAPIキーを入力（空欄保存=既存キー保持）"
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           autoCorrect={false}
@@ -134,14 +128,14 @@ export function ApiKeySettingsScreen() {
       <Card>
         <Text style={styles.label}>分析用APIキー（任意）</Text>
         <Text style={styles.hint}>{API_KEY_SETTINGS.analysisOptionalNote}</Text>
-        <Text style={styles.statusLine}>NewsAPI 保存状態: {newsSaved ? '保存済み' : '未保存'}</Text>
-        <Text style={styles.statusLine}>Reddit 保存状態: {redditSaved ? '保存済み' : '未保存'}</Text>
+        <Text style={styles.statusLine}>NewsAPI: {newsStatus}</Text>
+        <Text style={styles.statusLine}>Reddit: {redditStatus}</Text>
         <Text style={styles.subLabel}>ニュースAPIキー</Text>
         <TextInput
           style={styles.input}
           value={newsKey}
           onChangeText={setNewsKey}
-          placeholder="未設定の場合は参考推定"
+          placeholder="新しいキーを入力（空欄保存=既存キー保持）"
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           secureTextEntry
@@ -154,7 +148,7 @@ export function ApiKeySettingsScreen() {
           style={styles.input}
           value={redditKey}
           onChangeText={setRedditKey}
-          placeholder="未設定の場合は材料分析でReddit未接続"
+          placeholder="新しいトークンを入力（空欄保存=既存キー保持）"
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           secureTextEntry
@@ -164,7 +158,7 @@ export function ApiKeySettingsScreen() {
           style={styles.input}
           value={earningsKey}
           onChangeText={setEarningsKey}
-          placeholder="未設定の場合は参考推定"
+          placeholder="新しいキーを入力（空欄保存=既存キー保持）"
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           secureTextEntry
@@ -174,7 +168,7 @@ export function ApiKeySettingsScreen() {
           style={styles.input}
           value={snsKey}
           onChangeText={setSnsKey}
-          placeholder="未設定の場合は参考推定"
+          placeholder="新しいキーを入力（空欄保存=既存キー保持）"
           placeholderTextColor={theme.colors.textMuted}
           autoCapitalize="none"
           secureTextEntry
@@ -190,13 +184,19 @@ export function ApiKeySettingsScreen() {
               snsApiKey: snsKey,
             });
             setSavingAnalysis(false);
-            if (savedFields.includes('newsApiKey')) setNewsSaved(true);
-            if (savedFields.includes('redditApiKey')) setRedditSaved(true);
+            if (savedFields.length > 0) {
+              setNewsKey('');
+              setRedditKey('');
+              setEarningsKey('');
+              setSnsKey('');
+              await reloadStoredApiKeys();
+              await refreshStatuses();
+            }
             Alert.alert(
               savedFields.length > 0 ? '保存しました' : '保存しませんでした',
               savedFields.length > 0
                 ? '分析用APIキーを端末に保存しました。'
-                : '無効な入力は保存されませんでした。',
+                : '無効な入力は保存されませんでした。既存キーは保持されます。',
             );
           }}
           disabled={savingAnalysis}

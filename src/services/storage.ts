@@ -254,24 +254,30 @@ async function removeStorageKey(key: string): Promise<{ key: string; ok: boolean
  * アプリユーザーデータを完全削除する。
  * AsyncStorage.clear() は使わず、既知 key と実在する @sta/* key を明示的に削除する。
  */
-export async function clearAllPersistedAppData(_clearApiKeys: boolean): Promise<ClearPersistedAppDataResult> {
+export async function clearAllPersistedAppData(clearApiKeys: boolean): Promise<ClearPersistedAppDataResult> {
+  const legacyApiKeySet = new Set(Object.values(LEGACY_PLAIN_SECRET_KEYS));
   const explicitKeys = uniqueKeys([
-    ...Object.values(STORAGE_KEYS),
-    ...Object.values(LEGACY_PLAIN_SECRET_KEYS),
+    ...Object.values(STORAGE_KEYS).filter((k) => clearApiKeys || !legacyApiKeySet.has(k)),
     ...ADDITIONAL_APP_STORAGE_KEYS,
   ]);
 
   let existingStaKeys: string[] = [];
   try {
     const existingKeys = await AsyncStorage.getAllKeys();
-    existingStaKeys = existingKeys.filter((key) => key.startsWith('@sta/'));
+    existingStaKeys = existingKeys.filter((key) => {
+      if (!key.startsWith('@sta/')) return false;
+      if (!clearApiKeys && legacyApiKeySet.has(key)) return false;
+      return true;
+    });
   } catch {
     secureWarn('[reset] failed to enumerate AsyncStorage keys');
   }
 
   const storageKeys = uniqueKeys([...explicitKeys, ...existingStaKeys]);
   const storageReports = await Promise.all(storageKeys.map((key) => removeStorageKey(key)));
-  const secretsReport = await deleteAllSecretsWithReport();
+  const secretsReport = clearApiKeys
+    ? await deleteAllSecretsWithReport()
+    : { deletedKeys: [] as string[], failedKeys: [] as string[] };
 
   const deletedKeys = [
     ...storageReports.filter((report) => report.ok).map((report) => report.key),

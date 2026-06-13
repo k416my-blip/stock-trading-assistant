@@ -69,7 +69,11 @@ async function safeGetSecureItem(store: SecureStoreModule, key: string): Promise
     return value;
   } catch (err) {
     if (isSecureStoreCorruptionError(err)) {
-      await purgeCorruptedSecureKey(store, key);
+      secureWarn(
+        '[secret-storage] SecureStore read failed — key not purged',
+        key,
+        err instanceof Error ? err.message : String(err),
+      );
     }
     return null;
   }

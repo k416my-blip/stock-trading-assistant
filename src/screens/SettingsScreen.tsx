@@ -21,11 +21,16 @@ import { theme } from '../theme';
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
 import {
   deleteApiKey,
+  deleteAllApiKeysUserConfirmed,
   hasSavedKey,
-  loadAllApiKeys,
-  maskApiKey,
   saveApiKey,
 } from '../services/apiKeys';
+import {
+  createEmptyApiKeyDrafts,
+  formatConfiguredStatusLine,
+  loadAllApiKeyConfiguredStatuses,
+  type ApiKeyConfiguredStatus,
+} from '../services/apiKeyUiState';
 import { testApiConnection, type ApiConnectionState } from '../services/apiHealth';
 import {
   buildOperationalCoreApiRows,
@@ -43,19 +48,18 @@ import {
 
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { state, isPractice, resetAllAppData, saveAnalysisApiKeys } = useApp();
+  const { state, isPractice, resetAllAppData, reloadStoredApiKeys, saveAnalysisApiKeys } = useApp();
   const [resetting, setResetting] = useState(false);
-  const [apiKeyInputs, setApiKeyInputs] = useState<Record<SupportedApiProviderId, string>>({
-    openai: '',
-    twelve_data: '',
-    newsapi: '',
-    x: '',
-    reddit: '',
-    alpha_vantage: '',
-    finnhub: '',
-    polygon: '',
-    fmp: '',
-  });
+  const [apiKeyInputs, setApiKeyInputs] = useState(createEmptyApiKeyDrafts);
+  const [apiKeyStatus, setApiKeyStatus] = useState<Record<SupportedApiProviderId, ApiKeyConfiguredStatus>>(
+    () =>
+      Object.fromEntries(
+        API_PROVIDERS.map((p) => [
+          p.id,
+          { configured: false, statusLabelJa: '未設定' as const, maskedHint: '(未設定)' },
+        ]),
+      ) as Record<SupportedApiProviderId, ApiKeyConfiguredStatus>,
+  );
   const [apiConnectionStates, setApiConnectionStates] = useState<Record<SupportedApiProviderId, ApiConnectionState>>({
     openai: 'idle',
     twelve_data: 'idle',
@@ -110,20 +114,18 @@ export function SettingsScreen() {
   useEffect(() => {
     let mounted = true;
     void (async () => {
-      const loaded = await loadAllApiKeys();
+      const statuses = await loadAllApiKeyConfiguredStatuses();
       if (!mounted) return;
-      setApiKeyInputs(loaded);
+      setApiKeyStatus(statuses);
       setApiKeySaved(
         Object.fromEntries(
-          API_PROVIDERS.map((p) => [p.id, hasSavedKey(p.id, loaded[p.id])]),
+          API_PROVIDERS.map((p) => [p.id, statuses[p.id].configured]),
         ) as Record<SupportedApiProviderId, boolean>,
       );
       setApiConnectionMessages((prev) => {
         const next = { ...prev };
         API_PROVIDERS.forEach((provider) => {
-          next[provider.id] = hasSavedKey(provider.id, loaded[provider.id])
-            ? '未テスト'
-            : '未テスト';
+          next[provider.id] = statuses[provider.id].configured ? '未テスト' : '未テスト';
         });
         return next;
       });
@@ -137,10 +139,20 @@ export function SettingsScreen() {
     PRICE_REFRESH_OPTIONS.find((o) => o.minutes === state.settings.priceRefreshMinutes)?.label ??
     '15分（おすすめ）';
 
+  const refreshApiKeyStatuses = async () => {
+    const statuses = await loadAllApiKeyConfiguredStatuses();
+    setApiKeyStatus(statuses);
+    setApiKeySaved(
+      Object.fromEntries(
+        API_PROVIDERS.map((p) => [p.id, statuses[p.id].configured]),
+      ) as Record<SupportedApiProviderId, boolean>,
+    );
+  };
+
   const runReset = async () => {
     setResetting(true);
     try {
-      const result = await resetAllAppData(true);
+      const result = await resetAllAppData(false);
       stackNav.dispatch(
         CommonActions.reset({
           index: 0,
@@ -160,7 +172,7 @@ export function SettingsScreen() {
   const onResetPress = () => {
     Alert.alert(
       'すべてリセット',
-      '本当にすべてリセットしますか？\nこの操作は元に戻せません。',
+      '本当にすべてリセットしますか？\nAPIキーは保持されます（別途「すべてのAPIキーを削除」から削除可能）。\nこの操作は元に戻せません。',
       [
         { text: 'キャンセル', style: 'cancel' },
         {
@@ -200,21 +212,15 @@ export function SettingsScreen() {
         );
         return;
       }
-      const reloaded = await loadAllApiKeys();
-      setApiKeyInputs((prev) => ({ ...prev, [providerId]: reloaded[providerId] }));
-      setApiKeySaved((prev) => ({ ...prev, [providerId]: true }));
+      setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
+      await refreshApiKeyStatuses();
       setApiConnectionMessages((prev) => ({
         ...prev,
         [providerId]: '未テスト',
       }));
       setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
-      if (providerId === 'newsapi') {
-        await saveAnalysisApiKeys({ newsApiKey: reloaded.newsapi });
-      } else if (providerId === 'x') {
-        await saveAnalysisApiKeys({ xApiKey: reloaded.x });
-      } else if (providerId === 'reddit') {
-        await saveAnalysisApiKeys({ redditApiKey: reloaded.reddit });
-      }
+      await reloadStoredApiKeys();
+      await refreshApiKeyStatuses();
       Alert.alert('保存しました', 'APIキーを安全に保存しました。');
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
@@ -236,7 +242,7 @@ export function SettingsScreen() {
             try {
               await deleteApiKey(providerId, true);
               setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
-              setApiKeySaved((prev) => ({ ...prev, [providerId]: false }));
+              await refreshApiKeyStatuses();
               setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
               setApiConnectionMessages((prev) => ({ ...prev, [providerId]: '未テスト' }));
               Alert.alert('削除しました', 'APIキーを削除しました。');
@@ -352,6 +358,45 @@ export function SettingsScreen() {
     }
   };
 
+  const onDeleteAllApiKeysPress = () => {
+    Alert.alert(
+      'すべてのAPIキーを削除',
+      'OpenAI / Twelve Data / News / X / Reddit など、端末に保存されたすべてのAPIキーを削除します。\nアプリデータ（保有・履歴）は保持されます。',
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '続ける',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              '最終確認',
+              'すべてのAPIキーを削除します。よろしいですか？',
+              [
+                { text: 'キャンセル', style: 'cancel' },
+                {
+                  text: '削除する',
+                  style: 'destructive',
+                  onPress: () => void (async () => {
+                    const result = await deleteAllApiKeysUserConfirmed(true);
+                    setApiKeyInputs(createEmptyApiKeyDrafts());
+                    await reloadStoredApiKeys();
+                    await refreshApiKeyStatuses();
+                    Alert.alert(
+                      'APIキーを削除しました',
+                      result.failedKeys.length > 0
+                        ? `削除できなかったキー: ${result.failedKeys.length}件`
+                        : 'すべてのAPIキーを削除しました。',
+                    );
+                  })(),
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <Screen title="設定" subtitle="API・通知・市場など">
       <Card>
@@ -360,8 +405,9 @@ export function SettingsScreen() {
           すべて端末内の SecureStore に保存します。未登録APIがあってもアプリは動作します。
         </Text>
         {API_PROVIDERS.map((provider) => {
-          const saved = apiKeySaved[provider.id];
-          const masked = saved ? maskApiKey(apiKeyInputs[provider.id]) : '未保存';
+          const status = apiKeyStatus[provider.id];
+          const saved = status.configured;
+          const masked = formatConfiguredStatusLine(status);
           const state = apiConnectionStates[provider.id];
           const stateColor =
             state === 'ok'
@@ -376,10 +422,7 @@ export function SettingsScreen() {
             <View key={provider.id} style={styles.apiProviderBlock}>
               <Text style={styles.apiProviderTitle}>{provider.label}</Text>
               <Text style={styles.apiHelpText}>{provider.helpText}</Text>
-              <Text style={styles.apiMaskText}>
-                保存状態: {saved ? '保存済み' : '未保存'}
-                {saved ? ` (${masked})` : ''}
-              </Text>
+              <Text style={styles.apiMaskText}>保存状態: {masked}</Text>
               <Text style={[styles.apiStatusText, { color: stateColor }]}>
                 接続状態: {saved ? apiConnectionMessages[provider.id] : '未テスト'}
               </Text>
@@ -387,7 +430,7 @@ export function SettingsScreen() {
                 style={styles.input}
                 value={apiKeyInputs[provider.id]}
                 onChangeText={(value) => updateKeyInput(provider.id, value)}
-                placeholder={provider.placeholder}
+                placeholder={`${provider.placeholder}（空欄保存=既存キー保持）`}
                 placeholderTextColor={theme.colors.textMuted}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -818,11 +861,18 @@ export function SettingsScreen() {
       <Card style={styles.resetCard}>
         <Text style={styles.resetTitle}>すべてリセット</Text>
         <Text style={styles.resetHint}>
-          仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定・APIキー・キャッシュを削除します。
+          仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定・キャッシュを削除します。
+          APIキーは保持されます。
         </Text>
         <Button
           label="すべてのデータをリセット"
           onPress={onResetPress}
+          variant="ghost"
+          disabled={resetting}
+        />
+        <Button
+          label="すべてのAPIキーを削除"
+          onPress={onDeleteAllApiKeysPress}
           variant="ghost"
           disabled={resetting}
         />

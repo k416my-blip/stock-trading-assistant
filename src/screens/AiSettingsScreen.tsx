@@ -42,8 +42,7 @@ import {
 import type { TacticalMode } from '../types/strategyExecution';
 import { AI_PERSONAL_SAFETY_FOOTER } from '../constants/aiStrategyBriefing';
 import { statusLabelJa } from '../services/apiConnectionStatusMapper';
-import { hasSavedKey } from '../services/apiKeys';
-import { safeGetApiKey } from '../services/safeApiKey';
+import { loadApiKeyConfiguredStatus, formatConfiguredStatusLine } from '../services/apiKeyUiState';
 import { useApp } from '../context/AppContext';
 import { usePerformanceCost } from '../context/PerformanceCostContext';
 import { ApiCostDashboardPanel } from '../components/ApiCostDashboardPanel';
@@ -63,7 +62,8 @@ export function AiSettingsScreen() {
     apiHealthDashboard,
   } = useApp();
   const { batterySaverEnabled, setBatterySaverEnabled } = usePerformanceCost();
-  const [keyInput, setKeyInput] = useState(aiApiKey);
+  const [keyInput, setKeyInput] = useState('');
+  const [openAiStatusLine, setOpenAiStatusLine] = useState('未設定');
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ApiConnectionStatus>('not_configured');
@@ -113,10 +113,9 @@ export function AiSettingsScreen() {
 
   useEffect(() => {
     void (async () => {
-      const stored = await safeGetApiKey('openai');
-      setKeySaved(hasSavedKey('openai', stored));
-      if (stored) setKeyInput(stored);
-      else setKeyInput(aiApiKey);
+      const status = await loadApiKeyConfiguredStatus('openai');
+      setKeySaved(status.configured);
+      setOpenAiStatusLine(formatConfiguredStatusLine(status));
       syncStatusFromDashboard();
     })();
   }, [aiApiKey, syncStatusFromDashboard]);
@@ -130,12 +129,16 @@ export function AiSettingsScreen() {
         '保存しませんでした',
         '空欄・マスク表示・10文字未満は保存されません。既存キーは保持されます。',
       );
-      const stored = await safeGetApiKey('openai');
-      setKeySaved(hasSavedKey('openai', stored));
+      const status = await loadApiKeyConfiguredStatus('openai');
+      setKeySaved(status.configured);
+      setOpenAiStatusLine(formatConfiguredStatusLine(status));
       syncStatusFromDashboard();
       return;
     }
     setKeySaved(true);
+    setKeyInput('');
+    const status = await loadApiKeyConfiguredStatus('openai');
+    setOpenAiStatusLine(formatConfiguredStatusLine(status));
     syncStatusFromDashboard();
     Alert.alert('保存しました', AI_SETTINGS.savedKey);
   };
@@ -232,7 +235,7 @@ export function AiSettingsScreen() {
           autoCorrect={false}
           secureTextEntry
         />
-        <Text style={styles.statusLine}>保存状態: {keySaved ? '保存済み' : '未保存'}</Text>
+        <Text style={styles.statusLine}>保存状態: {openAiStatusLine}</Text>
         <Text style={styles.statusLine}>
           {AI_SETTINGS.connectionStatusLabel}: {statusLabelJa(connectionStatus)}
         </Text>
