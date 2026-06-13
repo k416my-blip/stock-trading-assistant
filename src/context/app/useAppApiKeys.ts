@@ -46,6 +46,11 @@ import { guardAppStateForPersistence } from '../../services/portfolioPersistence
 import { saveHealthyPortfolioSnapshot } from '../../services/portfolioSnapshot';
 import { saveAppState } from '../../services/storage';
 import {
+  buildApiKeyMissingStabilityMeta,
+  logApiKeyMissingSuppressed,
+  shouldSuppressApiKeyMissingUi,
+} from '../../services/phase125StabilityTestMode';
+import {
   recordRefreshSessionEnd,
   recordRefreshSessionStart,
 } from '../../services/marketDataDiagnostics';
@@ -202,24 +207,29 @@ export function useAppApiKeys({
         setTwelveDataApiKey(apiKey);
         logTwelveDataKeyForPriceUpdate(apiKey);
         if (!apiKey) {
-          const blocked: PriceSyncResult = finalizePriceSyncResult({
-            ok: false,
-            updatedCount: 0,
-            failures: [],
-            marketClosedHint: false,
-            error: 'Twelve Data APIキー未設定のため、株価更新を開始しませんでした。',
-          });
-          setPriceSync((prev) => ({
-            ...prev,
-            loading: false,
-            refreshingSymbols: [],
-            displayStatus: 'idle',
-            connectionPhase: 'error',
-            connectionDetail: 'APIキー未設定',
-            lastError: blocked.error,
-            lastResult: blocked,
-          }));
-          return blocked;
+          if (shouldSuppressApiKeyMissingUi()) {
+            logApiKeyMissingSuppressed('refreshPortfolioPrices', { trigger: options?.trigger ?? 'manual' });
+          } else {
+            const blocked: PriceSyncResult = finalizePriceSyncResult({
+              ok: false,
+              updatedCount: 0,
+              failures: [],
+              marketClosedHint: false,
+              error: 'Twelve Data APIキー未設定のため、株価更新を開始しませんでした。',
+              stabilityMeta: { apiKeyMissing: true, provider: 'twelveData', uiBlocked: true },
+            });
+            setPriceSync((prev) => ({
+              ...prev,
+              loading: false,
+              refreshingSymbols: [],
+              displayStatus: 'idle',
+              connectionPhase: 'error',
+              connectionDetail: 'APIキー未設定',
+              lastError: blocked.error,
+              lastResult: blocked,
+            }));
+            return blocked;
+          }
         }
 
         setPriceSync((prev) => ({
@@ -317,6 +327,17 @@ export function useAppApiKeys({
             (p) => (p.shares ?? 0) > 0,
           ).length;
           recordRefreshSessionEnd({ result, holdingsBefore, holdingsAfter });
+
+          if (!apiKey && shouldSuppressApiKeyMissingUi()) {
+            result.stabilityMeta = buildApiKeyMissingStabilityMeta(
+              result.successCount > 0 ? 'WARN' : 'NOT_CONFIGURED',
+            );
+            logApiKeyMissingSuppressed('refreshPortfolioPrices_complete', {
+              trigger: options?.trigger ?? 'manual',
+              successCount: result.successCount,
+              priceRefreshStatus: result.stabilityMeta.priceRefreshStatus,
+            });
+          }
 
           if (result.successCount > 0) {
             const { noteTwelveHourPriceUpdate } = await import('../../services/twelveHourTestMonitor');

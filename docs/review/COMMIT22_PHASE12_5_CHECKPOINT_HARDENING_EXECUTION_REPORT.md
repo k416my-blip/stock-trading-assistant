@@ -150,15 +150,10 @@ staged diff を以下パターンで検索 — **ヒットなし**:
 
 | 項目 | 値 |
 |------|-----|
-| commit message | `phase12.5: harden checkpoint writes and price schedule` |
-| push | （commit 後記載） |
-| remote 同期 | （commit 後記載） |
-
-## git add 除外（生成物）
-
-- `checkpoint.json`, `checkpoint.json.bak`, `*.emergency`
-- `telemetry.jsonl`, `adb-logcat-live.log`, `pre-run-watch.log`, `watchdog.log`
-- `ui-dump-*.xml`, `*.png`, `infra-invalid-evidence-*`
+| commit hash | `7271be1e4c5638ace6ae64212a2e50c31fc79703` |
+| push | **成功** (`8681ad7..7271be1`) |
+| remote 同期 | **0 ahead / 0 behind** |
+| secret scan | **PASS**（staged diff 実キー形式ヒットなし） |
 
 ---
 

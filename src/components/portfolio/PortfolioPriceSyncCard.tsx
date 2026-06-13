@@ -28,6 +28,7 @@ import { formatIsoDateTimeJa } from '../../utils/formatDateTimeJa';
 import { theme } from '../../theme';
 import { useRenderTrace } from '../../utils/renderDiagnostics';
 import { QUOTE_PROVIDER_LABELS } from '../../constants/quoteProviders';
+import { shouldBlockPriceRefreshForMissingApiKey } from '../../services/phase125StabilityTestMode';
 
 type Props = {
   holdingsCount: number;
@@ -95,7 +96,7 @@ function PortfolioPriceSyncCardInner({
   const clearToast = useCallback(() => setToastMessage(null), []);
 
   const onAutoRefresh = useCallback(async () => {
-    if (!twelveDataApiKey.trim()) {
+    if (shouldBlockPriceRefreshForMissingApiKey(Boolean(twelveDataApiKey.trim()))) {
       Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey, [
         { text: 'APIキー設定', onPress: () => navigation.navigate('ApiKeySettings') },
         { text: '了解' },
@@ -129,7 +130,7 @@ function PortfolioPriceSyncCardInner({
     async (targets?: PriceSyncFailure[]) => {
       const failures = targets ?? priceSync.lastResult?.failures ?? [];
       if (failures.length === 0) return;
-      if (!twelveDataApiKey.trim()) {
+      if (shouldBlockPriceRefreshForMissingApiKey(Boolean(twelveDataApiKey.trim()))) {
         Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey);
         return;
       }

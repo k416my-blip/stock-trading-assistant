@@ -27,6 +27,7 @@ import {
   initialPriceSlot,
   isPriceRefreshDue,
 } from './lib/phase12-5-price-schedule.mjs';
+import { isApiKeyMissingDialogVisible } from './lib/phase12-5-api-key-dialog.mjs';
 import {
   writeCheckpointEmergency,
   writeCheckpointWithRetry,
@@ -163,6 +164,7 @@ const state = {
   bundleWarnCount: 0,
   checkpointWriteWarnings: [],
   checkpointBackupPath: null,
+  apiKeyDialogAppearedCount: 0,
 };
 
 let checkpointExitInProgress = false;
@@ -481,6 +483,7 @@ async function runPriceRefresh(hourIndex, minuteIndex) {
   await tapTab('保有銘柄');
   await sleep(3000);
   let xml = dumpUi(`price-${tag}-before`);
+  const apiKeyDialogBefore = isApiKeyMissingDialogVisible(xml);
   let btn = findLabels(xml, (l) => l.includes('株価を自動更新') || l.includes('更新中'));
   if (!btn.length) {
     sh('adb shell input swipe 540 700 540 1800 350', { allowFail: true });
@@ -492,11 +495,25 @@ async function runPriceRefresh(hourIndex, minuteIndex) {
   else sh('adb shell input tap 540 520', { allowFail: true });
   await sleep(25000);
   xml = dumpUi(`price-${tag}-after`);
+  const apiKeyDialogAfter = isApiKeyMissingDialogVisible(xml);
+  const apiKeyDialogAppeared = apiKeyDialogBefore || apiKeyDialogAfter;
+  if (apiKeyDialogAppeared) {
+    state.apiKeyDialogAppearedCount = (state.apiKeyDialogAppearedCount ?? 0) + 1;
+    console.warn(`[p12.5] WARN api key dialog appeared during ${tag} — dismiss fallback`);
+    await dismissOverlayDialogs(`price-${tag}-apikey`);
+  }
   const hasError =
     xml.includes('Cannot convert undefined') ||
     xml.includes('Unfortunately') ||
     xml.includes('クラッシュ');
-  const result = { tag, ok: !hasError, hasError, at: new Date().toISOString() };
+  const result = {
+    tag,
+    ok: !hasError,
+    hasError,
+    apiKeyDialogAppeared,
+    apiKeyMissingSuppressedExpected: state.runtimeMode === 'apk',
+    at: new Date().toISOString(),
+  };
   state.priceRefreshRuns.push(result);
   appendTelemetry({ type: 'price_refresh', ...result });
   return result;

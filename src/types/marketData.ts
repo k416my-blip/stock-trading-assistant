@@ -140,7 +140,17 @@ export interface PriceSyncResult {
   totalFailure: boolean;
   /** 直近の成功プロバイダー（UI表示） */
   lastPriceProvider?: QuoteProviderId;
+  /** Phase12.5 / 12h stability test — log/telemetry only */
+  stabilityMeta?: PriceSyncStabilityMeta;
 }
+
+export type PriceSyncStabilityMeta = {
+  apiKeyMissing?: boolean;
+  provider?: 'twelveData';
+  warningCode?: string;
+  priceRefreshStatus?: 'NOT_CONFIGURED' | 'WARN' | 'OK';
+  uiBlocked?: boolean;
+};
 
 export interface PriceRefreshOptions {
   /** true: 自動更新（アラート・定期通知を抑制） */
