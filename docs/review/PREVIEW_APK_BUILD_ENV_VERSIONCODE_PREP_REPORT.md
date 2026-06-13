@@ -3,10 +3,10 @@
 **記録日時:** 2026-06-13T08:06:30+08:00  
 **ブランチ:** `cursor/top3-maxdd-capital-audit`  
 **parent HEAD:** `4b41d1745bf60c15d870258d017a57f8468026ce`  
-**commit hash:** _(commit 後に更新)_  
+**commit hash:** `6c14ff8b525519d3b734aab8215aa6248e072b8d`  
 **commit message:** `build: prepare preview apk monitor env and version code`  
-**push:** _(push 後に更新)_  
-**remote 同期:** _(push 後に更新)_
+**push:** **成功** → `4b41d17..6c14ff8 cursor/top3-maxdd-capital-audit -> cursor/top3-maxdd-capital-audit`  
+**remote 同期:** **0 / 0**
 
 ---
 
