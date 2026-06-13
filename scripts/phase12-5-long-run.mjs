@@ -29,14 +29,15 @@ import {
   findMalaysiaMarketFilter,
   findStockSearchCards,
   isDetailLoading,
+  isForeignAppForeground,
   isStockDetailVisible,
-  MAX_DETAIL_WAIT_MS,
   MAX_STOCK_VERIFY_MS,
   MAX_TAB_SCROLL,
   MALAYSIA_FILTER_FALLBACK,
   pickBestStockCard,
   pickStockCardTapTargets,
   isWrongStockDetail,
+  resolveDetailWaitMs,
   safeEnsureAppForeground,
   safeInputText,
   SCREENER_TAB_FALLBACK,
@@ -104,12 +105,14 @@ const STOCKS = [
   {
     code: '6033',
     label: 'Petronas Gas',
-    query: 'Petronas',
-    aliases: ['Petronas Gas', 'PETGAS'],
-    patterns: ['6033', 'Petronas Gas', 'Petronas', 'ペトロナス', 'PETGAS'],
-    cardNames: ['Petronas Gas Berhad'],
+    query: 'Petronas Gas',
+    aliases: ['PETGAS', 'Petronas'],
+    patterns: ['6033', 'Petronas Gas', 'PETGAS', 'Petronas', 'ペトロナス'],
+    cardNames: ['Petronas Gas Berhad', 'PETRONAS GAS', 'PETRONAS GAS BERHAD'],
     cardMustInclude: ['Gas'],
-    cardExclude: ['Chemicals'],
+    cardExclude: ['Chemicals', 'Dagangan', 'IHH', 'Healthcare', '5183'],
+    detailExclude: ['Petronas Chemicals', '5183', 'Chemicals', 'Dagangan', 'IHH', 'Healthcare'],
+    detailWaitMs: 45_000,
   },
 ];
 
@@ -316,28 +319,42 @@ async function tapTab(label) {
   return false;
 }
 
+async function dismissOverlayDialogs(tag = 'overlay') {
+  const labels = ['了解', 'スキップ', '閉じる', 'OK', '後で'];
+  for (let round = 0; round < 3; round++) {
+    const check = await requireStockForeground(`dismiss-${tag}-${round}`);
+    if (!check.ok) return false;
+    const xml = dumpUi(`dismiss-${tag}-${round}`);
+    let tapped = false;
+    for (const label of labels) {
+      const btn = findLabels(xml, (l) => l === label);
+      if (btn[0]) {
+        tap(btn[0]);
+        await sleep(1000);
+        tapped = true;
+        break;
+      }
+    }
+    if (!tapped) break;
+  }
+  return true;
+}
+
 async function ensureAppForeground() {
   ensurePortrait(sh);
   const fg = await requireStockForeground('ensureAppForeground');
   if (!fg.ok) return false;
-  for (const label of ['スキップ', '閉じる', 'OK', '後で']) {
-    const check = await requireStockForeground(`dismiss-${label}`);
-    if (!check.ok) return false;
-    const xml = dumpUi('dismiss');
-    const btn = findLabels(xml, (l) => l === label);
-    if (btn[0]) {
-      tap(btn[0]);
-      await sleep(1000);
-    }
-  }
+  await dismissOverlayDialogs('ensure');
   const pid = sh(`adb shell pidof ${PKG}`, { allowFail: true }).trim();
   return Boolean(pid);
 }
 
 async function openScreenerMalaysia() {
   await requireStockForeground('openScreenerMalaysia');
+  await dismissOverlayDialogs('screener-open');
   await tapTab('銘柄検索');
   await sleep(1500);
+  await dismissOverlayDialogs('screener-post-tab');
   return ensureMalaysiaFilterActive('open');
 }
 
@@ -387,6 +404,18 @@ function recordDetailFailure(stock, reason, extra = {}) {
   sh('adb shell screencap -p /sdcard/p125-detail-fail.png', { allowFail: true });
   sh(`adb pull /sdcard/p125-detail-fail.png "${shotPath}"`, { allowFail: true });
   dumpUi(`detail-fail-${stock.code}`);
+  if (extra.tapLabel) {
+    fs.writeFileSync(
+      path.join(OUT_DIR, `detail-fail-${stock.code}-tap.txt`),
+      `${extra.tapLabel}\n${JSON.stringify(extra.tapTarget ?? {}, null, 2)}\n`,
+      'utf8',
+    );
+  }
+  fs.writeFileSync(
+    path.join(OUT_DIR, `detail-fail-${stock.code}-focus.txt`),
+    `${focus.raw}\npackage=${focus.package}\n`,
+    'utf8',
+  );
   return {
     code: stock.code,
     label: stock.label,
@@ -442,6 +471,7 @@ async function trySearchQuery(stock, queryText, tag) {
   }
 
   await ensureMalaysiaFilterActive(`pre-${stock.code}-${tag}`);
+  await dismissOverlayDialogs(`search-${stock.code}-${tag}`);
 
   let xml = dumpUi(`search-pre-${stock.code}-${tag}`);
   const field = screenerSearchFieldCenter(xml);
@@ -509,23 +539,42 @@ async function performStockSearch(stock) {
 }
 
 async function waitForStockDetail(stock, winningQuery) {
-  const deadline = Date.now() + MAX_DETAIL_WAIT_MS;
+  const deadline = Date.now() + resolveDetailWaitMs(stock);
   let detail = '';
   let lastForeground = PKG;
+  let foregroundRecoveries = 0;
+  const MAX_FG_RECOVERIES = 3;
 
   while (Date.now() < deadline) {
-    const fg = await requireStockForeground(`detail-wait-${stock.code}`);
-    if (!fg.ok) {
-      return {
-        detail,
-        hasError: false,
-        visible: false,
-        reason: 'wrong_foreground_detail',
-        foreground: fg.foreground,
-        retryable: true,
-      };
+    const focusSnap = dumpCurrentFocus(sh);
+    const fgPkg = focusSnap.package;
+
+    if (isForeignAppForeground(fgPkg)) {
+      console.warn(
+        `[p12.5] WARN detail-wait foreign fg=${fgPkg || 'unknown'} ${stock.code} recoveries=${foregroundRecoveries}`,
+      );
+      if (foregroundRecoveries >= MAX_FG_RECOVERIES) {
+        return {
+          detail,
+          hasError: false,
+          visible: false,
+          reason: 'wrong_foreground_detail',
+          foreground: fgPkg,
+          retryable: true,
+          winningQuery,
+          foregroundRecoveries,
+        };
+      }
+      const fg = await safeEnsureAppForeground(
+        adbForegroundCtx(`detail-recover-${stock.code}-${foregroundRecoveries}`),
+      );
+      foregroundRecoveries += 1;
+      lastForeground = fg.foreground ?? lastForeground;
+      await sleep(2000);
+      continue;
     }
-    lastForeground = fg.foreground ?? lastForeground;
+
+    lastForeground = fgPkg || lastForeground;
     detail = dumpUi(`detail-${stock.code}`);
     const hasError =
       detail.includes('Cannot convert undefined') ||
@@ -545,7 +594,14 @@ async function waitForStockDetail(stock, winningQuery) {
       };
     }
     if (isStockDetailVisible(detail, stock)) {
-      return { detail, hasError: false, visible: true, foreground: lastForeground, winningQuery };
+      return {
+        detail,
+        hasError: false,
+        visible: true,
+        foreground: lastForeground,
+        winningQuery,
+        foregroundRecoveries,
+      };
     }
     if (isDetailLoading(detail)) {
       await sleep(2500);
@@ -562,6 +618,7 @@ async function waitForStockDetail(stock, winningQuery) {
     foreground: lastForeground,
     retryable: true,
     winningQuery,
+    foregroundRecoveries,
   };
 }
 
@@ -677,7 +734,22 @@ async function verifyStockDeviceOnce(stock, deviceAttempt) {
     queriesTried: search.queriesTried,
     retryable: detailResult?.retryable ?? true,
     deviceAttempt,
+    tapLabel: tapTargets[tapTargets.length - 1]?.label,
+    tapTarget: tapTargets[tapTargets.length - 1],
+    foregroundRecoveries: detailResult?.foregroundRecoveries,
   });
+}
+
+function stocksForVerification() {
+  const only = (process.env.PHASE12_5_STOCK_CODE ?? '').trim();
+  if (!only) return STOCKS;
+  const filtered = STOCKS.filter((s) => s.code === only);
+  if (!filtered.length) {
+    console.warn(`[p12.5] WARN unknown PHASE12_5_STOCK_CODE=${only} — using all stocks`);
+    return STOCKS;
+  }
+  console.log(`[p12.5] stock filter PHASE12_5_STOCK_CODE=${only}`);
+  return filtered;
 }
 
 async function verifyStockDevice(stock) {
@@ -701,7 +773,7 @@ async function verifyStockDevice(stock) {
 
 async function verifyAllStocks() {
   const rows = [];
-  for (const stock of STOCKS) {
+  for (const stock of stocksForVerification()) {
     const row = await verifyStockDevice(stock);
     rows.push(row);
     appendTelemetry({ type: 'stock_verify', ...row, at: new Date().toISOString() });

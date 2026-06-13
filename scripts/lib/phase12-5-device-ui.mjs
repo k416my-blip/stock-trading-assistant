@@ -10,6 +10,7 @@ export const SEARCH_FIELD_FALLBACK = { cx: 484, cy: 828 };
 export const MAX_TAB_SCROLL = 4;
 export const MAX_STOCK_VERIFY_MS = 150_000;
 export const MAX_DETAIL_WAIT_MS = 30_000;
+export const MAX_DETAIL_WAIT_MS_EXTENDED = 45_000;
 export const MAX_QUERIES_PER_STOCK = 3;
 export const FOREGROUND_RELAUNCH_WAIT_MS = 2000;
 
@@ -66,14 +67,20 @@ export function stockMatchTerms(stock) {
   return [...terms];
 }
 
-/** @param {string} label @param {{ cardMustInclude?: string[], cardExclude?: string[] }} stock */
+/** @param {string} label @param {{ code: string, cardMustInclude?: string[], cardExclude?: string[] }} stock */
 export function isExcludedCardLabel(label, stock) {
   for (const ex of stock.cardExclude ?? []) {
     if (normalizedIncludes(label, ex)) return true;
   }
   if (stock.cardMustInclude?.length) {
-    const ok = stock.cardMustInclude.some((t) => normalizedIncludes(label, t));
-    if (!ok) return true;
+    const codeTicker =
+      label.includes(`${stock.code} ·`) ||
+      label.includes(` · ${stock.code}`) ||
+      (label.includes(stock.code) && label.includes('·'));
+    if (!codeTicker) {
+      const ok = stock.cardMustInclude.some((t) => normalizedIncludes(label, t));
+      if (!ok) return true;
+    }
   }
   return false;
 }
@@ -143,6 +150,21 @@ export function findStockSearchCards(xml, stock, findLabels) {
   return findLabels(xml, (l) => isStockCardLabel(l, stock));
 }
 
+/** @param {{ detailWaitMs?: number }} stock */
+export function resolveDetailWaitMs(stock) {
+  const ms = stock?.detailWaitMs;
+  if (typeof ms === 'number' && ms > 0) return ms;
+  return MAX_DETAIL_WAIT_MS;
+}
+
+/** @param {string} xml @param {{ detailExclude?: string[] }} stock */
+export function isExcludedDetailXml(xml, stock) {
+  for (const ex of stock.detailExclude ?? []) {
+    if (normalizedIncludes(xml, ex)) return true;
+  }
+  return false;
+}
+
 /** @param {string} xml */
 export function isDetailLoading(xml) {
   return (
@@ -156,18 +178,28 @@ export function isDetailLoading(xml) {
 /** @param {string} xml @param {{ code: string, label: string, query?: string, aliases?: string[], patterns?: string[], screenerSymbols?: string[], cardNames?: string[], detailExclude?: string[] }} stock */
 export function isStockDetailVisible(xml, stock) {
   if (!xml || isDetailLoading(xml)) return false;
+  if (isExcludedDetailXml(xml, stock)) return false;
 
   const nameOk =
     normalizedIncludes(xml, stock.label) ||
-    (stock.cardNames ?? []).some((n) => n.length >= 4 && normalizedIncludes(xml, n)) ||
-    (stock.patterns ?? []).some((p) => p && p.length >= 4 && normalizedIncludes(xml, p));
+    (stock.cardNames ?? []).some((n) => n.length >= 3 && normalizedIncludes(xml, n)) ||
+    (stock.patterns ?? []).some((p) => p && p.length >= 3 && normalizedIncludes(xml, p));
 
   const codeHits = [stock.code, ...(stock.screenerSymbols ?? [])];
   const codeOk = codeHits.some((sym) => sym && xml.includes(sym));
 
   if ((stock.cardNames?.length ?? 0) > 0 || (stock.screenerSymbols?.length ?? 0) > 0) {
-    if (nameOk) return true;
     if (codeOk && xml.includes(stock.code)) return true;
+    if (nameOk) return true;
+    if (
+      xml.includes('AI四季報') &&
+      !xml.includes('AI四季報を取得中') &&
+      (xml.includes('会社名') || xml.includes('【四季報'))
+    ) {
+      for (const term of stockMatchTerms(stock)) {
+        if (term.length >= 3 && normalizedIncludes(xml, term)) return true;
+      }
+    }
     return false;
   }
 
@@ -194,6 +226,7 @@ export function isStockDetailVisible(xml, stock) {
 /** @param {string} xml @param {{ detailExclude?: string[], cardNames?: string[] }} stock */
 export function isWrongStockDetail(xml, stock) {
   if (!xml || isDetailLoading(xml)) return false;
+  if (isExcludedDetailXml(xml, stock)) return true;
   if (isStockDetailVisible(xml, stock)) return false;
   const onDetail =
     xml.includes('会社名') ||
@@ -205,6 +238,7 @@ export function isWrongStockDetail(xml, stock) {
   return true;
 }
 
+/** @param {Function} sh */
 export function ensurePortrait(sh) {
   sh('adb shell settings put system accelerometer_rotation 0', { allowFail: true });
   sh('adb shell settings put system user_rotation 0', { allowFail: true });

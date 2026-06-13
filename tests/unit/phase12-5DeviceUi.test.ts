@@ -53,6 +53,19 @@ function mockFindLabels(xml: string, pred: (l: string) => boolean) {
   return out;
 }
 
+const STOCK_6033 = {
+  code: '6033',
+  label: 'Petronas Gas',
+  query: 'Petronas Gas',
+  aliases: ['PETGAS', 'Petronas'],
+  patterns: ['6033', 'Petronas Gas', 'PETGAS', 'Petronas'],
+  cardNames: ['Petronas Gas Berhad', 'PETRONAS GAS', 'PETRONAS GAS BERHAD'],
+  cardMustInclude: ['Gas'],
+  cardExclude: ['Chemicals', 'Dagangan', 'IHH', 'Healthcare', '5183'],
+  detailExclude: ['Petronas Chemicals', '5183', 'Chemicals', 'Dagangan', 'IHH', 'Healthcare'],
+  detailWaitMs: 45_000,
+};
+
 describe('phase12-5 device UI helpers', () => {
   it('parseForegroundPackage extracts package from dumpsys line', () => {
     const line =
@@ -139,5 +152,24 @@ describe('phase12-5 device UI helpers', () => {
     expect(isStockAppForeground('com.whatsapp')).toBe(false);
     expect(isForeignAppForeground('com.whatsapp')).toBe(true);
     expect(isForeignAppForeground('com.assistant.stocktrading')).toBe(false);
+  });
+
+  it('6033 search queries prefer Petronas Gas and exclude Chemicals card', () => {
+    expect(stockSearchQueries(STOCK_6033)).toEqual(['Petronas Gas', 'PETGAS', 'Petronas']);
+    expect(
+      isStockCardLabel('Petronas Chemicals Group | 5183 · バルサ', STOCK_6033),
+    ).toBe(false);
+    expect(isStockCardLabel('Petronas Gas Berhad', STOCK_6033)).toBe(true);
+    expect(isStockCardLabel('6033 · バルサ', STOCK_6033)).toBe(true);
+  });
+
+  it('6033 detail visible accepts PETRONAS GAS BERHAD and rejects Chemicals', () => {
+    const gas =
+      '<node text="AI四季報" /><node text="会社名" /><node text="PETRONAS GAS BERHAD" /><node text="6033" />';
+    const chemicals =
+      '<node text="AI四季報" /><node text="会社名" /><node text="Petronas Chemicals Group" /><node text="5183" />';
+    expect(isStockDetailVisible(gas, STOCK_6033)).toBe(true);
+    expect(isWrongStockDetail(chemicals, STOCK_6033)).toBe(true);
+    expect(isWrongStockDetail(gas, STOCK_6033)).toBe(false);
   });
 });
