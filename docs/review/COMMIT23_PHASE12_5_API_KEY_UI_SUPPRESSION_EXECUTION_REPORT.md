@@ -68,10 +68,10 @@ Commit23 後、preview APK **再ビルド・再インストール** が必要（
 
 | チェック | 結果 |
 |----------|------|
-| `npm run typecheck` | （commit 前実行） |
-| `phase125StabilityTestMode.test.ts` | 3 tests |
-| `phase12-5ApiKeyDialog.test.ts` | 3 tests |
-| 既存 phase12-5 系 | 73 tests |
+| `npm run typecheck` | **PASS** |
+| `phase125StabilityTestMode.test.ts` | **3/3 PASS** |
+| `phase12-5ApiKeyDialog.test.ts` | **3/3 PASS** |
+| 既存 phase12-5 系（spot run） | **45/45 PASS** |
 
 ## 3h rerun 再実行見込み
 
@@ -96,9 +96,10 @@ staged diff — 実キー形式 **ヒットなし**
 
 | 項目 | 値 |
 |------|-----|
-| commit hash | （push 後記載） |
-| push | （push 後記載） |
-| remote 同期 | （push 後記載） |
+| commit hash | `6476ce6a9ed2bb38faf13edd05e64b4f31b7325f` |
+| push | **成功** (`7271be1..6476ce6`) |
+| remote 同期 | **0 ahead / 0 behind** |
+| secret scan | **PASS** |
 
 ---
 
