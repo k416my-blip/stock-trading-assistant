@@ -47,23 +47,36 @@ function main() {
   };
 
   const cmds = [
-    ['deviceidle_whitelist', `shell dumpsys deviceidle whitelist | grep -i ${PKG} || dumpsys deviceidle whitelist`],
+    ['deviceidle_whitelist', 'shell dumpsys deviceidle whitelist'],
     ['standby_bucket', `shell am get-standby-bucket ${PKG}`],
     ['background_restricted', `shell cmd activity get-background-restriction-exemption ${PKG}`],
     ['appops_run_any', `shell cmd appops get ${PKG} RUN_ANY_IN_BACKGROUND`],
     ['appops_wakelock', `shell cmd appops get ${PKG} WAKE_LOCK`],
-    ['power_doze', 'shell dumpsys deviceidle | head -n 80'],
-    ['power_summary', 'shell dumpsys power | head -n 120'],
-    ['activity_services', `shell dumpsys activity services ${PKG} | head -n 80`],
-    ['proc_state', `shell dumpsys activity processes | grep -i ${PKG} | head -n 40`],
-    ['battery_properties', 'shell dumpsys battery | head -n 40'],
-    ['miui_powerkeeper', 'shell dumpsys activity provider com.miui.powerkeeper 2>/dev/null | head -n 60'],
+    ['power_doze', 'shell dumpsys deviceidle'],
+    ['power_summary', 'shell dumpsys power'],
+    ['activity_services', `shell dumpsys activity services ${PKG}`],
+    ['proc_state', 'shell dumpsys activity processes'],
+    ['battery_properties', 'shell dumpsys battery'],
+    ['miui_powerkeeper', 'shell dumpsys activity provider com.miui.powerkeeper'],
   ];
 
   let md = `# HyperOS Power Restriction Audit\n\n| Field | Value |\n|-------|-------|\n| runId | ${runId} |\n| device | ${SERIAL} |\n| package | ${PKG} |\n| capturedAt | ${evidence.capturedAt} |\n\n`;
 
   for (const [key, cmdTail] of cmds) {
-    const out = adb(cmdTail);
+    let out = adb(cmdTail);
+    if (key === 'proc_state') {
+      out = out
+        .split('\n')
+        .filter((l) => l.includes(PKG))
+        .slice(0, 40)
+        .join('\n');
+    } else if (['power_doze', 'power_summary', 'miui_powerkeeper', 'activity_services', 'battery_properties'].includes(key)) {
+      out = out.split('\n').slice(0, 80).join('\n');
+    }
+    if (key === 'deviceidle_whitelist') {
+      const whitelisted = out.includes(PKG);
+      out = `whitelisted=${whitelisted}\n${out.split('\n').filter((l) => l.includes('whitelist') || l.includes(PKG)).slice(0, 25).join('\n')}`;
+    }
     evidence.sections[key] = out;
     md += section(key, out);
   }
