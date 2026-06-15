@@ -1,0 +1,11 @@
+﻿# HyperOS v9 3h logcat summary (20260615-174500)
+
+Status: TEST NOT EXECUTED — adb device FYRWXSNNAIOR9DCM absent for entire preflight window (~32 min wait).
+
+heartbeat_12H_MONITOR: 0
+survival_enabled: 0
+survival_status: 0
+price_update: 0
+news_fetch: 0
+FATAL: 0
+ANR: 0

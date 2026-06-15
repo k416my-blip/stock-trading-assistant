@@ -1,0 +1,27 @@
+{
+  "runId": "20260615-171054",
+  "commitAtStart": "9d112f4178cfd75f805b8da11e03585af750c0bb",
+  "versionCode": null,
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "hours": 3,
+  "startedAt": "2026-06-15T09:10:54.566Z",
+  "startMyt": "2026-06-15 17:10:54 MYT",
+  "endMyt": null,
+  "endedAt": null,
+  "baselinePid": null,
+  "finalPid": null,
+  "pidLostEvents": 0,
+  "lastPid": null,
+  "survivalEnabledSeen": false,
+  "polls": [],
+  "checkpoints": [],
+  "finalHeartbeatCount": 0,
+  "finalSurvivalStatusCount": 0,
+  "finalPriceCount": 0,
+  "finalNewsCount": 0,
+  "screenOffEnforcedCount": 0,
+  "phase12_5ExitCode": null,
+  "notes": [
+    "Device FYRWXSNNAIOR9DCM not connected"
+  ]
+}
