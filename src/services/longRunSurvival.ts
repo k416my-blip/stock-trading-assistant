@@ -2,7 +2,7 @@
  * HyperOS / MIUI screen-off survival — partial wake lock + foreground service.
  * Screen keep-awake via expo-keep-awake is opt-in only (default off).
  */
-import { Platform, NativeModules } from 'react-native';
+import { Platform, NativeModules, PermissionsAndroid } from 'react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { TWELVE_HOUR_LOG_TAG } from '../constants/twelveHourTestMonitor';
 
@@ -48,7 +48,20 @@ export async function getLongRunSurvivalStatus(): Promise<LongRunSurvivalStatus>
   }
 }
 
+async function ensureNotificationPermission(): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  if (Platform.Version >= 33) {
+    const granted = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+    if (!granted) {
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    }
+  }
+}
+
 async function applySurvivalStack(): Promise<LongRunSurvivalStatus> {
+  await ensureNotificationPermission();
   await NativeSta?.acquirePartialWakeLock?.('sta-long-run');
   await NativeSta?.startLongRunForegroundService?.(notificationTitle, notificationBody);
   if (screenAwakeMode) {

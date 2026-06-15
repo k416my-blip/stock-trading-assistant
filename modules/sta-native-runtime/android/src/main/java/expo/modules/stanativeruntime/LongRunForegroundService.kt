@@ -1,4 +1,4 @@
-﻿package expo.modules.stanativeruntime
+package expo.modules.stanativeruntime
 
 import android.app.Notification
 import android.app.NotificationChannel

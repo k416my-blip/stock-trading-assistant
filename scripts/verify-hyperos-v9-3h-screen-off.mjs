@@ -27,8 +27,8 @@ const SERIAL = process.env.ANDROID_SERIAL ?? process.env.ADB_SERIAL ?? 'FYRWXSNN
 const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_HOURS ?? '3');
 const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
 const POLL_MIN = 15;
-const APK = path.join(ROOT, 'artifacts/preview-v10.apk');
-const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v9.apk');
+const APK = path.join(ROOT, 'artifacts/preview-v11.apk');
+const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v10.apk');
 const TWELVE_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
 const OUT_DIR = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const HEALTH_DIR = path.join(ROOT, 'docs/review/phase12-5-v8-3h-health');
@@ -425,8 +425,8 @@ async function main() {
   const apkPath = fs.existsSync(APK) ? APK : APK_FALLBACK;
   const skipApkReinstall =
     process.env.PHASE12_5_SKIP_APK_REINSTALL === '1' ||
-    (ev.versionCode === 10 && apkPath === APK) ||
-    (ev.versionCode === 9 && !fs.existsSync(APK));
+    (ev.versionCode === 11 && apkPath === APK) ||
+    (ev.versionCode === 10 && !fs.existsSync(APK));
   if (fs.existsSync(apkPath) && !skipApkReinstall) {
     const inst = spawnSync('adb', ['-s', SERIAL, 'install', '-r', apkPath], {
       encoding: 'utf8',
@@ -439,7 +439,7 @@ async function main() {
   } else if (skipApkReinstall) {
     ev.notes.push(`APK reinstall skipped (versionCode=${ev.versionCode}, apk=${path.basename(apkPath)})`);
   }
-  if (ev.versionCode !== 10 && ev.versionCode !== 9) ev.notes.push(`versionCode=${ev.versionCode} (expected 10)`);
+  if (ev.versionCode !== 11 && ev.versionCode !== 10) ev.notes.push(`versionCode=${ev.versionCode} (expected 11)`);
 
   try {
     spawnSync('node', ['scripts/audit-hyperos-power-restrictions.mjs'], {

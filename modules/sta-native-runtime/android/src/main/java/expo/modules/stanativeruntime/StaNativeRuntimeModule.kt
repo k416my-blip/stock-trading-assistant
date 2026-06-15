@@ -1,4 +1,4 @@
-﻿package expo.modules.stanativeruntime
+package expo.modules.stanativeruntime
 
 import android.app.ActivityManager
 import android.content.ComponentCallbacks2
