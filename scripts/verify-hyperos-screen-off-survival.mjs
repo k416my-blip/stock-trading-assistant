@@ -226,11 +226,13 @@ async function main() {
   evidence.survivalStatusCount = logcatSince('survival_status', screenOffAt).length;
   evidence.networkActivitySeen = hasNetworkActivity(logcatSince('ReactNativeJS', screenOffAt));
 
+  const minHeartbeats = WAIT_MINUTES >= 15 ? 1 : 0;
   evidence.pass =
     evidence.deviceConnected &&
     evidence.pidStable &&
-    evidence.heartbeatCount > 0 &&
-    (evidence.survivalEnabledSeen || evidence.survivalStatusCount > 0);
+    evidence.networkActivitySeen &&
+    evidence.survivalStatusCount > 0 &&
+    evidence.heartbeatCount >= minHeartbeats;
 
   evidence.endedAt = new Date().toISOString();
   fs.writeFileSync(path.join(OUT_DIR, `result-${runId}.json`), JSON.stringify(evidence, null, 2));
