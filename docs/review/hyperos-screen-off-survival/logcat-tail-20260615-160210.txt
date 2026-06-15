@@ -1,0 +1,429 @@
+--------- beginning of main
+06-15 16:06:21.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:21.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.011   994  1061 E HfLooper: sensor type is 4 action is 2 data is 6917.000000 -3324.000000 6029.000000
+06-15 16:06:22.011   994  1061 I SensorSavedChannel: BIAS_ACTION [6917,-3324,6029]
+06-15 16:06:22.012   994  1061 W AString : ctor got NULL, using empty string instead
+06-15 16:06:22.012   994  1061 I SensorSavedChannel: [6917,-3324,6029]==>gyro_bias.json
+06-15 16:06:22.012   994  1061 I SensorSavedChannel:  scp_reboot count = 97314 reboot_flag 0
+06-15 16:06:22.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.058  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.124  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.222  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:06:22.226  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.291  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.530  4978  9228 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.miui.face
+06-15 16:06:22.531  4978  9228 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:22.543 12390 13333 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.google.android.adservices.api
+06-15 16:06:22.543 12390 13333 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:22.561  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.624  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.759  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.882  7929  9354 D JavaheapMonitor: Java heap used=11M max=256M, proc: com.miui.securitycenter.remote
+06-15 16:06:22.883  7929  9354 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:22.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:22.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.011   994  1061 E HfLooper: sensor type is 4 action is 2 data is 7053.000000 -3395.000000 6242.000000
+06-15 16:06:23.011   994  1061 I SensorSavedChannel: BIAS_ACTION [7053,-3395,6242]
+06-15 16:06:23.012   994  1061 W AString : ctor got NULL, using empty string instead
+06-15 16:06:23.013   994  1061 I SensorSavedChannel: [7053,-3395,6242]==>gyro_bias.json
+06-15 16:06:23.013   994  1061 I SensorSavedChannel:  scp_reboot count = 97315 reboot_flag 0
+06-15 16:06:23.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.058  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.259  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.303 12233 12910 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.xiaomi.mi_connect_service
+06-15 16:06:23.303 12233 12910 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:23.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.359  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.392  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.559  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.625  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.759  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.858  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:23.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+--------- beginning of system
+06-15 16:06:24.007  1767  2229 I SmartPower: com.google.android.cellbroadcastreceiver/10244(19424): background->idle(3118ms) R(adj below visible) adj=905.
+06-15 16:06:24.012   994  1061 E HfLooper: sensor type is 4 action is 2 data is 6792.000000 -3334.000000 6245.000000
+06-15 16:06:24.012   994  1061 I SensorSavedChannel: BIAS_ACTION [6792,-3334,6245]
+06-15 16:06:24.016   994  1061 W AString : ctor got NULL, using empty string instead
+06-15 16:06:24.016   994  1061 I SensorSavedChannel: [6792,-3334,6245]==>gyro_bias.json
+06-15 16:06:24.016   994  1061 I SensorSavedChannel:  scp_reboot count = 97316 reboot_flag 0
+06-15 16:06:24.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.126  1767  4167 I Telecom-TelecomServiceImpl$1: isInEmergencyCall: false: TSI.iIEC@kEs
+06-15 16:06:24.126  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.159  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.392  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.558  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.626  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.658  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.758  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:24.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.224  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:06:25.226  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.259  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.359  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.370 15263 15848 D JavaheapMonitor: Java heap used=10M max=512M, proc: com.android.camera
+06-15 16:06:25.372 15263 15848 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:25.392  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.458  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.471  4763  7332 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.android.nfc
+06-15 16:06:25.472  4763  7332 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:25.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.559  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.625  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.709 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 0.000000, new ratio = 0.000000, LRE = 0, iterf = tt~zC
+06-15 16:06:25.709 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 1.000000, new ratio = 1.000000, LRE = 0, iterf = (}rA
+06-15 16:06:25.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.759  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.914  1767  2144 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+06-15 16:06:25.919  1767  2144 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+06-15 16:06:25.919  1767  2144 D InetDiagMessage: Destroyed live tcp sockets for uids={10120} in 12ms
+06-15 16:06:25.924  1767  2144 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+06-15 16:06:25.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.928  1767  2144 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+06-15 16:06:25.929  1767  2144 D InetDiagMessage: Destroyed live tcp sockets for uids={20120} in 9ms
+06-15 16:06:25.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:25.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.024  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.057  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.324  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.392  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.468  2597  2728 D JavaheapMonitor: Java heap used=11M max=256M, proc: com.android.phone
+06-15 16:06:26.469  2597  2728 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:26.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.558  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.594  8961  9056 D JavaheapMonitor: Java heap used=12M max=256M, proc: com.miui.powerkeeper
+06-15 16:06:26.595  8961  9056 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:26.625  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.759  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.764  1767  1904 D AurogonBandwidthController: skinTemperature:33.388
+06-15 16:06:26.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.862  1767  2121 I MiuiNetworkPolicy: updateUidState uid = 10120, uidState = 19
+06-15 16:06:26.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:26.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.058  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.071  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.os.BinderProxy@981cc05 callingPid=19281
+06-15 16:06:27.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.162  1767  4167 I Telecom-TelecomServiceImpl$1: isInEmergencyCall: false: TSI.iIEC@kEw
+06-15 16:06:27.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.259  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.266  1767  1883 D JavaheapMonitor: Java heap used=130M max=512M, proc: system_server
+06-15 16:06:27.267  1767  1883 V JavaheapMonitor: Check java heap usage finished! Next check delay: 180000
+06-15 16:06:27.277  1767  2860 D SLM-SRV-SLAService: checktemp temperature = 33388 temperature_average = 33523 isPerformanceMode = true thermal_enable_slm = true
+06-15 16:06:27.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.359  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.392  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.503  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.504  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.505  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.505  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.506  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.507  1767  1983 E JobScheduler.Background: Couldn't determine stopped state for unknown package: com.google.android.apps.turbo
+06-15 16:06:27.526  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.559  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.592  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.626  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.758  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.826  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.858  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:27.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.136 15276 15587 D JavaheapMonitor: Java heap used=12M max=512M, proc: com.google.android.googlequicksearchbox:googleapp
+06-15 16:06:28.136 15276 15587 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:28.159  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.192  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.225  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:06:28.259  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.424  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.524  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.558  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.591  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.599  6312  6347 D JavaheapMonitor: Java heap used=3M max=512M, proc: com.android.bluetooth
+06-15 16:06:28.600  6312  6347 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:28.615  1767  4167 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=267047433, flags=0x1, tag="RILJ_ACK_WL", ws=null, uid=1001, pid=2597
+06-15 16:06:28.625  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.724  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.758  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.791  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.824  1767  4167 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=267047433 [RILJ_ACK_WL], flags=0x0
+06-15 16:06:28.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.925  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:28.977  2612  2818 D JavaheapMonitor: Java heap used=91M max=256M, proc: com.android.systemui
+06-15 16:06:28.977  2612  2818 V JavaheapMonitor: Check java heap usage finished! Next check delay: 180000
+06-15 16:06:28.988 28870 29246 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.milink.service:audio
+06-15 16:06:28.990 28870 29246 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:28.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.191  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.292  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.336 13534 13676 D JavaheapMonitor: Java heap used=6M max=512M, proc: com.google.android.googlequicksearchbox:interactor
+06-15 16:06:29.337 13534 13676 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:29.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.459  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.558  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.591  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.624  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.691  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.758  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.791  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.825  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.859  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.892 13589 14220 D JavaheapMonitor: Java heap used=8M max=512M, proc: com.miui.home
+06-15 16:06:29.893 13589 14220 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:29.924  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:29.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.027  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.057  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.070  5479  8941 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.miui.analytics
+06-15 16:06:30.071  5479  8941 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:30.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.123  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.156  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.182  1767  4167 I Telecom-TelecomServiceImpl$1: isInEmergencyCall: false: TSI.iIEC@kE0
+06-15 16:06:30.190  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.223  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.256  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.289  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.333 30739 31311 D JavaheapMonitor: Java heap used=25M max=256M, proc: com.google.android.inputmethod.latin
+06-15 16:06:30.333 30739 31311 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:30.358  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.390  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.425  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.456  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.490  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.523  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.556  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.590  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.594 18868 18906 E TraceManagerImpl: Trace WorkQueueWorkerShim#startWork timed out after 3855515 ms. Complete trace: # fesw@f247bfdf
+06-15 16:06:30.594 18868 18906 E TraceManagerImpl: fetd: 
+06-15 16:06:30.594 18868 18906 E TraceManagerImpl: 	at tk_trace.DatabaseWrapperImpl.inTransactionDeferredRunnableList(Started After:0)
+06-15 16:06:30.594 18868 18906 E TraceManagerImpl: 	at tk_trace.WorkQueueWorkerImpl.startWork(Started After:0)
+06-15 16:06:30.594 18868 18906 E TraceManagerImpl: 	at tk_trace.WorkQueueWorkerShim#startWork(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: Trace BuglePhoneApplicationBase#attatchBaseContext timed out after 3856592 ms. Complete trace: # fesw@9218fc29
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: fetd: 
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.ExecutionState::runAfterCommit(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.WorkQueueWorkerImpl#handleResultInner(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.WorkQueueWorkerImpl.startWork(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.WorkQueueBatchingImpl#schedulingDeferred(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.WorkQueueBatchingImpl#queueWorkItems(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.WorkQueueBatchingImpl#queueWorkItem(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.PhenotypeHelper#onBuglePhenotypeChanged(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.PhenotypeHelper#registerPhenotype(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.PhoneAsyncAppCreateStartupTask(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.StartupHandlerImpl#onApplicationCreatedInternal(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.StartupHandlerImpl#onApplicationCreated(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.Application.onCreate(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.Application creation(Started After:0)
+06-15 16:06:30.595 18868 18912 E TraceManagerImpl: 	at tk_trace.BuglePhoneApplicationBase#attatchBaseContext(Started After:0)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: Trace StartupHandlerImpl App Interactive Delay Timer Fired timed out after 3841537 ms. Complete trace: # fesw@d3e9fda2
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: fetd: 
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.GenericWorkerQueueAction(Started After:6)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.BackgroundResponseRunnable#processBackgroundWorkResponse(Started After:6)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.BackgroundWorkerRunnable#runImpl(Started After:6)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.ExecuteActionRunnable#runImpl(Started After:6)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.GwqWorkerStartupTask(Started After:0)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.StartupHandlerImpl#onAppInteractiveInternal(Started After:0)
+06-15 16:06:30.599 18868 18914 E TraceManagerImpl: 	at tk_trace.StartupHandlerImpl App Interactive Delay Timer Fired(Started After:0)
+06-15 16:06:30.623  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.656  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.692  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.724  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.759  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.790  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.823  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.857  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.890  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.923  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.956  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:30.990  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.058  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.191  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.202  2350  4322 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.miui.miwallpaper
+06-15 16:06:31.204  2350  4322 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:31.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.226  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:06:31.256  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.290  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.323  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.356 21906 21949 D JavaheapMonitor: Java heap used=25M max=256M, proc: com.google.android.gms.persistent
+06-15 16:06:31.356  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.356 21906 21949 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:31.384  7146  7290 D JavaheapMonitor: Java heap used=16M max=256M, proc: com.google.android.gms
+06-15 16:06:31.384  7146  7290 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:31.390  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.424  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.458  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.490  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.556  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.590  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.608  1767  4167 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=267047433, flags=0x1, tag="RILJ_ACK_WL", ws=null, uid=1001, pid=2597
+06-15 16:06:31.623  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.656  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.690  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.711 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 0.000000, new ratio = 0.000000, LRE = 0, iterf = tt~zC
+06-15 16:06:31.711 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 1.000000, new ratio = 1.000000, LRE = 0, iterf = (}rA
+06-15 16:06:31.723  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.756  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.792  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.813  1767  4167 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=267047433 [RILJ_ACK_WL], flags=0x0
+06-15 16:06:31.824  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.858  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.890  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.924  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.956  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:31.990  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.023  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.056  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.090  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.125  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.151  3344  4410 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.xiaomi.bluetooth
+06-15 16:06:32.152  3344  4410 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:06:32.159  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:06:32.190  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124

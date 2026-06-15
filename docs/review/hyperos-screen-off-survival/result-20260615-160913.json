@@ -1,0 +1,87 @@
+{
+  "runId": "20260615-160913",
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "waitMinutes": 16,
+  "startedAt": "2026-06-15T08:09:13.389Z",
+  "deviceConnected": true,
+  "apkInstalled": true,
+  "apkPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\artifacts\\preview-v9.apk",
+  "baselinePid": "20263",
+  "finalPid": "20263",
+  "pidStable": true,
+  "survivalEnabledSeen": false,
+  "heartbeatCount": 4,
+  "survivalStatusCount": 1,
+  "networkActivitySeen": true,
+  "polls": [
+    {
+      "poll": 1,
+      "elapsedMin": 2,
+      "pid": "20263",
+      "heartbeatLines": 0,
+      "survivalStatusLines": 0,
+      "networkLines": 0
+    },
+    {
+      "poll": 2,
+      "elapsedMin": 4,
+      "pid": "20263",
+      "heartbeatLines": 1,
+      "survivalStatusLines": 0,
+      "networkLines": 0
+    },
+    {
+      "poll": 3,
+      "elapsedMin": 6,
+      "pid": "20263",
+      "heartbeatLines": 1,
+      "survivalStatusLines": 0,
+      "networkLines": 0
+    },
+    {
+      "poll": 4,
+      "elapsedMin": 8,
+      "pid": "20263",
+      "heartbeatLines": 1,
+      "survivalStatusLines": 0,
+      "networkLines": 0
+    },
+    {
+      "poll": 5,
+      "elapsedMin": 10,
+      "pid": "20263",
+      "heartbeatLines": 1,
+      "survivalStatusLines": 0,
+      "networkLines": 0
+    },
+    {
+      "poll": 6,
+      "elapsedMin": 12,
+      "pid": "20263",
+      "heartbeatLines": 3,
+      "survivalStatusLines": 1,
+      "networkLines": 0
+    },
+    {
+      "poll": 7,
+      "elapsedMin": 14,
+      "pid": "20263",
+      "heartbeatLines": 4,
+      "survivalStatusLines": 1,
+      "networkLines": 0
+    },
+    {
+      "poll": 8,
+      "elapsedMin": 16,
+      "pid": "20263",
+      "heartbeatLines": 4,
+      "survivalStatusLines": 1,
+      "networkLines": 0
+    }
+  ],
+  "pass": true,
+  "notes": [
+    "survival_enabled not seen — app may lack v9 native module build"
+  ],
+  "endedAt": "2026-06-15T08:27:43.772Z"
+}

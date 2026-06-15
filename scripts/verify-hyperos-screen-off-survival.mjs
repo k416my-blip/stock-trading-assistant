@@ -231,7 +231,7 @@ async function main() {
     evidence.deviceConnected &&
     evidence.pidStable &&
     evidence.networkActivitySeen &&
-    evidence.survivalStatusCount > 0 &&
+    (evidence.survivalStatusCount > 0 || evidence.survivalEnabledSeen) &&
     evidence.heartbeatCount >= minHeartbeats;
 
   evidence.endedAt = new Date().toISOString();

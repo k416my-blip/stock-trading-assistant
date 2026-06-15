@@ -1,0 +1,29 @@
+{
+  "runId": "20260615-155646",
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "waitMinutes": 2,
+  "startedAt": "2026-06-15T07:56:46.672Z",
+  "deviceConnected": true,
+  "apkInstalled": true,
+  "apkPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\artifacts\\preview-v8.apk",
+  "baselinePid": "11556",
+  "finalPid": "11556",
+  "pidStable": true,
+  "survivalEnabledSeen": true,
+  "heartbeatCount": 0,
+  "survivalStatusCount": 0,
+  "networkActivitySeen": true,
+  "polls": [
+    {
+      "poll": 1,
+      "elapsedMin": 2,
+      "pid": "11556",
+      "heartbeatLines": 0,
+      "survivalStatusLines": 0,
+      "networkLines": 7
+    }
+  ],
+  "pass": false,
+  "notes": [],
+  "endedAt": "2026-06-15T08:01:10.513Z"
+}

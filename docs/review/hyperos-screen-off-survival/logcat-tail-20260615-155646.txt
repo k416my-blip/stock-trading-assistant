@@ -1,0 +1,402 @@
+--------- beginning of main
+06-15 16:01:02.126  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.159  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.193  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.227  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.260  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.293  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.327  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.360  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.393  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.527  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.626  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.727  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.793  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.826  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.860  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.893  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.927  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.960  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:02.993  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.026  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.093  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.127  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.160  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.193  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.226  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.260  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.293  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.327  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.360  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.393  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.526  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.627  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.697  2350  4322 D JavaheapMonitor: Java heap used=2M max=256M, proc: com.miui.miwallpaper
+06-15 16:01:03.698  2350  4322 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:03.727  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.793  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.827  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.860  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.893  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.927  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.960  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:03.993  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.026  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.060  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.093  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.127  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.147  2597  2728 D JavaheapMonitor: Java heap used=11M max=256M, proc: com.android.phone
+06-15 16:01:04.147  2597  2728 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.161  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.176 10074 10144 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.xiaomi.joyose
+06-15 16:01:04.176 10074 10144 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.193  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.212  2488  2582 D JavaheapMonitor: Java heap used=5M max=256M, proc: com.android.networkstack.process
+06-15 16:01:04.213  2488  2582 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.227  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.260  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.293  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.327  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.332  8961  9056 D JavaheapMonitor: Java heap used=8M max=256M, proc: com.miui.powerkeeper
+06-15 16:01:04.333  8961  9056 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.360  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.393  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.527  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.626  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.660 28116 28627 D JavaheapMonitor: Java heap used=4M max=512M, proc: com.miui.guardprovider
+06-15 16:01:04.660 28116 28627 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.727  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.793  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.827  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.856 28510 29996 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.miui.msa.global
+06-15 16:01:04.857 28510 29996 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.858  9678 11309 D JavaheapMonitor: Java heap used=2M max=256M, proc: com.lbe.security.miui
+06-15 16:01:04.859  9678 11309 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:04.860  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.894  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.927  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.960  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:04.993  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.027  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.060  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.072   969  6367 D [BT]    : mtk_bt_op: BT_VND_OP_LPM_WAKE_SET_STATE
+06-15 16:01:05.081  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:01:05.093  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.127  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.160  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.193  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.227  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.260  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.293  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.326  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.360  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.393  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.426  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.527  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.626  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.642  2612  2818 D JavaheapMonitor: Java heap used=93M max=256M, proc: com.android.systemui
+06-15 16:01:05.643  2612  2818 V JavaheapMonitor: Check java heap usage finished! Next check delay: 180000
+06-15 16:01:05.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.726  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.793  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.826  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.860  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.894  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.927  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.960  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:05.993  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.026  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.060  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.093  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.126  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.160  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.193  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.227  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.260  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.293  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.326  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.350 13589 14220 D JavaheapMonitor: Java heap used=9M max=512M, proc: com.miui.home
+06-15 16:01:06.351 13589 14220 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:06.360  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.393  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.427  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.459  1767  2858 I NetworkBoostStatusManager: handle: 107
+06-15 16:01:06.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.507 17439 21916 D JavaheapMonitor: Java heap used=4M max=256M, proc: com.xiaomi.mirror
+06-15 16:01:06.507 17439 21916 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:06.527  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.627  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.660  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.727  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+--------- beginning of system
+06-15 16:01:06.736  1767  1904 D AurogonBandwidthController: skinTemperature:33.995
+06-15 16:01:06.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.786 21906 10187 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-15 16:01:06.788 21906 10187 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-15 16:01:06.791  6720  7183 E msys    : E[N mns:DGWClient]_LogError(304)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
+06-15 16:01:06.794  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.795 21906 10187 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-15 16:01:06.800  6720  7183 E msys    : E[N mns:DGWClient]_LogError(304)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
+06-15 16:01:06.804 21906 10187 I FusedLocation: (REDACTED) location delivery to %s blocked - too close
+06-15 16:01:06.809  1767  1963 E AlarmManager: not align this alarm: Alarm{faeab4f type 3 origWhen 384360235 whenElapsed 384360235 com.google.android.gms}, reason=3
+06-15 16:01:06.810  1767  4167 D LocationManagerService: incoming location: Location[fused hAcc=100 et=+4d10h36m0s235ms vAcc=100 sAcc=??? bAcc=???]
+06-15 16:01:06.811  1767  4167 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=135853723, flags=0x1, tag="*location*", ws=WorkSource{10155 com.google.android.gms}, uid=1000, pid=1767
+06-15 16:01:06.815  1767  1963 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=61551324, flags=0x1, tag="CMWakeLock", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.816  1767  1963 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.823  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=135853723 [*location*], flags=0x0
+06-15 16:01:06.827  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.827  1767  4167 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=78015032, flags=0x1, tag="*location*", ws=WorkSource{10155 com.google.android.gms}, uid=1000, pid=1767
+06-15 16:01:06.829  1767  3273 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=232041835, flags=0x1, tag="FusedLocation", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.830  1767  3273 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.831  1767  2740 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=203858120, flags=0x1, tag="FusedLocation", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.832  1767  2740 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.833  1767  3273 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=61551324 [CMWakeLock], flags=0x0
+06-15 16:01:06.834  1767  3271 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=69178721, flags=0x1, tag="FusedLocation", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.835  1767  3271 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.837  1767  3273 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=78015032 [*location*], flags=0x0
+06-15 16:01:06.849  1767  4167 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=232041835 [FusedLocation], flags=0x0
+06-15 16:01:06.853  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=203858120 [FusedLocation], flags=0x0
+06-15 16:01:06.860  1767  2740 E AlarmManager: not align this alarm: Alarm{afc5886 type 3 origWhen 315743760308 whenElapsed 315743760308 com.google.android.gms}, reason=3
+06-15 16:01:06.861  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.862  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=69178721 [FusedLocation], flags=0x0
+06-15 16:01:06.865  1767  2740 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=235844935, flags=0x1, tag="IntentOp:.findmydevice.spot.locationreporting.LocationAssigningIntentOperation", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.866  1767  2740 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.871  1767  1963 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=57213300, flags=0x1, tag="IntentOp:.findmydevice.spot.locationreporting.LocationAssigningIntentOperation", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:06.871  1767  1963 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:06.878  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{8cec0e0 CR com.google.android.gms/.chimera.GmsApiService:act=com.google.android.chimera.BoundService.START dat=chimera-action:com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.879  1767  2121 I MiuiNetworkPolicy: updateUidState uid = 99507, uidState = 5
+06-15 16:01:06.882  7146  7146 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsApiService }
+06-15 16:01:06.882  7146  7146 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.onboardingconsent.api.ConsentManagerApiService.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.GmsApiService }
+06-15 16:01:06.884  1767  3271 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{65ae5a CR com.google.android.gms/.chimera.PersistentApiService:act=com.google.android.chimera.BoundService.START dat=chimera-action:com.google.android.gms.auth.aang.events.services.START xflg=0x4}: requested=true rebind=true
+06-15 16:01:06.886 21906 21906 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentApiService }
+06-15 16:01:06.888  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{744d66a CR com.google.android.gms/.auth.GetToken:xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.892  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.893  7146  7271 I ConsentManagerApiServic: (REDACTED) ConsentManagerApiService onGetService success %s
+06-15 16:01:06.898  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{c097e37 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.902  1767  2740 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@b27cbf8 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.906  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{dc3fd2f CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.907  1767  2860 D SLM-SRV-SLAService: checktemp temperature = 33995 temperature_average = 34225 isPerformanceMode = true thermal_enable_slm = true
+06-15 16:01:06.911  1767  3271 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@fedc6d3 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.913  1767  2740 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@c1d3d4b callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.916  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=235844935 [IntentOp:.findmydevice.spot.locationreporting.LocationAssigningIntentOperation], flags=0x0
+06-15 16:01:06.924  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.929  1767  2740 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{67f7be CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.934  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@4060ac3 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.937 21906 14911 I LSR     : Received in the callback location is accurate enough, uploading it [CONTEXT service_id=277 ]
+06-15 16:01:06.939  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=57213300 [IntentOp:.findmydevice.spot.locationreporting.LocationAssigningIntentOperation], flags=0x0
+06-15 16:01:06.943 21906 14916 I LSR     : Starting pre-upload checks [CONTEXT service_id=277 ]
+06-15 16:01:06.945 21906 14635 I TFLite-in-PlayServices: Created interpreter.
+06-15 16:01:06.947 21906 14917 I LSR     : Finished pre-upload checks for all accounts [CONTEXT service_id=277 ]
+06-15 16:01:06.950  1767  3271 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{c9c0f3b CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.951 21906 14914 I LSR     : No periodic requests, ignoring upload attempt [CONTEXT service_id=277 ]
+06-15 16:01:06.955  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@bc4ff6c callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:06.962 21906 14635 I SemanticLocation: (REDACTED) [Inferrer] %s%s
+06-15 16:01:06.963  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{3dd004 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:06.974  1767  3271 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@a5dd3b1 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:06.987  1767  3271 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{cc9e870 CR com.google.android.gms/.auth.be.appcert.AppCertService:act=com.google.android.gms.auth.APP_CERT xflg=0x4 pkg=com.google.android.gms}: requested=false rebind=false
+06-15 16:01:06.991  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.024  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.055 21906 14914 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+06-15 16:01:07.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.060 21906 14914 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@262031035@26.20.31 (260400-919905943):204)
+06-15 16:01:07.060 21906 14914 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@262031035@26.20.31 (260400-919905943):4)
+06-15 16:01:07.074  3344  4410 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.xiaomi.bluetooth
+06-15 16:01:07.075  3344  4410 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:07.085 21906 14914 W Conscrypt: Could not set socket write timeout: java.net.SocketException: Socket closed
+06-15 16:01:07.086 21906 14914 W Conscrypt: 	at com.google.android.gms.org.conscrypt.Platform.setSocketWriteTimeout(:com.google.android.gms@262031035@26.20.31 (260400-919905943):204)
+06-15 16:01:07.086 21906 14914 W Conscrypt: 	at com.google.android.gms.org.conscrypt.ConscryptFileDescriptorSocket.setSoWriteTimeout(:com.google.android.gms@262031035@26.20.31 (260400-919905943):4)
+06-15 16:01:07.091  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.126  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.138 21906 21949 D JavaheapMonitor: Java heap used=27M max=256M, proc: com.google.android.gms.persistent
+06-15 16:01:07.138 21906 21949 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:07.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.191  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.224  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.291  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.325  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.350 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 0.000000, new ratio = 0.000000, LRE = 0, iterf = tt~zC
+06-15 16:01:07.350 13118 13118 I SLM-Slad-SlaStatsImpl: calcSlaRatios SLA_RATIO oldRatio = 1.000000, new ratio = 1.000000, LRE = 0, iterf = (}rA
+06-15 16:01:07.357  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.427  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.447  6312  6395 I BtGatt.ScanManager: msg.what = MSG_CHECK_SCAN_STATUS, msg.arg1 = CHECK_BACKGROUND_TIMEOUT
+06-15 16:01:07.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.559  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.560 21906 14916 I LSR     : (REDACTED) Upload location result is: %s
+06-15 16:01:07.576  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{42b3d2b CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.588  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@cbd1b9c callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.591  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.604  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{6374234 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.613  1767  2740 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@79a0b21 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.624  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.654  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{60e2d1e CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.662  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@41826a3 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.674  1767  2740 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{599c71b CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.685  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@fcca3cc callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.687 21906 14635 I LSR     : Attempted to upload location for all accounts with centralized reporting state [CONTEXT service_id=277 ]
+06-15 16:01:07.687 21906 14914 I LSR     : Attempted to upload location for all accounts [CONTEXT service_id=277 ]
+06-15 16:01:07.687 21906 14914 I LSR     : Refreshing periodic location reporting state [CONTEXT service_id=277 ]
+06-15 16:01:07.688  1767  2740 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@6cafe91 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.691  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.710  1767  3271 D PowerManagerService: [xiaomi_power]acquireWakeLockInternal: lock=131270530, flags=0x1, tag="CallbackRunner", ws=WorkSource{10155 com.google.android.gms}, uid=10155, pid=21906
+06-15 16:01:07.710  1767  3271 D Aurogon :  packageName = com.google.android.gms isAllowWakeUpList 
+06-15 16:01:07.714  1767  3271 D PowerManagerService: [xiaomi_power]releaseWakeLockInternal: lock=131270530 [CallbackRunner], flags=0x0
+06-15 16:01:07.716  1767  2740 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{325ed0 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.706 21906 14919 I LSR     : No periodic upload requests, periodic reporting should be disabled [CONTEXT service_id=277 ]
+06-15 16:01:07.721 21906 14916 I SystemMemoryMap: (REDACTED) [activityrecognition] serialization complete (extras/values=%.2f/%.2fkb)
+06-15 16:01:07.724  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.728  1767  3271 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@449a064 callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.738 21906 14844 I LSR     : (REDACTED) Reporting should be enabled: %s
+06-15 16:01:07.738 21906 14844 I LSR     : (REDACTED) Starting periodic location reporting, requestRefreshPolicy: %s
+06-15 16:01:07.743 21906 21906 I LSR     : PeriodicReporterMonitoringService started [CONTEXT service_id=277 ]
+06-15 16:01:07.743 21906 14919 I LSR     : Starting monitoring device setting changes [CONTEXT service_id=277 ]
+06-15 16:01:07.743 21906 14919 I LSR     : Attempting to start listening to device setting changes [CONTEXT service_id=277 ]
+06-15 16:01:07.743 21906 14919 I LSR     : (REDACTED) Device battery saver mode change, isEnabled: %s
+06-15 16:01:07.749 21906 14844 I LSR     : Internet connection detected, registering with FLP, AR & SL. [CONTEXT service_id=277 ]
+06-15 16:01:07.751 21906 14919 I LSR     : (REDACTED) Device location setting change, isEnabled: %s
+06-15 16:01:07.757 21906 14919 I LSR     : Attempting to register callbacks for device state changes [CONTEXT service_id=277 ]
+06-15 16:01:07.758 21906 14914 I LSR     : Started monitoring device settings [CONTEXT service_id=277 ]
+06-15 16:01:07.760  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.768  1767  4167 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{525ae85 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.775  1767  4167 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@52e19ce callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.786  1767  3271 W AppOps  : Noting op not finished: uid 10155 pkg com.google.android.gms code 79 startTime of in progress event=1781509836706
+06-15 16:01:07.787 21906 14914 I LSR     : (REDACTED) Device activity detected as %s
+06-15 16:01:07.787 21906 14919 I LSR     : (REDACTED) Device activity detected as %s
+06-15 16:01:07.787 21906 14919 I LSR     : LSR should report with device still frequency [CONTEXT service_id=277 ]
+06-15 16:01:07.787 21906 14919 I LSR     : LocationRequest hasn't changed, not sending another LocationRequest to FLP [CONTEXT service_id=277 ]
+06-15 16:01:07.788 21906 14919 I LSR     : Attempting to schedule periodic location reporting maintenance task [CONTEXT service_id=277 ]
+06-15 16:01:07.791  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.793 21906 14930 I LSR     : Scheduling periodic location reporting maintenance task [CONTEXT service_id=277 ]
+06-15 16:01:07.801  1767  3271 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{95f94a6 CR com.google.android.gms/.auth.account.authenticator.GoogleAccountAuthenticatorService:act=android.accounts.AccountAuthenticator xflg=0x4}: requested=false rebind=false
+06-15 16:01:07.807  1767  3271 I ActivityManager: unbindService com.android.server.am.ActiveServices@e3a577b conn=android.app.LoadedApk$ServiceDispatcher$InnerConnection@576ad0b callingPid=0 callers: com.android.server.accounts.AccountManagerService$Session.close:5455 com.android.server.accounts.AccountManagerService$Session.getResponseAndClose:5328 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.sendResult:4690 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.checkAccount:4651 com.android.server.accounts.AccountManagerService$GetAccountsByTypeAndFeatureSession.onResult:4686 android.accounts.IAccountAuthenticatorResponse$Stub.onTransact:106 android.os.Binder.execTransactInternal:1433 android.os.Binder.execTransact:1372 <bottom of call stack> <bottom of call stack> 
+06-15 16:01:07.824  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.857  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.859  1767  3271 D ActivityManager: [xiaomi_power]requestBind IntentBindRecord{cd7b3dc CR com.google.android.gms/.chimera.PersistentDirectBootAwareApiService:act=com.google.android.chimera.BoundService.START dat=chimera-action:com.google.android.gms.libs.gmscorelogger.service.START xflg=0x4}: requested=true rebind=true
+06-15 16:01:07.860 21906 21906 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action:/... xflg=0x4 cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+06-15 16:01:07.861   994  1061 E HfLooper: sensor type is 4 action is 2 data is 6750.000000 -3544.000000 6435.000000
+06-15 16:01:07.862   994  1061 I SensorSavedChannel: BIAS_ACTION [6750,-3544,6435]
+06-15 16:01:07.862   994  1061 W AString : ctor got NULL, using empty string instead
+06-15 16:01:07.862   994  1061 I SensorSavedChannel: [6750,-3544,6435]==>gyro_bias.json
+06-15 16:01:07.862   994  1061 I SensorSavedChannel:  scp_reboot count = 97119 reboot_flag 0
+06-15 16:01:07.880  6720  7183 E msys    : E[N mns:DGWClient]_LogError(304)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
+06-15 16:01:07.891  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.927  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.960  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:07.992  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.026  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.058  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.082  1417  1753 D ULogGuard: Monitoring: 15 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+06-15 16:01:08.091  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.113  6720  7183 E msys    : E[N mns:DGWClient]_LogError(304)=>Failed to resolve using system DNS resolver, getaddrinfo(): No address associated with hostname
+06-15 16:01:08.124  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.191  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.224  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.291  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.326  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.359  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.427  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.460  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.493  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.525  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.560  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.627  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.659  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.693  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.724  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.726 17631 21917 D JavaheapMonitor: Java heap used=2M max=256M, proc: com.xiaomi.trustservice
+06-15 16:01:08.727 17631 21917 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:08.757  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.791  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.824  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.858  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.891  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.924  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.958  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:08.991  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.025  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.060  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.092  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.115  4728  5196 D JavaheapMonitor: Java heap used=7M max=256M, proc: com.miui.daemon
+06-15 16:01:09.115  4728  5196 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:09.127  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.158  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.191  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.225  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.258  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.291  6312  6347 D JavaheapMonitor: Java heap used=3M max=512M, proc: com.android.bluetooth
+06-15 16:01:09.291  6312  6347 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:09.291  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.324  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.357  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.391  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.424  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.458  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.492  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.527  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.559  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.593  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.625  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.658  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.691  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.692 14854 21872 D JavaheapMonitor: Java heap used=3M max=256M, proc: com.google.android.rkpdapp
+06-15 16:01:09.693 14854 21872 V JavaheapMonitor: Check java heap usage finished! Next check delay: 300000
+06-15 16:01:09.725  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.758  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.791  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.824  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.858  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.868   994  1061 E HfLooper: sensor type is 4 action is 2 data is 6893.000000 -3501.000000 6482.000000
+06-15 16:01:09.869   994  1061 I SensorSavedChannel: BIAS_ACTION [6893,-3501,6482]
+06-15 16:01:09.869   994  1061 W AString : ctor got NULL, using empty string instead
+06-15 16:01:09.870   994  1061 I SensorSavedChannel: [6893,-3501,6482]==>gyro_bias.json
+06-15 16:01:09.870   994  1061 I SensorSavedChannel:  scp_reboot count = 97120 reboot_flag 0
+06-15 16:01:09.891  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.924  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.959  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:09.993  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:10.026  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
+06-15 16:01:10.059  1121  1121 I MI-SF   : set aod flag by [124]screenFade-container#124
