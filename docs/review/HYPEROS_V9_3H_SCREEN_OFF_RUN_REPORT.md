@@ -69,4 +69,4 @@ Summary file: `docs/review/hyperos-screen-off-survival/logcat-summary-3h-2026061
 
 ## GitHub sync
 
-Pending push in this session.
+Pushed `e902cf6` to `origin/cursor/top3-maxdd-capital-audit`.
