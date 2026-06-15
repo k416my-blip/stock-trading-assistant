@@ -25,6 +25,11 @@ import { recordBridgeFetchMs } from './nativeBoundaryHistograms';
 type NativeModuleShape = {
   getSnapshot?: () => Promise<Record<string, unknown>>;
   getMemoryClass?: () => Promise<Record<string, unknown>>;
+  acquirePartialWakeLock?: (tag: string) => Promise<void>;
+  releasePartialWakeLock?: () => Promise<void>;
+  startLongRunForegroundService?: (title?: string, body?: string) => Promise<void>;
+  stopLongRunForegroundService?: () => Promise<void>;
+  getSurvivalStatus?: () => Promise<{ wakeLockHeld: boolean; foregroundServiceRunning: boolean }>;
   addListener?: (event: string) => void;
   removeListeners?: (count: number) => void;
 };

@@ -18,6 +18,7 @@ import {
   stopTwelveHourTestMonitorCore,
 } from './twelveHourTestMonitorCore';
 import { loadTwelveHourMonitorSnapshot } from './twelveHourTestMonitorPersistence';
+import { disableLongRunSurvival, enableLongRunSurvival } from './longRunSurvival';
 
 let appStateSub: { remove: () => void } | null = null;
 
@@ -47,9 +48,11 @@ export async function startTwelveHourTestMonitor(input?: {
       : undefined;
 
   startTwelveHourTestMonitorCore({ ...input, resumeFrom });
+  void enableLongRunSurvival({ screenAwake: false });
 }
 
 export function stopTwelveHourTestMonitor() {
+  void disableLongRunSurvival();
   return stopTwelveHourTestMonitorCore();
 }
 

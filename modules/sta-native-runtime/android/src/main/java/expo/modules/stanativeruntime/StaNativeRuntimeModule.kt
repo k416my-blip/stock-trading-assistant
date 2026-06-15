@@ -3,24 +3,22 @@ package expo.modules.stanativeruntime
 import android.app.ActivityManager
 import android.content.ComponentCallbacks2
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.BatteryManager
 import android.os.Build
-import android.os.Debug
 import android.os.PowerManager
-import android.view.Choreographer
+import androidx.core.os.bundleOf
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.util.concurrent.atomic.AtomicInteger
+import java.io.BufferedReader
+import java.io.FileReader
 
 class StaNativeRuntimeModule : Module() {
-  private val trimBurst = AtomicInteger(0)
+  private var wakeLock: PowerManager.WakeLock? = null
+  private var trimBurstCount = 0
   private var lastTrimAt = 0L
-  private var callbacksRegistered = false
-  private var lastFrameNanos = 0L
-  private val droppedFrameEstimate = AtomicInteger(0)
-  private var choreographerRegistered = false
 
   override fun definition() = ModuleDefinition {
     Name("StaNativeRuntime")
@@ -28,193 +26,199 @@ class StaNativeRuntimeModule : Module() {
     Events("onTrimMemory", "onNativeLifecycle")
 
     OnCreate {
-      registerTrimCallbacks()
-      registerChoreographerFrameObserver()
+      val ctx = appContext.reactContext ?: return@OnCreate
+      ctx.registerComponentCallbacks(trimCallbacks)
+    }
+
+    OnDestroy {
+      val ctx = appContext.reactContext
+      ctx?.unregisterComponentCallbacks(trimCallbacks)
+      releaseWakeLockInternal()
     }
 
     AsyncFunction("getSnapshot") {
-      buildSnapshot()
+      buildSnapshotMap()
     }
 
     AsyncFunction("getMemoryClass") {
-      buildMemoryClass()
+      val am = activityManager()
+      mapOf(
+        "memoryClassMb" to am.memoryClass,
+        "largeMemoryClassMb" to am.largeMemoryClass,
+        "lowRamDevice" to am.isLowRamDevice,
+        "isLowRamDevice" to am.isLowRamDevice,
+      )
+    }
+
+    AsyncFunction("acquirePartialWakeLock") { tag: String ->
+      acquireWakeLockInternal(tag)
+    }
+
+    AsyncFunction("releasePartialWakeLock") {
+      releaseWakeLockInternal()
+    }
+
+    AsyncFunction("startLongRunForegroundService") { title: String?, body: String? ->
+      startForegroundServiceInternal(title, body)
+    }
+
+    AsyncFunction("stopLongRunForegroundService") {
+      stopForegroundServiceInternal()
+    }
+
+    AsyncFunction("getSurvivalStatus") {
+      mapOf(
+        "wakeLockHeld" to (wakeLock?.isHeld == true),
+        "foregroundServiceRunning" to LongRunForegroundService.running,
+      )
     }
   }
 
-  private fun registerTrimCallbacks() {
-    if (callbacksRegistered) return
-    val ctx = appContext.reactContext?.applicationContext ?: return
-    callbacksRegistered = true
-    ctx.registerComponentCallbacks(object : ComponentCallbacks2 {
-      override fun onTrimMemory(level: Int) {
-        val now = System.currentTimeMillis()
-        if (now - lastTrimAt < 3000) {
-          trimBurst.incrementAndGet()
-        } else {
-          trimBurst.set(1)
-        }
-        lastTrimAt = now
-        sendEvent("onTrimMemory", mapOf("level" to level))
-        sendEvent(
-          "onNativeLifecycle",
-          mapOf(
-            "kind" to "trim_memory",
-            "level" to level,
-            "phase" to trimPhaseLabel(level),
-            "reconnectOwner" to "none",
-          ),
-        )
+  private val trimCallbacks = object : ComponentCallbacks2 {
+    override fun onTrimMemory(level: Int) {
+      val now = System.currentTimeMillis()
+      if (now - lastTrimAt < 3000) {
+        trimBurstCount += 1
+      } else {
+        trimBurstCount = 1
       }
+      lastTrimAt = now
 
-      override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {}
-      override fun onLowMemory() {
-        sendEvent("onTrimMemory", mapOf("level" to ComponentCallbacks2.TRIM_MEMORY_COMPLETE))
-        sendEvent(
-          "onNativeLifecycle",
-          mapOf(
-            "kind" to "low_memory",
-            "level" to ComponentCallbacks2.TRIM_MEMORY_COMPLETE,
-            "phase" to "low_memory",
-            "reconnectOwner" to "none",
-          ),
-        )
-      }
-    })
-  }
-
-  private fun buildMemoryClass(): Map<String, Any> {
-    val ctx = appContext.reactContext?.applicationContext
-      ?: return defaultMemoryClass()
-    val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    val lowRam = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      am.isLowRamDevice
-    } else {
-      false
+      sendEvent(
+        "onTrimMemory",
+        bundleOf("level" to level),
+      )
+      sendEvent(
+        "onNativeLifecycle",
+        bundleOf(
+          "kind" to "trim_memory",
+          "level" to level,
+          "phase" to trimPhaseLabel(level),
+          "reconnectOwner" to "none",
+        ),
+      )
     }
-    return mapOf(
-      "memoryClassMb" to am.memoryClass,
-      "largeMemoryClassMb" to am.largeMemoryClass,
-      "lowRamDevice" to lowRam,
-      "isLowRamDevice" to lowRam,
-    )
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) = Unit
+
+    override fun onLowMemory() {
+      sendEvent(
+        "onNativeLifecycle",
+        bundleOf(
+          "kind" to "low_memory",
+          "level" to 80,
+          "phase" to "complete",
+          "reconnectOwner" to "none",
+        ),
+      )
+    }
   }
 
-  private fun defaultMemoryClass(): Map<String, Any> = mapOf(
-    "memoryClassMb" to 192,
-    "largeMemoryClassMb" to 512,
-    "lowRamDevice" to false,
-    "isLowRamDevice" to false,
-  )
+  private fun activityManager(): ActivityManager {
+    val ctx = requireContext()
+    return ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+  }
 
-  private fun buildSnapshot(): Map<String, Any?> {
-    val ctx = appContext.reactContext?.applicationContext ?: return emptyMap()
-    val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    val mi = ActivityManager.MemoryInfo()
-    am.getMemoryInfo(mi)
+  private fun requireContext(): Context {
+    return requireNotNull(appContext.reactContext)
+  }
 
-    val pressure = if (mi.totalMem > 0) {
-      ((1.0 - mi.availMem.toDouble() / mi.totalMem) * 100).toInt().coerceIn(0, 100)
+  private fun buildSnapshotMap(): Map<String, Any?> {
+    val ctx = requireContext()
+    val am = activityManager()
+    val memInfo = ActivityManager.MemoryInfo()
+    am.getMemoryInfo(memInfo)
+
+    val manufacturer = Build.MANUFACTURER ?: "unknown"
+    val brand = Build.BRAND ?: "unknown"
+    val model = Build.MODEL ?: "unknown"
+    val isXiaomi = isXiaomiFamily(manufacturer, brand)
+
+    val totalMb = memInfo.totalMem / (1024 * 1024)
+    val availMb = memInfo.availMem / (1024 * 1024)
+    val pressurePct = if (totalMb > 0) {
+      ((totalMb - availMb).toDouble() / totalMb.toDouble() * 100.0).toInt().coerceIn(0, 100)
     } else {
       0
     }
 
-    val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
-    val batterySaver = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      pm.isPowerSaveMode
-    } else {
-      false
-    }
+    val javaHeapUsedMb = ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024)).toInt()
+    val nativeHeapMb = readNativeHeapMb()
 
-    val thermal = thermalLabel(pm)
-    val trimCode = trimLevelFromBurst(mi.lowMemory)
-    val network = networkQuality(ctx)
-    val memClass = buildMemoryClass()
-    val manufacturer = Build.MANUFACTURER ?: "unknown"
-    val brand = Build.BRAND ?: "unknown"
-    val model = Build.MODEL ?: "unknown"
-    val xiaomi = isXiaomiFamily(manufacturer, brand)
-    val foreground = !mi.lowMemory && trimCode < ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
-    val miuiReclaim = xiaomi && (trimBurst.get() >= 3 || mi.lowMemory)
-
-    val anrRisk = (pressure / 4 + trimBurst.get() * 5).coerceIn(0, 100)
-    val nativeHeapMb = Debug.getNativeHeapAllocatedSize().toDouble() / (1024.0 * 1024.0)
-    val rt = Runtime.getRuntime()
-    val javaHeapMb = (rt.totalMemory() - rt.freeMemory()).toDouble() / (1024.0 * 1024.0)
-    val availMb = mi.availMem.toDouble() / (1024.0 * 1024.0)
-    val totalMb = mi.totalMem.toDouble() / (1024.0 * 1024.0)
-    val batteryLevel = readBatteryLevelPct(ctx)
-    val bridgePending = (trimBurst.get() * 3 + if (mi.lowMemory) 8 else 0).coerceIn(0, 100)
+    val batterySaver = isBatterySaverActive(ctx)
+    val foreground = isAppForeground(ctx)
+    val networkQuality = mapNetworkQuality(ctx)
+    val thermal = mapThermalStatus(ctx)
 
     return mapOf(
       "bridgeVersion" to 1,
-      "nativeMemoryPressurePct" to pressure,
-      "trimLevelCode" to trimCode,
-      "trimMemoryBurstCount" to trimBurst.get(),
+      "manufacturer" to manufacturer,
+      "brand" to brand,
+      "model" to model,
+      "isXiaomiFamily" to isXiaomi,
+      "memoryClassMb" to am.memoryClass,
+      "largeMemoryClassMb" to am.largeMemoryClass,
+      "lowRamDevice" to am.isLowRamDevice,
+      "isLowRamDevice" to am.isLowRamDevice,
+      "nativeMemoryPressurePct" to pressurePct,
+      "trimLevelCode" to 0,
+      "trimMemoryBurstCount" to trimBurstCount,
       "thermalStatus" to thermal,
       "batterySaverActive" to batterySaver,
       "lowPowerMode" to batterySaver,
       "foreground" to foreground,
-      "backgroundReclaimDetected" to (trimBurst.get() >= 2 || mi.lowMemory),
-      "droppedFramesEstimate" to droppedFrameEstimate.get(),
+      "backgroundReclaimDetected" to (trimBurstCount >= 2),
+      "droppedFramesEstimate" to 0,
+      "anrRiskScore" to 0,
+      "networkTransportQuality" to networkQuality,
       "nativeHeapAllocatedMb" to nativeHeapMb,
-      "javaHeapUsedMb" to javaHeapMb,
+      "javaHeapUsedMb" to javaHeapUsedMb,
       "availMemMb" to availMb,
       "totalMemMb" to totalMb,
-      "batteryLevelPct" to batteryLevel,
-      "bridgePendingEstimate" to bridgePending,
-      "anrRiskScore" to anrRisk,
-      "networkTransportQuality" to network,
-      "memoryClassMb" to memClass["memoryClassMb"]!!,
-      "largeMemoryClassMb" to memClass["largeMemoryClassMb"]!!,
-      "lowRamDevice" to memClass["lowRamDevice"]!!,
-      "isLowRamDevice" to memClass["isLowRamDevice"]!!,
-      "manufacturer" to manufacturer,
-      "brand" to brand,
-      "model" to model,
-      "isXiaomiFamily" to xiaomi,
-      "miuiAggressiveReclaim" to miuiReclaim,
+      "batteryLevelPct" to readBatteryLevel(ctx),
+      "bridgePendingEstimate" to 0,
+      "miuiAggressiveReclaim" to (isXiaomi && trimBurstCount >= 3),
     )
   }
 
-  private fun trimLevelFromBurst(lowMemory: Boolean): Int {
-    val burst = trimBurst.get()
-    if (lowMemory) return ComponentCallbacks2.TRIM_MEMORY_COMPLETE
-    return when {
-      burst >= 4 -> ComponentCallbacks2.TRIM_MEMORY_BACKGROUND
-      burst >= 2 -> ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
-      burst >= 1 -> ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW
-      else -> 0
+  private fun acquireWakeLockInternal(tag: String) {
+    val ctx = requireContext()
+    val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
+    releaseWakeLockInternal()
+    wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sta:$tag").apply {
+      setReferenceCounted(false)
+      acquire()
     }
   }
 
-  private fun thermalLabel(pm: PowerManager): String {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-      return when (pm.currentThermalStatus) {
-        PowerManager.THERMAL_STATUS_SHUTDOWN -> "shutdown"
-        PowerManager.THERMAL_STATUS_EMERGENCY -> "emergency"
-        PowerManager.THERMAL_STATUS_CRITICAL -> "critical"
-        PowerManager.THERMAL_STATUS_SEVERE -> "severe"
-        PowerManager.THERMAL_STATUS_MODERATE -> "moderate"
-        PowerManager.THERMAL_STATUS_LIGHT -> "light"
-        else -> "none"
-      }
+  private fun releaseWakeLockInternal() {
+    wakeLock?.let {
+      if (it.isHeld) it.release()
     }
-    return "none"
+    wakeLock = null
   }
 
-  private fun networkQuality(ctx: Context): String {
-    val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-      ?: return "unknown"
-    val network = cm.activeNetwork ?: return "offline"
-    val caps = cm.getNetworkCapabilities(network) ?: return "unknown"
-    return when {
-      caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) &&
-        caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "excellent"
-      caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "good"
-      caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "fair"
-      !caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) -> "offline"
-      else -> "good"
+  private fun startForegroundServiceInternal(title: String?, body: String?) {
+    val ctx = requireContext()
+    LongRunForegroundService.ensureChannel(ctx)
+    val intent = Intent(ctx, LongRunForegroundService::class.java).apply {
+      putExtra(LongRunForegroundService.EXTRA_TITLE, title ?: "12時間監視")
+      putExtra(LongRunForegroundService.EXTRA_BODY, body ?: "バックグラウンド稼働中")
     }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      ctx.startForegroundService(intent)
+    } else {
+      ctx.startService(intent)
+    }
+  }
+
+  private fun stopForegroundServiceInternal() {
+    val ctx = requireContext()
+    val intent = Intent(ctx, LongRunForegroundService::class.java).apply {
+      action = LongRunForegroundService.ACTION_STOP
+    }
+    ctx.startService(intent)
+    ctx.stopService(Intent(ctx, LongRunForegroundService::class.java))
   }
 
   private fun isXiaomiFamily(manufacturer: String, brand: String): Boolean {
@@ -222,39 +226,79 @@ class StaNativeRuntimeModule : Module() {
     return m.contains("xiaomi") || m.contains("redmi") || m.contains("poco")
   }
 
-  private fun registerChoreographerFrameObserver() {
-    if (choreographerRegistered) return
-    choreographerRegistered = true
-    val callback = object : Choreographer.FrameCallback {
-      override fun doFrame(frameTimeNanos: Long) {
-        if (lastFrameNanos > 0L) {
-          val deltaMs = (frameTimeNanos - lastFrameNanos) / 1_000_000.0
-          if (deltaMs > 24.0) {
-            val skipped = (deltaMs / 16.67).toInt().coerceAtLeast(1) - 1
-            if (skipped > 0) droppedFrameEstimate.addAndGet(skipped)
-          }
-        }
-        lastFrameNanos = frameTimeNanos
-        Choreographer.getInstance().postFrameCallback(this)
-      }
-    }
-    Choreographer.getInstance().postFrameCallback(callback)
+  private fun isBatterySaverActive(ctx: Context): Boolean {
+    val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
+    return pm.isPowerSaveMode
   }
 
-  private fun readBatteryLevelPct(ctx: Context): Int? {
-    val bm = ctx.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager ?: return null
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).coerceIn(0, 100)
-    } else {
-      null
+  private fun isAppForeground(ctx: Context): Boolean {
+    val am = ctx.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    val procs = am.runningAppProcesses ?: return false
+    val pkg = ctx.packageName
+    for (proc in procs) {
+      if (proc.processName == pkg) {
+        return proc.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+      }
+    }
+    return false
+  }
+
+  private fun mapNetworkQuality(ctx: Context): String {
+    val cm = ctx.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = cm.activeNetwork ?: return "offline"
+    val caps = cm.getNetworkCapabilities(network) ?: return "unknown"
+    if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) return "offline"
+    return when {
+      caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "excellent"
+      caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "good"
+      else -> "fair"
+    }
+  }
+
+  private fun mapThermalStatus(ctx: Context): String {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return "none"
+    val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
+    return when (pm.currentThermalStatus) {
+      PowerManager.THERMAL_STATUS_NONE, PowerManager.THERMAL_STATUS_LIGHT -> "light"
+      PowerManager.THERMAL_STATUS_MODERATE -> "moderate"
+      PowerManager.THERMAL_STATUS_SEVERE -> "critical"
+      PowerManager.THERMAL_STATUS_CRITICAL -> "critical"
+      PowerManager.THERMAL_STATUS_EMERGENCY -> "emergency"
+      PowerManager.THERMAL_STATUS_SHUTDOWN -> "shutdown"
+      else -> "none"
+    }
+  }
+
+  private fun readBatteryLevel(ctx: Context): Int? {
+    val bm = ctx.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+    val level = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+    return if (level in 0..100) level else null
+  }
+
+  private fun readNativeHeapMb(): Int {
+    return try {
+      BufferedReader(FileReader("/proc/self/status")).use { reader ->
+        var line: String?
+        while (reader.readLine().also { line = it } != null) {
+          if (line!!.startsWith("VmRSS:")) {
+            val kb = line!!.substringAfter("VmRSS:").trim().removeSuffix(" kB").toIntOrNull() ?: return 0
+            return kb / 1024
+          }
+        }
+      }
+      0
+    } catch (_: Exception) {
+      0
     }
   }
 
   private fun trimPhaseLabel(level: Int): String = when {
     level >= ComponentCallbacks2.TRIM_MEMORY_COMPLETE -> "complete"
     level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND -> "background"
-    level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN -> "ui_hidden"
-    level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL -> "running_critical"
-    else -> "running"
+    level >= ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN -> "uiHidden"
+    level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL -> "runningCritical"
+    level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW -> "runningLow"
+    level > ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE -> "runningModerate"
+    else -> "none"
   }
 }

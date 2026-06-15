@@ -25,7 +25,13 @@
         "backgroundColor": "#0f1419"
       },
       "package": "com.assistant.stocktrading",
-      "versionCode": 8,
+      "versionCode": 9,
+      "permissions": [
+        "WAKE_LOCK",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_DATA_SYNC",
+        "POST_NOTIFICATIONS"
+      ],
       "edgeToEdgeEnabled": false
     },
     "web": {
