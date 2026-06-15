@@ -316,20 +316,32 @@ _(filled after commit/push)_
 function listDevices() {
   const out = sh('adb devices');
   return out
-    .split('\n')
+    .split(/\r?\n/)
     .slice(1)
     .map((l) => l.trim().split(/\s+/))
-    .filter((p) => p[1] === 'device')
+    .filter((p) => p.length >= 2 && p[1].replace(/\r$/, '') === 'device')
     .map((p) => p[0]);
 }
 
-async function waitForDevice(maxMs = 30 * 60 * 1000) {
-  const t0 = Date.now();
-  while (Date.now() - t0 < maxMs) {
-    if (listDevices().includes(SERIAL)) return true;
-    await sleep(5000);
+function deviceReady() {
+  try {
+    const state = adb('get-state').trim();
+    return state === 'device';
+  } catch {
+    return listDevices().includes(SERIAL);
   }
-  return listDevices().includes(SERIAL);
+}
+
+async function waitForDevice(maxMs = 30 * 60 * 1000) {
+  const readyNow =
+    process.env.VERIFY_HYPEROS_DEVICE_READY === '1' || process.env.PHASE12_5_SKIP_DEVICE_WAIT === '1';
+  const capMs = readyNow ? Math.min(maxMs, 15_000) : maxMs;
+  const t0 = Date.now();
+  while (Date.now() - t0 < capMs) {
+    if (deviceReady()) return true;
+    await sleep(readyNow ? 1000 : 5000);
+  }
+  return deviceReady();
 }
 
 async function main() {
@@ -369,14 +381,21 @@ async function main() {
     process.exit(1);
   }
 
-  if (fs.existsSync(APK)) {
-    const inst = spawnSync('adb', ['-s', SERIAL, 'install', '-r', APK], { encoding: 'utf8' });
-    if (inst.status !== 0) ev.notes.push(`APK install warn: ${inst.stderr?.slice(0, 200)}`);
-  } else {
-    ev.notes.push('preview-v9.apk missing; using installed build');
-  }
-
   ev.versionCode = versionCode();
+  const skipApkReinstall =
+    process.env.PHASE12_5_SKIP_APK_REINSTALL === '1' || ev.versionCode === 9;
+  if (fs.existsSync(APK) && !skipApkReinstall) {
+    const inst = spawnSync('adb', ['-s', SERIAL, 'install', '-r', APK], {
+      encoding: 'utf8',
+      timeout: 10 * 60 * 1000,
+    });
+    if (inst.status !== 0) ev.notes.push(`APK install warn: ${inst.stderr?.slice(0, 200)}`);
+    ev.versionCode = versionCode();
+  } else if (!fs.existsSync(APK)) {
+    ev.notes.push('preview-v9.apk missing; using installed build');
+  } else if (skipApkReinstall) {
+    ev.notes.push(`APK reinstall skipped (versionCode=${ev.versionCode})`);
+  }
   if (ev.versionCode !== 9) ev.notes.push(`versionCode=${ev.versionCode} (expected 9)`);
 
   try {
@@ -387,12 +406,13 @@ async function main() {
 
   stopLogcatCapture();
   startLogcatCapture();
-  spawnSync('node', ['scripts/phase12-5-pre-run-watch.mjs'], {
+  const preRunWatch = spawn('node', ['scripts/phase12-5-pre-run-watch.mjs'], {
     cwd: ROOT,
     env: { ...process.env, ANDROID_SERIAL: SERIAL },
     detached: true,
     stdio: 'ignore',
   });
+  preRunWatch.unref();
 
   await launchCold();
   await sleep(8000);

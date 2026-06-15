@@ -1,37 +1,51 @@
 ﻿# HyperOS v9 3h Screen-Off Run Report
 
-## Executive summary: **NO-GO** (infra — device not connected)
-
-The 3-hour screen-off reliability test **did not run**. \FYRWXSNNAIOR9DCM\ was online at session preflight but dropped off USB/adb before orchestration could install, enable survival, or start the 3h window. Orchestration (\scripts/verify-hyperos-v9-3h-screen-off.mjs\) waited ~30 minutes for reconnection; \db devices\ remained empty.
+## Executive summary: **NO-GO**
 
 | Field | Value |
 |-------|-------|
-| Attempt window (MYT) | 2026-06-15 16:52:50 → 17:42:37 (orchestrator exit) |
-| Planned duration | 3h screen-off after \survival_enabled\ |
-| APK | \rtifacts/preview-v9.apk\ (versionCode 9 on device when last seen) |
+| Test window (MYT) | 2026-06-15 20:36:07 MYT 竊・2026-06-15 23:37:25 MYT |
+| APK | preview-v9.apk (versionCode 9) |
 | Device | FYRWXSNNAIOR9DCM (Redmi Note 13 Pro HyperOS) |
 | Branch | cursor/top3-maxdd-capital-audit |
-| Commit (at attempt) | 9d112f4178cfd75f805b8da11e03585af750c0bb |
+| Commit | 1216bf7fc3992c93c88137ee46a2d3c26c32b894 |
+| phase12-5 | 3h, runtimeMode=apk |
 
 ## Verification (7 items)
 
 | # | Item | Result | Evidence |
 |---|------|--------|----------|
-| 1 | 3h screen-off run | **FAIL** | Not started — no baseline PID |
-| 2 | PID maintenance | **FAIL** | N/A |
-| 3 | Heartbeat continuation | **FAIL** | N/A |
-| 4 | Twelve Data / price | **FAIL** | N/A |
-| 5 | News fetch | **FAIL** | N/A |
-| 6 | Foreground service | **FAIL** | N/A |
-| 7 | WakeLock | **FAIL** | N/A |
+| 1 | 3h screen-off run | PASS | wakefulness polls; screen-off enforce 6x |
+| 2 | PID maintenance | FAIL | baseline 7644, lost events 2, final null |
+| 3 | Heartbeat continuation | FAIL | 0 (expected ~34) |
+| 4 | Twelve Data / price | PASS | price_update lines 24 |
+| 5 | News fetch | PASS | news_fetch lines 30 |
+| 6 | Foreground service | FAIL | LongRunForegroundService in dumpsys polls |
+| 7 | WakeLock | PASS | survival_status / dumpsys partial wakelock |
 
 ## Poll timeline (15 min)
 
-_No polls — test never entered run phase._
+| Elapsed | PID | HBﾎ・| priceﾎ・| newsﾎ・| FGS | WakeLock | Wakefulness |
+|---------|-----|-----|--------|-------|-----|----------|-------------|
+| 15m | 7644 | 0 | 1 | 4 | N | Y | Dozing |
+| 30m | 7644 | 0 | 1 | -2 | N | Y | Awake |
+| 45m | 7644 | 0 | 0 | 0 | N | Y | Awake |
+| 60m | 7644 | 0 | 0 | 0 | N | Y | Awake |
+| 75m | 7644 | 0 | 0 | -1 | N | Y | Dozing |
+| 90m | 7644 | 0 | 0 | -1 | N | Y | Dozing |
+| 105m | 7644 | 0 | -1 | 5 | N | Y | Dozing |
+| 121m | 7644 | 0 | -1 | -3 | N | Y | Dozing |
+| 136m | 7644 | 0 | 1 | 0 | N | Y | Dozing |
+| 151m | 7644 | 0 | 1 | 0 | N | Y | Awake |
+| 166m | 窶・| 0 | -2 | -2 | N | Y | Dozing |
+| 181m | 窶・| 0 | 0 | 0 | N | Y | Dozing |
 
 ## checkpoint.json summary
 
-_Not produced (phase12-5 not started)._
+- priceRefreshRuns: 9
+- pidLostEvents: 1
+- fatal: 0
+- anr: 0
 
 ## Logcat counts
 
@@ -40,27 +54,19 @@ _Not produced (phase12-5 not started)._
 | FATAL | 0 |
 | ANR | 0 |
 | [12H-MONITOR] heartbeat | 0 |
-| price_update | 0 |
-| news_fetch | 0 |
+| survival_enabled / status | seen / 2 |
+| price_update | 24 |
+| news_fetch | 30 |
 
-Summary file: \docs/review/hyperos-screen-off-survival/logcat-summary-3h-20260615-174500.txt\
+Summary file: `docs/review/hyperos-screen-off-survival/logcat-summary-3h-20260615-203607.txt`
 
-## Known issues / infra notes
+## Known issues / infra
 
-- USB/adb: \db devices\ empty from ~16:54 MYT through orchestrator exit (~17:42 MYT). \db kill-server\ / \db start-server\ did not restore the device.
-- First orchestration attempt (PID 10344) failed immediately when the device disappeared right after launch.
-- Second attempt (PID 2060) included a 30-minute \waitForDevice\ loop; still no device.
-- **Remediation:** Reconnect USB (file transfer mode), confirm \db devices\ shows \device\, disable USB power saving on phone/PC, then re-run:
-  \\\powershell
-  $env:ANDROID_SERIAL="FYRWXSNNAIOR9DCM"
-  $env:PHASE12_5_RUNTIME_MODE="apk"
-  $env:PHASE12_5_HOURS="3"
-  node scripts/verify-hyperos-v9-3h-screen-off.mjs
-  \\\
-- Evidence: \docs/review/hyperos-screen-off-survival/hyperos-v9-3h-evidence.json\ (runId \20260615-171054\).
+- APK reinstall skipped (versionCode=9)
+
+- Heartbeat logcat counter in orchestrator matches literal `[12H-MONITOR] heartbeat`; React Native logs split tag/message so table shows 0 while `'heartbeat'` events occurred (see logcat summary samples).
+- PID lost twice near end of window (166m/181m polls); `LongRunForegroundService` absent in all 12 dumpsys polls despite WakeLock signals.
 
 ## GitHub sync
 
-- **Commit:** `9c90d8d` — docs: HyperOS v9 3h screen-off survival run report
-- **Push:** success to `origin/cursor/top3-maxdd-capital-audit` (`9d112f4..9c90d8d`)
-- **Remote:** https://github.com/k416my-blip/stock-trading-assistant/tree/cursor/top3-maxdd-capital-audit
+Pending push in this session.
