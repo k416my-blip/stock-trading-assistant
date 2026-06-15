@@ -1,0 +1,368 @@
+﻿Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        9de94b4 com.assistant.stocktrading/.MainActivity filter c4c58dd
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.QUICKBOOT_POWERON:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+      com.htc.intent.action.QUICKBOOT_POWERON:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        6d6eb9e com.assistant.stocktrading/androidx.profileinstaller.ProfileInstallReceiver filter e26c695
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      expo.modules.notifications.NOTIFICATION_EVENT:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        6d6eb9e com.assistant.stocktrading/androidx.profileinstaller.ProfileInstallReceiver filter f80a67f
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      com.google.android.c2dm.intent.RECEIVE:
+        e2a4820 com.assistant.stocktrading/com.google.firebase.iid.FirebaseInstanceIdReceiver filter 2baa5d9
+          Action: "com.google.android.c2dm.intent.RECEIVE"
+      androidx.profileinstaller.action.SKIP_FILE:
+        6d6eb9e com.assistant.stocktrading/androidx.profileinstaller.ProfileInstallReceiver filter 1bbc64c
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        6d6eb9e com.assistant.stocktrading/androidx.profileinstaller.ProfileInstallReceiver filter 34223aa
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+      android.intent.action.MY_PACKAGE_REPLACED:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+      android.intent.action.REBOOT:
+        7835c52 com.assistant.stocktrading/expo.modules.notifications.service.NotificationsService filter 27b7b23
+          Action: "android.intent.action.QUICKBOOT_POWERON"
+          Action: "com.htc.intent.action.QUICKBOOT_POWERON"
+          Action: "expo.modules.notifications.NOTIFICATION_EVENT"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+          Action: "android.intent.action.REBOOT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+
+Service Resolver Table:
+  Non-Data Actions:
+      com.google.firebase.MESSAGING_EVENT:
+        9832b9b com.assistant.stocktrading/expo.modules.notifications.service.ExpoFirebaseMessagingService filter 904fb38
+          Action: "com.google.firebase.MESSAGING_EVENT"
+          mPriority=-1, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+        fa3711 com.assistant.stocktrading/com.google.firebase.messaging.FirebaseMessagingService filter f76d076
+          Action: "com.google.firebase.MESSAGING_EVENT"
+          mPriority=-500, mOrder=0, mHasStaticPartialTypes=false, mHasDynamicPartialTypes=false
+
+Domain verification status:
+
+Permissions:
+  Permission [com.assistant.stocktrading.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (2680578):
+    sourcePackage=com.assistant.stocktrading
+    uid=10396 gids=[] type=0 prot=signature
+    perm=PermissionInfo{ac51451 com.assistant.stocktrading.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+    flags=0x0
+
+Registered ContentProviders:
+  com.assistant.stocktrading/expo.modules.filesystem.FileSystemFileProvider:
+    Provider{9c084b6 com.assistant.stocktrading/expo.modules.filesystem.FileSystemFileProvider}
+  com.assistant.stocktrading/com.google.firebase.provider.FirebaseInitProvider:
+    Provider{a2c25b7 com.assistant.stocktrading/com.google.firebase.provider.FirebaseInitProvider}
+  com.assistant.stocktrading/androidx.startup.InitializationProvider:
+    Provider{ad40124 com.assistant.stocktrading/androidx.startup.InitializationProvider}
+
+ContentProvider Authorities:
+  [com.assistant.stocktrading.androidx-startup]:
+    Provider{ad40124 com.assistant.stocktrading/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{a75a48d com.assistant.stocktrading}
+  [com.assistant.stocktrading.firebaseinitprovider]:
+    Provider{a2c25b7 com.assistant.stocktrading/com.google.firebase.provider.FirebaseInitProvider}
+      applicationInfo=ApplicationInfo{e483642 com.assistant.stocktrading}
+  [com.assistant.stocktrading.FileSystemFileProvider]:
+    Provider{9c084b6 com.assistant.stocktrading/expo.modules.filesystem.FileSystemFileProvider}
+      applicationInfo=ApplicationInfo{e536653 com.assistant.stocktrading}
+
+Key Set Manager:
+  [com.assistant.stocktrading]
+      Signing KeySets: 312
+
+Packages:
+  Package [com.assistant.stocktrading] (94074d9):
+    appId=10396
+    pkg=Package{9e20b90 com.assistant.stocktrading}
+    codePath=/data/app/~~i979kXDK1Vvgnbz1ekIZ9w==/com.assistant.stocktrading-usSgQnKLm9LSIfaQuQjhfg==
+    resourcePath=/data/app/~~i979kXDK1Vvgnbz1ekIZ9w==/com.assistant.stocktrading-usSgQnKLm9LSIfaQuQjhfg==
+    legacyNativeLibraryDir=/data/app/~~i979kXDK1Vvgnbz1ekIZ9w==/com.assistant.stocktrading-usSgQnKLm9LSIfaQuQjhfg==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=11 minSdk=24 targetSdk=36
+    minExtensionVersions=[]
+    versionName=1.0.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    isMiuiPreinstall=false
+    splits=[base]
+    apkSigningVersion=2
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    queriesIntents=[Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:/... }, Intent { act=android.intent.action.OPEN_DOCUMENT_TREE }, Intent { act=android.intent.action.TTS_SERVICE }]
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-06-16 07:48:08
+    lastUpdateTime=2026-06-16 07:48:12
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{18f7a62 version:2, signatures:[2b3e0a30], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      com.assistant.stocktrading.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    requested permissions:
+      com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      com.sonyericsson.home.permission.BROADCAST_BADGE
+      android.permission.POST_NOTIFICATIONS
+      com.google.android.c2dm.permission.RECEIVE
+      android.permission.SYSTEM_ALERT_WINDOW
+      com.oppo.launcher.permission.WRITE_SETTINGS
+      me.everything.badger.permission.BADGE_COUNT_READ
+      com.anddoes.launcher.permission.UPDATE_COUNT
+      com.sec.android.provider.badge.permission.READ
+      android.permission.FOREGROUND_SERVICE
+      me.everything.badger.permission.BADGE_COUNT_WRITE
+      com.huawei.android.launcher.permission.WRITE_SETTINGS
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.INTERNET
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.READ_APP_BADGE
+      com.majeur.launcher.permission.UPDATE_BADGE
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC
+      android.permission.ACCESS_NETWORK_STATE
+      com.oppo.launcher.permission.READ_SETTINGS
+      com.sonymobile.home.permission.PROVIDER_INSERT_BADGE
+      com.assistant.stocktrading.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+      com.huawei.android.launcher.permission.READ_SETTINGS
+      android.permission.USE_FINGERPRINT
+      com.sec.android.provider.badge.permission.WRITE
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.VIBRATE
+      com.huawei.android.launcher.permission.CHANGE_BADGE
+      android.permission.USE_BIOMETRIC
+      com.htc.launcher.permission.UPDATE_SHORTCUT
+      com.htc.launcher.permission.READ_SETTINGS
+      android.permission.WAKE_LOCK
+    install permissions:
+      com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE: granted=true
+      com.google.android.c2dm.permission.RECEIVE: granted=true
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      com.assistant.stocktrading.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.USE_FINGERPRINT: granted=true
+      android.permission.VIBRATE: granted=true
+      android.permission.USE_BIOMETRIC: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=966618 deDataInode=959730 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/com.assistant.stocktrading
+      firstInstallTime=2026-06-13 08:29:08
+      uninstallReason=0
+      overlay paths:
+        /data/resource-cache/com.android.systemui-neutral-JsXn.frro
+        /data/resource-cache/com.android.systemui-accent-qUiQ.frro
+        /data/resource-cache/com.android.systemui-dynamic-Kuev.frro
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.READ_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.WRITE_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    [com.miui.notification,com.android.providers.settings,com.miui.cit,com.android.provision,com.mediatek.atci.service,com.miui.face,com.miui.daemon,com.mediatek,miui.systemui.plugin,com.android.inputdevices,com.xiaomi.misettings,com.android.DeviceAsWebcam,com.miui.powerkeeper,com.miui.securitycenter,com.miui.misightservice,com.xiaomi.touchservice,com.xiaomi.mi_connect_service,com.miui.aod,com.xiaomi.trustservice,com.miui.bugreport,com.xiaomi.joyose,com.android.server.telecom,com.android.localtransport,com.mediatek.location.lppe.main,com.miui.screenrecorder,com.miui.cotaservice,com.miui.qr,android,com.mediatek.voicecommand,com.miui.securitycore,com.android.settings,com.xiaomi.barrage,com.android.keychain,com.bsp.catchlog,com.android.dynsystem,com.xiaomi.aiasst.vision,com.xiaomi.mtb,com.novatek.novavis,com.android.location.fused,com.miui.audiomonitor,com.xiaomi.mirror,com.android.systemui,com.miui.touchassistant]:
+      com.assistant.stocktrading
+    com.android.thememanager:
+      com.assistant.stocktrading
+    com.ss.android.ugc.trill:
+      com.assistant.stocktrading
+    com.miui.gallery:
+      com.assistant.stocktrading
+    com.mi.globalbrowser:
+      com.assistant.stocktrading
+    com.miui.euicc:
+      com.assistant.stocktrading
+    com.mi.globalminusscreen:
+      com.assistant.stocktrading
+    com.miui.player:
+      com.assistant.stocktrading
+    com.xiaomi.calendar:
+      com.assistant.stocktrading
+    com.google.android.as.oss:
+      com.assistant.stocktrading
+    com.android.settings.intelligence:
+      com.assistant.stocktrading
+    com.thecarousell.Carousell:
+      com.assistant.stocktrading
+    com.mi.appfinder:
+      com.assistant.stocktrading
+    com.xiaomi.glgm:
+      com.assistant.stocktrading
+    com.miui.global.packageinstaller:
+      com.assistant.stocktrading
+    com.xiaomi.mipicks:
+      com.assistant.stocktrading
+    com.miui.msa.global:
+      com.assistant.stocktrading
+    com.xiaomi.account:
+      com.assistant.stocktrading
+    com.miui.videoplayer:
+      com.assistant.stocktrading
+    com.xiaomi.payment:
+      com.assistant.stocktrading
+    com.xiaomi.simactivate.service:
+      com.assistant.stocktrading
+    com.miui.weather2:
+      com.assistant.stocktrading
+    com.xiaomi.midrop:
+      com.assistant.stocktrading
+    com.android.soundrecorder:
+      com.assistant.stocktrading
+    com.agoda.mobile.consumer:
+      com.assistant.stocktrading
+    com.amazon.mShop.android.shopping:
+      com.assistant.stocktrading
+    com.facebook.katana:
+      com.assistant.stocktrading
+    com.lazada.android:
+      com.assistant.stocktrading
+    sinet.startup.inDriver:
+      com.assistant.stocktrading
+    com.xiaomi.aicr:
+      com.assistant.stocktrading
+    com.teslacoilsw.launcher:
+      com.assistant.stocktrading
+    com.amazon.dee.app:
+      com.assistant.stocktrading
+    com.oceanwing.soundcore:
+      com.assistant.stocktrading
+    com.amazon.kindle:
+      com.assistant.stocktrading
+    com.xiaomi.smarthome:
+      com.assistant.stocktrading
+    com.instagram.android:
+      com.assistant.stocktrading
+    jp.gocro.smartnews.android:
+      com.assistant.stocktrading
+    in.redbus.android:
+      com.assistant.stocktrading
+    hk.easyvan.app.client:
+      com.assistant.stocktrading
+    jp.nicovideo.android:
+      com.assistant.stocktrading
+    com.miui.android.fashiongallery:
+      com.assistant.stocktrading
+    com.microsoft.office.outlook:
+      com.assistant.stocktrading
+    com.facebook.orca:
+      com.assistant.stocktrading
+    com.adobe.reader:
+      com.assistant.stocktrading
+    com.grabtaxi.passenger:
+      com.assistant.stocktrading
+    com.whatsapp:
+      com.assistant.stocktrading
+    com.klook:
+      com.assistant.stocktrading
+    jp.naver.line.android:
+      com.assistant.stocktrading
+    com.tpaay.bigpay:
+      com.assistant.stocktrading
+    com.airbnb.android:
+      com.assistant.stocktrading
+    com.kasikorn.retail.mbanking.wap:
+      com.assistant.stocktrading
+    com.xe.currency:
+      com.assistant.stocktrading
+    com.assistant.stocktrading:
+      com.microsoft.emmx
+      com.google.android.documentsui
+      com.mi.globalbrowser
+      com.xiaomi.calendar
+      com.google.android.googlequicksearchbox
+      com.android.chrome
+      com.google.android.apps.docs
+      com.google.android.setupwizard
+      in.redbus.android
+      cn.wps.moffice_eng
+      devian.tubemate.v3
+      com.mypba
+    com.ais.mimo.eservice:
+      com.assistant.stocktrading
+    jp.co.canon.bsd.ad.pixmaprint:
+      com.assistant.stocktrading
+  queryable via interaction:
+    User 0:
+      [com.miui.notification,com.android.providers.settings,com.miui.cit,com.android.provision,com.mediatek.atci.service,com.miui.face,com.miui.daemon,com.mediatek,miui.systemui.plugin,com.android.inputdevices,com.xiaomi.misettings,com.android.DeviceAsWebcam,com.miui.powerkeeper,com.miui.securitycenter,com.miui.misightservice,com.xiaomi.touchservice,com.xiaomi.mi_connect_service,com.miui.aod,com.xiaomi.trustservice,com.miui.bugreport,com.xiaomi.joyose,com.android.server.telecom,com.android.localtransport,com.mediatek.location.lppe.main,com.miui.screenrecorder,com.miui.cotaservice,com.miui.qr,android,com.mediatek.voicecommand,com.miui.securitycore,com.android.settings,com.xiaomi.barrage,com.android.keychain,com.bsp.catchlog,com.android.dynsystem,com.xiaomi.aiasst.vision,com.xiaomi.mtb,com.novatek.novavis,com.android.location.fused,com.miui.audiomonitor,com.xiaomi.mirror,com.android.systemui,com.miui.touchassistant]:
+        com.assistant.stocktrading
+      [com.google.android.gms,com.google.android.gsf]:
+        com.assistant.stocktrading
+  queryable via uses-library:
+
+Dexopt state:
+  [com.assistant.stocktrading]
+    path: /data/app/~~i979kXDK1Vvgnbz1ekIZ9w==/com.assistant.stocktrading-usSgQnKLm9LSIfaQuQjhfg==/base.apk
+      arm64: [status=speed-profile] [reason=baseline] [primary-abi]
+        [location is /data/app/~~i979kXDK1Vvgnbz1ekIZ9w==/com.assistant.stocktrading-usSgQnKLm9LSIfaQuQjhfg==/oat/arm64/base.odex]
+    base APK odex file size: base.art: 196Kb base.odex: 813Kb base.vdex: 21716Kb 
+
+Compiler stats:
+  [com.assistant.stocktrading]
+     base.apk - 2721

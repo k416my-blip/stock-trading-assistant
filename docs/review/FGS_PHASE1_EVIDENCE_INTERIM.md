@@ -1,25 +1,41 @@
-# FGS Phase 1 — 証跡収集 途中経過
+﻿# FGS Phase 1 — evidence collection interim
 
-作成: 2026-06-16  
-状態: **v11 修正完了 · EAS ビルド待ち**
+Updated: 2026-06-16 (v11 on device)
 
----
+## Status: **Phase 1 FAIL (gate closed)**
 
-## 完了
+1h screen-off test **not started** (gate requires FGS PASS).
 
-- [x] v10 APK manifest 解析 → **LongRunForegroundService 不在**
-- [x] 30m logcat / dumpsys 証跡整理
-- [x] Gradle BOM 根本原因特定
-- [x] `FGS_ROOT_CAUSE_REPORT.md` 作成
-- [x] v11 修正: BOM 除去 · config plugin · POST_NOTIFICATIONS · versionCode 11
+## Completed
 
-## 待ち
+- [x] Device `FYRWXSNNAIOR9DCM` connected (`adb devices`)
+- [x] EAS preview v11 build `1a349304-45e0-4bd4-9d37-94f6a06c893b` (commit `cbe5077`)
+- [x] Download `artifacts/preview-v11.apk`, install on device
+- [x] aapt manifest: `LongRunForegroundService` + `foregroundServiceType` dataSync
+- [x] Manual FGS evidence (logcat -c, cold launch, 90s wait)
+- [x] dexdump: no `stanativeruntime` in any dex
+- [x] `FGS_ROOT_CAUSE_REPORT.md` section 10 updated
 
-- [ ] EAS preview v11 ビルド
-- [ ] v11 インストール + `collect-fgs-evidence.mjs`
-- [ ] FGS 実稼働確認（aapt + STA-SURVIVAL + dumpsys）
-- [ ] **1h screen-off テスト**（FGS ゲート PASS 後）
+## Blocked
 
-## 暫定結論
+- [ ] `collect-fgs-evidence.mjs` end-to-end (fails: `timeout /t 12` exit 1 under node execSync — use `Start-Sleep` fix)
+- [ ] Phase 1 gate PASS
+- [ ] 1h screen-off (`verify-hyperos-v9-3h-screen-off.mjs`)
 
-FGS FAIL は orchestrator バグではなく、**ネイティブモジュールが APK に含まれていなかった**ことが主因。
+## Phase 1 gate checklist
+
+| Criterion | Result |
+|-----------|--------|
+| STA-SURVIVAL / startForeground OK in logcat | **FAIL** |
+| dumpsys services not empty | **FAIL** (`nothing`) |
+| `foregroundServiceRunning: true` in survival_status | **FAIL** (false at `survival_enabled`) |
+
+## Key evidence
+
+- `docs/review/hyperos-screen-off-survival/fgs-evidence/20260616-075100-extended-logcat.txt`
+- `docs/review/hyperos-screen-off-survival/fgs-evidence/20260616-075100-extended-dumpsys-services.txt`
+- `docs/review/FGS_ROOT_CAUSE_REPORT.md` §10
+
+## Conclusion
+
+v11 adds manifest service via plugin but **native module still missing from APK**. Same runtime symptom as v10: monitor enables survival stack in JS, native status remains false.

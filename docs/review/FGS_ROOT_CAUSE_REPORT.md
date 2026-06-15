@@ -154,3 +154,49 @@ BOM 除去後は当該 parse error は解消（以降は expo prebuild 環境依
 |------|-----|
 | 修正コミット | _(v11 fix commit — push 後に追記)_ |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
+
+---
+
+## 10. v11 verification (EAS build `1a349304-45e0-4bd4-9d37-94f6a06c893b`, commit `cbe5077`)
+
+**Phase 1 gate: FAIL** — do not run 1h screen-off until native module is in dex and FGS runs.
+
+| Check | v11 result |
+|-------|------------|
+| EAS preview build | finished, versionCode **11**, commit **cbe507759c397e26dc5fb6b5cf6b2f4e7da1496c** |
+| APK local path | `artifacts/preview-v11.apk` (80,763,938 bytes) |
+| aapt: `LongRunForegroundService` in manifest | **PASS** |
+| aapt: `FOREGROUND_SERVICE_DATA_SYNC` permission | **PASS** |
+| aapt: `foregroundServiceType` on service | **PASS** (`0x1` = dataSync) |
+| dex: `stanativeruntime` / `LongRunForegroundService` / `StaNativeRuntime` | **FAIL** (classes.dex, classes2.dex, classes3.dex — dexdump 0 hits) |
+| Kotlin source `FOREGROUND_SERVICE_TYPE_DATA_SYNC` | **PASS** (source only; not in APK dex) |
+| logcat `STA-SURVIVAL` / `startForeground OK` | **FAIL** (0 lines) |
+| logcat `[12H-MONITOR] survival_enabled` | present; `wakeLockHeld: false`, `foregroundServiceRunning: false` |
+| dumpsys `activity services com.assistant.stocktrading` | **FAIL** (`(nothing)`) |
+| Device serial | `FYRWXSNNAIOR9DCM` connected |
+
+### Evidence paths (v11 Phase 1)
+
+| Artifact | Path |
+|----------|------|
+| Manifest aapt (manual run) | `docs/review/hyperos-screen-off-survival/fgs-evidence/20260616-074829-apk-manifest-aapt.txt` |
+| Logcat + dumpsys (15s wait) | `docs/review/hyperos-screen-off-survival/fgs-evidence/20260616-074829-*` |
+| Logcat + dumpsys (90s wait, cleared logcat) | `docs/review/hyperos-screen-off-survival/fgs-evidence/20260616-075100-extended-*` |
+| dexdump (no native hits) | `artifacts/_v11_classes.dexdump.txt`, `artifacts/_v11_classes2.dex.dump.txt`, `artifacts/_v11_classes3.dex.dump.txt` |
+| EAS build page | https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/1a349304-45e0-4bd4-9d37-94f6a06c893b |
+
+### v11 diagnosis (partial fix)
+
+- Config plugin **merged manifest service** (fixes v10 “service missing in manifest”).
+- **`sta-native-runtime` still not compiled into APK dex** — JS `NativeModules.StaNativeRuntime` absent; `enableLongRunSurvival` no-ops via optional chaining; status stays false.
+- Next: EAS/Gradle build logs for `:sta-native-runtime` / autolinking; ensure module compiles on cloud (not manifest-only).
+
+### GitHub (this verification pass)
+
+| Item | Value |
+|------|-------|
+| Branch | `cursor/top3-maxdd-capital-audit` |
+| Fix commit (pushed before build) | `cbe5077` |
+| Report commit | _(see git log after doc commit)_ |
+| Push | pending report commit |
+
