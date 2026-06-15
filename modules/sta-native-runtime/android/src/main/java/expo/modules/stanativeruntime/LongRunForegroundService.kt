@@ -7,12 +7,15 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 
 class LongRunForegroundService : Service() {
   companion object {
+    private const val TAG = "STA-SURVIVAL"
     const val CHANNEL_ID = "long_run_survival"
     const val NOTIFICATION_ID = 9001
     const val ACTION_STOP = "expo.modules.stanativeruntime.STOP_LONG_RUN"
@@ -34,8 +37,18 @@ class LongRunForegroundService : Service() {
       ).apply {
         description = "Keeps 12h monitor alive while screen is off"
         setShowBadge(false)
+        lockscreenVisibility = Notification.VISIBILITY_PUBLIC
       }
       manager.createNotificationChannel(channel)
+    }
+
+    fun isRunningInProcess(context: Context): Boolean {
+      if (running) return true
+      val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+      @Suppress("DEPRECATION")
+      val services = manager.getRunningServices(200) ?: return false
+      val target = LongRunForegroundService::class.java.name
+      return services.any { it.service.className == target && it.foreground }
     }
   }
 
@@ -44,10 +57,12 @@ class LongRunForegroundService : Service() {
   override fun onCreate() {
     super.onCreate()
     ensureChannel(this)
+    Log.i(TAG, "onCreate")
   }
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     if (intent?.action == ACTION_STOP) {
+      Log.i(TAG, "onStartCommand STOP")
       stopSelf()
       return START_NOT_STICKY
     }
@@ -73,13 +88,45 @@ class LongRunForegroundService : Service() {
       .setContentIntent(pendingIntent)
       .build()
 
-    startForeground(NOTIFICATION_ID, notification)
-    running = true
+    try {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        startForeground(
+          NOTIFICATION_ID,
+          notification,
+          ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+        )
+      } else {
+        startForeground(NOTIFICATION_ID, notification)
+      }
+      running = true
+      Log.i(TAG, "startForeground OK notificationId=$NOTIFICATION_ID")
+    } catch (e: Exception) {
+      running = false
+      Log.e(TAG, "startForeground FAILED", e)
+      stopSelf()
+      return START_NOT_STICKY
+    }
+
     return START_STICKY
+  }
+
+  override fun onTaskRemoved(rootIntent: Intent?) {
+    Log.w(TAG, "onTaskRemoved — restarting FGS")
+    val restart = Intent(applicationContext, LongRunForegroundService::class.java).apply {
+      putExtra(EXTRA_TITLE, "12時間監視")
+      putExtra(EXTRA_BODY, "バックグラウンド稼働中")
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      applicationContext.startForegroundService(restart)
+    } else {
+      applicationContext.startService(restart)
+    }
+    super.onTaskRemoved(rootIntent)
   }
 
   override fun onDestroy() {
     running = false
+    Log.w(TAG, "onDestroy")
     stopForeground(STOP_FOREGROUND_REMOVE)
     super.onDestroy()
   }

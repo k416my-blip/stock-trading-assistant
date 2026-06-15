@@ -1,4 +1,4 @@
-package expo.modules.stanativeruntime
+﻿package expo.modules.stanativeruntime
 
 import android.app.ActivityManager
 import android.content.ComponentCallbacks2
@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities
 import android.os.BatteryManager
 import android.os.Build
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.os.bundleOf
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -19,6 +20,10 @@ class StaNativeRuntimeModule : Module() {
   private var wakeLock: PowerManager.WakeLock? = null
   private var trimBurstCount = 0
   private var lastTrimAt = 0L
+
+  companion object {
+    private const val TAG = "STA-SURVIVAL"
+  }
 
   override fun definition() = ModuleDefinition {
     Name("StaNativeRuntime")
@@ -67,9 +72,13 @@ class StaNativeRuntimeModule : Module() {
     }
 
     AsyncFunction("getSurvivalStatus") {
+      val ctx = appContext.reactContext ?: return@AsyncFunction mapOf(
+        "wakeLockHeld" to false,
+        "foregroundServiceRunning" to false,
+      )
       mapOf(
         "wakeLockHeld" to (wakeLock?.isHeld == true),
-        "foregroundServiceRunning" to LongRunForegroundService.running,
+        "foregroundServiceRunning" to LongRunForegroundService.isRunningInProcess(ctx),
       )
     }
   }
@@ -84,10 +93,7 @@ class StaNativeRuntimeModule : Module() {
       }
       lastTrimAt = now
 
-      sendEvent(
-        "onTrimMemory",
-        bundleOf("level" to level),
-      )
+      sendEvent("onTrimMemory", bundleOf("level" to level))
       sendEvent(
         "onNativeLifecycle",
         bundleOf(
@@ -121,6 +127,11 @@ class StaNativeRuntimeModule : Module() {
 
   private fun requireContext(): Context {
     return requireNotNull(appContext.reactContext)
+  }
+
+  private fun appContextSafe(): Context {
+    return appContext.reactContext?.applicationContext
+      ?: requireContext().applicationContext
   }
 
   private fun buildSnapshotMap(): Map<String, Any?> {
@@ -182,13 +193,14 @@ class StaNativeRuntimeModule : Module() {
   }
 
   private fun acquireWakeLockInternal(tag: String) {
-    val ctx = requireContext()
+    val ctx = appContextSafe()
     val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
     releaseWakeLockInternal()
     wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sta:$tag").apply {
       setReferenceCounted(false)
-      acquire()
+      acquire(12L * 3600L * 1000L)
     }
+    Log.i(TAG, "wakeLock acquired tag=$tag held=${wakeLock?.isHeld == true}")
   }
 
   private fun releaseWakeLockInternal() {
@@ -196,29 +208,37 @@ class StaNativeRuntimeModule : Module() {
       if (it.isHeld) it.release()
     }
     wakeLock = null
+    Log.i(TAG, "wakeLock released")
   }
 
   private fun startForegroundServiceInternal(title: String?, body: String?) {
-    val ctx = requireContext()
+    val ctx = appContextSafe()
     LongRunForegroundService.ensureChannel(ctx)
     val intent = Intent(ctx, LongRunForegroundService::class.java).apply {
       putExtra(LongRunForegroundService.EXTRA_TITLE, title ?: "12時間監視")
       putExtra(LongRunForegroundService.EXTRA_BODY, body ?: "バックグラウンド稼働中")
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      ctx.startForegroundService(intent)
-    } else {
-      ctx.startService(intent)
+    try {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        ctx.startForegroundService(intent)
+      } else {
+        ctx.startService(intent)
+      }
+      Log.i(TAG, "startForegroundService requested title=${title ?: "12時間監視"}")
+    } catch (e: Exception) {
+      Log.e(TAG, "startForegroundService FAILED", e)
+      throw e
     }
   }
 
   private fun stopForegroundServiceInternal() {
-    val ctx = requireContext()
+    val ctx = appContextSafe()
     val intent = Intent(ctx, LongRunForegroundService::class.java).apply {
       action = LongRunForegroundService.ACTION_STOP
     }
     ctx.startService(intent)
     ctx.stopService(Intent(ctx, LongRunForegroundService::class.java))
+    Log.i(TAG, "stopForegroundService")
   }
 
   private fun isXiaomiFamily(manufacturer: String, brand: String): Boolean {

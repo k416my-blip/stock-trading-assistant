@@ -15,6 +15,8 @@
     "verify:phase12-5": "node scripts/phase12-5-long-run.mjs",
     "verify:twelve-hour-preflight": "npx tsx scripts/twelve-hour-test-preflight-verify.ts",
     "verify:hyperos-screen-off": "node scripts/verify-hyperos-screen-off-survival.mjs",
+    "verify:hyperos-v10-staged": "node scripts/verify-hyperos-v9-staged-screen-off.mjs",
+    "audit:hyperos-power": "node scripts/audit-hyperos-power-restrictions.mjs",
     "verify:device-live-api-audit": "node scripts/device-live-api-audit.mjs",
     "verify:newsapi-429-diagnosis": "node scripts/newsapi-429-diagnosis.mjs",
     "verify:material-fallback-without-newsapi": "npx tsx scripts/verify-material-fallback-without-newsapi.ts",

@@ -8,6 +8,7 @@
     <service
       android:name=".LongRunForegroundService"
       android:exported="false"
+      android:stopWithTask="false"
       android:foregroundServiceType="dataSync" />
   </application>
 </manifest>

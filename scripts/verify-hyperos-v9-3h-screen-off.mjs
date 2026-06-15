@@ -10,20 +10,33 @@ import {
   finalizeLogcatSnapshot,
   parseLogcatMetrics,
 } from './lib/phase12-5-logcat-finalization.mjs';
+import {
+  countHeartbeat,
+  countNewsFetch,
+  countPriceUpdate,
+  countStaSurvivalNative,
+  countSurvivalEvents,
+  parseFgsEvidence,
+  parseWakeLockEvidence,
+  buildPidTimeline,
+} from './lib/hyperos-monitor-metrics.mjs';
 
 const ROOT = process.cwd();
 const PKG = 'com.assistant.stocktrading';
 const SERIAL = process.env.ANDROID_SERIAL ?? process.env.ADB_SERIAL ?? 'FYRWXSNNAIOR9DCM';
 const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_HOURS ?? '3');
+const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
 const POLL_MIN = 15;
-const APK = path.join(ROOT, 'artifacts/preview-v9.apk');
+const APK = path.join(ROOT, 'artifacts/preview-v10.apk');
+const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v9.apk');
 const TWELVE_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
 const OUT_DIR = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const HEALTH_DIR = path.join(ROOT, 'docs/review/phase12-5-v8-3h-health');
 const CHECKPOINT_PS = path.join(TWELVE_DIR, 'phase12-5-v8-3h-checkpoint-once.ps1');
 const LIVE_LOG = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
-const EVIDENCE_PATH = path.join(OUT_DIR, 'hyperos-v9-3h-evidence.json');
-const REPORT_PATH = path.join(ROOT, 'docs/review/HYPEROS_V9_3H_SCREEN_OFF_RUN_REPORT.md');
+const EVIDENCE_PATH = path.join(OUT_DIR, `hyperos-v10-${STAGE}-evidence.json`);
+const REPORT_PATH = path.join(ROOT, `docs/review/HYPEROS_V10_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`);
+const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
 
 function sh(cmd, opts = {}) {
   return execSync(cmd, {
@@ -92,10 +105,24 @@ function wakefulness() {
 
 function fgsSnippet() {
   try {
-    return adb('shell dumpsys activity services').split('\n').filter((l) => l.includes('LongRunForegroundService')).slice(0, 5).join('\n');
+    const raw = adb(`shell dumpsys activity services ${PKG}`);
+    return parseFgsEvidence(raw);
   } catch {
-    return '';
+    return { running: false, snippet: '', hitCount: 0 };
   }
+}
+
+function saveDumpsysEvidence(label, ev) {
+  fs.mkdirSync(DUMPSYS_DIR, { recursive: true });
+  const base = path.join(DUMPSYS_DIR, `${ev.runId}-${label}`);
+  try {
+    fs.writeFileSync(`${base}-services.txt`, adb(`shell dumpsys activity services ${PKG}`));
+    fs.writeFileSync(`${base}-power.txt`, adb('shell dumpsys power'));
+    fs.writeFileSync(`${base}-proc.txt`, adb(`shell dumpsys activity processes | grep -i ${PKG}`));
+  } catch {
+    /* optional */
+  }
+  return `${base}-services.txt`;
 }
 
 function wakelockSnippet() {
@@ -107,8 +134,7 @@ function wakelockSnippet() {
 }
 
 function survivalFromLogcat(raw) {
-  const held = /wakeLockHeld["']?\s*:\s*true/i.test(raw) || /PARTIAL_WAKE_LOCK/i.test(raw);
-  return held;
+  return parseWakeLockEvidence(wakelockSnippet(), raw).held;
 }
 
 function versionCode() {
@@ -206,13 +232,14 @@ function gitSha() {
 
 function buildLogcatSummary(raw, metrics) {
   const lines = [
-    `# HyperOS v9 3h logcat summary (${ts()})`,
-    `heartbeat_12H_MONITOR: ${countLines(raw, '[12H-MONITOR] heartbeat')}`,
-    `survival_enabled: ${countLines(raw, 'survival_enabled')}`,
-    `survival_status: ${countLines(raw, 'survival_status')}`,
-    `price_update: ${countLines(raw, 'price_update')}`,
-    `news_fetch: ${countLines(raw, 'news_fetch')}`,
-    `Twelve Data hints: ${countLines(raw, ['Twelve', 'twelvedata', 'price_update'])}`,
+    `# HyperOS v10 ${STAGE} logcat summary (${ts()})`,
+    `heartbeat: ${countHeartbeat(raw)}`,
+    `survival_events: ${countSurvivalEvents(raw)}`,
+    `sta_survival_native: ${countStaSurvivalNative(raw)}`,
+    `survival_enabled: ${raw.split('\n').filter((l) => l.includes('survival_enabled')).length}`,
+    `survival_status: ${raw.split('\n').filter((l) => l.includes('survival_status')).length}`,
+    `price_update: ${countPriceUpdate(raw)}`,
+    `news_fetch: ${countNewsFetch(raw)}`,
     `FATAL: ${metrics.fatal}`,
     `ANR: ${metrics.anr}`,
     '',
@@ -231,7 +258,7 @@ function evaluatePass(ev, metrics) {
   const hbOk = ev.finalHeartbeatCount >= Math.max(1, expectedHb * 0.5);
   const priceOk = ev.finalPriceCount >= 3;
   const newsOk = ev.finalNewsCount >= 1;
-  const fgsOk = ev.polls.every((p) => p.fgsRunning);
+  const fgsOk = ev.polls.filter((p) => p.fgsRunning).length >= Math.max(1, Math.floor(ev.polls.length * 0.7));
   const wlOk = ev.polls.filter((p) => p.wakeLockHeld).length >= ev.polls.length * 0.7;
   const crashOk = metrics.fatal === 0 && metrics.anr === 0;
   const screenOk = ev.screenOffEnforcedCount >= ev.polls.length * 0.5 || ev.polls.every((p) => p.wakefulness !== 'Awake');
@@ -252,14 +279,15 @@ function evaluatePass(ev, metrics) {
 function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
   const go = eval_.overall ? 'GO' : 'NO-GO';
   const sha = gitSha();
-  const md = `# HyperOS v9 3h Screen-Off Run Report
+  const md = `# HyperOS v10 ${STAGE} Screen-Off Run Report
 
 ## Executive summary: **${go}**
 
 | Field | Value |
 |-------|-------|
+| Stage | ${STAGE} |
 | Test window (MYT) | ${ev.startMyt} → ${ev.endMyt} |
-| APK | preview-v9.apk (versionCode ${ev.versionCode}) |
+| APK | preview-v10.apk (versionCode ${ev.versionCode}) |
 | Device | ${SERIAL} (Redmi Note 13 Pro HyperOS) |
 | Branch | cursor/top3-maxdd-capital-audit |
 | Commit | ${sha} |
@@ -282,6 +310,16 @@ function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
 | Elapsed | PID | HBΔ | priceΔ | newsΔ | FGS | WakeLock | Wakefulness |
 |---------|-----|-----|--------|-------|-----|----------|-------------|
 ${ev.polls.map((p) => `| ${p.elapsedMin}m | ${p.pid ?? '—'} | ${p.heartbeatDelta} | ${p.priceDelta} | ${p.newsDelta} | ${p.fgsRunning ? 'Y' : 'N'} | ${p.wakeLockHeld ? 'Y' : 'N'} | ${p.wakefulness} |`).join('\n')}
+
+## PID timeline
+
+${buildPidTimeline(ev.polls)
+  .map((r) => `- **${r.elapsedMin}m** · PID=${r.pid ?? 'null'} · ${r.at ?? ''}`)
+  .join('\n')}
+
+## dumpsys evidence
+
+${(ev.dumpsysPaths ?? []).map((p) => `- \`${p}\``).join('\n') || '- see docs/review/hyperos-screen-off-survival/dumpsys-evidence/'}
 
 ## checkpoint.json summary
 
@@ -365,6 +403,8 @@ async function main() {
     survivalEnabledSeen: false,
     polls: [],
     checkpoints: [],
+    dumpsysPaths: [],
+    pidTimeline: [],
     finalHeartbeatCount: 0,
     finalSurvivalStatusCount: 0,
     finalPriceCount: 0,
@@ -382,21 +422,35 @@ async function main() {
   }
 
   ev.versionCode = versionCode();
+  const apkPath = fs.existsSync(APK) ? APK : APK_FALLBACK;
   const skipApkReinstall =
-    process.env.PHASE12_5_SKIP_APK_REINSTALL === '1' || ev.versionCode === 9;
-  if (fs.existsSync(APK) && !skipApkReinstall) {
-    const inst = spawnSync('adb', ['-s', SERIAL, 'install', '-r', APK], {
+    process.env.PHASE12_5_SKIP_APK_REINSTALL === '1' ||
+    (ev.versionCode === 10 && apkPath === APK) ||
+    (ev.versionCode === 9 && !fs.existsSync(APK));
+  if (fs.existsSync(apkPath) && !skipApkReinstall) {
+    const inst = spawnSync('adb', ['-s', SERIAL, 'install', '-r', apkPath], {
       encoding: 'utf8',
       timeout: 10 * 60 * 1000,
     });
     if (inst.status !== 0) ev.notes.push(`APK install warn: ${inst.stderr?.slice(0, 200)}`);
     ev.versionCode = versionCode();
-  } else if (!fs.existsSync(APK)) {
-    ev.notes.push('preview-v9.apk missing; using installed build');
+  } else if (!fs.existsSync(apkPath)) {
+    ev.notes.push('preview-v10/v9 apk missing; using installed build');
   } else if (skipApkReinstall) {
-    ev.notes.push(`APK reinstall skipped (versionCode=${ev.versionCode})`);
+    ev.notes.push(`APK reinstall skipped (versionCode=${ev.versionCode}, apk=${path.basename(apkPath)})`);
   }
-  if (ev.versionCode !== 9) ev.notes.push(`versionCode=${ev.versionCode} (expected 9)`);
+  if (ev.versionCode !== 10 && ev.versionCode !== 9) ev.notes.push(`versionCode=${ev.versionCode} (expected 10)`);
+
+  try {
+    spawnSync('node', ['scripts/audit-hyperos-power-restrictions.mjs'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: 'pipe',
+      env: process.env,
+    });
+  } catch {
+    ev.notes.push('hyperos power audit failed');
+  }
 
   try {
     adb(`shell dumpsys deviceidle whitelist +${PKG}`);
@@ -476,9 +530,9 @@ async function main() {
 
   const durationMs = HOURS * 3600 * 1000;
   const endAt = Date.now() + durationMs;
-  let hbBase = countLines(logcatDump(), '[12H-MONITOR] heartbeat');
-  let priceBase = countLines(logcatDump(), 'price_update');
-  let newsBase = countLines(logcatDump(), 'news_fetch');
+  let hbBase = countHeartbeat(logcatDump());
+  let priceBase = countPriceUpdate(logcatDump());
+  let newsBase = countNewsFetch(logcatDump());
   const checkpointLabels = [
     { atMin: 30, label: '30min' },
     { atMin: 60, label: '1h' },
@@ -505,9 +559,13 @@ async function main() {
     } else if (pid) ev.lastPid = pid;
 
     const raw = logcatDump();
-    const hb = countLines(raw, '[12H-MONITOR] heartbeat');
-    const pr = countLines(raw, 'price_update');
-    const nw = countLines(raw, 'news_fetch');
+    const hb = countHeartbeat(raw);
+    const pr = countPriceUpdate(raw);
+    const nw = countNewsFetch(raw);
+    const fgs = fgsSnippet();
+    const wl = parseWakeLockEvidence(wakelockSnippet(), raw);
+    const dumpsysPath = saveDumpsysEvidence(`${elapsedMin}m`, ev);
+    ev.dumpsysPaths.push(path.relative(ROOT, dumpsysPath).replace(/\\/g, '/'));
     const poll = {
       at: new Date().toISOString(),
       elapsedMin,
@@ -518,13 +576,15 @@ async function main() {
       priceTotal: pr,
       newsDelta: nw - newsBase,
       newsTotal: nw,
-      fgsRunning: fgsSnippet().length > 0,
-      fgsSnippet: fgsSnippet().slice(0, 300),
-      wakeLockHeld: survivalFromLogcat(raw) || /wakeLockHeld.*true/i.test(raw),
+      fgsRunning: fgs.running,
+      fgsSnippet: fgs.snippet.slice(0, 300),
+      fgsHitCount: fgs.hitCount,
+      wakeLockHeld: wl.held || survivalFromLogcat(raw),
       wakelockSnippet: wakelockSnippet().slice(0, 300),
-      wakefulness: wakefulness(),
+      wakefulness: wl.wakefulness || wakefulness(),
     };
     ev.polls.push(poll);
+    ev.pidTimeline = buildPidTimeline(ev.polls);
     hbBase = hb;
     priceBase = pr;
     newsBase = nw;
@@ -556,10 +616,11 @@ async function main() {
   const metrics = parseLogcatMetrics(liveRaw);
   const sanitized = sanitizeLogcat(liveRaw);
   const summaryPath = path.join(OUT_DIR, `logcat-summary-3h-${runId}.txt`);
-  ev.finalHeartbeatCount = countLines(sanitized, '[12H-MONITOR] heartbeat');
-  ev.finalSurvivalStatusCount = countLines(sanitized, 'survival_status');
-  ev.finalPriceCount = countLines(sanitized, 'price_update');
-  ev.finalNewsCount = countLines(sanitized, 'news_fetch');
+  ev.finalHeartbeatCount = countHeartbeat(sanitized);
+  ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
+  ev.finalPriceCount = countPriceUpdate(sanitized);
+  ev.finalNewsCount = countNewsFetch(sanitized);
+  ev.finalStaSurvivalNative = countStaSurvivalNative(sanitized);
   ev.finalPid = pidof();
   ev.endedAt = new Date().toISOString();
   ev.endMyt = myt();

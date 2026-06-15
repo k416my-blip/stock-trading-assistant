@@ -7,6 +7,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { TWELVE_HOUR_LOG_TAG } from '../constants/twelveHourTestMonitor';
 
 const KEEP_AWAKE_TAG = 'sta-twelve-hour-monitor';
+const SURVIVAL_HEALTH_MS = 3 * 60 * 1000;
 
 export type LongRunSurvivalStatus = {
   wakeLockHeld: boolean;
@@ -28,6 +29,9 @@ const NativeSta: NativeSurvivalModule | undefined =
 
 let enabled = false;
 let screenAwakeMode = false;
+let notificationTitle = '12時間監視';
+let notificationBody = 'バックグラウンド稼働中';
+let healthTimer: ReturnType<typeof setInterval> | null = null;
 
 export function isLongRunSurvivalEnabled(): boolean {
   return enabled;
@@ -44,44 +48,79 @@ export async function getLongRunSurvivalStatus(): Promise<LongRunSurvivalStatus>
   }
 }
 
+async function applySurvivalStack(): Promise<LongRunSurvivalStatus> {
+  await NativeSta?.acquirePartialWakeLock?.('sta-long-run');
+  await NativeSta?.startLongRunForegroundService?.(notificationTitle, notificationBody);
+  if (screenAwakeMode) {
+    await activateKeepAwakeAsync(KEEP_AWAKE_TAG);
+  }
+  return getLongRunSurvivalStatus();
+}
+
+async function repairSurvivalIfNeeded(): Promise<void> {
+  if (!enabled) return;
+  const before = await getLongRunSurvivalStatus();
+  if (before.wakeLockHeld && before.foregroundServiceRunning) {
+    console.log(TWELVE_HOUR_LOG_TAG, 'survival_health_ok', before);
+    return;
+  }
+  console.warn(TWELVE_HOUR_LOG_TAG, 'survival_health_degraded', before);
+  try {
+    const after = await applySurvivalStack();
+    console.log(TWELVE_HOUR_LOG_TAG, 'survival_repaired', { before, after });
+    console.log(TWELVE_HOUR_LOG_TAG, 'survival_status', after);
+  } catch (err) {
+    console.warn(TWELVE_HOUR_LOG_TAG, 'survival_repair_failed', {
+      message: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+function startSurvivalHealthWatch(): void {
+  if (healthTimer) return;
+  healthTimer = setInterval(() => {
+    void repairSurvivalIfNeeded();
+  }, SURVIVAL_HEALTH_MS);
+}
+
+function stopSurvivalHealthWatch(): void {
+  if (!healthTimer) return;
+  clearInterval(healthTimer);
+  healthTimer = null;
+}
+
 export async function enableLongRunSurvival(options?: {
   screenAwake?: boolean;
   notificationTitle?: string;
   notificationBody?: string;
 }): Promise<void> {
   if (Platform.OS !== 'android') return;
-  if (enabled) return;
 
   enabled = true;
   screenAwakeMode = options?.screenAwake ?? false;
+  notificationTitle = options?.notificationTitle ?? notificationTitle;
+  notificationBody = options?.notificationBody ?? notificationBody;
 
   try {
-    await NativeSta?.acquirePartialWakeLock?.('sta-long-run');
-    await NativeSta?.startLongRunForegroundService?.(
-      options?.notificationTitle ?? '12時間監視',
-      options?.notificationBody ?? 'バックグラウンド稼働中',
-    );
-    if (screenAwakeMode) {
-      await activateKeepAwakeAsync(KEEP_AWAKE_TAG);
-    }
+    const status = await applySurvivalStack();
+    console.log(TWELVE_HOUR_LOG_TAG, 'survival_enabled', {
+      screenAwake: screenAwakeMode,
+      wakeLockHeld: status.wakeLockHeld,
+      foregroundServiceRunning: status.foregroundServiceRunning,
+    });
+    console.log(TWELVE_HOUR_LOG_TAG, 'survival_status', status);
+    startSurvivalHealthWatch();
   } catch (err) {
     console.warn(TWELVE_HOUR_LOG_TAG, 'survival_enable_failed', {
       message: err instanceof Error ? err.message : String(err),
     });
   }
-
-  const status = await getLongRunSurvivalStatus();
-  console.log(TWELVE_HOUR_LOG_TAG, 'survival_enabled', {
-    screenAwake: screenAwakeMode,
-    wakeLockHeld: status.wakeLockHeld,
-    foregroundServiceRunning: status.foregroundServiceRunning,
-  });
-  console.log(TWELVE_HOUR_LOG_TAG, 'survival_status', status);
 }
 
 export async function disableLongRunSurvival(): Promise<void> {
   if (!enabled) return;
   enabled = false;
+  stopSurvivalHealthWatch();
 
   if (screenAwakeMode) {
     try {
@@ -101,4 +140,11 @@ export async function disableLongRunSurvival(): Promise<void> {
 
   const status = await getLongRunSurvivalStatus();
   console.log(TWELVE_HOUR_LOG_TAG, 'survival_disabled', status);
+}
+
+/** @internal test-only */
+export function resetLongRunSurvivalForTest(): void {
+  stopSurvivalHealthWatch();
+  enabled = false;
+  screenAwakeMode = false;
 }
