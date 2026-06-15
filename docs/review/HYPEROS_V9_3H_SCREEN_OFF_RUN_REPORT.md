@@ -61,4 +61,6 @@ Summary file: \docs/review/hyperos-screen-off-survival/logcat-summary-3h-2026061
 
 ## GitHub sync
 
-_(updated after commit/push)_
+- **Commit:** `9c90d8d` — docs: HyperOS v9 3h screen-off survival run report
+- **Push:** success to `origin/cursor/top3-maxdd-capital-audit` (`9d112f4..9c90d8d`)
+- **Remote:** https://github.com/k416my-blip/stock-trading-assistant/tree/cursor/top3-maxdd-capital-audit
