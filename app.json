@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Rakuten Trade MY 助手",
+    "name": "Rakuten Trade MY 助扁E,
     "slug": "stock-trading-assistant",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,7 +25,7 @@
         "backgroundColor": "#0f1419"
       },
       "package": "com.assistant.stocktrading",
-      "versionCode": 6,
+      "versionCode": 8,
       "edgeToEdgeEnabled": false
     },
     "web": {

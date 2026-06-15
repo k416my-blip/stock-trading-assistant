@@ -265,7 +265,7 @@ export function SettingsScreen() {
       setApiConnectionMessages((prev) => ({ ...prev, [providerId]: connLabel }));
       Alert.alert(
         testResult.ok ? '接続テスト成功' : '接続テスト失敗',
-        testResult.ok ? testResult.message : '実API接続失敗',
+        testResult.ok ? testResult.message : testResult.message || '実API接続失敗',
       );
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
@@ -504,7 +504,7 @@ export function SettingsScreen() {
                           ) : null}
                           <Text style={styles.newsApiTestMeta}>エラー本文:</Text>
                           <Text style={styles.newsApiTestBody} selectable>
-                            {xApiTestResult.responseBody || '（空）'}
+                            {(xApiTestResult.responseBody || '（空）').slice(0, 200)}
                           </Text>
                         </>
                       )}
