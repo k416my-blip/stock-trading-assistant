@@ -11,7 +11,8 @@
 | 項目 | 結論 |
 |------|------|
 | **Primary root cause** | `sta-native-runtime` Android モジュールが **APK にコンパイルされていない** |
-| **Build failure trigger** | `modules/sta-native-runtime/android/build.gradle` の **UTF-8 BOM** → Gradle `Unexpected character: '?'` |
+| **Build failure trigger (v10)** | `modules/sta-native-runtime/android/build.gradle` の **UTF-8 BOM** → Gradle `Unexpected character: '?'` |
+| **Build failure trigger (v11+)** | **Legacy `ExpoModulesCorePlugin.gradle` build.gradle** — Expo SDK 54 は `expo-module-gradle-plugin` 必須。`compileSdk` 未設定のため Gradle autolinking が **サイレントスキップ**（EAS ログ "Using expo modules" に `sta-native-runtime` 不在） |
 | **Manifest gap** | `LongRunForegroundService` が **merged APK manifest に未登録** |
 | **Runtime symptom** | `getSurvivalStatus()` → `{ wakeLockHeld: false, foregroundServiceRunning: false }` |
 | **検出 vs 実態** | dumpsys FAIL は正しい · orchestrator 以前の v9/v10 PASS 系 WakeLock は **heuristic 誤検知** |
@@ -199,4 +200,40 @@ BOM 除去後は当該 parse error は解消（以降は expo prebuild 環境依
 | Fix commit (pushed before build) | `cbe5077` |
 | Report commit | _(see git log after doc commit)_ |
 | Push | pending report commit |
+
+---
+
+## 11. v12 fix — migrate build.gradle to expo-module-gradle-plugin
+
+### Root cause (confirmed)
+
+| Investigation | Result |
+|---------------|--------|
+| `npx expo-modules-autolinking resolve --platform android` | **PASS** — `sta-native-runtime` listed |
+| EAS v11 Gradle log "Using expo modules" | **FAIL** — `sta-native-runtime` **absent** (only expo-constants, expo-modules-core, published 📦 modules) |
+| Local `:sta-native-runtime:assembleRelease` (pre-fix) | **FAIL** — `does not specify compileSdk`; legacy `ExpoModulesCorePlugin.gradle` pattern |
+| `.easignore` / `.gitignore` | **PASS** — `modules/sta-native-runtime` not excluded |
+| `package.json` `file:./modules/sta-native-runtime` | **PASS** |
+
+**Conclusion:** Autolinking *resolved* the module in JS, but Gradle *excluded* it because `android/build.gradle` used the pre-SDK-54 `apply from: ExpoModulesCorePlugin.gradle` pattern instead of `id 'expo-module-gradle-plugin'`. EAS build succeeded without the module (silent skip); manifest plugin still merged `LongRunForegroundService` (manifest-only, no dex classes).
+
+### Fix applied
+
+| # | Change | File |
+|---|--------|------|
+| 1 | Replace legacy plugin with `expo-module-gradle-plugin` (sets compileSdk/targetSdk via version catalog) | `modules/sta-native-runtime/android/build.gradle` |
+| 2 | versionCode **12** | `app.json` |
+| 3 | Cross-platform sleep (`timers/promises`) instead of `timeout /t` | `scripts/collect-fgs-evidence.mjs` |
+
+### Local verification (pre-EAS)
+
+```
+./gradlew :sta-native-runtime:assembleRelease
+→ BUILD SUCCESSFUL
+→ "Using expo modules" includes sta-native-runtime (1.0.0)
+```
+
+### v12 EAS verification
+
+_(filled after build `preview-v12` completes)_
 

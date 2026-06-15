@@ -5,6 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = process.cwd();
 const SERIAL = process.env.ANDROID_SERIAL ?? 'FYRWXSNNAIOR9DCM';
@@ -23,12 +24,12 @@ function ts() {
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
-function main() {
+async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const runId = ts();
   adb(`shell am force-stop ${PKG}`);
   adb(`shell monkey -p ${PKG} -c android.intent.category.LAUNCHER 1`);
-  execSync('timeout /t 12 /nobreak >nul', { stdio: 'ignore', shell: true });
+  await sleep(12_000);
 
   const files = {
     logcat: `${runId}-logcat.txt`,
@@ -44,7 +45,7 @@ function main() {
   fs.writeFileSync(path.join(OUT, files.power), adb('shell dumpsys power'));
   fs.writeFileSync(path.join(OUT, files.package), adb(`shell dumpsys package ${PKG}`));
 
-  const apk = path.join(ROOT, 'artifacts/preview-v11.apk');
+  const apk = path.join(ROOT, 'artifacts/preview-v12.apk');
   let manifestNote = 'APK not present locally';
   if (fs.existsSync(apk)) {
     try {
@@ -62,4 +63,7 @@ function main() {
   console.log(JSON.stringify(summary));
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
