@@ -1,0 +1,120 @@
+{
+  "runId": "20260616-062821",
+  "commitAtStart": "df866d749e7ed0510868696e1d1b425a0c1b18dd",
+  "versionCode": 10,
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "hours": 0.5,
+  "startedAt": "2026-06-15T22:28:21.972Z",
+  "startMyt": "2026-06-16 06:28:21 MYT",
+  "endMyt": "2026-06-16 06:59:21 MYT",
+  "endedAt": "2026-06-15T22:59:21.048Z",
+  "baselinePid": "8047",
+  "finalPid": "8047",
+  "pidLostEvents": 0,
+  "lastPid": "8047",
+  "survivalEnabledSeen": true,
+  "polls": [
+    {
+      "at": "2026-06-15T22:43:45.484Z",
+      "elapsedMin": 15,
+      "pid": "8047",
+      "heartbeatDelta": -2,
+      "heartbeatTotal": 1,
+      "priceDelta": 1,
+      "priceTotal": 1,
+      "newsDelta": 2,
+      "newsTotal": 2,
+      "fgsRunning": false,
+      "fgsSnippet": "",
+      "fgsHitCount": 0,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x1\r\n  mLastWakeTime=319876982 (908863 ms ago)\r\n  mLastGlobalWakeTimeRealtime=435809570 (in 115023725 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWakeU",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-15T22:58:49.018Z",
+      "elapsedMin": 30,
+      "pid": "8047",
+      "heartbeatDelta": 2,
+      "heartbeatTotal": 3,
+      "priceDelta": 1,
+      "priceTotal": 2,
+      "newsDelta": -2,
+      "newsTotal": 0,
+      "fgsRunning": false,
+      "fgsSnippet": "",
+      "fgsHitCount": 0,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=321637759 (51593 ms ago)\r\n  mLastGlobalWakeTimeRealtime=437570369 (in 115881017 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWakeU",
+      "wakefulness": "Awake"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "30min",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "dumpsysPaths": [
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-062821-15m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-062821-30m-services.txt"
+  ],
+  "pidTimeline": [
+    {
+      "at": "2026-06-15T22:43:45.484Z",
+      "elapsedMin": 15,
+      "pid": "8047",
+      "note": ""
+    },
+    {
+      "at": "2026-06-15T22:58:49.018Z",
+      "elapsedMin": 30,
+      "pid": "8047",
+      "note": ""
+    }
+  ],
+  "finalHeartbeatCount": 67,
+  "finalSurvivalStatusCount": 4,
+  "finalPriceCount": 24,
+  "finalNewsCount": 30,
+  "screenOffEnforcedCount": 2,
+  "phase12_5ExitCode": 0,
+  "notes": [
+    "APK reinstall skipped (versionCode=10, apk=preview-v10.apk)"
+  ],
+  "finalStaSurvivalNative": 0,
+  "metrics": {
+    "fatal": 0,
+    "anr": 0,
+    "rnTypeError": 0,
+    "undefined": 0
+  },
+  "eval_": {
+    "overall": false,
+    "pidOk": "8047",
+    "hbOk": true,
+    "priceOk": true,
+    "newsOk": true,
+    "fgsOk": false,
+    "wlOk": true,
+    "crashOk": true,
+    "screenOk": true,
+    "expectedHb": 4
+  },
+  "fin": {
+    "ok": true,
+    "path": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260616-065911.log",
+    "snapshotPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260616-065911.txt",
+    "warning": null,
+    "source": "live-copy+adb-dump",
+    "metrics": {
+      "fatal": 0,
+      "anr": 0,
+      "rnTypeError": 0,
+      "undefined": 0
+    }
+  },
+  "summaryPath": "docs\\review\\hyperos-screen-off-survival\\logcat-summary-3h-20260616-062821.txt"
+}
