@@ -13,3 +13,8 @@ agent-transcripts/
 
 # Local module Gradle outputs (keep uploads lean; source is in git)
 modules/sta-native-runtime/android/build/
+
+# Review evidence / large local artifacts (not needed for cloud build)
+docs/review/
+artifacts/
+!artifacts/.gitkeep
