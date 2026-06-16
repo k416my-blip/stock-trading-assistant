@@ -1,30 +1,52 @@
 {
-  "startedAt": "2026-06-10T02:43:59.691Z",
-  "endedAt": "2026-06-10T03:12:00.000Z",
-  "status": "INTERRUPTED_PARTIAL",
-  "baselineMemKb": 797764,
+  "startedAt": "2026-06-16T01:11:52.519Z",
+  "endedAt": "2026-06-16T02:22:44.112Z",
+  "baselineMemKb": 228257,
   "hourlyMemKb": [
     {
       "hour": 0,
-      "kb": 797764,
-      "at": "2026-06-10T02:44:17.120Z"
+      "kb": 228257,
+      "at": "2026-06-16T01:12:00.879Z"
+    },
+    {
+      "hour": 1,
+      "kb": 216185,
+      "at": "2026-06-16T02:13:00.560Z"
+    },
+    {
+      "hour": "final",
+      "kb": 352346,
+      "at": "2026-06-16T02:22:50.148Z"
     }
   ],
   "cpuSamples": [
     {
       "hour": 0,
-      "percent": 63.3,
-      "raw": "29439 u0_a386      10 -10  46G 470M 166M R 63.3   6.3  10:02.39 com.assistant.stocktrading\r\n12334 shell        20   0  10G 4.0M 3.3M S  0.0   0.0   0:00.01 grep com.assistant.stocktrading\r\n12330 shell        20   0  10G 4.1M 3.3M S  0.0   0.0   0:00.01 sh -c top -n 1 -d 1 -b | grep com.assistant.stocktrading",
-      "at": "2026-06-10T02:44:17.566Z"
+      "percent": 103,
+      "raw": "27511 u0_a396      10 -10  45G 326M 195M S  103   4.4   0:10.76 com.assistant.stocktrading\r\n28538 shell        20   0  10G 5.2M 4.5M S  0.0   0.0   0:00.01 grep com.assistant.stocktrading\r\n28535 shell        20   0  10G 4.0M 3.3M S  0.0   0.0   0:00.00 sh -c top -n 1 -d 1 -b | grep com.assistant.stocktrading",
+      "at": "2026-06-16T01:12:01.299Z"
+    },
+    {
+      "hour": 1,
+      "percent": 5.4,
+      "raw": "27511 u0_a396      10 -10  45G 265M 120M S  5.4   3.5  14:12.83 com.assistant.stocktrading\r\n26841 shell        20   0  10G 4.0M 3.3M S  0.0   0.0   0:00.00 grep com.assistant.stocktrading\r\n26837 shell        20   0  10G 4.0M 3.2M S  0.0   0.0   0:00.00 sh -c top -n 1 -d 1 -b | grep com.assistant.stocktrading",
+      "at": "2026-06-16T02:13:01.097Z"
     }
   ],
   "storageSamples": [
     {
       "hour": 0,
-      "rkKb": 1396,
-      "totalKb": 21860,
-      "raw": "1396\tdatabases/RKStorage\r\n21860\t.",
-      "at": "2026-06-10T02:44:17.751Z"
+      "rkKb": null,
+      "totalKb": null,
+      "raw": "run-as: package not debuggable: com.assistant.stocktrading",
+      "at": "2026-06-16T01:12:01.376Z"
+    },
+    {
+      "hour": 1,
+      "rkKb": null,
+      "totalKb": null,
+      "raw": "run-as: package not debuggable: com.assistant.stocktrading",
+      "at": "2026-06-16T02:13:01.160Z"
     }
   ],
   "priceRefreshRuns": [
@@ -32,65 +54,242 @@
       "tag": "h0-m0",
       "ok": true,
       "hasError": false,
-      "at": "2026-06-10T02:54:13.999Z"
+      "apiKeyDialogAppeared": false,
+      "apiKeyMissingSuppressedExpected": true,
+      "at": "2026-06-16T01:26:19.317Z"
+    },
+    {
+      "tag": "h0-m15",
+      "ok": true,
+      "hasError": false,
+      "apiKeyDialogAppeared": false,
+      "apiKeyMissingSuppressedExpected": true,
+      "at": "2026-06-16T01:42:45.331Z"
+    },
+    {
+      "tag": "h0-m30",
+      "ok": true,
+      "hasError": false,
+      "apiKeyDialogAppeared": false,
+      "apiKeyMissingSuppressedExpected": true,
+      "at": "2026-06-16T01:58:57.136Z"
     }
   ],
   "aiAnalysisRuns": [
     {
       "tag": "hour-0",
+      "ok": true,
       "material": {
         "tag": "hour-0",
         "ok": true,
-        "at": "2026-06-10T02:47:07.049Z"
+        "at": "2026-06-16T01:13:05.238Z"
       },
       "stockCheck": {
         "rows": [
           {
             "code": "1155",
             "label": "Maybank",
-            "ok": false,
-            "reason": "card not found"
+            "query": "Malayan Banking",
+            "queriesTried": [
+              "Maybank",
+              "Malayan Banking"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 1,
+            "tapLabel": "Malayan Banking Berhad",
+            "retried": true
           },
           {
             "code": "1023",
             "label": "CIMB",
-            "ok": false,
-            "visible": false,
-            "hasError": false
+            "query": "CIMB",
+            "queriesTried": [
+              "CIMB"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "1023 · バルサ・マレーシア"
           },
           {
             "code": "1295",
             "label": "Public Bank",
+            "query": "Public Bank",
+            "queriesTried": [
+              "Public Bank"
+            ],
+            "cardFound": true,
             "ok": true,
             "visible": true,
-            "hasError": false
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "1295 · バルサ・マレーシア"
           },
           {
             "code": "5347",
             "label": "Tenaga",
-            "ok": false,
-            "visible": false,
-            "hasError": false
+            "query": "Tenaga",
+            "queriesTried": [
+              "Tenaga"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "5347 · バルサ・マレーシア"
           },
           {
             "code": "4707",
             "label": "Nestle",
-            "ok": false,
-            "visible": false,
-            "hasError": false
+            "query": "Nestle",
+            "queriesTried": [
+              "Nestle"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "Nestle"
           },
           {
             "code": "6033",
             "label": "Petronas Gas",
+            "query": "Petronas Gas",
+            "queriesTried": [
+              "Petronas Gas"
+            ],
+            "cardFound": true,
             "ok": true,
             "visible": true,
-            "hasError": false
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "Petronas Gas"
           }
         ],
-        "allOk": false
+        "allOk": true
       },
-      "at": "2026-06-10T02:53:03.191Z",
+      "at": "2026-06-16T01:25:25.311Z",
       "screenshot": "docs/review/phase12-5-long-run/ai-hour-0.png"
+    },
+    {
+      "tag": "hour-1",
+      "ok": true,
+      "material": {
+        "tag": "hour-1",
+        "ok": true,
+        "at": "2026-06-16T02:14:00.348Z"
+      },
+      "stockCheck": {
+        "rows": [
+          {
+            "code": "1155",
+            "label": "Maybank",
+            "query": "Malayan Banking",
+            "queriesTried": [
+              "Maybank",
+              "Malayan Banking"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "1155 · バルサ・マレーシア"
+          },
+          {
+            "code": "1023",
+            "label": "CIMB",
+            "query": "CIMB",
+            "queriesTried": [
+              "CIMB"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "1023 · バルサ・マレーシア"
+          },
+          {
+            "code": "1295",
+            "label": "Public Bank",
+            "query": "Public Bank",
+            "queriesTried": [
+              "Public Bank"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "1295 · バルサ・マレーシア"
+          },
+          {
+            "code": "5347",
+            "label": "Tenaga",
+            "query": "Tenaga",
+            "queriesTried": [
+              "Tenaga"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "5347 · バルサ・マレーシア"
+          },
+          {
+            "code": "4707",
+            "label": "Nestle",
+            "query": "Nestle",
+            "queriesTried": [
+              "Nestle"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "Nestle"
+          },
+          {
+            "code": "6033",
+            "label": "Petronas Gas",
+            "query": "Petronas Gas",
+            "queriesTried": [
+              "Petronas Gas"
+            ],
+            "cardFound": true,
+            "ok": true,
+            "visible": true,
+            "hasError": false,
+            "foreground": "com.assistant.stocktrading",
+            "deviceAttempt": 0,
+            "tapLabel": "Petronas Gas"
+          }
+        ],
+        "allOk": true
+      },
+      "at": "2026-06-16T02:22:43.278Z",
+      "screenshot": "docs/review/phase12-5-long-run/ai-hour-1.png"
     }
   ],
   "stockChecks": [
@@ -100,47 +299,196 @@
         {
           "code": "1155",
           "label": "Maybank",
-          "ok": false,
-          "reason": "card not found"
+          "query": "Malayan Banking",
+          "queriesTried": [
+            "Maybank",
+            "Malayan Banking"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 1,
+          "tapLabel": "Malayan Banking Berhad",
+          "retried": true
         },
         {
           "code": "1023",
           "label": "CIMB",
-          "ok": false,
-          "visible": false,
-          "hasError": false
+          "query": "CIMB",
+          "queriesTried": [
+            "CIMB"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "1023 · バルサ・マレーシア"
         },
         {
           "code": "1295",
           "label": "Public Bank",
+          "query": "Public Bank",
+          "queriesTried": [
+            "Public Bank"
+          ],
+          "cardFound": true,
           "ok": true,
           "visible": true,
-          "hasError": false
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "1295 · バルサ・マレーシア"
         },
         {
           "code": "5347",
           "label": "Tenaga",
-          "ok": false,
-          "visible": false,
-          "hasError": false
+          "query": "Tenaga",
+          "queriesTried": [
+            "Tenaga"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "5347 · バルサ・マレーシア"
         },
         {
           "code": "4707",
           "label": "Nestle",
-          "ok": false,
-          "visible": false,
-          "hasError": false
+          "query": "Nestle",
+          "queriesTried": [
+            "Nestle"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "Nestle"
         },
         {
           "code": "6033",
           "label": "Petronas Gas",
+          "query": "Petronas Gas",
+          "queriesTried": [
+            "Petronas Gas"
+          ],
+          "cardFound": true,
           "ok": true,
           "visible": true,
-          "hasError": false
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "Petronas Gas"
         }
       ],
-      "allOk": false,
-      "at": "2026-06-10T02:53:03.191Z"
+      "allOk": true,
+      "at": "2026-06-16T01:25:25.311Z"
+    },
+    {
+      "hour": 1,
+      "rows": [
+        {
+          "code": "1155",
+          "label": "Maybank",
+          "query": "Malayan Banking",
+          "queriesTried": [
+            "Maybank",
+            "Malayan Banking"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "1155 · バルサ・マレーシア"
+        },
+        {
+          "code": "1023",
+          "label": "CIMB",
+          "query": "CIMB",
+          "queriesTried": [
+            "CIMB"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "1023 · バルサ・マレーシア"
+        },
+        {
+          "code": "1295",
+          "label": "Public Bank",
+          "query": "Public Bank",
+          "queriesTried": [
+            "Public Bank"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "1295 · バルサ・マレーシア"
+        },
+        {
+          "code": "5347",
+          "label": "Tenaga",
+          "query": "Tenaga",
+          "queriesTried": [
+            "Tenaga"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "5347 · バルサ・マレーシア"
+        },
+        {
+          "code": "4707",
+          "label": "Nestle",
+          "query": "Nestle",
+          "queriesTried": [
+            "Nestle"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "Nestle"
+        },
+        {
+          "code": "6033",
+          "label": "Petronas Gas",
+          "query": "Petronas Gas",
+          "queriesTried": [
+            "Petronas Gas"
+          ],
+          "cardFound": true,
+          "ok": true,
+          "visible": true,
+          "hasError": false,
+          "foreground": "com.assistant.stocktrading",
+          "deviceAttempt": 0,
+          "tapLabel": "Petronas Gas"
+        }
+      ],
+      "allOk": true,
+      "at": "2026-06-16T02:22:43.278Z"
     }
   ],
   "crashes": {
@@ -151,5 +499,260 @@
   "anrCount": 0,
   "logcatBaselineSize": 0,
   "pidLostEvents": 0,
-  "updatedAt": "2026-06-10T03:12:00.000Z"
+  "pidChangedEvents": 0,
+  "baselineAppPid": "27511",
+  "logcatScanOffset": 512499427,
+  "metroDownAt": null,
+  "metroPid": null,
+  "lastMetroCheck": null,
+  "metroCheckDetails": null,
+  "bundleErrorAt": null,
+  "bundleMatchingLine": null,
+  "bundleSourceFile": null,
+  "watchDeadAt": null,
+  "previousPid": null,
+  "currentPid": null,
+  "detectorErrors": [],
+  "runnerStartedMs": 1781572312520,
+  "logFinalizationWarnings": [],
+  "logcatSnapshotPaths": [
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260616-102245.log",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260616-102245.txt"
+  ],
+  "uiDumpWarnings": [],
+  "uiDumpPaths": [
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-091200.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-091208.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-091212.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-材料分析-20260616-091215.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-open-20260616-091228.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091230.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091237.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091244.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091250.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091257.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-0-wait-20260616-091305.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-091310.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-091314.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-091324.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-091327.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-091332.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q0-20260616-091336.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q0-20260616-091341.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q0-0-20260616-091344.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q0-20260616-091347.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q0-20260616-091406.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q1-20260616-091410.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q1-20260616-091415.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q1-0-20260616-091418.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q1-20260616-091421.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q1-20260616-091439.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091444.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091449.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091455.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091500.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091506.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091511.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091519.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091524.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091529.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091534.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091539.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091544.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-fail-1155-20260616-091553.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-091607.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-091610.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-091619.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-091622.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-091627.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q0-20260616-091631.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q0-20260616-091635.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q0-0-20260616-091639.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q0-20260616-091642.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q0-20260616-091700.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q1-20260616-091704.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q1-20260616-091709.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q1-0-20260616-091712.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q1-20260616-091715.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q1-20260616-091733.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091738.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091743.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091748.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091753.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091758.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091803.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091811.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-091820.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-091828.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-091832.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-091841.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-091844.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-091849.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1023-q0-20260616-091854.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1023-q0-20260616-091859.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1023-q0-0-20260616-091903.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1023-q0-20260616-091906.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1023-q0-20260616-091925.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1023-20260616-091929.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1023-20260616-091938.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-091947.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-091950.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-092000.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-092003.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-092008.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1295-q0-20260616-092012.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1295-q0-20260616-092017.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1295-q0-0-20260616-092021.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1295-q0-20260616-092024.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1295-q0-20260616-092042.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1295-20260616-092047.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1295-20260616-092055.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-092104.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-092107.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-092116.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-092120.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-092125.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-5347-q0-20260616-092129.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-5347-q0-20260616-092134.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-5347-q0-0-20260616-092137.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-5347-q0-20260616-092140.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-5347-q0-20260616-092158.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-5347-20260616-092202.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-5347-20260616-092211.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-092219.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-092223.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-092232.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-092236.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-092241.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-4707-q0-20260616-092245.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-4707-q0-20260616-092250.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-4707-q0-0-20260616-092253.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-4707-q0-20260616-092256.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-4707-q0-20260616-092314.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-4707-20260616-092317.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-092327.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-092330.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-092340.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-092344.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-092349.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-6033-q0-20260616-092353.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-6033-q0-20260616-092358.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-6033-q0-0-20260616-092403.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-6033-q0-20260616-092405.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-6033-q0-20260616-092423.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092427.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092433.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092440.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092447.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092455.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092504.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092513.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-092521.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-092529.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-保有銘柄-20260616-092533.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m0-before-20260616-092546.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m0-after-20260616-092619.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-094141.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-保有銘柄-20260616-094149.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m15-before-20260616-094205.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m15-scroll-20260616-094208.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m15-after-20260616-094245.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-095805.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-保有銘柄-20260616-095811.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m30-before-20260616-095824.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-price-h0-m30-after-20260616-095857.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-101314.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-ensure-0-20260616-101327.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-材料分析-20260616-101334.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-1-open-20260616-101348.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-mat-hour-1-wait-20260616-101400.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-101405.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-101408.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-101417.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-101421.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-101425.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q0-20260616-101430.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q0-20260616-101434.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q0-0-20260616-101437.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q0-20260616-101440.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q0-20260616-101458.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1155-q1-20260616-101502.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1155-q1-20260616-101507.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1155-q1-0-20260616-101510.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1155-q1-20260616-101512.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1155-q1-20260616-101530.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-101535.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1155-20260616-101541.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-101550.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-101554.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-101603.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-101606.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-101611.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1023-q0-20260616-101615.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1023-q0-20260616-101620.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1023-q0-0-20260616-101624.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1023-q0-20260616-101626.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1023-q0-20260616-101644.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1023-20260616-101648.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1023-20260616-101657.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-101705.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-101708.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-101718.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-101722.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-101728.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-1295-q0-20260616-101732.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-1295-q0-20260616-101737.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-1295-q0-0-20260616-101741.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-1295-q0-20260616-101744.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-1295-q0-20260616-101802.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1295-20260616-101807.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-1295-20260616-101816.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-101825.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-101828.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-101838.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-101841.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-101846.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-5347-q0-20260616-101850.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-5347-q0-20260616-101856.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-5347-q0-0-20260616-101859.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-5347-q0-20260616-101903.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-5347-q0-20260616-101921.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-5347-20260616-101926.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-5347-20260616-101935.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-101943.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-101947.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-101956.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-102000.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-102005.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-4707-q0-20260616-102009.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-4707-q0-20260616-102014.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-4707-q0-0-20260616-102017.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-4707-q0-20260616-102020.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-4707-q0-20260616-102038.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-4707-20260616-102042.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-open-0-20260616-102051.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-tab-pre-銘柄検索-20260616-102054.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-screener-post-tab-0-20260616-102103.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-open-20260616-102107.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-open-20260616-102112.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-pre-6033-q0-20260616-102116.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-screener-bursa-pre-6033-q0-20260616-102121.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-dismiss-search-6033-q0-0-20260616-102124.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-pre-6033-q0-20260616-102127.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-search-6033-q0-20260616-102145.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102149.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102158.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102207.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102216.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102224.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102231.xml",
+    "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\ui-dump-detail-6033-20260616-102239.xml"
+  ],
+  "stopReason": null,
+  "runtimeMode": "apk",
+  "bundleWarnCount": 0,
+  "checkpointWriteWarnings": [],
+  "checkpointBackupPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\checkpoint.json.bak",
+  "apiKeyDialogAppearedCount": 0,
+  "updatedAt": "2026-06-16T02:22:50.148Z"
 }

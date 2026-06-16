@@ -1,0 +1,52 @@
+# HyperOS v10 1h logcat summary (20260616-102304)
+heartbeat: 67
+survival_events: 4
+sta_survival_native: 0
+survival_enabled: 2
+survival_status: 2
+price_update: 24
+news_fetch: 30
+FATAL: 0
+ANR: 0
+
+--- sample monitor lines (sanitized, last 40) ---
+06-15 15:59:01.735 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3330,
+06-15 15:59:06.826 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 15:59:06.826 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-15T07:58:52.800Z',
+06-15 15:59:06.830 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-15 15:59:06.831 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3330,
+06-15 15:59:06.846 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 15:59:06.847 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-15T07:58:52.800Z',
+06-15 15:59:07.201 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-15 15:59:07.202 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3330,
+06-15 15:59:09.086 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 15:59:09.086 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-15T07:58:52.800Z',
+06-15 16:02:14.027 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-15 16:02:14.028 11556 11634 W ReactNativeJS: '[12H-MONITOR] WARNING', 'OSスリープまたはプロセス停止を検出', { gapMs: 186826, estimatedSleepMinutes: 3 }
+06-15 16:02:14.029 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3333,
+06-15 16:02:14.075 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 16:02:14.076 11556 11634 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-15T07:58:52.800Z',
+06-15 16:09:16.352 19526 19565 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 16:09:16.363 19526 19565 I ReactNativeJS: '[12H-MONITOR]', 'test_started', { targetHours: 12,
+06-15 16:09:16.364 19526 19565 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3340,
+06-15 16:09:16.366 19526 19565 I ReactNativeJS: '[12H-MONITOR]', 'survival_enabled', { screenAwake: false,
+06-15 16:09:16.366 19526 19565 I ReactNativeJS: '[12H-MONITOR]', 'survival_status', { wakeLockHeld: false, foregroundServiceRunning: false }
+06-15 16:22:08.166 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'active', background: false }
+06-15 16:22:08.241 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'test_started', { targetHours: 12,
+06-15 16:22:08.243 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3353,
+06-15 16:22:08.257 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'survival_enabled', { screenAwake: false,
+06-15 16:22:08.257 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'survival_status', { wakeLockHeld: false, foregroundServiceRunning: false }
+06-15 16:22:10.419 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-15 16:22:10.419 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-15T07:58:52.800Z',
+06-15 16:46:19.078 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-15 16:46:19.082 20263 20300 W ReactNativeJS: '[12H-MONITOR] WARNING', 'OSスリープまたはプロセス停止を検出', { gapMs: 1450837, estimatedSleepMinutes: 24 }
+06-15 16:46:19.083 20263 20300 W ReactNativeJS: '[12H-MONITOR] WARNING', 'price更新が47分間停止', { kind: 'price',
+06-15 16:46:19.084 20263 20300 W ReactNativeJS: '[12H-MONITOR] WARNING', 'news更新が48分間停止', { kind: 'news',
+06-15 16:46:19.084 20263 20300 W ReactNativeJS: '[12H-MONITOR] WARNING', 'ai更新が48分間停止', { kind: 'ai',
+06-15 16:46:19.085 20263 20300 W ReactNativeJS: '[12H-MONITOR] WARNING', '全更新が47分間停止', { stallMs: 2846278, lastAny: '2026-06-15T07:58:52.800Z' }
+06-15 16:46:19.087 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3377,
+06-15 16:46:19.135 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 3377,
+06-15 16:46:23.063 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'price_update', { at: '2026-06-15T08:46:23.063Z',
+06-15 16:46:50.793 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'ai_response', { at: '2026-06-15T08:46:50.792Z',
+06-15 16:47:27.107 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-15T08:47:27.105Z',
+06-15 16:47:31.257 20263 20300 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-15T08:47:31.255Z',

@@ -6,10 +6,10 @@
   "hours": 1,
   "startedAt": "2026-06-16T01:11:38.065Z",
   "startMyt": "2026-06-16 09:11:38 MYT",
-  "endMyt": null,
-  "endedAt": null,
+  "endMyt": "2026-06-16 10:23:04 MYT",
+  "endedAt": "2026-06-16T02:23:04.669Z",
   "baselinePid": "27511",
-  "finalPid": null,
+  "finalPid": "27511",
   "pidLostEvents": 0,
   "lastPid": "27511",
   "survivalEnabledSeen": true,
@@ -129,14 +129,47 @@
       "note": ""
     }
   ],
-  "finalHeartbeatCount": 0,
-  "finalSurvivalStatusCount": 0,
-  "finalPriceCount": 0,
-  "finalNewsCount": 0,
+  "finalHeartbeatCount": 67,
+  "finalSurvivalStatusCount": 4,
+  "finalPriceCount": 24,
+  "finalNewsCount": 30,
   "screenOffEnforcedCount": 2,
-  "phase12_5ExitCode": null,
+  "phase12_5ExitCode": 0,
   "notes": [
     "APK reinstall skipped (versionCode=15, apk=preview-v11.apk)",
     "versionCode=15 (expected 11)"
-  ]
+  ],
+  "finalStaSurvivalNative": 0,
+  "metrics": {
+    "fatal": 0,
+    "anr": 0,
+    "rnTypeError": 0,
+    "undefined": 0
+  },
+  "eval_": {
+    "overall": true,
+    "pidOk": "27511",
+    "hbOk": true,
+    "priceOk": true,
+    "newsOk": true,
+    "fgsOk": true,
+    "wlOk": true,
+    "crashOk": true,
+    "screenOk": true,
+    "expectedHb": 10
+  },
+  "fin": {
+    "ok": true,
+    "path": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260616-102254.log",
+    "snapshotPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260616-102254.txt",
+    "warning": null,
+    "source": "live-copy+adb-dump",
+    "metrics": {
+      "fatal": 0,
+      "anr": 0,
+      "rnTypeError": 0,
+      "undefined": 0
+    }
+  },
+  "summaryPath": "docs\\review\\hyperos-screen-off-survival\\logcat-summary-3h-20260616-091138.txt"
 }
