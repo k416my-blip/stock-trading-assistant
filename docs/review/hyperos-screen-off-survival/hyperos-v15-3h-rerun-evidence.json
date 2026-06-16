@@ -1,0 +1,147 @@
+{
+  "runId": "20260616-143009",
+  "commitAtStart": "274ef10ac270ea6534404207c3cd0cd3daf5303d",
+  "rerun": true,
+  "orchestratorFixCommit": "6dc5e63",
+  "versionCode": 15,
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "hours": 3,
+  "startedAt": "2026-06-16T06:30:09.329Z",
+  "startMyt": "2026-06-16 14:30:09 MYT",
+  "endMyt": null,
+  "endedAt": null,
+  "baselinePid": "2506",
+  "finalPid": null,
+  "pidLostEvents": 0,
+  "lastPid": "2506",
+  "survivalEnabledSeen": true,
+  "polls": [
+    {
+      "at": "2026-06-16T06:45:33.005Z",
+      "elapsedMin": 15,
+      "pid": "2506",
+      "heartbeatDelta": -2,
+      "heartbeatTotal": 1,
+      "priceDelta": 0,
+      "priceTotal": 1,
+      "newsDelta": 2,
+      "newsTotal": 2,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{1893606 u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=348784263 (909011 ms ago)\r\n  mLastGlobalWakeTimeRealtime=464716779 (in 115023505 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-16T07:00:34.932Z",
+      "elapsedMin": 30,
+      "pid": "2506",
+      "heartbeatDelta": 1,
+      "heartbeatTotal": 2,
+      "priceDelta": -1,
+      "priceTotal": 0,
+      "newsDelta": -2,
+      "newsTotal": 0,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{1893606 u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Dozing\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x41\r\n  mLastWakeTime=348784263 (1810946 ms ago)\r\n  mLastGlobalWakeTimeRealtime=464716779 (in 114121570 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWa",
+      "wakefulness": "Dozing"
+    },
+    {
+      "at": "2026-06-16T07:15:43.001Z",
+      "elapsedMin": 45,
+      "pid": "2506",
+      "heartbeatDelta": 4,
+      "heartbeatTotal": 6,
+      "priceDelta": 2,
+      "priceTotal": 2,
+      "newsDelta": 2,
+      "newsTotal": 2,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{1893606 u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=351255893 (247371 ms ago)\r\n  mLastGlobalWakeTimeRealtime=467188500 (in 115685235 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-16T07:30:46.876Z",
+      "elapsedMin": 60,
+      "pid": "2506",
+      "heartbeatDelta": -3,
+      "heartbeatTotal": 3,
+      "priceDelta": 0,
+      "priceTotal": 2,
+      "newsDelta": 0,
+      "newsTotal": 2,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{1893606 u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=352230103 (177044 ms ago)\r\n  mLastGlobalWakeTimeRealtime=468162835 (in 115755688 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "30min",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "label": "1h",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "dumpsysPaths": [
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-143009-15m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-143009-30m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-143009-45m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-143009-60m-services.txt"
+  ],
+  "pidTimeline": [
+    {
+      "at": "2026-06-16T06:45:33.005Z",
+      "elapsedMin": 15,
+      "pid": "2506",
+      "note": ""
+    },
+    {
+      "at": "2026-06-16T07:00:34.932Z",
+      "elapsedMin": 30,
+      "pid": "2506",
+      "note": ""
+    },
+    {
+      "at": "2026-06-16T07:15:43.001Z",
+      "elapsedMin": 45,
+      "pid": "2506",
+      "note": ""
+    },
+    {
+      "at": "2026-06-16T07:30:46.876Z",
+      "elapsedMin": 60,
+      "pid": "2506",
+      "note": ""
+    }
+  ],
+  "finalHeartbeatCount": 0,
+  "finalSurvivalStatusCount": 0,
+  "finalPriceCount": 0,
+  "finalNewsCount": 0,
+  "screenOffEnforcedCount": 3,
+  "phase12_5ExitCode": null,
+  "notes": [
+    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
+  ],
+  "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260616-143009.log",
+  "pollPeakHeartbeat": 6,
+  "pollPeakPrice": 2,
+  "pollPeakNews": 2
+}
