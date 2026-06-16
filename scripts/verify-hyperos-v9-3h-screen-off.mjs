@@ -19,6 +19,7 @@ import {
   parseFgsEvidence,
   parseWakeLockEvidence,
   buildPidTimeline,
+  readLogcatMetricsFromFile,
 } from './lib/hyperos-monitor-metrics.mjs';
 import { writeJsonAtomicSync } from './lib/hyperos-evidence-io.mjs';
 import {
@@ -202,8 +203,11 @@ function startLogcatCapture(runId) {
 function readRunLogcat(ev) {
   const rel = ev.runLiveLogPath;
   const p = rel ? path.join(ROOT, rel) : runLiveLogPathFor(ev.runId);
-  if (fs.existsSync(p) && fs.statSync(p).size > 0) {
-    return fs.readFileSync(p, 'utf8');
+  if (fs.existsSync(p) && readCaptureBytes(p) > 0) {
+    const m = readLogcatMetricsFromFile(p);
+    if (m.raw) return m.raw;
+    ev._streamMetrics = m;
+    return logcatDump();
   }
   return logcatDump();
 }
@@ -220,9 +224,31 @@ function stopLogcatCapture() {
 function readMetricsLogcat(ev) {
   const p = ev?.runLiveLogPath ? path.join(ROOT, ev.runLiveLogPath) : null;
   if (p && fs.existsSync(p) && readCaptureBytes(p) > 0) {
-    return fs.readFileSync(p, 'utf8');
+    const m = readLogcatMetricsFromFile(p);
+    if (m.raw) {
+      delete ev._streamMetrics;
+      return m.raw;
+    }
+    ev._streamMetrics = m;
+    return logcatDump();
   }
+  delete ev._streamMetrics;
   return logcatDump();
+}
+
+function countsFromRawOrStream(ev, raw) {
+  if (ev._streamMetrics) {
+    return {
+      hb: ev._streamMetrics.heartbeat,
+      pr: ev._streamMetrics.price,
+      nw: ev._streamMetrics.news,
+    };
+  }
+  return {
+    hb: countHeartbeat(raw),
+    pr: countPriceUpdate(raw),
+    nw: countNewsFetch(raw),
+  };
 }
 
 async function launchCold() {
@@ -429,13 +455,21 @@ async function finalizeRun(ev, phaseChild) {
   const liveRaw = readRunLogcat(ev);
   const fin = finalizeLogcatSnapshot({ rootDir: ROOT, adbDumpText: logcatDump() });
   const metrics = parseLogcatMetrics(liveRaw);
-  const sanitized = sanitizeLogcat(liveRaw);
   const summaryPath = path.join(OUT_DIR, `logcat-summary-${HOURS}h-${ev.runId}.txt`);
-  ev.finalHeartbeatCount = countHeartbeat(sanitized);
-  ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
-  ev.finalPriceCount = countPriceUpdate(sanitized);
-  ev.finalNewsCount = countNewsFetch(sanitized);
-  ev.finalStaSurvivalNative = countStaSurvivalNative(sanitized);
+  if (ev._streamMetrics) {
+    ev.finalHeartbeatCount = ev._streamMetrics.heartbeat;
+    ev.finalSurvivalStatusCount = ev._streamMetrics.survival;
+    ev.finalPriceCount = ev._streamMetrics.price;
+    ev.finalNewsCount = ev._streamMetrics.news;
+    ev.finalStaSurvivalNative = 0;
+  } else {
+    const sanitized = sanitizeLogcat(liveRaw);
+    ev.finalHeartbeatCount = countHeartbeat(sanitized);
+    ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
+    ev.finalPriceCount = countPriceUpdate(sanitized);
+    ev.finalNewsCount = countNewsFetch(sanitized);
+    ev.finalStaSurvivalNative = countStaSurvivalNative(sanitized);
+  }
   ev.finalPid = pidof();
   ev.endedAt = new Date().toISOString();
   ev.endMyt = myt();
@@ -444,7 +478,20 @@ async function finalizeRun(ev, phaseChild) {
     return fs.existsSync(p) ? fs.statSync(p).size : 0;
   })();
 
-  const summaryText = buildLogcatSummary(sanitized, metrics);
+  const summaryText = ev._streamMetrics
+    ? [
+        `# HyperOS ${STAGE} logcat summary (${ts()}) [streamed]`,
+        `bytes: ${ev.runLiveLogBytes ?? 0}`,
+        `12H-MONITOR lines: ${ev._streamMetrics.monitorLines}`,
+        `heartbeat: ${ev.finalHeartbeatCount}`,
+        `survival_events: ${ev.finalSurvivalStatusCount}`,
+        `survival_health_ok: ${ev._streamMetrics.survivalOk}`,
+        `price_update: ${ev.finalPriceCount}`,
+        `news_fetch: ${ev.finalNewsCount}`,
+        `FATAL: ${metrics.fatal}`,
+        `ANR: ${metrics.anr}`,
+      ].join('\n')
+    : buildLogcatSummary(sanitizeLogcat(liveRaw), metrics);
   fs.writeFileSync(summaryPath, summaryText);
 
   let checkpointSummary = 'n/a';
@@ -827,9 +874,9 @@ async function main() {
   const durationMs = HOURS * 3600 * 1000;
   const endAt = Date.now() + durationMs;
   let metricsRaw = readMetricsLogcat(ev);
-  let hbBase = countHeartbeat(metricsRaw);
-  let priceBase = countPriceUpdate(metricsRaw);
-  let newsBase = countNewsFetch(metricsRaw);
+  let hbBase = countsFromRawOrStream(ev, metricsRaw).hb;
+  let priceBase = countsFromRawOrStream(ev, metricsRaw).pr;
+  let newsBase = countsFromRawOrStream(ev, metricsRaw).nw;
   const checkpointLabels =
     HOURS >= 12
       ? Array.from({ length: 12 }, (_, i) => ({ atMin: (i + 1) * 60, label: `${i + 1}h` }))
@@ -859,9 +906,7 @@ async function main() {
     } else if (pid) ev.lastPid = pid;
 
     const raw = readMetricsLogcat(ev);
-    const hb = countHeartbeat(raw);
-    const pr = countPriceUpdate(raw);
-    const nw = countNewsFetch(raw);
+    const { hb, pr, nw } = countsFromRawOrStream(ev, raw);
     const fgs = fgsSnippet();
     const wl = parseWakeLockEvidence(wakelockSnippet(), raw);
     const dumpsysPath = saveDumpsysEvidence(`${elapsedMin}m`, ev);

@@ -1,0 +1,8 @@
+# HyperOS 12h logcat summary (recovered 20260616-210645)
+bytes: 574520013
+12H-MONITOR: 520
+heartbeat: 88
+price_update: 45
+news_fetch: 62
+survival_health_ok: 70
+streamed: true

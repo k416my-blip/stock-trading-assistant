@@ -8,10 +8,10 @@
   "hours": 12,
   "startedAt": "2026-06-16T13:06:45.825Z",
   "startMyt": "2026-06-16 21:06:45 MYT",
-  "endMyt": "2026-06-17 09:07:00 MYT",
-  "endedAt": null,
+  "endMyt": "17/06/2026, 02:57:16 MYT",
+  "endedAt": "2026-06-16T18:57:16.242Z",
   "baselinePid": "11698",
-  "finalPid": null,
+  "finalPid": "11698",
   "pidLostEvents": 0,
   "lastPid": "11698",
   "survivalEnabledSeen": true,
@@ -533,17 +533,23 @@
       "note": ""
     }
   ],
-  "finalHeartbeatCount": 0,
-  "finalSurvivalStatusCount": 0,
-  "finalPriceCount": 0,
-  "finalNewsCount": 0,
+  "finalHeartbeatCount": 88,
+  "finalSurvivalStatusCount": 82,
+  "finalPriceCount": 45,
+  "finalNewsCount": 62,
   "screenOffEnforcedCount": 18,
   "phase12_5ExitCode": null,
   "notes": [
-    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
+    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)",
+    "ERR_STRING_TOO_LONG at ~5h — orchestrator readMetricsLogcat; recovered via streamed finalize"
   ],
   "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260616-210645.log",
   "pollPeakHeartbeat": 77,
   "pollPeakPrice": 40,
-  "pollPeakNews": 55
+  "pollPeakNews": 55,
+  "runLiveLogBytes": 574520013,
+  "finalizeRan": true,
+  "interrupted": true,
+  "interruptReason": "ERR_STRING_TOO_LONG at ~5h — orchestrator readMetricsLogcat; recovered via streamed finalize",
+  "summaryPath": "docs/review/hyperos-screen-off-survival/logcat-summary-12h-20260616-210645.txt"
 }
