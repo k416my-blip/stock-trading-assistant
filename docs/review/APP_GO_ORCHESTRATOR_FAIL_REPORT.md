@@ -227,7 +227,12 @@ isForeground=true foregroundId=9001
 
 ## 7. GitHub sync
 
-_(updated after commit/push of this report + fixes)_
+| Commit | Content | Push |
+|--------|---------|------|
+| `e18a8eb` | Original 3h NO-GO report + recovery finalize | OK |
+| **`6dc5e63`** | **This report + orchestrator fixes** | **OK** → `cursor/top3-maxdd-capital-audit` |
+
+3h **再試験**は `6dc5e63` 適用後に開始（別 runId）。
 
 ---
 
