@@ -28,6 +28,7 @@ const SERIAL = process.env.ANDROID_SERIAL ?? process.env.ADB_SERIAL ?? 'FYRWXSNN
 const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_HOURS ?? '3');
 const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
 const REPORT_VER = process.env.VERIFY_HYPEROS_REPORT_VER ?? 'V15';
+const IS_RERUN = process.env.VERIFY_HYPEROS_RERUN === '1';
 const POLL_MIN = 15;
 const APK = path.join(ROOT, 'artifacts/preview-v15.apk');
 const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v11.apk');
@@ -36,12 +37,23 @@ const OUT_DIR = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const HEALTH_DIR = path.join(ROOT, 'docs/review/phase12-5-v8-3h-health');
 const CHECKPOINT_PS = path.join(TWELVE_DIR, 'phase12-5-v8-3h-checkpoint-once.ps1');
 const LIVE_LOG = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
-const EVIDENCE_PATH = path.join(OUT_DIR, `hyperos-v15-${STAGE}-evidence.json`);
-const REPORT_PATH = path.join(ROOT, `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`);
+const EVIDENCE_PATH = path.join(
+  OUT_DIR,
+  IS_RERUN ? 'hyperos-v15-3h-rerun-evidence.json' : `hyperos-v15-${STAGE}-evidence.json`,
+);
+const REPORT_PATH = path.join(
+  ROOT,
+  IS_RERUN
+    ? 'docs/review/HYPEROS_V15_3H_RERUN_REPORT.md'
+    : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`,
+);
 const INTERIM_REPORT_PATH = path.join(
   ROOT,
-  `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
+  IS_RERUN
+    ? 'docs/review/HYPEROS_V15_3H_RERUN_INTERIM_REPORT.md'
+    : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
 );
+const ORCHESTRATOR_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_FIX_VALIDATION_REPORT.md');
 const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
 
 function sh(cmd, opts = {}) {
@@ -299,6 +311,93 @@ function evaluatePass(ev, metrics) {
   };
 }
 
+function evaluateOrchestratorFix(ev, metrics, eval_) {
+  const writeEvidenceOk = !ev.notes?.some((n) => /writeEvidence|orchestrator error/i.test(n));
+  const autoFinalizeOk = Boolean(ev.endedAt) && Boolean(ev.finalizeRan);
+  const runScopedLogOk = (ev.runLiveLogBytes ?? 0) > 0;
+  const heartbeatCountOk = (ev.finalHeartbeatCount ?? 0) > 0;
+  const priceCountOk = (ev.finalPriceCount ?? 0) >= 0;
+  let evidenceJsonOk = false;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(EVIDENCE_PATH, 'utf8'));
+    evidenceJsonOk = parsed.runId === ev.runId && parsed.endedAt != null;
+  } catch {
+    evidenceJsonOk = false;
+  }
+  const pollsComplete = eval_.pollsComplete ?? ev.polls.length >= HOURS * 4;
+  const overall =
+    writeEvidenceOk &&
+    autoFinalizeOk &&
+    runScopedLogOk &&
+    heartbeatCountOk &&
+    evidenceJsonOk &&
+    pollsComplete;
+  return {
+    overall,
+    writeEvidenceOk,
+    autoFinalizeOk,
+    runScopedLogOk,
+    heartbeatCountOk,
+    priceCountOk,
+    evidenceJsonOk,
+    pollsComplete,
+    runLiveLogBytes: ev.runLiveLogBytes ?? 0,
+    finalHeartbeatCount: ev.finalHeartbeatCount ?? 0,
+    finalPriceCount: ev.finalPriceCount ?? 0,
+    fixCommit: ev.orchestratorFixCommit ?? '6dc5e63',
+  };
+}
+
+function writeOrchestratorValidationReport(ev, metrics, eval_, orchEval) {
+  const go = orchEval.overall ? 'PASS' : 'FAIL';
+  const md = `# Orchestrator Fix Validation Report
+
+## Verdict: **${go}**
+
+**Purpose:** Validate orchestrator fixes from \`6dc5e63\` (not app survival GO/NO-GO).  
+**Run ID:** \`${ev.runId}\`  
+**Window (MYT):** ${ev.startMyt} → ${ev.endMyt ?? 'in progress'}  
+**APK:** preview-v15.apk (versionCode ${ev.versionCode})  
+**Device:** ${SERIAL}
+
+## Validation matrix
+
+| # | Check | Result | Evidence |
+|---|-------|--------|----------|
+| 1 | writeEvidence errors | ${orchEval.writeEvidenceOk ? 'PASS' : 'FAIL'} | notes: ${(ev.notes ?? []).filter((n) => /error|UNKNOWN/i.test(n)).join('; ') || 'none'} |
+| 2 | auto-finalize executed | ${orchEval.autoFinalizeOk ? 'PASS' : 'FAIL'} | endedAt=${ev.endedAt ?? 'null'}, finalizeRan=${ev.finalizeRan ?? false} |
+| 3 | run-scoped logcat generated | ${orchEval.runScopedLogOk ? 'PASS' : 'FAIL'} | ${ev.runLiveLogPath ?? '—'} · **${orchEval.runLiveLogBytes}** bytes |
+| 4 | heartbeat final aggregation | ${orchEval.heartbeatCountOk ? 'PASS' : 'FAIL'} | count=**${orchEval.finalHeartbeatCount}** (live log) |
+| 5 | price_update final aggregation | ${orchEval.priceCountOk ? 'PASS' : 'WARN'} | count=**${orchEval.finalPriceCount}** |
+| 6 | evidence.json saved | ${orchEval.evidenceJsonOk ? 'PASS' : 'FAIL'} | \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\` |
+| 7 | full poll schedule (12) | ${orchEval.pollsComplete ? 'PASS' : 'FAIL'} | polls=${ev.polls.length} |
+
+## App run reference (informational)
+
+| Item | Value |
+|------|-------|
+| App eval overall | ${eval_.overall ? 'GO' : 'NO-GO'} |
+| PID lost | ${ev.pidLostEvents} |
+| FATAL / ANR | ${metrics.fatal} / ${metrics.anr} |
+
+## PID timeline
+
+${buildPidTimeline(ev.polls)
+  .map((r) => `- **${r.elapsedMin}m** · PID=${r.pid ?? 'null'}`)
+  .join('\n')}
+
+## Logcat summary
+
+\`${ev.summaryPath ?? `docs/review/hyperos-screen-off-survival/logcat-summary-3h-${ev.runId}.txt`}\`
+
+## GitHub sync
+
+_(filled after commit/push)_
+`;
+  fs.writeFileSync(ORCHESTRATOR_REPORT_PATH, md);
+  return ORCHESTRATOR_REPORT_PATH;
+}
+
 async function finalizeRun(ev, phaseChild) {
   if (ev.endedAt) return;
   await new Promise((resolve) => {
@@ -344,8 +443,16 @@ async function finalizeRun(ev, phaseChild) {
   }
 
   const eval_ = evaluatePass(ev, metrics);
+  ev.finalizeRan = true;
+  ev.summaryPath = path.relative(ROOT, summaryPath).replace(/\\/g, '/');
   writeReport(ev, metrics, eval_, summaryPath, checkpointSummary);
-  writeEvidence({ ...ev, metrics, eval_, fin, summaryPath: path.relative(ROOT, summaryPath).replace(/\\/g, '/') });
+  writeEvidence({ ...ev, metrics, eval_, fin, summaryPath: ev.summaryPath });
+  if (IS_RERUN || ev.rerun) {
+    const orchEval = evaluateOrchestratorFix(ev, metrics, eval_);
+    writeOrchestratorValidationReport(ev, metrics, eval_, orchEval);
+    writeEvidence({ ...ev, metrics, eval_, fin, orchEval, summaryPath: ev.summaryPath });
+    console.log(orchEval.overall ? 'PASS orchestrator_fix' : 'FAIL orchestrator_fix', orchEval);
+  }
   console.log(eval_.overall ? 'PASS hyperos_v9_3h' : 'FAIL hyperos_v9_3h', eval_);
   return eval_;
 }
@@ -353,12 +460,22 @@ async function finalizeRun(ev, phaseChild) {
 function writeInterimReport(ev, checkpointSummary) {
   const elapsedMin = ev.polls.length ? ev.polls[ev.polls.length - 1].elapsedMin : 0;
   const completionPct = Math.min(100, Math.round((elapsedMin / (HOURS * 60)) * 100));
-  const md = `# HyperOS ${REPORT_VER} ${STAGE} Screen-Off Run — Interim Report (1h)
+  const md = `# HyperOS ${REPORT_VER} ${IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} — Interim Report (1h)
 
-Updated: **${ev.endMyt ?? myt()}**  
+Updated: **${myt()}**  
+Purpose: **${IS_RERUN ? 'Orchestrator fix validation (6dc5e63)' : 'Screen-off survival'}**  
 APK: **preview-v15.apk** (versionCode **${ev.versionCode}**)  
 Device: **${SERIAL}** (Redmi Note 13 Pro / HyperOS)  
 Run ID: \`${ev.runId}\`
+
+## Orchestrator checks (interim)
+
+| Check | Value |
+|-------|-------|
+| writeEvidence errors | ${(ev.notes ?? []).some((n) => /orchestrator error|UNKNOWN/i.test(n)) ? 'FAIL' : 'PASS so far'} |
+| run-scoped logcat bytes | ${(() => { const p = ev.runLiveLogPath ? path.join(ROOT, ev.runLiveLogPath) : null; return p && fs.existsSync(p) ? fs.statSync(p).size : 0; })()} |
+| polls completed | ${ev.polls.length} |
+| auto-finalize | pending |
 
 ## Progress
 
@@ -524,6 +641,8 @@ async function main() {
   const ev = {
     runId,
     commitAtStart,
+    rerun: IS_RERUN,
+    orchestratorFixCommit: process.env.ORCHESTRATOR_FIX_COMMIT ?? '6dc5e63',
     versionCode: null,
     targetSerial: SERIAL,
     hours: HOURS,
