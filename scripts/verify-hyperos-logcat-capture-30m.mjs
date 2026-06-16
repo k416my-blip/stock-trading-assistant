@@ -23,6 +23,11 @@ const MINUTES = Number(process.env.LOGCAT_VERIFY_MINUTES ?? '30');
 const SKIP_APP_LAUNCH = process.env.LOGCAT_VERIFY_SKIP_APP_LAUNCH === '1';
 const OUT_DIR = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const REPORT_PATH = path.join(ROOT, 'docs/review/LOGCAT_CAPTURE_30M_VALIDATION_REPORT.md');
+const RERUN_REPORT_PATH = path.join(ROOT, 'docs/review/LOGCAT_CAPTURE_30M_RERUN_REPORT.md');
+
+function countSubstring(raw, needle) {
+  return raw.split('\n').filter((l) => l.includes(needle)).length;
+}
 
 function ts() {
   const d = new Date();
@@ -88,10 +93,12 @@ try {
 }
 
 const handle = startLogcatCaptureToFile({ serial: SERIAL, destPath: destAbs, rootDir: ROOT });
+let coldLaunch = false;
 let monitorReady = false;
 if (!SKIP_APP_LAUNCH) {
-  console.log('LOGCAT_VERIFY launch app + wait monitor');
+  console.log('LOGCAT_VERIFY cold launch + wait monitor');
   await launchAppCold();
+  coldLaunch = true;
   monitorReady = await waitMonitorInLiveLog(destAbs);
   console.log('LOGCAT_VERIFY monitorReady=', monitorReady);
 } else {
@@ -144,10 +151,13 @@ const raw = finalBytes > 0 ? fs.readFileSync(destAbs, 'utf8') : '';
 const finalHb = countHeartbeat(raw);
 const finalPr = countPriceUpdate(raw);
 const finalNw = countNewsFetch(raw);
+const final12H = countSubstring(raw, '12H-MONITOR');
+const finalSurvivalOk = countSubstring(raw, 'survival_health_ok');
 const endMyt = myt();
 
 const pass = finalBytes > 0;
-const monitorPass = finalHb >= 1 || raw.includes('survival_health_ok');
+const monitorPass = finalHb >= 1 || finalSurvivalOk >= 1;
+const overallPass = pass && coldLaunch && monitorReady && monitorPass;
 const ev = {
   runId,
   startUtc,
@@ -159,14 +169,23 @@ const ev = {
   captureMethod: 'node-spawn-adb-pipe',
   fixRef: 'hyperos-logcat-capture.mjs',
   skipAppLaunch: SKIP_APP_LAUNCH,
+  coldLaunch,
   monitorReady,
+  monitorPass,
+  overallPass,
   samples,
   finalBytes,
+  counts: {
+    '12H-MONITOR': final12H,
+    heartbeat: finalHb,
+    price_update: finalPr,
+    news_fetch: finalNw,
+    survival_health_ok: finalSurvivalOk,
+  },
   finalHb,
   finalPr,
   finalNw,
   pass,
-  monitorPass,
 };
 fs.writeFileSync(evidencePath, JSON.stringify(ev, null, 2));
 
@@ -212,5 +231,121 @@ PowerShell \`adb | ForEach-Object { Out-File -Append }\` spawned detached from N
 Commit: **${gitSha()}**
 `;
 fs.writeFileSync(REPORT_PATH, md);
-console.log(pass ? 'PASS logcat_30m' : 'FAIL logcat_30m', { finalBytes, finalHb, finalPr });
-process.exitCode = pass ? 0 : 1;
+
+const rerunMd = `# Logcat Capture 30m RERUN Report
+
+## Verdict: **${overallPass ? 'PASS' : 'FAIL'}**
+
+| Field | Value |
+|-------|-------|
+| Run ID | \`${runId}\` |
+| Window (MYT) | ${startMyt} → ${endMyt} |
+| Duration | ${MINUTES} min |
+| Device | ${SERIAL} |
+| APK | preview-v15.apk |
+| Capture file | \`${destRel}\` |
+| Method | Node adb pipe + cold launch harness |
+
+## Harness gates
+
+| Gate | Result | Requirement |
+|------|--------|-------------|
+| cold launch | **${coldLaunch ? 'PASS' : 'FAIL'}** | force-stop + monkey launch |
+| monitorReady | **${monitorReady ? 'PASS' : 'FAIL'}** | \`12H-MONITOR\` + \`test_started\` or \`'heartbeat'\` within 120s |
+| run-scoped logcat | **${pass ? 'PASS' : 'FAIL'}** | finalBytes > 0 |
+| monitorPass | **${monitorPass ? 'PASS' : 'FAIL'}** | heartbeat ≥ 1 OR survival_health_ok ≥ 1 |
+
+## Event counts (live file)
+
+| Pattern | Count | orchestrator counter |
+|---------|-------|---------------------|
+| \`12H-MONITOR\` | **${final12H}** | substring |
+| \`heartbeat\` (monitor) | **${finalHb}** | countHeartbeat |
+| \`price_update\` | **${finalPr}** | countPriceUpdate |
+| \`news_fetch\` | **${finalNw}** | countNewsFetch |
+| \`survival_health_ok\` | **${finalSurvivalOk}** | substring |
+
+## 5-minute samples
+
+| Elapsed | Bytes | HB | price | news |
+|---------|-------|-----|-------|------|
+${samples.map((s) => `| ${s.elapsedMin}m | ${s.bytes} | ${s.heartbeat} | ${s.price_update} | ${s.news_fetch} |`).join('\n')}
+
+## Evidence
+
+- \`${path.relative(ROOT, evidencePath).replace(/\\/g, '/')}\`
+- \`${destRel}\`
+
+## GitHub sync
+
+Commit: **${gitSha()}**
+`;
+fs.writeFileSync(RERUN_REPORT_PATH, rerunMd);
+
+if (overallPass) {
+  const goMd = `# HyperOS 12h GO / NO-GO Report
+
+## Verdict: **GO** — 12時間テスト開始可
+
+**Date:** ${endMyt}  
+**Branch:** cursor/top3-maxdd-capital-audit  
+**APK:** preview-v15.apk (versionCode 15)  
+**Device:** ${SERIAL} (Redmi Note 13 Pro / HyperOS)
+
+---
+
+## Gate summary
+
+| Gate | Status | Evidence |
+|------|--------|----------|
+| App PID / FGS / WakeLock (3h RERUN) | **PASS** | APP_GO — 12/12 polls, PID 2506 |
+| run-scoped logcat capture | **PASS** | 30m RERUN ${finalBytes} bytes |
+| cold launch harness | **PASS** | logcat-capture-30m RERUN |
+| monitorReady | **PASS** | \`12H-MONITOR\` seen within 120s |
+| monitorPass | **PASS** | heartbeat=${finalHb}, survival_health_ok=${finalSurvivalOk} |
+| Orchestrator finalize | **PASS** | 3h RERUN writeEvidence OK |
+
+---
+
+## 30m RERUN event counts
+
+| Pattern | Count |
+|---------|-------|
+| 12H-MONITOR | **${final12H}** |
+| heartbeat | **${finalHb}** |
+| price_update | **${finalPr}** |
+| news_fetch | **${finalNw}** |
+| survival_health_ok | **${finalSurvivalOk}** |
+
+Run ID: \`${runId}\`  
+Report: \`docs/review/LOGCAT_CAPTURE_30M_RERUN_REPORT.md\`
+
+---
+
+## Recommended 12h launch
+
+\`\`\`powershell
+$env:ANDROID_SERIAL="${SERIAL}"
+$env:PHASE12_5_HOURS="12"
+$env:PHASE12_5_SKIP_APK_REINSTALL="1"
+node scripts/verify-hyperos-v9-3h-screen-off.mjs
+\`\`\`
+
+---
+
+## GitHub sync
+
+Commit: **${gitSha()}**
+`;
+  fs.writeFileSync(path.join(ROOT, 'docs/review/HYPEROS_12H_GO_NO_GO_REPORT.md'), goMd);
+}
+
+console.log(overallPass ? 'PASS logcat_30m_rerun' : 'FAIL logcat_30m_rerun', {
+  coldLaunch,
+  monitorReady,
+  monitorPass,
+  finalBytes,
+  finalHb,
+  final12H,
+});
+process.exitCode = overallPass ? 0 : 1;

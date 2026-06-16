@@ -1,0 +1,90 @@
+{
+  "runId": "20260616-202833",
+  "startUtc": "2026-06-16T12:28:33.656Z",
+  "startMyt": "16/06/2026, 20:28:33 MYT",
+  "endMyt": "16/06/2026, 20:58:42 MYT",
+  "minutes": 30,
+  "serial": "FYRWXSNNAIOR9DCM",
+  "destRel": "docs/review/hyperos-screen-off-survival/logcat-live-verify-20260616-202833.log",
+  "captureMethod": "node-spawn-adb-pipe",
+  "fixRef": "hyperos-logcat-capture.mjs",
+  "skipAppLaunch": false,
+  "coldLaunch": true,
+  "monitorReady": true,
+  "monitorPass": true,
+  "overallPass": true,
+  "samples": [
+    {
+      "at": "2026-06-16T12:28:41.103Z",
+      "elapsedMin": 0,
+      "bytes": 312807,
+      "heartbeat": 1,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    },
+    {
+      "at": "2026-06-16T12:33:41.203Z",
+      "elapsedMin": 5,
+      "bytes": 11564020,
+      "heartbeat": 2,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    },
+    {
+      "at": "2026-06-16T12:38:41.334Z",
+      "elapsedMin": 10,
+      "bytes": 13984211,
+      "heartbeat": 2,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    },
+    {
+      "at": "2026-06-16T12:43:41.469Z",
+      "elapsedMin": 15,
+      "bytes": 15659061,
+      "heartbeat": 2,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    },
+    {
+      "at": "2026-06-16T12:48:41.635Z",
+      "elapsedMin": 20,
+      "bytes": 17638453,
+      "heartbeat": 2,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    },
+    {
+      "at": "2026-06-16T12:53:41.818Z",
+      "elapsedMin": 25,
+      "bytes": 19784078,
+      "heartbeat": 2,
+      "price_update": 0,
+      "news_fetch": 0,
+      "capturePid": 48136,
+      "adbAlive": true
+    }
+  ],
+  "finalBytes": 21810141,
+  "counts": {
+    "12H-MONITOR": 13,
+    "heartbeat": 2,
+    "price_update": 0,
+    "news_fetch": 0,
+    "survival_health_ok": 0
+  },
+  "finalHb": 2,
+  "finalPr": 0,
+  "finalNw": 0,
+  "pass": true
+}
