@@ -154,9 +154,9 @@ Files:
 |--------|---------|
 | `af92401` | v15 Phase 1 PASS |
 | `3dbecc0` | v15 1h interim report |
-| _(this report)_ | pending push |
+| `5fcb529` | v15 1h screen-off GO final report |
 
-Push: pending this commit.
+Push: **success** — `cursor/top3-maxdd-capital-audit` @ `5fcb529`
 
 ---
 
