@@ -8,8 +8,8 @@
   "hours": 3,
   "startedAt": "2026-06-16T06:30:09.329Z",
   "startMyt": "2026-06-16 14:30:09 MYT",
-  "endMyt": "16/06/2026, 17:34:51 MYT",
-  "endedAt": "2026-06-16T09:34:51.394Z",
+  "endMyt": "2026-06-16 19:20:04 MYT",
+  "endedAt": "2026-06-16T11:20:04.757Z",
   "baselinePid": "2506",
   "finalPid": "2506",
   "pidLostEvents": 0,
@@ -335,26 +335,25 @@
       "note": ""
     }
   ],
-  "finalHeartbeatCount": 2,
-  "finalSurvivalStatusCount": 2,
-  "finalPriceCount": 1,
-  "finalNewsCount": 2,
+  "finalHeartbeatCount": 0,
+  "finalSurvivalStatusCount": 0,
+  "finalPriceCount": 0,
+  "finalNewsCount": 0,
   "screenOffEnforcedCount": 8,
   "phase12_5ExitCode": null,
   "notes": [
-    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)",
-    "RECOVERY: finalize-hyperos-v15-3h-rerun-from-evidence.mjs"
+    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
   ],
   "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260616-143009.log",
   "pollPeakHeartbeat": 6,
   "pollPeakPrice": 2,
   "pollPeakNews": 6,
   "finalStaSurvivalNative": 0,
-  "finalizeRan": true,
   "runLiveLogBytes": 0,
+  "finalizeRan": true,
   "summaryPath": "docs/review/hyperos-screen-off-survival/logcat-summary-3h-20260616-143009.txt",
   "metrics": {
-    "fatal": 0,
+    "fatal": 1,
     "anr": 0,
     "rnTypeError": 0,
     "undefined": 0
@@ -364,38 +363,39 @@
     "pidOk": "2506",
     "hbOk": false,
     "priceOk": false,
-    "newsOk": true,
+    "newsOk": false,
     "fgsOk": true,
     "wlOk": true,
-    "crashOk": true,
+    "crashOk": false,
+    "screenOk": true,
     "pollsComplete": true,
     "expectedHb": 34
+  },
+  "fin": {
+    "ok": true,
+    "path": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260616-192003.log",
+    "snapshotPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260616-192003.txt",
+    "warning": null,
+    "source": "live-copy+adb-dump",
+    "metrics": {
+      "fatal": 1,
+      "anr": 0,
+      "rnTypeError": 0,
+      "undefined": 0
+    }
   },
   "orchEval": {
     "overall": false,
     "writeEvidenceOk": true,
     "autoFinalizeOk": true,
     "runScopedLogOk": false,
-    "heartbeatCountOk": true,
+    "heartbeatCountOk": false,
     "priceCountOk": true,
-    "evidenceJsonOk": false,
+    "evidenceJsonOk": true,
     "pollsComplete": true,
     "runLiveLogBytes": 0,
-    "finalHeartbeatCount": 2,
-    "finalPriceCount": 1,
+    "finalHeartbeatCount": 0,
+    "finalPriceCount": 0,
     "fixCommit": "6dc5e63"
-  },
-  "fin": {
-    "ok": true,
-    "path": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260616-173450.log",
-    "snapshotPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260616-173450.txt",
-    "warning": null,
-    "source": "live-copy+adb-dump",
-    "metrics": {
-      "fatal": 0,
-      "anr": 0,
-      "rnTypeError": 0,
-      "undefined": 0
-    }
   }
 }

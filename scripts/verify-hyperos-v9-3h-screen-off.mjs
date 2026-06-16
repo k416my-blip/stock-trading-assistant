@@ -21,6 +21,11 @@ import {
   buildPidTimeline,
 } from './lib/hyperos-monitor-metrics.mjs';
 import { writeJsonAtomicSync } from './lib/hyperos-evidence-io.mjs';
+import {
+  startLogcatCaptureToFile,
+  stopLogcatCapture as stopLogcatCaptureHandle,
+  readCaptureBytes,
+} from './lib/hyperos-logcat-capture.mjs';
 
 const ROOT = process.cwd();
 const PKG = 'com.assistant.stocktrading';
@@ -174,21 +179,14 @@ function runLiveLogPathFor(runId) {
   return path.join(OUT_DIR, `logcat-live-${runId}.log`);
 }
 
+/** @type {ReturnType<typeof startLogcatCaptureToFile> | null} */
+let logcatCaptureHandle = null;
+
 function startLogcatCapture(runId) {
+  stopLogcatCapture();
   const runLog = runLiveLogPathFor(runId);
-  fs.writeFileSync(runLog, '', 'utf8');
-  const lp = runLog.replace(/\\/g, '/');
-  const child = spawn(
-    'powershell',
-    [
-      '-NoProfile',
-      '-Command',
-      `adb -s ${SERIAL} logcat -v threadtime 2>&1 | ForEach-Object { $_ | Out-File -FilePath '${lp}' -Append -Encoding utf8 }`,
-    ],
-    { detached: true, stdio: 'ignore', cwd: ROOT },
-  );
-  child.unref();
-  fs.writeFileSync(path.join(TWELVE_DIR, 'adb-logcat-live.pid'), String(child.pid));
+  logcatCaptureHandle = startLogcatCaptureToFile({ serial: SERIAL, destPath: runLog, rootDir: ROOT });
+  fs.writeFileSync(path.join(TWELVE_DIR, 'adb-logcat-live.pid'), String(logcatCaptureHandle.pid));
   return runLog;
 }
 
@@ -202,12 +200,20 @@ function readRunLogcat(ev) {
 }
 
 function stopLogcatCapture() {
-  const pidFile = path.join(TWELVE_DIR, 'adb-logcat-live.pid');
-  if (!fs.existsSync(pidFile)) return;
-  const pid = Number(fs.readFileSync(pidFile, 'utf8').trim());
-  if (pid) {
-    spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], { stdio: 'ignore' });
+  if (logcatCaptureHandle) {
+    stopLogcatCaptureHandle(logcatCaptureHandle);
+    logcatCaptureHandle = null;
   }
+  const pidFile = path.join(TWELVE_DIR, 'adb-logcat-live.pid');
+  if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile);
+}
+
+function readMetricsLogcat(ev) {
+  const p = ev?.runLiveLogPath ? path.join(ROOT, ev.runLiveLogPath) : null;
+  if (p && fs.existsSync(p) && readCaptureBytes(p) > 0) {
+    return fs.readFileSync(p, 'utf8');
+  }
+  return logcatDump();
 }
 
 async function launchCold() {
@@ -795,9 +801,10 @@ async function main() {
 
   const durationMs = HOURS * 3600 * 1000;
   const endAt = Date.now() + durationMs;
-  let hbBase = countHeartbeat(logcatDump());
-  let priceBase = countPriceUpdate(logcatDump());
-  let newsBase = countNewsFetch(logcatDump());
+  let metricsRaw = readMetricsLogcat(ev);
+  let hbBase = countHeartbeat(metricsRaw);
+  let priceBase = countPriceUpdate(metricsRaw);
+  let newsBase = countNewsFetch(metricsRaw);
   const checkpointLabels = [
     { atMin: 30, label: '30min' },
     { atMin: 60, label: '1h' },
@@ -823,7 +830,7 @@ async function main() {
       ev.lastPid = pid;
     } else if (pid) ev.lastPid = pid;
 
-    const raw = logcatDump();
+    const raw = readMetricsLogcat(ev);
     const hb = countHeartbeat(raw);
     const pr = countPriceUpdate(raw);
     const nw = countNewsFetch(raw);
