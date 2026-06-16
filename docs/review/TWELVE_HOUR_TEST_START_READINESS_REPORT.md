@@ -67,4 +67,5 @@ node scripts/verify-hyperos-v9-3h-screen-off.mjs
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: **fde568d**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)

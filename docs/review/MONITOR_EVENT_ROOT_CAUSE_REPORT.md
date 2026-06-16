@@ -196,9 +196,9 @@ node scripts/analyze-logcat-monitor-events.mjs docs/review/hyperos-screen-off-su
 
 | Item | Value |
 |------|-------|
-| Commit | _(filled after push)_ |
+| Commit | **fde568d** |
 | Branch | `cursor/top3-maxdd-capital-audit` |
-| Push | _(filled after push)_ |
+| Push | **success** → `origin/cursor/top3-maxdd-capital-audit` |
 
 ### Changed files (this report)
 
