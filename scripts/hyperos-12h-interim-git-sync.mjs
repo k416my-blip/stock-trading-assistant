@@ -1,6 +1,5 @@
 /**
- * Hourly git sync for HyperOS 12h run interim reports.
- * Usage: node scripts/hyperos-12h-interim-git-sync.mjs
+ * Hourly git sync for HyperOS 12h run interim reports (Windows-safe paths).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,9 +7,10 @@ import { execSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const ROOT = process.cwd();
-const INTERIM = path.join(ROOT, 'docs/review/HYPEROS_V15_12H_RUN_INTERIM_REPORT.md');
-const EVIDENCE = path.join(ROOT, 'docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json');
-const FINAL = path.join(ROOT, 'docs/review/HYPEROS_V15_12H_RUN_REPORT.md');
+const REVIEW = path.join(ROOT, 'docs/review');
+const SURVIVAL = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
+const INTERIM = path.join(REVIEW, 'HYPEROS_V15_12H_RUN_INTERIM_REPORT.md');
+const FINAL = path.join(REVIEW, 'HYPEROS_V15_12H_RUN_REPORT.md');
 
 function sh(cmd) {
   return execSync(cmd, { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
@@ -25,10 +25,40 @@ function lastCommitAgeMs() {
   }
 }
 
+function collect12hPaths() {
+  const paths = [];
+  for (const f of fs.readdirSync(REVIEW)) {
+    if (f.startsWith('HYPEROS_V15_12H')) paths.push(path.join('docs/review', f));
+  }
+  if (fs.existsSync(path.join(SURVIVAL, 'hyperos-v15-12h-evidence.json'))) {
+    paths.push('docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json');
+  }
+  if (fs.existsSync(SURVIVAL)) {
+    for (const f of fs.readdirSync(SURVIVAL)) {
+      if (f.startsWith('logcat-summary-12h-') || f.startsWith('logcat-live-20260616-210645')) {
+        paths.push(path.join('docs/review/hyperos-screen-off-survival', f));
+      }
+    }
+  }
+  return paths;
+}
+
 async function maybeCommit(label) {
-  const status = sh('git status --porcelain docs/review/HYPEROS_V15_12H docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json docs/review/hyperos-screen-off-survival/logcat-summary-12h docs/review/hyperos-screen-off-survival/dumpsys-evidence docs/review/hyperos-screen-off-survival/logcat-live docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json 2>nul || git status --porcelain');
-  if (!status.trim()) return;
-  sh('git add docs/review/HYPEROS_V15_12H*.md docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json docs/review/hyperos-screen-off-survival/logcat-summary-12h*.txt docs/review/hyperos-screen-off-survival/dumpsys-evidence docs/review/hyperos-screen-off-survival/logcat-live*.log 2>nul; git add docs/review/HYPEROS_V15_12H_RUN_INTERIM_REPORT.md docs/review/HYPEROS_V15_12H_RUN_INTERIM_*_REPORT.md docs/review/hyperos-screen-off-survival/hyperos-v15-12h-evidence.json');
+  const paths = collect12hPaths();
+  const status = sh('git status --porcelain').trim();
+  const relevant = status
+    .split('\n')
+    .filter((l) => l.includes('HYPEROS_V15_12H') || l.includes('hyperos-v15-12h'));
+  if (!relevant.length) return;
+  for (const p of paths) {
+    if (fs.existsSync(path.join(ROOT, p))) {
+      try {
+        sh(`git add "${p.replace(/\\/g, '/')}"`);
+      } catch {
+        /* ignore per-file */
+      }
+    }
+  }
   try {
     sh(`git commit -m "docs: HyperOS 12h interim sync (${label})."`);
     sh('git push origin HEAD');
@@ -45,7 +75,9 @@ while (!fs.existsSync(FINAL)) {
   if (fs.existsSync(FINAL)) break;
   const mtime = Math.max(
     fs.existsSync(INTERIM) ? fs.statSync(INTERIM).mtimeMs : 0,
-    fs.existsSync(EVIDENCE) ? fs.statSync(EVIDENCE).mtimeMs : 0,
+    fs.existsSync(path.join(SURVIVAL, 'hyperos-v15-12h-evidence.json'))
+      ? fs.statSync(path.join(SURVIVAL, 'hyperos-v15-12h-evidence.json')).mtimeMs
+      : 0,
   );
   if (mtime > lastMtime && lastCommitAgeMs() > 50 * 60 * 1000) {
     lastMtime = mtime;
