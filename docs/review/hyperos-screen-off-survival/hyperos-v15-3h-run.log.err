@@ -5,3 +5,17 @@
 [p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
 [p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
 [p12.5] WARN foreground=com.android.camera expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=com.android.camera expected=com.assistant.stocktrading (ensureAppForeground)
+Error: UNKNOWN: unknown error, open 'C:\Users\k416m\Documents\Projects\stock-trading-assistant\docs\review\hyperos-screen-off-survival\hyperos-v15-3h-evidence.json'
+    at Object.writeFileSync (node:fs:2414:20)
+    at writeEvidence (file:///C:/Users/k416m/Documents/Projects/stock-trading-assistant/scripts/verify-hyperos-v9-3h-screen-off.mjs:217:6)
+    at main (file:///C:/Users/k416m/Documents/Projects/stock-trading-assistant/scripts/verify-hyperos-v9-3h-screen-off.mjs:660:5) {
+  errno: -4094,
+  code: 'UNKNOWN',
+  syscall: 'open',
+  path: 'C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\hyperos-screen-off-survival\\hyperos-v15-3h-evidence.json'
+}

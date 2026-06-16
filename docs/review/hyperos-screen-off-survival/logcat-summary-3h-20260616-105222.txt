@@ -1,0 +1,11 @@
+runId=20260616-105222
+FATAL: 0
+ANR: 0
+
+--- sample monitor lines (sanitized, last 40) ---
+06-16 13:46:31.338 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T05:46:31.338Z',
+06-16 13:47:09.380 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T05:47:09.379Z',
+06-16 13:48:28.557 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:51:28.557 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:54:28.559 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:57:28.566 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
