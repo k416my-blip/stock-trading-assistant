@@ -1,0 +1,25 @@
+runId=20260616-143009
+FATAL: 0
+ANR: 0
+heartbeat: 2
+price_update: 1
+news_fetch: 2
+runLiveLogBytes: 0
+pollPeakHeartbeat: 6
+
+--- sample monitor lines (last 30) ---
+06-16 17:29:00.174  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 17:31:17.748  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-16 17:31:17.748  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-16T09:23:41.362Z',
+06-16 17:31:21.560  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-16 17:31:21.560  2506  2681 W ReactNativeJS: '[12H-MONITOR] WARNING', 'OSスリープまたはプロセス停止を検出', { gapMs: 501040, estimatedSleepMinutes: 8 }
+06-16 17:31:21.560  2506  2681 W ReactNativeJS: '[12H-MONITOR] WARNING', 'ai更新が180分間停止', { kind: 'ai',
+06-16 17:31:21.560  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 4862,
+06-16 17:31:22.134  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'active', to: 'background', background: true }
+06-16 17:31:22.134  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'background_continue_enabled', { price: '2026-06-16T09:23:41.362Z',
+06-16 17:31:22.134  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'app_state', { from: 'background', to: 'active', background: false }
+06-16 17:31:22.135  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'heartbeat', { elapsedMin: 4862,
+06-16 17:31:25.446  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'price_update', { at: '2026-06-16T09:31:25.446Z',
+06-16 17:32:00.272  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 17:32:20.876  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T09:32:20.875Z',
+06-16 17:33:01.430  2506  2681 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T09:33:01.429Z',
