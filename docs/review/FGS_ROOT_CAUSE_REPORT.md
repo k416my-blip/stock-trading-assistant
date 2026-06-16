@@ -12,7 +12,8 @@
 |------|------|
 | **Primary root cause** | `sta-native-runtime` Android モジュールが **APK にコンパイルされていない** |
 | **Build failure trigger (v10)** | `modules/sta-native-runtime/android/build.gradle` の **UTF-8 BOM** → Gradle `Unexpected character: '?'` |
-| **Build failure trigger (v11+)** | **Legacy `ExpoModulesCorePlugin.gradle` build.gradle** — Expo SDK 54 は `expo-module-gradle-plugin` 必須。`compileSdk` 未設定のため Gradle autolinking が **サイレントスキップ**（EAS ログ "Using expo modules" に `sta-native-runtime` 不在） |
+| **Build failure trigger (v11+)** | **Legacy `ExpoModulesCorePlugin.gradle` build.gradle** — Expo SDK 54 requires `expo-module-gradle-plugin` (`compileSdk` missing → Gradle silent skip) |
+| **EAS upload trigger (v12–v13)** | **`.easignore` pattern `android/`** excluded **all** `android/` dirs, including `modules/sta-native-runtime/android/` — module uploaded without native sources |
 | **Manifest gap** | `LongRunForegroundService` が **merged APK manifest に未登録** |
 | **Runtime symptom** | `getSurvivalStatus()` → `{ wakeLockHeld: false, foregroundServiceRunning: false }` |
 | **検出 vs 実態** | dumpsys FAIL は正しい · orchestrator 以前の v9/v10 PASS 系 WakeLock は **heuristic 誤検知** |
@@ -256,6 +257,26 @@ BOM 除去後は当該 parse error は解消（以降は expo prebuild 環境依
 | 4 | versionCode **13** | `app.json` |
 
 ### v13 EAS verification
+
+**Phase 1 gate: FAIL** — `nativeModulesDir` alone did not enable Gradle inclusion.
+
+| Check | v13 result |
+|-------|------------|
+| EAS preview build | `3ab521b4-6886-43b5-8d40-4f5db5a9f157`, versionCode **13**, commit **7f261f8** |
+| EAS Gradle "Using expo modules" | **FAIL** — `sta-native-runtime` still absent |
+| dex | **FAIL** (0 hits) |
+
+### v14 fix (.easignore root cause — confirmed by failed build `6d53d014`)
+
+| # | Change | File |
+|---|--------|------|
+| 1 | Change `android/` → `/android/` (root-only) so module native sources upload | `.easignore` |
+| 2 | Remove postinstall copy workaround (v14 proved `modules/sta-native-runtime` existed but `android/` stripped) | `package.json` |
+| 3 | versionCode **14** (retry) | `app.json` |
+
+EAS log proof (build `6d53d014`): `[sync-sta-native-runtime] android/build.gradle missing after copy` — parent dir present, `android/` absent from tarball.
+
+### v14 EAS verification (retry after .easignore fix)
 
 _(filled after build completes)_
 

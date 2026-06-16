@@ -1,6 +1,7 @@
 # Local native trees — EAS uses app.json + prebuild (managed workflow)
-android/
-ios/
+# Root-only: bare `android/` would also exclude modules/sta-native-runtime/android/
+/android/
+/ios/
 
 # Dev / audit artifacts (not needed in cloud build)
 .expo/
