@@ -27,9 +27,10 @@ function ts() {
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const runId = ts();
+  adb('logcat -c');
   adb(`shell am force-stop ${PKG}`);
   adb(`shell monkey -p ${PKG} -c android.intent.category.LAUNCHER 1`);
-  await sleep(12_000);
+  await sleep(Number(process.env.FGS_EVIDENCE_WAIT_MS ?? 30_000));
 
   const files = {
     logcat: `${runId}-logcat.txt`,

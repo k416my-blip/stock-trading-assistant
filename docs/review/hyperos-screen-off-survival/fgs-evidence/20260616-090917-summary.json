@@ -1,0 +1,12 @@
+{
+  "runId": "20260616-090917",
+  "serial": "FYRWXSNNAIOR9DCM",
+  "files": {
+    "logcat": "20260616-090917-logcat.txt",
+    "services": "20260616-090917-dumpsys-services.txt",
+    "notifications": "20260616-090917-dumpsys-notification.txt",
+    "power": "20260616-090917-dumpsys-power.txt",
+    "package": "20260616-090917-dumpsys-package.txt"
+  },
+  "outDir": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\hyperos-screen-off-survival\\fgs-evidence"
+}

@@ -23,7 +23,7 @@ type NativeSurvivalModule = {
   getSurvivalStatus?: () => Promise<LongRunSurvivalStatus>;
 };
 
-function resolveNativeSta(): NativeSurvivalModule | undefined {
+function getNativeSta(): NativeSurvivalModule | undefined {
   if (Platform.OS !== 'android') return undefined;
   try {
     return requireNativeModule<NativeSurvivalModule>('StaNativeRuntime');
@@ -31,8 +31,6 @@ function resolveNativeSta(): NativeSurvivalModule | undefined {
     return NativeModules.StaNativeRuntime as NativeSurvivalModule | undefined;
   }
 }
-
-const NativeSta: NativeSurvivalModule | undefined = resolveNativeSta();
 
 let enabled = false;
 let screenAwakeMode = false;
@@ -45,11 +43,12 @@ export function isLongRunSurvivalEnabled(): boolean {
 }
 
 export async function getLongRunSurvivalStatus(): Promise<LongRunSurvivalStatus> {
-  if (!NativeSta?.getSurvivalStatus) {
+  const native = getNativeSta();
+  if (!native?.getSurvivalStatus) {
     return { wakeLockHeld: false, foregroundServiceRunning: false };
   }
   try {
-    return await NativeSta.getSurvivalStatus();
+    return await native.getSurvivalStatus();
   } catch {
     return { wakeLockHeld: false, foregroundServiceRunning: false };
   }
@@ -69,8 +68,10 @@ async function ensureNotificationPermission(): Promise<void> {
 
 async function applySurvivalStack(): Promise<LongRunSurvivalStatus> {
   await ensureNotificationPermission();
-  await NativeSta?.acquirePartialWakeLock?.('sta-long-run');
-  await NativeSta?.startLongRunForegroundService?.(notificationTitle, notificationBody);
+  const native = getNativeSta();
+  await native?.acquirePartialWakeLock?.('sta-long-run');
+  await native?.startLongRunForegroundService?.(notificationTitle, notificationBody);
+  await new Promise((resolve) => setTimeout(resolve, 400));
   if (screenAwakeMode) {
     await activateKeepAwakeAsync(KEEP_AWAKE_TAG);
   }
@@ -152,8 +153,9 @@ export async function disableLongRunSurvival(): Promise<void> {
   }
 
   try {
-    await NativeSta?.stopLongRunForegroundService?.();
-    await NativeSta?.releasePartialWakeLock?.();
+    const native = getNativeSta();
+    await native?.stopLongRunForegroundService?.();
+    await native?.releasePartialWakeLock?.();
   } catch {
     /* optional */
   }
