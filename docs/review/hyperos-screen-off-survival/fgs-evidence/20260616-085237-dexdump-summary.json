@@ -1,0 +1,37 @@
+{
+  "runId": "20260616-085237",
+  "apk": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\artifacts\\preview-v14.apk",
+  "apkBytes": 80780322,
+  "patterns": [
+    "StaNativeRuntimeModule",
+    "StaNativeRuntime",
+    "LongRunForegroundService",
+    "stanativeruntime"
+  ],
+  "hits": {
+    "classes.dex": {
+      "StaNativeRuntimeModule": 0,
+      "StaNativeRuntime": 0,
+      "LongRunForegroundService": 0,
+      "stanativeruntime": 0
+    },
+    "classes2.dex": {
+      "StaNativeRuntimeModule": 222,
+      "StaNativeRuntime": 484,
+      "LongRunForegroundService": 35,
+      "stanativeruntime": 484
+    },
+    "classes3.dex": {
+      "StaNativeRuntimeModule": 0,
+      "StaNativeRuntime": 0,
+      "LongRunForegroundService": 0,
+      "stanativeruntime": 0
+    }
+  },
+  "dumpFiles": [
+    "docs\\review\\hyperos-screen-off-survival\\fgs-evidence\\20260616-085237-dexdump-classes.dex.txt",
+    "docs\\review\\hyperos-screen-off-survival\\fgs-evidence\\20260616-085237-dexdump-classes2.dex.txt",
+    "docs\\review\\hyperos-screen-off-survival\\fgs-evidence\\20260616-085237-dexdump-classes3.dex.txt"
+  ],
+  "passNativeDex": true
+}

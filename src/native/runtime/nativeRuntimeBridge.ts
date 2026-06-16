@@ -2,6 +2,7 @@
  * Native Runtime Metrics Bridge — Android native module with Expo managed fallback.
  */
 import { AppState, NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import { requireNativeModule } from 'expo-modules-core';
 import {
   MIUI_RECLAIM_BURST_THRESHOLD,
   NATIVE_BRIDGE_VERSION,
@@ -34,10 +35,16 @@ type NativeModuleShape = {
   removeListeners?: (count: number) => void;
 };
 
-const NativeSta: NativeModuleShape | undefined =
-  Platform.OS === 'android'
-    ? (NativeModules.StaNativeRuntime as NativeModuleShape | undefined)
-    : undefined;
+function resolveNativeSta(): NativeModuleShape | undefined {
+  if (Platform.OS !== 'android') return undefined;
+  try {
+    return requireNativeModule<NativeModuleShape>('StaNativeRuntime');
+  } catch {
+    return NativeModules.StaNativeRuntime as NativeModuleShape | undefined;
+  }
+}
+
+const NativeSta: NativeModuleShape | undefined = resolveNativeSta();
 
 let trimBurstCount = 0;
 let lastTrimAt = 0;
@@ -250,8 +257,8 @@ export function initNativeRuntimeBridge(): void {
   if (initialized) return;
   initialized = true;
 
-  if (NativeSta && NativeModules.StaNativeRuntime) {
-    const emitter = new NativeEventEmitter(NativeModules.StaNativeRuntime);
+  if (NativeSta) {
+    const emitter = new NativeEventEmitter(NativeModules.StaNativeRuntime ?? NativeSta);
     eventSub = emitter.addListener('onTrimMemory', (payload: { level?: number }) => {
       noteNativeTrimMemory(payload?.level ?? 10);
     });

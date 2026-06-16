@@ -3,6 +3,7 @@
  * Screen keep-awake via expo-keep-awake is opt-in only (default off).
  */
 import { Platform, NativeModules, PermissionsAndroid } from 'react-native';
+import { requireNativeModule } from 'expo-modules-core';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { TWELVE_HOUR_LOG_TAG } from '../constants/twelveHourTestMonitor';
 
@@ -22,10 +23,16 @@ type NativeSurvivalModule = {
   getSurvivalStatus?: () => Promise<LongRunSurvivalStatus>;
 };
 
-const NativeSta: NativeSurvivalModule | undefined =
-  Platform.OS === 'android'
-    ? (NativeModules.StaNativeRuntime as NativeSurvivalModule | undefined)
-    : undefined;
+function resolveNativeSta(): NativeSurvivalModule | undefined {
+  if (Platform.OS !== 'android') return undefined;
+  try {
+    return requireNativeModule<NativeSurvivalModule>('StaNativeRuntime');
+  } catch {
+    return NativeModules.StaNativeRuntime as NativeSurvivalModule | undefined;
+  }
+}
+
+const NativeSta: NativeSurvivalModule | undefined = resolveNativeSta();
 
 let enabled = false;
 let screenAwakeMode = false;
