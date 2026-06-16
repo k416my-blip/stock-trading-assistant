@@ -302,6 +302,23 @@ EAS log proof (build `6d53d014`): `[sync-sta-native-runtime] android/build.gradl
 
 Commit: `1bd12b1` — pending EAS v15 Phase 1 re-run.
 
+### v15 EAS verification (runtime bridge fix)
+
+**Phase 1 gate: PASS** — dex + FGS runtime confirmed on device.
+
+| Check | v15 result |
+|-------|------------|
+| EAS preview build | `e4491fe1-7b66-4dbc-9085-2e5e97c2bf53`, versionCode **15**, commit **c3916f8** |
+| APK | `artifacts/preview-v15.apk` (80,780,430 bytes) |
+| dex: native classes | **PASS** — 222/484/35 hits in `classes2.dex` (`20260616-090705-dexdump-summary.json`) |
+| EAS Gradle `sta-native-runtime` | **PASS** (inherited from v14 `.easignore` + gradle-plugin fixes) |
+| logcat `STA-SURVIVAL` | **PASS** — `wakeLock acquired`, `onCreate`, `startForeground OK notificationId=9001` |
+| logcat `survival_enabled` | **PASS** — `wakeLockHeld: true` (FGS momentarily false before `startForeground OK`) |
+| dumpsys `LongRunForegroundService` | **PASS** — `isForeground=true`, `types=0x00000001` (dataSync), `startForegroundCount=1` |
+| Device serial | `FYRWXSNNAIOR9DCM` |
+
+**1h screen-off test:** eligible to start (Phase 1 gate PASS); not started in this pass.
+
 ### GitHub (dex + bridge fixes)
 
 | Commit | Message |
@@ -311,4 +328,5 @@ Commit: `1bd12b1` — pending EAS v15 Phase 1 re-run.
 | `9c61806` | fix(eas): root-anchor .easignore so sta-native-runtime/android uploads |
 | `941a730` | fix(v14): restore postinstall sync and trim EAS archive for sta-native-runtime |
 | `1bd12b1` | docs(hyperos): v14 FGS Phase 1 dex PASS runtime FAIL report and requireNativeModule fix |
+| `c3916f8` | docs(hyperos): complete v14 dex PASS section and point evidence script at v15 APK |
 

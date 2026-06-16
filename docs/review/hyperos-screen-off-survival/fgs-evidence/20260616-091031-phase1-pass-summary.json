@@ -1,0 +1,29 @@
+{
+  "runId": "20260616-091031",
+  "apk": "artifacts/preview-v15.apk",
+  "easBuildId": "e4491fe1-7b66-4dbc-9085-2e5e97c2bf53",
+  "versionCode": 15,
+  "commit": "c3916f8",
+  "device": "FYRWXSNNAIOR9DCM",
+  "phase1Gate": "PASS",
+  "dex": {
+    "passNativeDex": true,
+    "summaryRunId": "20260616-090705",
+    "classes2Hits": {
+      "StaNativeRuntimeModule": 222,
+      "StaNativeRuntime": 484,
+      "LongRunForegroundService": 35
+    }
+  },
+  "runtime": {
+    "staSurvivalLogcat": [
+      "wakeLock acquired tag=sta-long-run held=true",
+      "startForegroundService requested",
+      "onCreate",
+      "startForeground OK notificationId=9001"
+    ],
+    "survivalEnabled": { "wakeLockHeld": true, "foregroundServiceRunning": false },
+    "dumpsysService": "LongRunForegroundService isForeground=true types=0x00000001 startForegroundCount=1"
+  },
+  "oneHourTest": "not_started"
+}
