@@ -3,7 +3,7 @@
 Updated: 2026-06-16  
 Branch: `cursor/top3-maxdd-capital-audit`  
 Build commit (EAS): `941a73022a6baa6fdf01b9e3254ea3b58c8687f3`  
-Report commit: _(see git log after this file is committed)_
+Report commit: `1bd12b1a8bca4fba8810283dd098a4b9420f5db2`
 
 ## Verdict: **Phase 1 NO-GO** (1/3 gate criteria)
 
