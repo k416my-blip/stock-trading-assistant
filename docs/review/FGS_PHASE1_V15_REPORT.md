@@ -122,9 +122,9 @@ Committed for next build; **not required** for Phase 1 PASS (runtime FGS proven 
 |--------|---------|
 | `1bd12b1` | requireNativeModule bridge fix |
 | `c3916f8` | v14 dex PASS docs + v15 APK path |
-| _(this report)_ | pending push |
+| `af92401` | docs(hyperos): v15 Phase 1 PASS report and FGS evidence collection hardening |
 
-Push: pending this commit.
+Push: **success** — `cursor/top3-maxdd-capital-audit` @ `af92401`
 
 ---
 
