@@ -1,0 +1,7 @@
+(node:43356) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=com.android.camera expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=unknown expected=com.assistant.stocktrading (ensureAppForeground)
+[p12.5] WARN foreground=com.android.camera expected=com.assistant.stocktrading (ensureAppForeground)
