@@ -278,5 +278,37 @@ EAS log proof (build `6d53d014`): `[sync-sta-native-runtime] android/build.gradl
 
 ### v14 EAS verification (retry after .easignore fix)
 
-_(filled after build completes)_
+**Dex gate: PASS** · **Runtime Phase 1: FAIL** — 1h test blocked.
+
+| Check | v14 result |
+|-------|------------|
+| EAS preview build | `53e919cf-87d5-44df-9b49-8c2d68918035` (also `d325b8fd` earlier pass), versionCode **14**, commit **941a730** |
+| EAS Gradle "Using expo modules" | **PASS** — `sta-native-runtime (1.0.0)` listed; `:sta-native-runtime:compileReleaseKotlin` runs |
+| dex: `stanativeruntime` / `LongRunForegroundService` / `StaNativeRuntime` | **PASS** — 266 hits in `classes2.dex` (see `20260616-085237-dexdump-summary.json`) |
+| aapt: `LongRunForegroundService` in manifest | **PASS** |
+| logcat `STA-SURVIVAL` / `startForeground OK` | **FAIL** (0 lines) |
+| logcat `[12H-MONITOR] survival_enabled` | present; `wakeLockHeld: false`, `foregroundServiceRunning: false` |
+| dumpsys `activity services com.assistant.stocktrading` | **FAIL** (`(nothing)`) |
+| Device serial | `FYRWXSNNAIOR9DCM` |
+
+**v14 runtime root cause:** Dex fixed, but JS used legacy `NativeModules.StaNativeRuntime` (empty under `newArchEnabled: true`). Expo Kotlin module requires `requireNativeModule('StaNativeRuntime')`. Optional-chains no-op'd; native Kotlin never invoked.
+
+### v15 fix (runtime bridge)
+
+| # | Change | File |
+|---|--------|------|
+| 1 | `requireNativeModule('StaNativeRuntime')` with `NativeModules` fallback | `src/services/longRunSurvival.ts`, `src/native/runtime/nativeRuntimeBridge.ts` |
+| 2 | versionCode **15** | `app.json` |
+
+Commit: `1bd12b1` — pending EAS v15 Phase 1 re-run.
+
+### GitHub (dex + bridge fixes)
+
+| Commit | Message |
+|--------|---------|
+| `9b8455b` | fix(android): migrate sta-native-runtime to expo-module-gradle-plugin for EAS dex inclusion |
+| `7f261f8` | fix(android): add nativeModulesDir autolinking for EAS sta-native-runtime |
+| `9c61806` | fix(eas): root-anchor .easignore so sta-native-runtime/android uploads |
+| `941a730` | fix(v14): restore postinstall sync and trim EAS archive for sta-native-runtime |
+| `1bd12b1` | docs(hyperos): v14 FGS Phase 1 dex PASS runtime FAIL report and requireNativeModule fix |
 
