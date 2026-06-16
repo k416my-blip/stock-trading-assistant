@@ -26,16 +26,21 @@ const PKG = 'com.assistant.stocktrading';
 const SERIAL = process.env.ANDROID_SERIAL ?? process.env.ADB_SERIAL ?? 'FYRWXSNNAIOR9DCM';
 const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_HOURS ?? '3');
 const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
+const REPORT_VER = process.env.VERIFY_HYPEROS_REPORT_VER ?? 'V15';
 const POLL_MIN = 15;
-const APK = path.join(ROOT, 'artifacts/preview-v11.apk');
-const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v10.apk');
+const APK = path.join(ROOT, 'artifacts/preview-v15.apk');
+const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v11.apk');
 const TWELVE_DIR = path.join(ROOT, 'docs/review/twelve-hour-test');
 const OUT_DIR = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const HEALTH_DIR = path.join(ROOT, 'docs/review/phase12-5-v8-3h-health');
 const CHECKPOINT_PS = path.join(TWELVE_DIR, 'phase12-5-v8-3h-checkpoint-once.ps1');
 const LIVE_LOG = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
-const EVIDENCE_PATH = path.join(OUT_DIR, `hyperos-v10-${STAGE}-evidence.json`);
-const REPORT_PATH = path.join(ROOT, `docs/review/HYPEROS_V10_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`);
+const EVIDENCE_PATH = path.join(OUT_DIR, `hyperos-v15-${STAGE}-evidence.json`);
+const REPORT_PATH = path.join(ROOT, `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`);
+const INTERIM_REPORT_PATH = path.join(
+  ROOT,
+  `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
+);
 const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
 
 function sh(cmd, opts = {}) {
@@ -276,10 +281,71 @@ function evaluatePass(ev, metrics) {
   };
 }
 
+function writeInterimReport(ev, checkpointSummary) {
+  const elapsedMin = ev.polls.length ? ev.polls[ev.polls.length - 1].elapsedMin : 0;
+  const completionPct = Math.min(100, Math.round((elapsedMin / (HOURS * 60)) * 100));
+  const md = `# HyperOS ${REPORT_VER} ${STAGE} Screen-Off Run — Interim Report (1h)
+
+Updated: **${ev.endMyt ?? myt()}**  
+APK: **preview-v15.apk** (versionCode **${ev.versionCode}**)  
+Device: **${SERIAL}** (Redmi Note 13 Pro / HyperOS)  
+Run ID: \`${ev.runId}\`
+
+## Progress
+
+| Item | Value |
+|------|-------|
+| Start (MYT) | ${ev.startMyt} |
+| Elapsed | ~${elapsedMin} min |
+| Completion | ~${completionPct}% |
+| Expected end (MYT) | ${ev.endMyt ?? 'TBD'} |
+
+## Metrics (interim)
+
+| # | Item | Value |
+|---|------|-------|
+| 1 | App PID | ${ev.lastPid ?? '—'} (baseline ${ev.baselinePid}) |
+| 2 | PID lost events | ${ev.pidLostEvents} |
+| 3 | Heartbeat (latest poll total) | ${ev.polls.at(-1)?.heartbeatTotal ?? '—'} |
+| 4 | Price (latest poll total) | ${ev.polls.at(-1)?.priceTotal ?? '—'} |
+| 5 | News (latest poll total) | ${ev.polls.at(-1)?.newsTotal ?? '—'} |
+| 6 | FGS (latest poll) | ${ev.polls.at(-1)?.fgsRunning ? 'true' : 'false'} |
+| 7 | WakeLock (latest poll) | ${ev.polls.at(-1)?.wakeLockHeld ? 'true' : 'false'} |
+
+## Poll timeline
+
+| Elapsed | PID | HB | price | news | FGS | WL | Wakefulness |
+|---------|-----|-----|-------|------|-----|-----|-------------|
+${ev.polls.map((p) => `| ${p.elapsedMin}m | ${p.pid ?? '—'} | ${p.heartbeatTotal} | ${p.priceTotal} | ${p.newsTotal} | ${p.fgsRunning ? 'Y' : 'N'} | ${p.wakeLockHeld ? 'Y' : 'N'} | ${p.wakefulness} |`).join('\n')}
+
+## PID timeline
+
+${buildPidTimeline(ev.polls)
+  .map((r) => `- **${r.elapsedMin}m** · PID=${r.pid ?? 'null'} · ${r.at ?? ''}`)
+  .join('\n')}
+
+## dumpsys evidence
+
+${(ev.dumpsysPaths ?? []).map((p) => `- \`${p}\``).join('\n') || '- pending'}
+
+## checkpoint.json
+
+${checkpointSummary}
+
+## Provisional verdict
+
+**TBD** — final at ${HOURS}h completion.
+
+Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
+`;
+  fs.writeFileSync(INTERIM_REPORT_PATH, md);
+  return INTERIM_REPORT_PATH;
+}
+
 function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
   const go = eval_.overall ? 'GO' : 'NO-GO';
   const sha = gitSha();
-  const md = `# HyperOS v10 ${STAGE} Screen-Off Run Report
+  const md = `# HyperOS ${REPORT_VER} ${STAGE} Screen-Off Run Report
 
 ## Executive summary: **${go}**
 
@@ -287,7 +353,7 @@ function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
 |-------|-------|
 | Stage | ${STAGE} |
 | Test window (MYT) | ${ev.startMyt} → ${ev.endMyt} |
-| APK | preview-v10.apk (versionCode ${ev.versionCode}) |
+| APK | preview-v15.apk (versionCode ${ev.versionCode}) |
 | Device | ${SERIAL} (Redmi Note 13 Pro HyperOS) |
 | Branch | cursor/top3-maxdd-capital-audit |
 | Commit | ${sha} |
@@ -425,6 +491,7 @@ async function main() {
   const apkPath = fs.existsSync(APK) ? APK : APK_FALLBACK;
   const skipApkReinstall =
     process.env.PHASE12_5_SKIP_APK_REINSTALL === '1' ||
+    (ev.versionCode === 15 && apkPath === APK) ||
     (ev.versionCode === 11 && apkPath === APK) ||
     (ev.versionCode === 10 && !fs.existsSync(APK));
   if (fs.existsSync(apkPath) && !skipApkReinstall) {
@@ -439,7 +506,9 @@ async function main() {
   } else if (skipApkReinstall) {
     ev.notes.push(`APK reinstall skipped (versionCode=${ev.versionCode}, apk=${path.basename(apkPath)})`);
   }
-  if (ev.versionCode !== 11 && ev.versionCode !== 10) ev.notes.push(`versionCode=${ev.versionCode} (expected 11)`);
+  if (ev.versionCode !== 15 && ev.versionCode !== 11 && ev.versionCode !== 10) {
+    ev.notes.push(`versionCode=${ev.versionCode} (expected 15)`);
+  }
 
   try {
     spawnSync('node', ['scripts/audit-hyperos-power-restrictions.mjs'], {
@@ -597,6 +666,20 @@ async function main() {
         const cp = runCheckpoint(ck.label);
         ev.checkpoints.push({ label: ck.label, ...cp });
         writeEvidence(ev);
+        if (ck.label === '1h' && HOURS >= 3) {
+          let checkpointSummary = 'n/a';
+          const cpPath = path.join(ROOT, 'docs/review/phase12-5-long-run/checkpoint.json');
+          if (fs.existsSync(cpPath)) {
+            try {
+              const cj = JSON.parse(fs.readFileSync(cpPath, 'utf8'));
+              checkpointSummary = `- priceRefreshRuns: ${cj.priceRefreshRuns?.length ?? 0}\n- pidLostEvents: ${cj.pidLostEvents ?? 0}\n- fatal: ${cj.crashes?.fatal ?? 0}\n- anr: ${cj.anrCount ?? 0}`;
+            } catch {
+              checkpointSummary = 'checkpoint.json parse failed';
+            }
+          }
+          const interimPath = writeInterimReport(ev, checkpointSummary);
+          console.log('INTERIM_REPORT', path.relative(ROOT, interimPath));
+        }
       }
     }
   }
