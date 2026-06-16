@@ -44,4 +44,4 @@
 
 ## GitHub sync
 
-Commit: **0127a74a47ba9af77416fb765703960d1a5d3b47**
+Commit: **`58ca9aa`** — push **OK** (`cursor/top3-maxdd-capital-audit`)

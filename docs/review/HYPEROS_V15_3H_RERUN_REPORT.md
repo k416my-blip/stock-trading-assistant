@@ -104,4 +104,6 @@
 
 ## GitHub sync
 
-_(filled after commit/push)_
+| Commit | Content | Push |
+|--------|---------|------|
+| `58ca9aa` | Final RERUN + ORCHESTRATOR_FIX_VALIDATION reports | **OK** → `cursor/top3-maxdd-capital-audit` |
