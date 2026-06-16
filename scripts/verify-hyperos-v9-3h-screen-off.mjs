@@ -20,6 +20,7 @@ import {
   parseWakeLockEvidence,
   buildPidTimeline,
 } from './lib/hyperos-monitor-metrics.mjs';
+import { writeJsonAtomicSync } from './lib/hyperos-evidence-io.mjs';
 
 const ROOT = process.cwd();
 const PKG = 'com.assistant.stocktrading';
@@ -157,8 +158,14 @@ function ensureDirs() {
   }
 }
 
-function startLogcatCapture() {
-  const lp = LIVE_LOG.replace(/\\/g, '/');
+function runLiveLogPathFor(runId) {
+  return path.join(OUT_DIR, `logcat-live-${runId}.log`);
+}
+
+function startLogcatCapture(runId) {
+  const runLog = runLiveLogPathFor(runId);
+  fs.writeFileSync(runLog, '', 'utf8');
+  const lp = runLog.replace(/\\/g, '/');
   const child = spawn(
     'powershell',
     [
@@ -170,7 +177,16 @@ function startLogcatCapture() {
   );
   child.unref();
   fs.writeFileSync(path.join(TWELVE_DIR, 'adb-logcat-live.pid'), String(child.pid));
-  return child.pid;
+  return runLog;
+}
+
+function readRunLogcat(ev) {
+  const rel = ev.runLiveLogPath;
+  const p = rel ? path.join(ROOT, rel) : runLiveLogPathFor(ev.runId);
+  if (fs.existsSync(p) && fs.statSync(p).size > 0) {
+    return fs.readFileSync(p, 'utf8');
+  }
+  return logcatDump();
 }
 
 function stopLogcatCapture() {
@@ -214,7 +230,7 @@ async function enforceScreenOff() {
 }
 
 function writeEvidence(ev) {
-  fs.writeFileSync(EVIDENCE_PATH, JSON.stringify(ev, null, 2));
+  writeJsonAtomicSync(EVIDENCE_PATH, ev);
 }
 
 function runCheckpoint(label) {
@@ -267,8 +283,9 @@ function evaluatePass(ev, metrics) {
   const wlOk = ev.polls.filter((p) => p.wakeLockHeld).length >= ev.polls.length * 0.7;
   const crashOk = metrics.fatal === 0 && metrics.anr === 0;
   const screenOk = ev.screenOffEnforcedCount >= ev.polls.length * 0.5 || ev.polls.every((p) => p.wakefulness !== 'Awake');
+  const pollsComplete = ev.polls.length >= HOURS * 4;
   return {
-    overall: pidOk && hbOk && priceOk && newsOk && fgsOk && wlOk && crashOk,
+    overall: pidOk && hbOk && priceOk && newsOk && fgsOk && wlOk && crashOk && pollsComplete,
     pidOk,
     hbOk,
     priceOk,
@@ -277,8 +294,60 @@ function evaluatePass(ev, metrics) {
     wlOk,
     crashOk,
     screenOk,
+    pollsComplete,
     expectedHb,
   };
+}
+
+async function finalizeRun(ev, phaseChild) {
+  if (ev.endedAt) return;
+  await new Promise((resolve) => {
+    if (!phaseChild || phaseChild.exitCode != null) return resolve();
+    phaseChild.on('exit', (code) => {
+      ev.phase12_5ExitCode = code;
+      resolve();
+    });
+    setTimeout(resolve, 30 * 60 * 1000);
+  });
+
+  stopLogcatCapture();
+  const liveRaw = readRunLogcat(ev);
+  const fin = finalizeLogcatSnapshot({ rootDir: ROOT, adbDumpText: logcatDump() });
+  const metrics = parseLogcatMetrics(liveRaw);
+  const sanitized = sanitizeLogcat(liveRaw);
+  const summaryPath = path.join(OUT_DIR, `logcat-summary-3h-${ev.runId}.txt`);
+  ev.finalHeartbeatCount = countHeartbeat(sanitized);
+  ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
+  ev.finalPriceCount = countPriceUpdate(sanitized);
+  ev.finalNewsCount = countNewsFetch(sanitized);
+  ev.finalStaSurvivalNative = countStaSurvivalNative(sanitized);
+  ev.finalPid = pidof();
+  ev.endedAt = new Date().toISOString();
+  ev.endMyt = myt();
+  ev.runLiveLogBytes = (() => {
+    const p = ev.runLiveLogPath ? path.join(ROOT, ev.runLiveLogPath) : runLiveLogPathFor(ev.runId);
+    return fs.existsSync(p) ? fs.statSync(p).size : 0;
+  })();
+
+  const summaryText = buildLogcatSummary(sanitized, metrics);
+  fs.writeFileSync(summaryPath, summaryText);
+
+  let checkpointSummary = 'n/a';
+  const cpPath = path.join(ROOT, 'docs/review/phase12-5-long-run/checkpoint.json');
+  if (fs.existsSync(cpPath)) {
+    try {
+      const cp = JSON.parse(fs.readFileSync(cpPath, 'utf8'));
+      checkpointSummary = `- priceRefreshRuns: ${cp.priceRefreshRuns?.length ?? 0}\n- pidLostEvents: ${cp.pidLostEvents ?? 0}\n- fatal: ${cp.crashes?.fatal ?? 0}\n- anr: ${cp.anrCount ?? 0}`;
+    } catch {
+      checkpointSummary = 'checkpoint.json parse failed';
+    }
+  }
+
+  const eval_ = evaluatePass(ev, metrics);
+  writeReport(ev, metrics, eval_, summaryPath, checkpointSummary);
+  writeEvidence({ ...ev, metrics, eval_, fin, summaryPath: path.relative(ROOT, summaryPath).replace(/\\/g, '/') });
+  console.log(eval_.overall ? 'PASS hyperos_v9_3h' : 'FAIL hyperos_v9_3h', eval_);
+  return eval_;
 }
 
 function writeInterimReport(ev, checkpointSummary) {
@@ -528,7 +597,8 @@ async function main() {
   }
 
   stopLogcatCapture();
-  startLogcatCapture();
+  const runLogAbs = startLogcatCapture(runId);
+  ev.runLiveLogPath = path.relative(ROOT, runLogAbs).replace(/\\/g, '/');
   const preRunWatch = spawn('node', ['scripts/phase12-5-pre-run-watch.mjs'], {
     cwd: ROOT,
     env: { ...process.env, ANDROID_SERIAL: SERIAL },
@@ -550,7 +620,7 @@ async function main() {
 
   const startUtc = new Date().toISOString();
   const expectedEnd = new Date(Date.now() + HOURS * 3600 * 1000).toISOString();
-  const logcatStartBytes = fs.existsSync(LIVE_LOG) ? fs.statSync(LIVE_LOG).size : 0;
+  const logcatStartBytes = 0;
   fs.writeFileSync(
     path.join(HEALTH_DIR, 'run-meta.json'),
     JSON.stringify(
@@ -562,13 +632,18 @@ async function main() {
         expectedEndMyt: myt(new Date(expectedEnd)),
         baselinePid: ev.baselinePid,
         logcatStartBytes,
+        runLiveLogPath: ev.runLiveLogPath,
       },
       null,
       2,
     ),
   );
 
-  const phaseChild = spawn('npm', ['run', 'verify:phase12-5'], {
+  let phaseChild;
+  let finalized = false;
+  let eval_ = { overall: false };
+  try {
+  phaseChild = spawn('npm', ['run', 'verify:phase12-5'], {
     cwd: ROOT,
     env: {
       ...process.env,
@@ -593,7 +668,9 @@ async function main() {
   const metaPath = path.join(HEALTH_DIR, 'run-meta.json');
   try {
     const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-    meta.logcatStartBytes = fs.existsSync(LIVE_LOG) ? fs.statSync(LIVE_LOG).size : 0;
+    const runLog = path.join(ROOT, ev.runLiveLogPath);
+    meta.logcatStartBytes = fs.existsSync(runLog) ? fs.statSync(runLog).size : 0;
+    meta.runLiveLogPath = ev.runLiveLogPath;
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
   } catch {}
 
@@ -653,6 +730,9 @@ async function main() {
       wakefulness: wl.wakefulness || wakefulness(),
     };
     ev.polls.push(poll);
+    ev.pollPeakHeartbeat = Math.max(ev.pollPeakHeartbeat ?? 0, poll.heartbeatTotal);
+    ev.pollPeakPrice = Math.max(ev.pollPeakPrice ?? 0, poll.priceTotal);
+    ev.pollPeakNews = Math.max(ev.pollPeakNews ?? 0, poll.newsTotal);
     ev.pidTimeline = buildPidTimeline(ev.polls);
     hbBase = hb;
     priceBase = pr;
@@ -684,49 +764,16 @@ async function main() {
     }
   }
 
-  await new Promise((resolve) => {
-    if (phaseChild.exitCode != null) return resolve();
-    phaseChild.on('exit', (code) => {
-      ev.phase12_5ExitCode = code;
-      resolve();
-    });
-    setTimeout(resolve, 30 * 60 * 1000);
-  });
-
-  stopLogcatCapture();
-  const liveRaw = fs.existsSync(LIVE_LOG) ? fs.readFileSync(LIVE_LOG, 'utf8') : logcatDump();
-  const fin = finalizeLogcatSnapshot({ rootDir: ROOT, adbDumpText: logcatDump() });
-  const metrics = parseLogcatMetrics(liveRaw);
-  const sanitized = sanitizeLogcat(liveRaw);
-  const summaryPath = path.join(OUT_DIR, `logcat-summary-3h-${runId}.txt`);
-  ev.finalHeartbeatCount = countHeartbeat(sanitized);
-  ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
-  ev.finalPriceCount = countPriceUpdate(sanitized);
-  ev.finalNewsCount = countNewsFetch(sanitized);
-  ev.finalStaSurvivalNative = countStaSurvivalNative(sanitized);
-  ev.finalPid = pidof();
-  ev.endedAt = new Date().toISOString();
-  ev.endMyt = myt();
-
-  const summaryText = buildLogcatSummary(sanitized, metrics);
-  fs.writeFileSync(summaryPath, summaryText);
-
-  let checkpointSummary = 'n/a';
-  const cpPath = path.join(ROOT, 'docs/review/phase12-5-long-run/checkpoint.json');
-  if (fs.existsSync(cpPath)) {
-    try {
-      const cp = JSON.parse(fs.readFileSync(cpPath, 'utf8'));
-      checkpointSummary = `- priceRefreshRuns: ${cp.priceRefreshRuns?.length ?? 0}\n- pidLostEvents: ${cp.pidLostEvents ?? 0}\n- fatal: ${cp.crashes?.fatal ?? 0}\n- anr: ${cp.crashes?.anr ?? 0}`;
-    } catch {
-      checkpointSummary = 'checkpoint.json parse failed';
+  } catch (err) {
+    ev.notes.push(`orchestrator error: ${err?.message ?? String(err)}`);
+    console.error(err);
+  } finally {
+    if (!finalized) {
+      finalized = true;
+      eval_ = await finalizeRun(ev, phaseChild);
     }
   }
 
-  const eval_ = evaluatePass(ev, metrics);
-  writeReport(ev, metrics, eval_, summaryPath, checkpointSummary);
-  writeEvidence({ ...ev, metrics, eval_, fin, summaryPath: path.relative(ROOT, summaryPath) });
-
-  console.log(eval_.overall ? 'PASS hyperos_v9_3h' : 'FAIL hyperos_v9_3h', eval_);
   process.exitCode = eval_.overall && ev.phase12_5ExitCode === 0 ? 0 : 1;
 }
 

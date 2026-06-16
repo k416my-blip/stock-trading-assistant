@@ -1,0 +1,16 @@
+# Run 20260616-105222 — monitor log raw excerpt (forensic)
+# Source: logcat-snapshot-20260616-135829.txt (recovery finalize adb dump)
+# PID 11124 lines only; post-151m orchestrator crash window
+
+06-16 13:46:31.338 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T05:46:31.338Z',
+06-16 13:47:09.380 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'news_fetch', { at: '2026-06-16T05:47:09.379Z',
+06-16 13:48:28.557 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:51:28.557 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:54:28.559 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+06-16 13:57:28.566 11124 11172 I ReactNativeJS: '[12H-MONITOR]', 'survival_health_ok', { wakeLockHeld: true, foregroundServiceRunning: true }
+
+# Poll-time adb logcat totals (ephemeral buffer; not persisted to live file)
+# 121m poll: heartbeatTotal=4 priceTotal=2 newsTotal=2 (PID 11124, Dozing)
+# 151m poll: heartbeatTotal=0 priceTotal=1 newsTotal=2 (PID 11124, Awake — last poll before crash)
+
+# Live append log: runScopedBytes=0 (logcatStartBytes == file size; no bytes captured during run)
