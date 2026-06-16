@@ -531,9 +531,9 @@ Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
 function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
   const go = eval_.overall ? 'GO' : 'NO-GO';
   const sha = gitSha();
-  const md = `# HyperOS ${REPORT_VER} ${STAGE} Screen-Off Run Report
+  const md = `# HyperOS ${REPORT_VER} ${IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} Report
 
-## Executive summary: **${go}**
+## Executive summary: **${go}**${IS_RERUN ? ' (orchestrator validation)' : ''}
 
 | Field | Value |
 |-------|-------|
