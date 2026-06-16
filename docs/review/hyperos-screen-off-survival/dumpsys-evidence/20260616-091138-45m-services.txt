@@ -1,0 +1,36 @@
+ACTIVITY MANAGER SERVICES (dumpsys activity services)
+  User 0 active services:
+  * ServiceRecord{6246a46 u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}
+    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}
+    packageName=com.assistant.stocktrading
+    processName=com.assistant.stocktrading
+    targetSdkVersion=36
+    baseDir=/data/app/~~KPtdl1lnBWfCRnm5CiCxtQ==/com.assistant.stocktrading-ukp7LrIi_CyvSGBVfZh9Cg==/base.apk
+    dataDir=/data/user/0/com.assistant.stocktrading
+    app=ProcessRecord{dc61e2e 27511:com.assistant.stocktrading/u0a396}
+    useNewWiuLogic_forCapabilities()=true
+    useNewWiuLogic_forStart()=true
+    useNewBfslLogic()=true
+    mAllowWiu_noBinding=PROC_STATE_TOP
+    mAllowWiu_inBindService=DENIED
+    mAllowWiu_byBindings=DENIED
+    getFgsAllowWiu_legacy=PROC_STATE_TOP
+    getFgsAllowWiu_new=PROC_STATE_TOP
+    getFgsAllowWiu_forStart=PROC_STATE_TOP
+    getFgsAllowWiu_forCapabilities=PROC_STATE_TOP
+    allowUiJobScheduling=true
+    recentCallingPackage=com.assistant.stocktrading
+    recentCallingUid=10396
+    mAllowStart_noBinding=PROC_STATE_TOP
+    mAllowStart_inBindService=DENIED
+    mAllowStart_byBindings=DENIED
+    getFgsAllowStart_legacy=PROC_STATE_TOP
+    getFgsAllowStart_new=PROC_STATE_TOP
+    getFgsAllowStart=PROC_STATE_TOP
+    startForegroundCount=1
+    infoAllowStartForeground=[callingPackage: com.assistant.stocktrading; callingUid: 10396; uidState: TOP ; uidBFSL: [BFSL]; intent: Intent { cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService }; code:PROC_STATE_TOP; tempAllowListReason:<,reasonCode:SYSTEM_ALLOW_LISTED,duration:9223372036854775807,callingUid:-1>; allowWiu:12; targetSdkVersion:36; callerTargetSdkVersion:36; startForegroundCount:1; bindFromPackage:null: isBindService:false]
+    isForeground=true foregroundId=9001 types=0x00000001 foregroundNoti=Notification(channel=long_run_survival shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 category=service vis=PRIVATE focusType=null)
+    createTime=-45m14s898ms startingBgTimeout=--
+    lastActivity=-41m7s821ms restartTime=-45m14s889ms createdFromFg=true
+    startRequested=true delayedStop=false stopIfKilled=false callStart=true lastStartId=2
+ startCommandResult=1
