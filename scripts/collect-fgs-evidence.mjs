@@ -45,7 +45,7 @@ async function main() {
   fs.writeFileSync(path.join(OUT, files.power), adb('shell dumpsys power'));
   fs.writeFileSync(path.join(OUT, files.package), adb(`shell dumpsys package ${PKG}`));
 
-  const apk = path.join(ROOT, 'artifacts/preview-v13.apk');
+  const apk = path.join(ROOT, 'artifacts/preview-v14.apk');
   let manifestNote = 'APK not present locally';
   if (fs.existsSync(apk)) {
     try {
