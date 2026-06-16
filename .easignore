@@ -9,3 +9,6 @@ scripts/monitor*.json
 scripts/monitor*.csv
 agent-tools/
 agent-transcripts/
+
+# Local module Gradle outputs (keep uploads lean; source is in git)
+modules/sta-native-runtime/android/build/

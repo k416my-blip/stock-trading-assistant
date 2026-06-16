@@ -235,5 +235,27 @@ BOM 除去後は当該 parse error は解消（以降は expo prebuild 環境依
 
 ### v12 EAS verification
 
-_(filled after build `preview-v12` completes)_
+**Phase 1 gate: FAIL** — build.gradle migration alone insufficient on EAS; Gradle log still omits `sta-native-runtime`.
+
+| Check | v12 result |
+|-------|------------|
+| EAS preview build | `e5cfdf38-451c-4574-b7bc-52f9cad20ea9`, versionCode **12**, commit **9b8455b** |
+| EAS Gradle "Using expo modules" | **FAIL** — `sta-native-runtime` still absent |
+| dex: `stanativeruntime` / `LongRunForegroundService` / `StaNativeRuntime` | **FAIL** (0 hits all dex) |
+| Local `:sta-native-runtime:assembleRelease` (same commit) | **PASS** |
+
+**v12 follow-up root cause:** EAS autolinking never scans `./modules` unless `expo.autolinking.nativeModulesDir` is set. JS resolve finds the package via `file:` dependency, but Gradle `useExpoModules()` on cloud only listed published 📦 modules.
+
+### v13 fix (additional)
+
+| # | Change | File |
+|---|--------|------|
+| 1 | `expo.autolinking.nativeModulesDir: "./modules"` | `package.json` |
+| 2 | `install-links=false` (copy file: deps on EAS npm ci) | `.npmrc` |
+| 3 | Exclude module Gradle build cache from upload | `.easignore` |
+| 4 | versionCode **13** | `app.json` |
+
+### v13 EAS verification
+
+_(filled after build completes)_
 
