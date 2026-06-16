@@ -1,0 +1,32 @@
+{
+  "runId": "20260616-210645",
+  "commitAtStart": "373e8bb85ba85be9ba9e895ddbe2e0fcf467e1b9",
+  "rerun": false,
+  "orchestratorFixCommit": "6dc5e63",
+  "versionCode": 15,
+  "targetSerial": "FYRWXSNNAIOR9DCM",
+  "hours": 12,
+  "startedAt": "2026-06-16T13:06:45.825Z",
+  "startMyt": "2026-06-16 21:06:45 MYT",
+  "endMyt": "2026-06-17 09:07:00 MYT",
+  "endedAt": null,
+  "baselinePid": "11698",
+  "finalPid": null,
+  "pidLostEvents": 0,
+  "lastPid": "11698",
+  "survivalEnabledSeen": true,
+  "polls": [],
+  "checkpoints": [],
+  "dumpsysPaths": [],
+  "pidTimeline": [],
+  "finalHeartbeatCount": 0,
+  "finalSurvivalStatusCount": 0,
+  "finalPriceCount": 0,
+  "finalNewsCount": 0,
+  "screenOffEnforcedCount": 0,
+  "phase12_5ExitCode": null,
+  "notes": [
+    "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
+  ],
+  "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260616-210645.log"
+}

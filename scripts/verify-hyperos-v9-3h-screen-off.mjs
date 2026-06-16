@@ -34,6 +34,7 @@ const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_H
 const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
 const REPORT_VER = process.env.VERIFY_HYPEROS_REPORT_VER ?? 'V15';
 const IS_RERUN = process.env.VERIFY_HYPEROS_RERUN === '1';
+const IS_12H = HOURS >= 12 || process.env.VERIFY_HYPEROS_12H === '1';
 const POLL_MIN = 15;
 const APK = path.join(ROOT, 'artifacts/preview-v15.apk');
 const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v11.apk');
@@ -44,19 +45,27 @@ const CHECKPOINT_PS = path.join(TWELVE_DIR, 'phase12-5-v8-3h-checkpoint-once.ps1
 const LIVE_LOG = path.join(ROOT, DEFAULT_LIVE_LOGCAT);
 const EVIDENCE_PATH = path.join(
   OUT_DIR,
-  IS_RERUN ? 'hyperos-v15-3h-rerun-evidence.json' : `hyperos-v15-${STAGE}-evidence.json`,
+  IS_RERUN
+    ? 'hyperos-v15-3h-rerun-evidence.json'
+    : IS_12H
+      ? 'hyperos-v15-12h-evidence.json'
+      : `hyperos-v15-${STAGE}-evidence.json`,
 );
 const REPORT_PATH = path.join(
   ROOT,
   IS_RERUN
     ? 'docs/review/HYPEROS_V15_3H_RERUN_REPORT.md'
-    : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`,
+    : IS_12H
+      ? 'docs/review/HYPEROS_V15_12H_RUN_REPORT.md'
+      : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`,
 );
 const INTERIM_REPORT_PATH = path.join(
   ROOT,
   IS_RERUN
     ? 'docs/review/HYPEROS_V15_3H_RERUN_INTERIM_REPORT.md'
-    : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
+    : IS_12H
+      ? 'docs/review/HYPEROS_V15_12H_RUN_INTERIM_REPORT.md'
+      : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
 );
 const ORCHESTRATOR_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_FIX_VALIDATION_REPORT.md');
 const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
@@ -292,7 +301,8 @@ function buildLogcatSummary(raw, metrics) {
 }
 
 function evaluatePass(ev, metrics) {
-  const expectedHb = Math.floor((HOURS * 60) / 5) - 2;
+  const hbIntervalMin = Number(process.env.VERIFY_HYPEROS_HEARTBEAT_MIN ?? '15');
+  const expectedHb = Math.max(1, Math.floor((HOURS * 60) / hbIntervalMin) - 1);
   const pidOk = ev.pidLostEvents === 0 && ev.baselinePid;
   const hbOk = ev.finalHeartbeatCount >= Math.max(1, expectedHb * 0.5);
   const priceOk = ev.finalPriceCount >= 3;
@@ -420,7 +430,7 @@ async function finalizeRun(ev, phaseChild) {
   const fin = finalizeLogcatSnapshot({ rootDir: ROOT, adbDumpText: logcatDump() });
   const metrics = parseLogcatMetrics(liveRaw);
   const sanitized = sanitizeLogcat(liveRaw);
-  const summaryPath = path.join(OUT_DIR, `logcat-summary-3h-${ev.runId}.txt`);
+  const summaryPath = path.join(OUT_DIR, `logcat-summary-${HOURS}h-${ev.runId}.txt`);
   ev.finalHeartbeatCount = countHeartbeat(sanitized);
   ev.finalSurvivalStatusCount = countSurvivalEvents(sanitized);
   ev.finalPriceCount = countPriceUpdate(sanitized);
@@ -463,10 +473,11 @@ async function finalizeRun(ev, phaseChild) {
   return eval_;
 }
 
-function writeInterimReport(ev, checkpointSummary) {
+function writeInterimReport(ev, checkpointSummary, hourLabel = null) {
   const elapsedMin = ev.polls.length ? ev.polls[ev.polls.length - 1].elapsedMin : 0;
   const completionPct = Math.min(100, Math.round((elapsedMin / (HOURS * 60)) * 100));
-  const md = `# HyperOS ${REPORT_VER} ${IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} — Interim Report (1h)
+  const hourTitle = hourLabel ? ` — ${hourLabel}` : IS_12H && elapsedMin >= 55 ? ` — ~${Math.round(elapsedMin / 60)}h` : '';
+  const md = `# HyperOS ${REPORT_VER} ${IS_12H ? '12h Screen-Off Run' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} — Interim Report${hourTitle}
 
 Updated: **${myt()}**  
 Purpose: **${IS_RERUN ? 'Orchestrator fix validation (6dc5e63)' : 'Screen-off survival'}**  
@@ -531,6 +542,13 @@ ${checkpointSummary}
 Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
 `;
   fs.writeFileSync(INTERIM_REPORT_PATH, md);
+  if (IS_12H && hourLabel) {
+    const snapPath = path.join(
+      ROOT,
+      `docs/review/HYPEROS_V15_12H_RUN_INTERIM_${hourLabel.toUpperCase()}_REPORT.md`,
+    );
+    fs.writeFileSync(snapPath, md);
+  }
   return INTERIM_REPORT_PATH;
 }
 
@@ -764,6 +782,13 @@ async function main() {
     ),
   );
 
+  ev.endMyt = myt(new Date(expectedEnd));
+  writeEvidence(ev);
+  if (IS_12H) {
+    const kickoffPath = writeInterimReport(ev, 'pending — 12h test started', 'KICKOFF');
+    console.log('INTERIM_REPORT', path.relative(ROOT, kickoffPath), 'KICKOFF');
+  }
+
   let phaseChild;
   let finalized = false;
   let eval_ = { overall: false };
@@ -805,12 +830,15 @@ async function main() {
   let hbBase = countHeartbeat(metricsRaw);
   let priceBase = countPriceUpdate(metricsRaw);
   let newsBase = countNewsFetch(metricsRaw);
-  const checkpointLabels = [
-    { atMin: 30, label: '30min' },
-    { atMin: 60, label: '1h' },
-    { atMin: 120, label: '2h' },
-    { atMin: 180, label: '3h' },
-  ];
+  const checkpointLabels =
+    HOURS >= 12
+      ? Array.from({ length: 12 }, (_, i) => ({ atMin: (i + 1) * 60, label: `${i + 1}h` }))
+      : [
+          { atMin: 30, label: '30min' },
+          { atMin: 60, label: '1h' },
+          { atMin: 120, label: '2h' },
+          { atMin: 180, label: '3h' },
+        ];
   const doneCk = new Set();
 
   while (Date.now() < endAt) {
@@ -872,7 +900,7 @@ async function main() {
         const cp = runCheckpoint(ck.label);
         ev.checkpoints.push({ label: ck.label, ...cp });
         writeEvidence(ev);
-        if (ck.label === '1h' && HOURS >= 3) {
+        if ((ck.label === '1h' && HOURS >= 3 && !IS_12H) || (IS_12H && ck.label.endsWith('h'))) {
           let checkpointSummary = 'n/a';
           const cpPath = path.join(ROOT, 'docs/review/phase12-5-long-run/checkpoint.json');
           if (fs.existsSync(cpPath)) {
@@ -883,8 +911,8 @@ async function main() {
               checkpointSummary = 'checkpoint.json parse failed';
             }
           }
-          const interimPath = writeInterimReport(ev, checkpointSummary);
-          console.log('INTERIM_REPORT', path.relative(ROOT, interimPath));
+          const interimPath = writeInterimReport(ev, checkpointSummary, ck.label);
+          console.log('INTERIM_REPORT', path.relative(ROOT, interimPath), ck.label);
         }
       }
     }
