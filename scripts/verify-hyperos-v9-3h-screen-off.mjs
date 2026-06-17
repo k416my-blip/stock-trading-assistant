@@ -35,7 +35,9 @@ const HOURS = Number(process.env.PHASE12_5_HOURS ?? process.env.VERIFY_HYPEROS_H
 const STAGE = process.env.VERIFY_HYPEROS_STAGE ?? `${HOURS}h`;
 const REPORT_VER = process.env.VERIFY_HYPEROS_REPORT_VER ?? 'V15';
 const IS_RERUN = process.env.VERIFY_HYPEROS_RERUN === '1';
+const IS_6H_ORCH = process.env.VERIFY_HYPEROS_6H_ORCH === '1' || (HOURS === 6 && process.env.VERIFY_HYPEROS_6H_ORCH !== '0' && !IS_RERUN);
 const IS_12H = HOURS >= 12 || process.env.VERIFY_HYPEROS_12H === '1';
+const IS_LONG_RUN = IS_12H || IS_6H_ORCH;
 const POLL_MIN = 15;
 const APK = path.join(ROOT, 'artifacts/preview-v15.apk');
 const APK_FALLBACK = path.join(ROOT, 'artifacts/preview-v11.apk');
@@ -50,7 +52,9 @@ const EVIDENCE_PATH = path.join(
     ? 'hyperos-v15-3h-rerun-evidence.json'
     : IS_12H
       ? 'hyperos-v15-12h-evidence.json'
-      : `hyperos-v15-${STAGE}-evidence.json`,
+      : IS_6H_ORCH
+        ? 'hyperos-v15-6h-evidence.json'
+        : `hyperos-v15-${STAGE}-evidence.json`,
 );
 const REPORT_PATH = path.join(
   ROOT,
@@ -58,7 +62,9 @@ const REPORT_PATH = path.join(
     ? 'docs/review/HYPEROS_V15_3H_RERUN_REPORT.md'
     : IS_12H
       ? 'docs/review/HYPEROS_V15_12H_RUN_REPORT.md'
-      : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`,
+      : IS_6H_ORCH
+        ? 'docs/review/HYPEROS_V15_6H_RUN_REPORT.md'
+        : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_REPORT.md`,
 );
 const INTERIM_REPORT_PATH = path.join(
   ROOT,
@@ -66,9 +72,12 @@ const INTERIM_REPORT_PATH = path.join(
     ? 'docs/review/HYPEROS_V15_3H_RERUN_INTERIM_REPORT.md'
     : IS_12H
       ? 'docs/review/HYPEROS_V15_12H_RUN_INTERIM_REPORT.md'
-      : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
+      : IS_6H_ORCH
+        ? 'docs/review/HYPEROS_V15_6H_RUN_INTERIM_REPORT.md'
+        : `docs/review/HYPEROS_${REPORT_VER}_${STAGE.toUpperCase()}_SCREEN_OFF_RUN_INTERIM_REPORT.md`,
 );
 const ORCHESTRATOR_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_FIX_VALIDATION_REPORT.md');
+const STREAMING_ORCH_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_STREAMING_VALIDATION_REPORT.md');
 const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
 
 function sh(cmd, opts = {}) {
@@ -390,6 +399,88 @@ function evaluateOrchestratorFix(ev, metrics, eval_) {
   };
 }
 
+function evaluateOrchestratorStreaming(ev, metrics, eval_) {
+  const base = evaluateOrchestratorFix(ev, metrics, eval_);
+  const streamingOk =
+    !ev.notes?.some((n) => /ERR_STRING_TOO_LONG|string longer than/i.test(n)) &&
+    (ev._streamMetrics?.streamed === true || (ev.runLiveLogBytes ?? 0) > 512 * 1024 * 1024);
+  const metricsViaStream = Boolean(ev._streamMetrics?.streamed || ev.streamedFinalize);
+  return {
+    ...base,
+    streamingOk,
+    metricsViaStream,
+    overall: base.overall && streamingOk,
+    priorFailureRef: '20260616-210645 ERR_STRING_TOO_LONG @ ~5h',
+    fixCommit: ev.orchestratorFixCommit ?? '780118f',
+  };
+}
+
+function writeOrchestratorStreamingValidationReport(ev, metrics, eval_, orchEval) {
+  const go = orchEval.overall ? 'PASS' : 'FAIL';
+  const md = `# Orchestrator Streaming Validation Report
+
+## Verdict: **${go}**
+
+**Purpose:** Validate streamed logcat metrics fix after \`ERR_STRING_TOO_LONG\` at ~5h (run \`20260616-210645\`).  
+**Run ID:** \`${ev.runId}\`  
+**Window (MYT):** ${ev.startMyt} → ${ev.endMyt ?? 'in progress'}  
+**Duration:** ${HOURS}h orchestrator validation  
+**APK:** preview-v15.apk (versionCode ${ev.versionCode})  
+**Device:** ${SERIAL}
+
+## Validation matrix
+
+| # | Check | Result | Evidence |
+|---|-------|--------|----------|
+| 1 | writeEvidence errors | ${orchEval.writeEvidenceOk ? 'PASS' : 'FAIL'} | ${(ev.notes ?? []).filter((n) => /error|UNKNOWN|ERR_STRING/i.test(n)).join('; ') || 'none'} |
+| 2 | auto-finalize executed | ${orchEval.autoFinalizeOk ? 'PASS' : 'FAIL'} | finalizeRan=${ev.finalizeRan ?? false} |
+| 3 | run-scoped logcat | ${orchEval.runScopedLogOk ? 'PASS' : 'FAIL'} | **${orchEval.runLiveLogBytes}** bytes |
+| 4 | streamed metrics (no OOM read) | ${orchEval.streamingOk ? 'PASS' : 'FAIL'} | streamed=${orchEval.metricsViaStream} |
+| 5 | heartbeat aggregation | ${orchEval.heartbeatCountOk ? 'PASS' : 'FAIL'} | **${orchEval.finalHeartbeatCount}** |
+| 6 | price_update aggregation | ${orchEval.priceCountOk ? 'PASS' : 'WARN'} | **${orchEval.finalPriceCount}** |
+| 7 | evidence.json | ${orchEval.evidenceJsonOk ? 'PASS' : 'FAIL'} | \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\` |
+| 8 | full poll schedule | ${orchEval.pollsComplete ? 'PASS' : 'FAIL'} | polls=${ev.polls.length} / ${HOURS * 4} |
+
+## Prior failure reference
+
+| Run | Failure |
+|-----|---------|
+| 20260616-210645 | \`readFileSync\` on 574MB log → \`ERR_STRING_TOO_LONG\` @ ~5h |
+
+## Fix reference
+
+Commit: **${orchEval.fixCommit}** — \`readLogcatMetricsFromFile()\` streamed chunk reader
+
+## App reference (informational)
+
+| Item | Value |
+|------|-------|
+| App eval | ${eval_.overall ? 'GO' : 'NO-GO'} |
+| PID lost | ${ev.pidLostEvents} |
+| FATAL / ANR | ${metrics.fatal} / ${metrics.anr} |
+
+## Event counts (final)
+
+| Pattern | Count |
+|---------|-------|
+| heartbeat | **${ev.finalHeartbeatCount ?? 0}** |
+| price_update | **${ev.finalPriceCount ?? 0}** |
+| news_fetch | **${ev.finalNewsCount ?? 0}** |
+
+## PID timeline
+
+${buildPidTimeline(ev.polls)
+  .map((r) => `- **${r.elapsedMin}m** · PID=${r.pid ?? 'null'}`)
+  .join('\n')}
+
+## GitHub sync
+
+_(filled after commit/push)_
+`;
+  fs.writeFileSync(STREAMING_ORCH_REPORT_PATH, md);
+  return STREAMING_ORCH_REPORT_PATH;
+}
+
 function writeOrchestratorValidationReport(ev, metrics, eval_, orchEval) {
   const go = orchEval.overall ? 'PASS' : 'FAIL';
   const md = `# Orchestrator Fix Validation Report
@@ -505,6 +596,9 @@ async function finalizeRun(ev, phaseChild) {
     }
   }
 
+  if (ev._streamMetrics) {
+    ev.streamedFinalize = true;
+  }
   const eval_ = evaluatePass(ev, metrics);
   ev.finalizeRan = true;
   ev.summaryPath = path.relative(ROOT, summaryPath).replace(/\\/g, '/');
@@ -516,6 +610,12 @@ async function finalizeRun(ev, phaseChild) {
     writeEvidence({ ...ev, metrics, eval_, fin, orchEval, summaryPath: ev.summaryPath });
     console.log(orchEval.overall ? 'PASS orchestrator_fix' : 'FAIL orchestrator_fix', orchEval);
   }
+  if (IS_6H_ORCH) {
+    const orchEval = evaluateOrchestratorStreaming(ev, metrics, eval_);
+    writeOrchestratorStreamingValidationReport(ev, metrics, eval_, orchEval);
+    writeEvidence({ ...ev, metrics, eval_, fin, orchEval, summaryPath: ev.summaryPath });
+    console.log(orchEval.overall ? 'PASS orchestrator_streaming' : 'FAIL orchestrator_streaming', orchEval);
+  }
   console.log(eval_.overall ? 'PASS hyperos_v9_3h' : 'FAIL hyperos_v9_3h', eval_);
   return eval_;
 }
@@ -523,11 +623,17 @@ async function finalizeRun(ev, phaseChild) {
 function writeInterimReport(ev, checkpointSummary, hourLabel = null) {
   const elapsedMin = ev.polls.length ? ev.polls[ev.polls.length - 1].elapsedMin : 0;
   const completionPct = Math.min(100, Math.round((elapsedMin / (HOURS * 60)) * 100));
-  const hourTitle = hourLabel ? ` — ${hourLabel}` : IS_12H && elapsedMin >= 55 ? ` — ~${Math.round(elapsedMin / 60)}h` : '';
-  const md = `# HyperOS ${REPORT_VER} ${IS_12H ? '12h Screen-Off Run' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} — Interim Report${hourTitle}
+  const hourTitle = hourLabel ? ` — ${hourLabel}` : IS_LONG_RUN && elapsedMin >= 55 ? ` — ~${Math.round(elapsedMin / 60)}h` : '';
+  const runLabel = IS_12H ? '12h Screen-Off Run' : IS_6H_ORCH ? '6h Orchestrator Validation' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`;
+  const purpose = IS_6H_ORCH
+    ? 'Streaming metrics orchestrator validation (post 780118f)'
+    : IS_RERUN
+      ? 'Orchestrator fix validation (6dc5e63)'
+      : 'Screen-off survival';
+  const md = `# HyperOS ${REPORT_VER} ${runLabel} — Interim Report${hourTitle}
 
 Updated: **${myt()}**  
-Purpose: **${IS_RERUN ? 'Orchestrator fix validation (6dc5e63)' : 'Screen-off survival'}**  
+Purpose: **${purpose}**  
 APK: **preview-v15.apk** (versionCode **${ev.versionCode}**)  
 Device: **${SERIAL}** (Redmi Note 13 Pro / HyperOS)  
 Run ID: \`${ev.runId}\`
@@ -536,7 +642,8 @@ Run ID: \`${ev.runId}\`
 
 | Check | Value |
 |-------|-------|
-| writeEvidence errors | ${(ev.notes ?? []).some((n) => /orchestrator error|UNKNOWN/i.test(n)) ? 'FAIL' : 'PASS so far'} |
+| writeEvidence errors | ${(ev.notes ?? []).some((n) => /orchestrator error|UNKNOWN|ERR_STRING_TOO_LONG/i.test(n)) ? 'FAIL' : 'PASS so far'} |
+| streamed metrics path | ${ev._streamMetrics?.streamed ? 'active (file >512MB)' : 'in-memory or pending'} |
 | run-scoped logcat bytes | ${(() => { const p = ev.runLiveLogPath ? path.join(ROOT, ev.runLiveLogPath) : null; return p && fs.existsSync(p) ? fs.statSync(p).size : 0; })()} |
 | polls completed | ${ev.polls.length} |
 | auto-finalize | pending |
@@ -589,11 +696,11 @@ ${checkpointSummary}
 Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
 `;
   fs.writeFileSync(INTERIM_REPORT_PATH, md);
-  if (IS_12H && hourLabel) {
-    const snapPath = path.join(
-      ROOT,
-      `docs/review/HYPEROS_V15_12H_RUN_INTERIM_${hourLabel.toUpperCase()}_REPORT.md`,
-    );
+  if (IS_LONG_RUN && hourLabel) {
+    const snapName = IS_6H_ORCH
+      ? `HYPEROS_V15_6H_RUN_INTERIM_${hourLabel.toUpperCase()}_REPORT.md`
+      : `HYPEROS_V15_12H_RUN_INTERIM_${hourLabel.toUpperCase()}_REPORT.md`;
+    const snapPath = path.join(ROOT, `docs/review/${snapName}`);
     fs.writeFileSync(snapPath, md);
   }
   return INTERIM_REPORT_PATH;
@@ -602,9 +709,10 @@ Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
 function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
   const go = eval_.overall ? 'GO' : 'NO-GO';
   const sha = gitSha();
-  const md = `# HyperOS ${REPORT_VER} ${IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`} Report
+  const reportTitle = IS_6H_ORCH ? '6h Orchestrator Validation' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`;
+  const md = `# HyperOS ${REPORT_VER} ${reportTitle} Report
 
-## Executive summary: **${go}**${IS_RERUN ? ' (orchestrator validation)' : ''}
+## Executive summary: **${go}**${IS_6H_ORCH ? ' (streaming orchestrator validation)' : IS_RERUN ? ' (orchestrator validation)' : ''}
 
 | Field | Value |
 |-------|-------|
@@ -713,7 +821,7 @@ async function main() {
     runId,
     commitAtStart,
     rerun: IS_RERUN,
-    orchestratorFixCommit: process.env.ORCHESTRATOR_FIX_COMMIT ?? '6dc5e63',
+    orchestratorFixCommit: process.env.ORCHESTRATOR_FIX_COMMIT ?? (IS_6H_ORCH ? '780118f' : '6dc5e63'),
     versionCode: null,
     targetSerial: SERIAL,
     hours: HOURS,
@@ -831,8 +939,8 @@ async function main() {
 
   ev.endMyt = myt(new Date(expectedEnd));
   writeEvidence(ev);
-  if (IS_12H) {
-    const kickoffPath = writeInterimReport(ev, 'pending — 12h test started', 'KICKOFF');
+  if (IS_LONG_RUN) {
+    const kickoffPath = writeInterimReport(ev, 'pending — test started', 'KICKOFF');
     console.log('INTERIM_REPORT', path.relative(ROOT, kickoffPath), 'KICKOFF');
   }
 
@@ -880,12 +988,14 @@ async function main() {
   const checkpointLabels =
     HOURS >= 12
       ? Array.from({ length: 12 }, (_, i) => ({ atMin: (i + 1) * 60, label: `${i + 1}h` }))
-      : [
-          { atMin: 30, label: '30min' },
-          { atMin: 60, label: '1h' },
-          { atMin: 120, label: '2h' },
-          { atMin: 180, label: '3h' },
-        ];
+      : HOURS >= 6
+        ? Array.from({ length: HOURS }, (_, i) => ({ atMin: (i + 1) * 60, label: `${i + 1}h` }))
+        : [
+            { atMin: 30, label: '30min' },
+            { atMin: 60, label: '1h' },
+            { atMin: 120, label: '2h' },
+            { atMin: 180, label: '3h' },
+          ];
   const doneCk = new Set();
 
   while (Date.now() < endAt) {
@@ -945,7 +1055,7 @@ async function main() {
         const cp = runCheckpoint(ck.label);
         ev.checkpoints.push({ label: ck.label, ...cp });
         writeEvidence(ev);
-        if ((ck.label === '1h' && HOURS >= 3 && !IS_12H) || (IS_12H && ck.label.endsWith('h'))) {
+        if ((ck.label === '1h' && HOURS >= 3 && !IS_LONG_RUN) || (IS_LONG_RUN && ck.label.endsWith('h'))) {
           let checkpointSummary = 'n/a';
           const cpPath = path.join(ROOT, 'docs/review/phase12-5-long-run/checkpoint.json');
           if (fs.existsSync(cpPath)) {
