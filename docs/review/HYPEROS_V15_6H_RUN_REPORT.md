@@ -1,70 +1,57 @@
-# HyperOS V15 6h Orchestrator Validation — Interim Report — 6h
+# HyperOS V15 6h Orchestrator Validation Report
 
-Updated: **2026-06-18 01:24:58 MYT**  
-Purpose: **Streaming metrics orchestrator validation (post 780118f)**  
-APK: **preview-v15.apk** (versionCode **15**)  
-Device: **FYRWXSNNAIOR9DCM** (Redmi Note 13 Pro / HyperOS)  
-Run ID: `20260617-192027`
+## Executive summary: **GO** (streaming orchestrator validation)
 
-## Orchestrator checks (interim)
-
-| Check | Value |
+| Field | Value |
 |-------|-------|
-| writeEvidence errors | PASS so far |
-| streamed metrics path | active (file >512MB) |
-| run-scoped logcat bytes | 691202864 |
-| polls completed | 24 |
-| auto-finalize | pending |
+| Stage | 6h |
+| Test window (MYT) | 2026-06-17 19:20:27 MYT → 2026-06-18 01:32:27 MYT |
+| APK | preview-v15.apk (versionCode 15) |
+| Device | FYRWXSNNAIOR9DCM (Redmi Note 13 Pro HyperOS) |
+| Branch | cursor/top3-maxdd-capital-audit |
+| Commit | ab55de8986a7a691935432b48bf1d7cefada96bd |
+| phase12-5 | 6h, runtimeMode=apk |
 
-## Progress
+## Verification (7 items)
 
-| Item | Value |
-|------|-------|
-| Start (MYT) | 2026-06-17 19:20:27 MYT |
-| Elapsed | ~364 min |
-| Completion | ~100% |
-| Expected end (MYT) | 2026-06-18 01:20:44 MYT |
+| # | Item | Result | Evidence |
+|---|------|--------|----------|
+| 1 | 3h screen-off run | PASS | wakefulness polls; screen-off enforce 21x |
+| 2 | PID maintenance | PASS | baseline 13512, lost events 0, final 13512 |
+| 3 | Heartbeat continuation | PASS | 89 (expected ~23) |
+| 4 | Twelve Data / price | PASS | price_update lines 50 |
+| 5 | News fetch | PASS | news_fetch lines 66 |
+| 6 | Foreground service | PASS | LongRunForegroundService in dumpsys polls |
+| 7 | WakeLock | PASS | survival_status / dumpsys partial wakelock |
 
-## Metrics (interim)
+## Poll timeline (15 min)
 
-| # | Item | Value |
-|---|------|-------|
-| 1 | App PID | 13512 (baseline 13512) |
-| 2 | PID lost events | 0 |
-| 3 | Heartbeat (latest poll total) | 87 |
-| 4 | Price (latest poll total) | 49 |
-| 5 | News (latest poll total) | 65 |
-| 6 | FGS (latest poll) | true |
-| 7 | WakeLock (latest poll) | true |
-
-## Poll timeline
-
-| Elapsed | PID | HB | price | news | FGS | WL | Wakefulness |
-|---------|-----|-----|-------|------|-----|-----|-------------|
-| 15m | 13512 | 5 | 2 | 4 | Y | Y | Awake |
-| 30m | 13512 | 11 | 4 | 6 | Y | Y | Awake |
-| 45m | 13512 | 14 | 6 | 8 | Y | Y | Awake |
-| 60m | 13512 | 17 | 8 | 9 | Y | Y | Awake |
-| 76m | 13512 | 22 | 10 | 14 | Y | Y | Awake |
-| 91m | 13512 | 24 | 12 | 17 | Y | Y | Dozing |
-| 106m | 13512 | 28 | 14 | 19 | Y | Y | Dozing |
-| 121m | 13512 | 33 | 17 | 21 | Y | Y | Awake |
-| 136m | 13512 | 36 | 19 | 26 | Y | Y | Dozing |
-| 151m | 13512 | 40 | 21 | 28 | Y | Y | Awake |
-| 166m | 13512 | 43 | 23 | 30 | Y | Y | Awake |
-| 181m | 13512 | 46 | 25 | 32 | Y | Y | Awake |
-| 197m | 13512 | 49 | 28 | 36 | Y | Y | Awake |
-| 212m | 13512 | 51 | 30 | 39 | Y | Y | Awake |
-| 227m | 13512 | 54 | 32 | 41 | Y | Y | Awake |
-| 242m | 13512 | 57 | 34 | 43 | Y | Y | Awake |
-| 257m | 13512 | 65 | 37 | 49 | Y | Y | Awake |
-| 273m | 13512 | 68 | 39 | 50 | Y | Y | Awake |
-| 288m | 13512 | 71 | 40 | 50 | Y | Y | Awake |
-| 303m | 13512 | 74 | 41 | 54 | Y | Y | Awake |
-| 318m | 13512 | 79 | 43 | 58 | Y | Y | Awake |
-| 333m | 13512 | 82 | 45 | 60 | Y | Y | Awake |
-| 349m | 13512 | 84 | 47 | 62 | Y | Y | Awake |
-| 364m | 13512 | 87 | 49 | 65 | Y | Y | Awake |
+| Elapsed | PID | HBΔ | priceΔ | newsΔ | FGS | WakeLock | Wakefulness |
+|---------|-----|-----|--------|-------|-----|----------|-------------|
+| 15m | 13512 | 1 | 1 | 4 | Y | Y | Awake |
+| 30m | 13512 | 6 | 2 | 2 | Y | Y | Awake |
+| 45m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 60m | 13512 | 3 | 2 | 1 | Y | Y | Awake |
+| 76m | 13512 | 5 | 2 | 5 | Y | Y | Awake |
+| 91m | 13512 | 2 | 2 | 3 | Y | Y | Dozing |
+| 106m | 13512 | 4 | 2 | 2 | Y | Y | Dozing |
+| 121m | 13512 | 5 | 3 | 2 | Y | Y | Awake |
+| 136m | 13512 | 3 | 2 | 5 | Y | Y | Dozing |
+| 151m | 13512 | 4 | 2 | 2 | Y | Y | Awake |
+| 166m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 181m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 197m | 13512 | 3 | 3 | 4 | Y | Y | Awake |
+| 212m | 13512 | 2 | 2 | 3 | Y | Y | Awake |
+| 227m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 242m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 257m | 13512 | 8 | 3 | 6 | Y | Y | Awake |
+| 273m | 13512 | 3 | 2 | 1 | Y | Y | Awake |
+| 288m | 13512 | 3 | 1 | 0 | Y | Y | Awake |
+| 303m | 13512 | 3 | 1 | 4 | Y | Y | Awake |
+| 318m | 13512 | 5 | 2 | 4 | Y | Y | Awake |
+| 333m | 13512 | 3 | 2 | 2 | Y | Y | Awake |
+| 349m | 13512 | 2 | 2 | 2 | Y | Y | Awake |
+| 364m | 13512 | 3 | 2 | 3 | Y | Y | Awake |
 
 ## PID timeline
 
@@ -120,15 +107,30 @@ Run ID: `20260617-192027`
 - `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260617-192027-349m-services.txt`
 - `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260617-192027-364m-services.txt`
 
-## checkpoint.json
+## checkpoint.json summary
 
 - priceRefreshRuns: 22
 - pidLostEvents: 0
 - fatal: 0
 - anr: 0
 
-## Provisional verdict
+## Logcat counts
 
-**TBD** — final at 6h completion.
+| Metric | Count |
+|--------|-------|
+| FATAL | 0 |
+| ANR | 0 |
+| [12H-MONITOR] heartbeat | 89 |
+| survival_enabled / status | seen / 85 |
+| price_update | 50 |
+| news_fetch | 66 |
 
-Evidence: `docs/review/hyperos-screen-off-survival/hyperos-v15-6h-evidence.json`
+Summary file: `docs/review/hyperos-screen-off-survival/logcat-summary-6h-20260617-192027.txt`
+
+## Known issues / infra
+
+- APK reinstall skipped (versionCode=15, apk=preview-v15.apk)
+
+## GitHub sync
+
+_(filled after commit/push)_
