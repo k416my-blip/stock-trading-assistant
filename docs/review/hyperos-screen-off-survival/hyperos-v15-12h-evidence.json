@@ -525,6 +525,57 @@
       "wakeLockHeld": true,
       "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=546320267 (202951 ms ago)\r\n  mLastGlobalWakeTimeRealtime=686209482 (in 139686264 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
       "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T20:20:33.858Z",
+      "elapsedMin": 470,
+      "pid": "30438",
+      "heartbeatDelta": 3,
+      "heartbeatTotal": 106,
+      "priceDelta": 2,
+      "priceTotal": 59,
+      "newsDelta": 2,
+      "newsTotal": 77,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=547299663 (137869 ms ago)\r\n  mLastGlobalWakeTimeRealtime=687188888 (in 139751356 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T20:35:49.271Z",
+      "elapsedMin": 486,
+      "pid": "30438",
+      "heartbeatDelta": 3,
+      "heartbeatTotal": 109,
+      "priceDelta": 1,
+      "priceTotal": 60,
+      "newsDelta": 1,
+      "newsTotal": 78,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=547299663 (1053282 ms ago)\r\n  mLastGlobalWakeTimeRealtime=687188888 (in 138835943 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWak",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T20:51:07.475Z",
+      "elapsedMin": 501,
+      "pid": "30438",
+      "heartbeatDelta": 0,
+      "heartbeatTotal": 109,
+      "priceDelta": 0,
+      "priceTotal": 60,
+      "newsDelta": 0,
+      "newsTotal": 78,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Dozing\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x41\r\n  mLastWakeTime=547299663 (1971490 ms ago)\r\n  mLastGlobalWakeTimeRealtime=687188888 (in 137917735 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWa",
+      "wakefulness": "Dozing"
     }
   ],
   "checkpoints": [
@@ -569,6 +620,12 @@
       "ok": true,
       "stdout": "",
       "stderr": ""
+    },
+    {
+      "label": "8h",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
     }
   ],
   "dumpsysPaths": [
@@ -601,7 +658,10 @@
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-409m-services.txt",
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-425m-services.txt",
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-440m-services.txt",
-    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-455m-services.txt"
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-455m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-470m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-486m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-501m-services.txt"
   ],
   "pidTimeline": [
     {
@@ -783,29 +843,47 @@
       "elapsedMin": 455,
       "pid": "30438",
       "note": ""
+    },
+    {
+      "at": "2026-06-18T20:20:33.858Z",
+      "elapsedMin": 470,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-18T20:35:49.271Z",
+      "elapsedMin": 486,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-18T20:51:07.475Z",
+      "elapsedMin": 501,
+      "pid": "30438",
+      "note": ""
     }
   ],
   "finalHeartbeatCount": 0,
   "finalSurvivalStatusCount": 0,
   "finalPriceCount": 0,
   "finalNewsCount": 0,
-  "screenOffEnforcedCount": 20,
+  "screenOffEnforcedCount": 22,
   "phase12_5ExitCode": null,
   "notes": [
     "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
   ],
   "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260618-202947.log",
-  "pollPeakHeartbeat": 103,
-  "pollPeakPrice": 57,
-  "pollPeakNews": 75,
+  "pollPeakHeartbeat": 109,
+  "pollPeakPrice": 60,
+  "pollPeakNews": 78,
   "_streamMetrics": {
     "raw": null,
-    "heartbeat": 103,
-    "price": 57,
-    "news": 75,
-    "survival": 95,
-    "monitorLines": 606,
-    "survivalOk": 89,
+    "heartbeat": 109,
+    "price": 60,
+    "news": 78,
+    "survival": 98,
+    "monitorLines": 638,
+    "survivalOk": 92,
     "streamed": true
   }
 }
