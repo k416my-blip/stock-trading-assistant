@@ -15,18 +15,127 @@
   "pidLostEvents": 0,
   "lastPid": "30438",
   "survivalEnabledSeen": true,
-  "polls": [],
-  "checkpoints": [],
-  "dumpsysPaths": [],
-  "pidTimeline": [],
+  "polls": [
+    {
+      "at": "2026-06-18T12:45:14.176Z",
+      "elapsedMin": 15,
+      "pid": "30438",
+      "heartbeatDelta": 3,
+      "heartbeatTotal": 7,
+      "priceDelta": 2,
+      "priceTotal": 3,
+      "newsDelta": 6,
+      "newsTotal": 6,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x1\r\n  mLastWakeTime=519208814 (909066 ms ago)\r\n  mLastGlobalWakeTimeRealtime=659098032 (in 138980152 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWakeU",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T13:00:18.086Z",
+      "elapsedMin": 30,
+      "pid": "30438",
+      "heartbeatDelta": 3,
+      "heartbeatTotal": 10,
+      "priceDelta": 2,
+      "priceTotal": 5,
+      "newsDelta": 1,
+      "newsTotal": 7,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=520911739 (110029 ms ago)\r\n  mLastGlobalWakeTimeRealtime=660801097 (in 139779329 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T13:15:22.373Z",
+      "elapsedMin": 45,
+      "pid": "30438",
+      "heartbeatDelta": 3,
+      "heartbeatTotal": 13,
+      "priceDelta": 1,
+      "priceTotal": 6,
+      "newsDelta": 1,
+      "newsTotal": 8,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=521899987 (26067 ms ago)\r\n  mLastGlobalWakeTimeRealtime=661789322 (in 139863268 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWakeU",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-18T13:30:26.653Z",
+      "elapsedMin": 60,
+      "pid": "30438",
+      "heartbeatDelta": 0,
+      "heartbeatTotal": 13,
+      "priceDelta": 0,
+      "priceTotal": 6,
+      "newsDelta": 0,
+      "newsTotal": 8,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Dozing\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x41\r\n  mLastWakeTime=521899987 (930377 ms ago)\r\n  mLastGlobalWakeTimeRealtime=661789322 (in 138958958 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWak",
+      "wakefulness": "Dozing"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "1h",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "dumpsysPaths": [
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-15m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-30m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-45m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-60m-services.txt"
+  ],
+  "pidTimeline": [
+    {
+      "at": "2026-06-18T12:45:14.176Z",
+      "elapsedMin": 15,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-18T13:00:18.086Z",
+      "elapsedMin": 30,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-18T13:15:22.373Z",
+      "elapsedMin": 45,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-18T13:30:26.653Z",
+      "elapsedMin": 60,
+      "pid": "30438",
+      "note": ""
+    }
+  ],
   "finalHeartbeatCount": 0,
   "finalSurvivalStatusCount": 0,
   "finalPriceCount": 0,
   "finalNewsCount": 0,
-  "screenOffEnforcedCount": 0,
+  "screenOffEnforcedCount": 3,
   "phase12_5ExitCode": null,
   "notes": [
     "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
   ],
-  "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260618-202947.log"
+  "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260618-202947.log",
+  "pollPeakHeartbeat": 13,
+  "pollPeakPrice": 6,
+  "pollPeakNews": 8
 }
