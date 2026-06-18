@@ -1,6 +1,6 @@
-# HyperOS V15 12h Screen-Off Run — Interim Report — 3h
+# HyperOS V15 12h Screen-Off Run — Interim Report — 4h
 
-Updated: **2026-06-18 23:31:31 MYT**  
+Updated: **2026-06-19 00:32:13 MYT**  
 Purpose: **12h production validation (APP_GO + ORCHESTRATOR_GO chain)**  
 APK: **preview-v15.apk** (versionCode **15**)  
 Device: **FYRWXSNNAIOR9DCM** (Redmi Note 13 Pro / HyperOS)  
@@ -12,8 +12,8 @@ Run ID: `20260618-202947`
 |-------|-------|
 | writeEvidence errors | PASS so far |
 | streamed metrics path | in-memory or pending |
-| run-scoped logcat bytes | 303180123 |
-| polls completed | 12 |
+| run-scoped logcat bytes | 381760159 |
+| polls completed | 16 |
 | auto-finalize | pending |
 
 ## Progress
@@ -21,8 +21,8 @@ Run ID: `20260618-202947`
 | Item | Value |
 |------|-------|
 | Start (MYT) | 2026-06-18 20:29:47 MYT |
-| Elapsed | ~181 min |
-| Completion | ~25% |
+| Elapsed | ~242 min |
+| Completion | ~34% |
 | Expected end (MYT) | 2026-06-19 08:30:03 MYT |
 
 ## Metrics (interim)
@@ -31,9 +31,9 @@ Run ID: `20260618-202947`
 |---|------|-------|
 | 1 | App PID | 30438 (baseline 30438) |
 | 2 | PID lost events | 0 |
-| 3 | Heartbeat (latest poll total) | 40 |
-| 4 | Price (latest poll total) | 22 |
-| 5 | News (latest poll total) | 29 |
+| 3 | Heartbeat (latest poll total) | 56 |
+| 4 | Price (latest poll total) | 30 |
+| 5 | News (latest poll total) | 40 |
 | 6 | FGS (latest poll) | true |
 | 7 | WakeLock (latest poll) | true |
 
@@ -53,6 +53,10 @@ Run ID: `20260618-202947`
 | 151m | 30438 | 34 | 18 | 25 | Y | Y | Awake |
 | 166m | 30438 | 37 | 20 | 27 | Y | Y | Awake |
 | 181m | 30438 | 40 | 22 | 29 | Y | Y | Awake |
+| 196m | 30438 | 45 | 25 | 35 | Y | Y | Awake |
+| 212m | 30438 | 48 | 26 | 35 | Y | Y | Dozing |
+| 227m | 30438 | 52 | 28 | 38 | Y | Y | Dozing |
+| 242m | 30438 | 56 | 30 | 40 | Y | Y | Awake |
 
 ## PID timeline
 
@@ -68,6 +72,10 @@ Run ID: `20260618-202947`
 - **151m** · PID=30438 · 2026-06-18T15:01:11.939Z
 - **166m** · PID=30438 · 2026-06-18T15:16:19.597Z
 - **181m** · PID=30438 · 2026-06-18T15:31:28.303Z
+- **196m** · PID=30438 · 2026-06-18T15:46:40.583Z
+- **212m** · PID=30438 · 2026-06-18T16:01:49.676Z
+- **227m** · PID=30438 · 2026-06-18T16:16:59.524Z
+- **242m** · PID=30438 · 2026-06-18T16:32:09.819Z
 
 ## dumpsys evidence
 
@@ -83,10 +91,14 @@ Run ID: `20260618-202947`
 - `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-151m-services.txt`
 - `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-166m-services.txt`
 - `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-181m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-196m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-212m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-227m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-242m-services.txt`
 
 ## checkpoint.json
 
-- priceRefreshRuns: 11
+- priceRefreshRuns: 15
 - pidLostEvents: 0
 - fatal: 0
 - anr: 0
