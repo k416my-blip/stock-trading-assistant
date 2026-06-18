@@ -78,6 +78,8 @@ const INTERIM_REPORT_PATH = path.join(
 );
 const ORCHESTRATOR_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_FIX_VALIDATION_REPORT.md');
 const STREAMING_ORCH_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_STREAMING_VALIDATION_REPORT.md');
+const ORCH_FINAL_REPORT_PATH = path.join(ROOT, 'docs/review/ORCHESTRATOR_FINAL_VALIDATION_REPORT.md');
+const EVIDENCE_SUMMARY_12H_PATH = path.join(ROOT, 'docs/review/HYPEROS_V15_12H_EVIDENCE_SUMMARY.md');
 const DUMPSYS_DIR = path.join(OUT_DIR, 'dumpsys-evidence');
 
 function sh(cmd, opts = {}) {
@@ -481,6 +483,124 @@ _(filled after commit/push)_
   return STREAMING_ORCH_REPORT_PATH;
 }
 
+function writeOrchestratorFinalValidationReport(ev, metrics, eval_, orchEval) {
+  const appGo = eval_.overall;
+  const orchGo = orchEval.overall;
+  const overall = appGo && orchGo ? 'GO' : appGo ? 'ORCHESTRATOR_NO-GO' : orchGo ? 'APP_NO-GO' : 'NO-GO';
+  const md = `# Orchestrator Final Validation Report
+
+## Verdict: **${overall}**
+
+**Purpose:** 12h production validation — APP + streaming orchestrator (post 6h PASS \`20260617-192027\`).  
+**Run ID:** \`${ev.runId}\`  
+**Window (MYT):** ${ev.startMyt} → ${ev.endMyt ?? 'in progress'}  
+**APK:** preview-v15.apk (versionCode ${ev.versionCode})  
+**Device:** ${SERIAL}
+
+## Gate matrix (12 items)
+
+| # | Gate | Result | Evidence |
+|---|------|--------|----------|
+| 1 | PID maintenance | ${eval_.pidOk ? 'PASS' : 'FAIL'} | baseline ${ev.baselinePid}, lost ${ev.pidLostEvents}, final ${ev.finalPid} |
+| 2 | Heartbeat continuation | ${eval_.hbOk ? 'PASS' : 'FAIL'} | **${ev.finalHeartbeatCount}** (expected ~${eval_.expectedHb}) |
+| 3 | Twelve Data price update | ${eval_.priceOk ? 'PASS' : 'FAIL'} | **${ev.finalPriceCount}** |
+| 4 | News fetch | ${eval_.newsOk ? 'PASS' : 'FAIL'} | **${ev.finalNewsCount}** |
+| 5 | Foreground Service | ${eval_.fgsOk ? 'PASS' : 'FAIL'} | FGS polls |
+| 6 | WakeLock | ${eval_.wlOk ? 'PASS' : 'FAIL'} | WL polls |
+| 7 | Crash (FATAL) | ${metrics.fatal === 0 ? 'PASS' : 'FAIL'} | fatal=${metrics.fatal} |
+| 8 | ANR | ${metrics.anr === 0 ? 'PASS' : 'FAIL'} | anr=${metrics.anr} |
+| 9 | evidence.json | ${orchEval.evidenceJsonOk ? 'PASS' : 'FAIL'} | \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\` |
+| 10 | auto-finalize | ${orchEval.autoFinalizeOk ? 'PASS' : 'FAIL'} | finalizeRan=${ev.finalizeRan ?? false} |
+| 11 | streamed logcat metrics | ${orchEval.streamingOk ? 'PASS' : 'FAIL'} | streamed=${orchEval.metricsViaStream}, bytes=${orchEval.runLiveLogBytes} |
+| 12 | full poll schedule | ${orchEval.pollsComplete ? 'PASS' : 'FAIL'} | polls=${ev.polls.length} / ${HOURS * 4} |
+
+## App judgment
+
+| Layer | Verdict |
+|-------|---------|
+| APP | **${appGo ? 'GO' : 'NO-GO'}** |
+| Orchestrator | **${orchGo ? 'GO' : 'NO-GO'}** |
+| Combined | **${overall}** |
+
+## Prior validation chain
+
+| Run | Result |
+|-----|--------|
+| 20260617-192027 (6h streaming) | ORCHESTRATOR_GO |
+| 20260616-210645 (12h attempt) | PARTIAL_GO_APP @ ~5h (fixed) |
+
+## Fix reference
+
+Commit: **780118f** / **5b054dc** — streamed \`readLogcatMetricsFromFile()\`
+
+## PID timeline
+
+${buildPidTimeline(ev.polls)
+  .map((r) => `- **${r.elapsedMin}m** · PID=${r.pid ?? 'null'}`)
+  .join('\n')}
+
+## GitHub sync
+
+_(filled after commit/push)_
+`;
+  fs.writeFileSync(ORCH_FINAL_REPORT_PATH, md);
+  return ORCH_FINAL_REPORT_PATH;
+}
+
+function write12hEvidenceSummary(ev, metrics, eval_, orchEval, checkpointSummary) {
+  const md = `# HyperOS V15 12h Evidence Summary
+
+**Run ID:** \`${ev.runId}\`  
+**Window (MYT):** ${ev.startMyt} → ${ev.endMyt}  
+**Verdict:** **${eval_.overall && orchEval.overall ? 'GO' : 'NO-GO'}**
+
+## Key metrics
+
+| Metric | Value |
+|--------|-------|
+| Baseline PID | ${ev.baselinePid} |
+| Final PID | ${ev.finalPid} |
+| PID lost events | ${ev.pidLostEvents} |
+| Polls | ${ev.polls.length} / ${HOURS * 4} |
+| run-scoped logcat bytes | ${ev.runLiveLogBytes ?? 0} |
+| streamed finalize | ${ev.streamedFinalize ? 'yes' : 'no'} |
+
+## Event counts
+
+| Pattern | Count |
+|---------|-------|
+| heartbeat | **${ev.finalHeartbeatCount}** |
+| price_update | **${ev.finalPriceCount}** |
+| news_fetch | **${ev.finalNewsCount}** |
+| survival_health_ok | **${ev._streamMetrics?.survivalOk ?? '—'}** |
+| 12H-MONITOR lines | **${ev._streamMetrics?.monitorLines ?? '—'}** |
+
+## Crash / ANR
+
+| Metric | Count |
+|--------|-------|
+| FATAL | ${metrics.fatal} |
+| ANR | ${metrics.anr} |
+
+## checkpoint.json
+
+${checkpointSummary}
+
+## Artifacts
+
+- Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
+- Logcat summary: \`${ev.summaryPath ?? 'pending'}\`
+- Final report: \`docs/review/HYPEROS_V15_12H_RUN_REPORT.md\`
+- Orchestrator: \`docs/review/ORCHESTRATOR_FINAL_VALIDATION_REPORT.md\`
+
+## GitHub sync
+
+_(filled after commit/push)_
+`;
+  fs.writeFileSync(EVIDENCE_SUMMARY_12H_PATH, md);
+  return EVIDENCE_SUMMARY_12H_PATH;
+}
+
 function writeOrchestratorValidationReport(ev, metrics, eval_, orchEval) {
   const go = orchEval.overall ? 'PASS' : 'FAIL';
   const md = `# Orchestrator Fix Validation Report
@@ -616,6 +736,13 @@ async function finalizeRun(ev, phaseChild) {
     writeEvidence({ ...ev, metrics, eval_, fin, orchEval, summaryPath: ev.summaryPath });
     console.log(orchEval.overall ? 'PASS orchestrator_streaming' : 'FAIL orchestrator_streaming', orchEval);
   }
+  if (IS_12H && !IS_6H_ORCH) {
+    const orchEval = evaluateOrchestratorStreaming(ev, metrics, eval_);
+    writeOrchestratorFinalValidationReport(ev, metrics, eval_, orchEval);
+    write12hEvidenceSummary(ev, metrics, eval_, orchEval, checkpointSummary);
+    writeEvidence({ ...ev, metrics, eval_, fin, orchEval, summaryPath: ev.summaryPath });
+    console.log(orchEval.overall ? 'PASS orchestrator_final' : 'FAIL orchestrator_final', orchEval);
+  }
   console.log(eval_.overall ? 'PASS hyperos_v9_3h' : 'FAIL hyperos_v9_3h', eval_);
   return eval_;
 }
@@ -625,11 +752,13 @@ function writeInterimReport(ev, checkpointSummary, hourLabel = null) {
   const completionPct = Math.min(100, Math.round((elapsedMin / (HOURS * 60)) * 100));
   const hourTitle = hourLabel ? ` — ${hourLabel}` : IS_LONG_RUN && elapsedMin >= 55 ? ` — ~${Math.round(elapsedMin / 60)}h` : '';
   const runLabel = IS_12H ? '12h Screen-Off Run' : IS_6H_ORCH ? '6h Orchestrator Validation' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`;
-  const purpose = IS_6H_ORCH
-    ? 'Streaming metrics orchestrator validation (post 780118f)'
-    : IS_RERUN
-      ? 'Orchestrator fix validation (6dc5e63)'
-      : 'Screen-off survival';
+  const purpose = IS_12H
+    ? '12h production validation (APP_GO + ORCHESTRATOR_GO chain)'
+    : IS_6H_ORCH
+      ? 'Streaming metrics orchestrator validation (post 780118f)'
+      : IS_RERUN
+        ? 'Orchestrator fix validation (6dc5e63)'
+        : 'Screen-off survival';
   const md = `# HyperOS ${REPORT_VER} ${runLabel} — Interim Report${hourTitle}
 
 Updated: **${myt()}**  
@@ -709,10 +838,10 @@ Evidence: \`${path.relative(ROOT, EVIDENCE_PATH).replace(/\\/g, '/')}\`
 function writeReport(ev, metrics, eval_, summaryPath, checkpointSummary) {
   const go = eval_.overall ? 'GO' : 'NO-GO';
   const sha = gitSha();
-  const reportTitle = IS_6H_ORCH ? '6h Orchestrator Validation' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`;
+  const reportTitle = IS_12H ? '12h Production Run' : IS_6H_ORCH ? '6h Orchestrator Validation' : IS_RERUN ? '3h RERUN' : `${STAGE} Screen-Off Run`;
   const md = `# HyperOS ${REPORT_VER} ${reportTitle} Report
 
-## Executive summary: **${go}**${IS_6H_ORCH ? ' (streaming orchestrator validation)' : IS_RERUN ? ' (orchestrator validation)' : ''}
+## Executive summary: **${go}**${IS_12H ? ' (12h production)' : IS_6H_ORCH ? ' (streaming orchestrator validation)' : IS_RERUN ? ' (orchestrator validation)' : ''}
 
 | Field | Value |
 |-------|-------|
@@ -821,7 +950,7 @@ async function main() {
     runId,
     commitAtStart,
     rerun: IS_RERUN,
-    orchestratorFixCommit: process.env.ORCHESTRATOR_FIX_COMMIT ?? (IS_6H_ORCH ? '780118f' : '6dc5e63'),
+    orchestratorFixCommit: process.env.ORCHESTRATOR_FIX_COMMIT ?? (IS_12H || IS_6H_ORCH ? '5b054dc' : '6dc5e63'),
     versionCode: null,
     targetSerial: SERIAL,
     hours: HOURS,

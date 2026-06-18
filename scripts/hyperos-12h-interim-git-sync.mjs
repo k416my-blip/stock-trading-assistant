@@ -35,7 +35,7 @@ function collect12hPaths() {
   }
   if (fs.existsSync(SURVIVAL)) {
     for (const f of fs.readdirSync(SURVIVAL)) {
-      if (f.startsWith('logcat-summary-12h-') || f.startsWith('logcat-live-20260616-210645')) {
+      if (f.startsWith('logcat-summary-12h-') || f.startsWith('logcat-live-')) {
         paths.push(path.join('docs/review/hyperos-screen-off-survival', f));
       }
     }
@@ -48,7 +48,7 @@ async function maybeCommit(label) {
   const status = sh('git status --porcelain').trim();
   const relevant = status
     .split('\n')
-    .filter((l) => l.includes('HYPEROS_V15_12H') || l.includes('hyperos-v15-12h'));
+    .filter((l) => l.includes('HYPEROS_V15_12H') || l.includes('hyperos-v15-12h') || l.includes('ORCHESTRATOR_FINAL'));
   if (!relevant.length) return;
   for (const p of paths) {
     if (fs.existsSync(path.join(ROOT, p))) {
