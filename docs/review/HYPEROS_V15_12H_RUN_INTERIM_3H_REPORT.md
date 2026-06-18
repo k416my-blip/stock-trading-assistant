@@ -1,17 +1,18 @@
 # HyperOS V15 12h Screen-Off Run — Interim Report — 3h
 
-Updated: **2026-06-17 00:08:03 MYT**  
-Purpose: **Screen-off survival**  
+Updated: **2026-06-18 23:31:31 MYT**  
+Purpose: **12h production validation (APP_GO + ORCHESTRATOR_GO chain)**  
 APK: **preview-v15.apk** (versionCode **15**)  
 Device: **FYRWXSNNAIOR9DCM** (Redmi Note 13 Pro / HyperOS)  
-Run ID: `20260616-210645`
+Run ID: `20260618-202947`
 
 ## Orchestrator checks (interim)
 
 | Check | Value |
 |-------|-------|
 | writeEvidence errors | PASS so far |
-| run-scoped logcat bytes | 307384730 |
+| streamed metrics path | in-memory or pending |
+| run-scoped logcat bytes | 303180123 |
 | polls completed | 12 |
 | auto-finalize | pending |
 
@@ -19,20 +20,20 @@ Run ID: `20260616-210645`
 
 | Item | Value |
 |------|-------|
-| Start (MYT) | 2026-06-16 21:06:45 MYT |
+| Start (MYT) | 2026-06-18 20:29:47 MYT |
 | Elapsed | ~181 min |
 | Completion | ~25% |
-| Expected end (MYT) | 2026-06-17 09:07:00 MYT |
+| Expected end (MYT) | 2026-06-19 08:30:03 MYT |
 
 ## Metrics (interim)
 
 | # | Item | Value |
 |---|------|-------|
-| 1 | App PID | 11698 (baseline 11698) |
+| 1 | App PID | 30438 (baseline 30438) |
 | 2 | PID lost events | 0 |
-| 3 | Heartbeat (latest poll total) | 49 |
-| 4 | Price (latest poll total) | 25 |
-| 5 | News (latest poll total) | 34 |
+| 3 | Heartbeat (latest poll total) | 40 |
+| 4 | Price (latest poll total) | 22 |
+| 5 | News (latest poll total) | 29 |
 | 6 | FGS (latest poll) | true |
 | 7 | WakeLock (latest poll) | true |
 
@@ -40,48 +41,48 @@ Run ID: `20260616-210645`
 
 | Elapsed | PID | HB | price | news | FGS | WL | Wakefulness |
 |---------|-----|-----|-------|------|-----|-----|-------------|
-| 15m | 11698 | 8 | 3 | 6 | Y | Y | Awake |
-| 30m | 11698 | 13 | 5 | 8 | Y | Y | Awake |
-| 45m | 11698 | 16 | 7 | 10 | Y | Y | Awake |
-| 60m | 11698 | 19 | 9 | 11 | Y | Y | Awake |
-| 75m | 11698 | 24 | 10 | 15 | Y | Y | Awake |
-| 90m | 11698 | 26 | 12 | 18 | Y | Y | Dozing |
-| 105m | 11698 | 30 | 14 | 20 | Y | Y | Dozing |
-| 121m | 11698 | 35 | 17 | 22 | Y | Y | Awake |
-| 136m | 11698 | 40 | 19 | 28 | Y | Y | Awake |
-| 151m | 11698 | 43 | 21 | 30 | Y | Y | Awake |
-| 166m | 11698 | 46 | 23 | 32 | Y | Y | Awake |
-| 181m | 11698 | 49 | 25 | 34 | Y | Y | Awake |
+| 15m | 30438 | 7 | 3 | 6 | Y | Y | Awake |
+| 30m | 30438 | 10 | 5 | 7 | Y | Y | Awake |
+| 45m | 30438 | 13 | 6 | 8 | Y | Y | Awake |
+| 60m | 30438 | 13 | 6 | 8 | Y | Y | Dozing |
+| 75m | 30438 | 16 | 8 | 12 | Y | Y | Dozing |
+| 91m | 30438 | 20 | 10 | 15 | Y | Y | Dozing |
+| 106m | 30438 | 24 | 12 | 17 | Y | Y | Dozing |
+| 121m | 30438 | 28 | 14 | 19 | Y | Y | Dozing |
+| 136m | 30438 | 30 | 16 | 23 | Y | Y | Dozing |
+| 151m | 30438 | 34 | 18 | 25 | Y | Y | Awake |
+| 166m | 30438 | 37 | 20 | 27 | Y | Y | Awake |
+| 181m | 30438 | 40 | 22 | 29 | Y | Y | Awake |
 
 ## PID timeline
 
-- **15m** · PID=11698 · 2026-06-16T13:22:08.597Z
-- **30m** · PID=11698 · 2026-06-16T13:37:11.831Z
-- **45m** · PID=11698 · 2026-06-16T13:52:14.875Z
-- **60m** · PID=11698 · 2026-06-16T14:07:17.849Z
-- **75m** · PID=11698 · 2026-06-16T14:22:27.415Z
-- **90m** · PID=11698 · 2026-06-16T14:37:30.545Z
-- **105m** · PID=11698 · 2026-06-16T14:52:33.455Z
-- **121m** · PID=11698 · 2026-06-16T15:07:37.619Z
-- **136m** · PID=11698 · 2026-06-16T15:22:46.002Z
-- **151m** · PID=11698 · 2026-06-16T15:37:49.957Z
-- **166m** · PID=11698 · 2026-06-16T15:52:54.300Z
-- **181m** · PID=11698 · 2026-06-16T16:08:00.138Z
+- **15m** · PID=30438 · 2026-06-18T12:45:14.176Z
+- **30m** · PID=30438 · 2026-06-18T13:00:18.086Z
+- **45m** · PID=30438 · 2026-06-18T13:15:22.373Z
+- **60m** · PID=30438 · 2026-06-18T13:30:26.653Z
+- **75m** · PID=30438 · 2026-06-18T13:45:36.967Z
+- **91m** · PID=30438 · 2026-06-18T14:00:42.157Z
+- **106m** · PID=30438 · 2026-06-18T14:15:47.643Z
+- **121m** · PID=30438 · 2026-06-18T14:30:53.519Z
+- **136m** · PID=30438 · 2026-06-18T14:46:04.507Z
+- **151m** · PID=30438 · 2026-06-18T15:01:11.939Z
+- **166m** · PID=30438 · 2026-06-18T15:16:19.597Z
+- **181m** · PID=30438 · 2026-06-18T15:31:28.303Z
 
 ## dumpsys evidence
 
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-15m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-30m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-45m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-60m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-75m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-90m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-105m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-121m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-136m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-151m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-166m-services.txt`
-- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260616-210645-181m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-15m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-30m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-45m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-60m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-75m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-91m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-106m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-121m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-136m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-151m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-166m-services.txt`
+- `docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-181m-services.txt`
 
 ## checkpoint.json
 
