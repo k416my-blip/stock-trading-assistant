@@ -11,6 +11,27 @@ const REVIEW = path.join(ROOT, 'docs/review');
 const SURVIVAL = path.join(ROOT, 'docs/review/hyperos-screen-off-survival');
 const INTERIM = path.join(REVIEW, 'HYPEROS_V15_12H_RUN_INTERIM_REPORT.md');
 const FINAL = path.join(REVIEW, 'HYPEROS_V15_12H_RUN_REPORT.md');
+const EVIDENCE = path.join(SURVIVAL, 'hyperos-v15-12h-evidence.json');
+
+function currentRunId() {
+  try {
+    return JSON.parse(fs.readFileSync(EVIDENCE, 'utf8')).runId ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function isCurrentRunFinalized() {
+  try {
+    const ev = JSON.parse(fs.readFileSync(EVIDENCE, 'utf8'));
+    if (!ev.endedAt || !ev.runId) return false;
+    if (!fs.existsSync(FINAL)) return false;
+    const report = fs.readFileSync(FINAL, 'utf8');
+    return report.includes(ev.runId);
+  } catch {
+    return false;
+  }
+}
 
 function sh(cmd) {
   return execSync(cmd, { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
@@ -68,11 +89,11 @@ async function maybeCommit(label) {
   }
 }
 
-console.log('hyperos-12h-interim-git-sync watching...');
+console.log('hyperos-12h-interim-git-sync watching...', 'runId=', currentRunId());
 let lastMtime = 0;
-while (!fs.existsSync(FINAL)) {
+while (!isCurrentRunFinalized()) {
   await sleep(10 * 60 * 1000);
-  if (fs.existsSync(FINAL)) break;
+  if (isCurrentRunFinalized()) break;
   const mtime = Math.max(
     fs.existsSync(INTERIM) ? fs.statSync(INTERIM).mtimeMs : 0,
     fs.existsSync(path.join(SURVIVAL, 'hyperos-v15-12h-evidence.json'))
