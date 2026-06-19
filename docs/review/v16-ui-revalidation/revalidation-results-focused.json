@@ -1,0 +1,91 @@
+{
+  "commit": "9dda7c797fbc519a9128448b690de5a63e21ada9",
+  "commitShort": "9dda7c7",
+  "versionCode": 16,
+  "device": "FYRWXSNNAIOR9DCM       device product:zircon_global model:23090RA98G device:zircon transport_id:12",
+  "startedAt": "2026-06-19T12:30:30.516Z",
+  "materialLoaded": true,
+  "phase24": {
+    "headingFound": true,
+    "scrolls": 0,
+    "markers": 6,
+    "total": 6
+  },
+  "phase231": {
+    "headingFound": true,
+    "scrolls": 0,
+    "markers": 5,
+    "total": 5
+  },
+  "maybank1155": {
+    "phase24HeadingFound": true,
+    "phase24Markers": 6,
+    "phase231HeadingFound": true,
+    "phase231Markers": 5
+  },
+  "stocks": [
+    {
+      "code": "1155",
+      "label": "Maybank",
+      "inMaterialUi": true,
+      "phase24": {
+        "headingFound": true,
+        "markers": 6
+      },
+      "phase231": {
+        "headingFound": true,
+        "markers": 5
+      }
+    },
+    {
+      "code": "1023",
+      "label": "CIMB",
+      "inMaterialUi": false
+    },
+    {
+      "code": "1295",
+      "label": "Public Bank",
+      "inMaterialUi": false
+    },
+    {
+      "code": "5347",
+      "label": "Tenaga",
+      "inMaterialUi": false
+    },
+    {
+      "code": "4707",
+      "label": "Nestle",
+      "inMaterialUi": false
+    },
+    {
+      "code": "6033",
+      "label": "Petronas Gas",
+      "inMaterialUi": false
+    }
+  ],
+  "concierge": {
+    "fabMethod": "content-desc",
+    "panelOpen": true,
+    "enhancedFound": false,
+    "error": null,
+    "phase24InConcierge": false,
+    "phase231InConcierge": false,
+    "markers": 0,
+    "openAiGateClosed": false,
+    "openAiUnset": false
+  },
+  "crashFree": true,
+  "fatalsBefore": 0,
+  "fatalsAfter": 0,
+  "anr": false,
+  "pass": false,
+  "screenshots": [
+    "v16-01-material-tab.png",
+    "v16-02-material-loaded.png",
+    "v16-03-phase24.png",
+    "v16-04-phase231.png",
+    "v16-05-maybank-1155.png",
+    "v16-06-concierge-open.png",
+    "v16-07-concierge-enhanced.png"
+  ]
+}

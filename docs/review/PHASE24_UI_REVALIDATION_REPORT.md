@@ -2,64 +2,81 @@
 
 ## 概要
 
-versionCode **16** ローカル release APK インストール後の Phase24 UI 再検証。
+versionCode **16** 実機 APK にて Phase24 Analyst Consensus Intelligence の UI 再検証を実施。
 
 | 項目 | 値 |
 |------|-----|
 | 実施日 | 2026-06-19 |
-| 対象銘柄 | 1155（Maybank） |
-| 期待 UI | `Phase24 Analyst Consensus Intelligence` 見出し + Source / Consensus / Target / Score / Confidence |
-| APK | `artifacts/preview-v16-local.apk`（versionCode 16） |
+| デバイス | `FYRWXSNNAIOR9DCM`（23090RA98G / Xiaomi） |
+| APK | `artifacts/preview-v16-local.apk`（versionCode **16**） |
+| 検証スクリプト | `scripts/bursa-v16-ui-revalidation-focused.mjs` |
+| Git commit（APK ビルド時） | `9dda7c797fbc519a9128448b690de5a63e21ada9` |
 
 ---
 
-## 前提条件
-
-| 条件 | 状態 |
-|------|------|
-| APK ビルド | **PASS**（Phase24 UI commit 以降の JS bundle 同梱） |
-| 実機インストール | **BLOCKED** — `INSTALL_FAILED_USER_RESTRICTED` |
-
-旧 preview-v15（EAS / versionCode 15）は Phase24 UI 未同梱のため、**v16 未インストールでは再検証不可**。
-
----
-
-## 再検証結果
+## 結果サマリー
 
 | 項目 | 結果 |
 |------|------|
-| 実行 | **未実施**（インストールブロック） |
-| Phase24 見出し検出 | **PENDING** |
-| スクリーンショット | **PENDING** |
+| 材料分析ロード | **PASS** |
+| Phase24 見出し | **PASS** |
+| Phase24 マーカー | **6/6** |
+| 1155 Maybank | **PASS** |
+| 6銘柄 UI 表示 | **1/6**（1155 のみ · ポートフォリオ制約） |
+| クラッシュ / FATAL / ANR | **なし** |
+
+**総合判定（Phase24）:** **PASS**（1155 · 材料分析画面）
 
 ---
 
-## 再実行手順（インストール承認後）
+## 検出内容
 
-```powershell
-adb install "artifacts/preview-v16-local.apk"
-adb shell dumpsys package com.assistant.stocktrading | findstr versionCode
-# 期待: versionCode=16
+| マーカー | 検出 |
+|----------|------|
+| `Phase24 Analyst Consensus Intelligence` | ✅ |
+| `Source:` | ✅ |
+| `Consensus:` | ✅ |
+| `Target:` | ✅ |
+| `Score:` | ✅ |
+| `Confidence:` | ✅ |
 
-node scripts/bursa-phase11-ui-visibility-verify.mjs
-```
-
-証跡出力先: `docs/review/phase11-ui-visibility/`
-
----
-
-## 期待される改善（v15 → v16）
-
-| v15（旧 APK） | v16（新 APK） |
-|---------------|---------------|
-| Phase24 見出し 0/45 scroll | commit `69cf90f+` UI 同梱で見出し検出見込み |
-| EAS ビルド（Phase24 前 commit） | ローカル release bundle（最新 JS） |
+スクロール: **0**（ロード直後の XML に見出し・フィールドすべて検出）
 
 ---
 
-## 結論
+## 1155 Maybank
 
-| 項目 | 状態 |
-|------|------|
-| Phase24 UI 再検証 | **PENDING INSTALL** |
-| ブロッカー | HyperOS USB インストール制限 — 端末で許可後に再実行 |
+| 項目 | 値 |
+|------|-----|
+| 材料分析 UI に表示 | ✅ |
+| Phase24 見出し | ✅ |
+| マーカー | 6/6 |
+| スクリーンショット | `docs/review/v16-ui-revalidation/v16-03-phase24.png` |
+| | `docs/review/v16-ui-revalidation/v16-05-maybank-1155.png` |
+
+---
+
+## 6銘柄スキャン
+
+| code | label | 材料分析 UI |
+|------|-------|-------------|
+| 1155 | Maybank | ✅ Phase24 PASS |
+| 1023 | CIMB | ❌ 未表示（ポートフォリオ未登録） |
+| 1295 | Public Bank | ❌ 未表示 |
+| 5347 | Tenaga | ❌ 未表示 |
+| 4707 | Nestle | ❌ 未表示 |
+| 6033 | Petronas Gas | ❌ 未表示 |
+
+---
+
+## 証跡
+
+- JSON: `docs/review/v16-ui-revalidation/revalidation-results-focused.json`
+- UI dump: `docs/review/v16-ui-revalidation/v16-phase24-0.xml`
+
+---
+
+## 備考
+
+- 初回実行（4分待機）は材料分析タイムアウト。7分待機 + タブ再選択でロード成功。
+- Phase24 UI は v16 release bundle に同梱済みであることを実機で確認。

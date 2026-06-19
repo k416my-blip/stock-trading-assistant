@@ -2,64 +2,67 @@
 
 ## 概要
 
-versionCode **16** ローカル release APK インストール後の Phase23.1 UI 再検証。
+versionCode **16** 実機 APK にて Phase23.1 Earnings Revision Cross Signal の UI 再検証を実施。
 
 | 項目 | 値 |
 |------|-----|
 | 実施日 | 2026-06-19 |
-| 対象銘柄 | 1155（Maybank） |
-| 期待 UI | `Phase23.1 Earnings Revision Cross Signal` 見出し + Cross Signal / Direction / Alignment / Material Impact |
-| APK | `artifacts/preview-v16-local.apk`（versionCode 16） |
+| デバイス | `FYRWXSNNAIOR9DCM` |
+| APK | versionCode **16** |
+| Git commit（APK ビルド時） | `9dda7c797fbc519a9128448b690de5a63e21ada9` |
 
 ---
 
-## 前提条件
-
-| 条件 | 状態 |
-|------|------|
-| APK ビルド | **PASS** |
-| 実機インストール | **BLOCKED** — `INSTALL_FAILED_USER_RESTRICTED` |
-
----
-
-## 再検証結果
+## 結果サマリー
 
 | 項目 | 結果 |
 |------|------|
-| 実行 | **未実施**（インストールブロック） |
-| Phase23.1 見出し検出 | **PENDING** |
-| スクリーンショット | **PENDING** |
+| 材料分析ロード | **PASS** |
+| Phase23.1 見出し | **PASS** |
+| Phase23.1 マーカー | **5/5** |
+| 1155 Maybank | **PASS** |
+| 6銘柄 UI 表示 | **1/6** |
+| クラッシュ / FATAL / ANR | **なし** |
+
+**総合判定（Phase23.1）:** **PASS**（1155 · 材料分析画面）
 
 ---
 
-## 再実行手順（インストール承認後）
+## 検出内容
 
-```powershell
-adb install "artifacts/preview-v16-local.apk"
-node scripts/bursa-phase11-ui-visibility-verify.mjs
-```
+| マーカー | 検出 |
+|----------|------|
+| `Phase23.1 Earnings Revision Cross Signal` | ✅ |
+| `Cross Signal:` | ✅ |
+| `Direction:` | ✅ |
+| `Alignment:` | ✅ |
+| `Material Impact:` | ✅ |
 
-スクリプト定数:
-
-- `PHASE231_HEADING = 'Phase23.1 Earnings Revision Cross Signal'`
-- マーカー: Cross Signal / Direction / Alignment / Material Impact
-
-証跡: `docs/review/phase11-ui-visibility/`
+スクロール: **0**（同一画面 XML で全マーカー検出）
 
 ---
 
-## 前回（v15）との比較
+## 1155 Maybank
+
+| 項目 | 値 |
+|------|-----|
+| Phase23.1 見出し | ✅ |
+| マーカー | 5/5 |
+| スクリーンショット | `docs/review/v16-ui-revalidation/v16-04-phase231.png` |
+| | `docs/review/v16-ui-revalidation/v16-05-maybank-1155.png` |
+
+---
+
+## v15 → v16 比較
 
 | 実行 | versionCode | Phase23.1 見出し |
 |------|-------------|------------------|
-| PHASE23_1_UI_VISIBILITY_REPORT | 15 | **0**（45 scroll 後も未検出 — APK に UI 未同梱） |
-| 本再検証 | 16 | **PENDING**（インストール後に実行） |
+| PHASE23_1_UI_VISIBILITY_REPORT | 15 | **0**（APK に UI 未同梱） |
+| 本再検証 | 16 | **5/5 マーカー検出** |
 
 ---
 
-## 結論
+## 証跡
 
-| 項目 | 状態 |
-|------|------|
-| Phase23.1 UI 再検証 | **PENDING INSTALL** |
-| ブロッカー | HyperOS USB インストール制限 |
+- JSON: `docs/review/v16-ui-revalidation/revalidation-results-focused.json`
+- UI dump: `docs/review/v16-ui-revalidation/v16-phase231-0.xml`
