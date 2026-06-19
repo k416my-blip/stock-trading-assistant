@@ -5,6 +5,7 @@ import {
   mergeRevenueRevisionPartials,
   revisionPct,
   applyRevenueRevisionPartialToEarningsPartial,
+  deriveRevenueRevisionFromYahooEpsTrendCorridor,
 } from '../../src/services/bursa/bursaRevenueRevisionProviders';
 import {
   computeRevisionPctFromSnapshots,
@@ -74,6 +75,22 @@ describe('bursaRevenueRevisionProviders', () => {
     });
     expect(applied.revenueRevision30d).toBe(-3.2);
     expect(applied.source).toBe('estimate_snapshot');
+  });
+
+  it('deriveRevenueRevisionFromYahooEpsTrendCorridor uses epsTrend with revenueEstimate', () => {
+    const derived = deriveRevenueRevisionFromYahooEpsTrendCorridor({
+      period: '0y',
+      endDate: '2026-12-31',
+      revenueEstimate: { avg: { raw: 30_657_811_350 } },
+      epsTrend: {
+        current: { raw: 0.88353 },
+        '7daysAgo': { raw: 0.88353 },
+        '30daysAgo': { raw: 0.91375 },
+        '90daysAgo': { raw: 0.91706 },
+      },
+    });
+    expect(derived?.revenueRevision30d).toBeCloseTo(-3.31, 1);
+    expect(derived?.revenueEstimateCurrentFy).toBe(30_657_811_350);
   });
 
   it('computeRevisionPctFromSnapshots derives 30d revision from stored snapshots', () => {

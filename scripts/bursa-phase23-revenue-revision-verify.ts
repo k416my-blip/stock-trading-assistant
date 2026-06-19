@@ -37,11 +37,11 @@ configureRevenueRevisionSnapshotPath(SNAPSHOT_PATH);
 
 const IMPL_REPORT = join(
   process.cwd(),
-  'docs/review/PHASE23_REVENUE_REVISION_IMPLEMENTATION_REPORT.md',
+  'docs/review/PHASE23_REVENUE_COMPLETION_REPORT.md',
 );
 const SMOKE_REPORT = join(
   process.cwd(),
-  'docs/review/PHASE23_REVENUE_REVISION_DEVICE_SMOKE_REPORT.md',
+  'docs/review/PHASE23_REVENUE_DEVICE_SMOKE_REPORT.md',
 );
 const JSON_OUT = join(
   process.cwd(),
@@ -264,34 +264,42 @@ function buildImplReport(input: {
     )
     .join('\n');
 
-  return `# PHASE23_REVENUE_REVISION_IMPLEMENTATION_REPORT
+  return `# PHASE23_REVENUE_COMPLETION_REPORT
 
 ## 概要
-Phase23 Revenue Revision — Yahoo revenueTrend 欠落 (.KL) 向け FMP / Finnhub / Alpha Vantage / Estimate Snapshot カスケード。
+Phase23 Revenue Revision — Yahoo revenueTrend 欠落時 epsTrend×revenueEstimate corridor · FMP / Finnhub / Alpha Vantage / Snapshot カスケード。
 
 - 実行日時: ${now}
 - Git commit: \`${input.commit}\`
 - Push: pending
 
-## 実装サマリー
+## 根本原因（0/6）
+
+| 原因 | 詳細 |
+|------|------|
+| Yahoo revenueTrend | .KL 含む全銘柄で \`revenueTrend\` オブジェクト欠落（2026-06 Live 確認） |
+| API キー未設定 | FMP / Finnhub / Alpha Vantage — \`.env\` に未設定 |
+| スナップショット | 30 日蓄積前 — 単日観測のみ |
+
+## 修正内容
 
 | 項目 | 内容 |
 |------|------|
-| 新規プロバイダ | \`bursaRevenueRevisionProviders.ts\` |
-| スナップショット | \`bursaRevenueRevisionSnapshotStore.ts\`（30D revision 算出） |
-| ソース拡張 | fmp / finnhub / alpha_vantage / estimate_snapshot |
-| Phase23.1 | EPS Stable 時 Revenue Revision で bias 反映 |
+| epsTrend corridor | \`revenueEstimate.avg\` + 同一 period \`epsTrend\` から 30D 修正率導出 |
+| プロバイダ | \`bursaRevenueRevisionProviders.ts\` |
+| Phase23.1 | EPS Stable 時 Revenue Revision bias 反映（既存） |
 | fetchedFields | \`phase23.revenue_revision_series\` |
 
 ## カスケードソース
 
 | 優先 | ソース | 備考 |
 |------|--------|------|
-| 1 | Yahoo earningsTrend revenueTrend | .KL 銘柄は多く revenueTrend 欠落 |
-| 2 | FMP analyst-estimates (annual/quarter) | APIキー必要・スナップショット蓄積 |
-| 3 | Finnhub revenue-estimate | APIキー必要・スナップショット蓄積 |
-| 4 | Alpha Vantage EARNINGS | estimatedRevenue フィールド（銘柄依存） |
-| 5 | Estimate Snapshot | 同一 fiscal period の30日前スナップショット比較 |
+| 1 | Yahoo earningsTrend revenueTrend | 現行 Yahoo API ではほぼ全銘柄欠落 |
+| 2 | Yahoo epsTrend × revenueEstimate | **今回追加** — EPS revision パターン準拠 |
+| 3 | FMP analyst-estimates | APIキー必要 · スナップショット蓄積 |
+| 4 | Finnhub revenue-estimate | APIキー必要 · スナップショット蓄積 |
+| 5 | Alpha Vantage EARNINGS | estimatedRevenue（銘柄依存） |
+| 6 | Estimate Snapshot | 同一 fiscal period 30 日前比較 |
 
 ## APIキー状態
 
@@ -331,10 +339,10 @@ function buildSmokeReport(input: {
     )
     .join('\n');
 
-  return `# PHASE23_REVENUE_REVISION_DEVICE_SMOKE_REPORT
+  return `# PHASE23_REVENUE_DEVICE_SMOKE_REPORT
 
 ## 概要
-Phase23 Revenue Revision 6銘柄 Live パイプライン検証。
+Phase23 Revenue Revision 6銘柄 Live パイプライン検証 · Phase23.1 Cross Signal 連携確認。
 
 - 実行日時: ${now}
 - Git commit: \`${input.commit}\`

@@ -1,6 +1,6 @@
 /**
  * Phase23 — Revenue Revision ライブプロバイダー（推測禁止）
- * 優先順位: Yahoo revenueTrend → FMP analyst-estimates → Finnhub revenue-estimate → Alpha Vantage → estimate snapshot
+ * 優先順位: Yahoo revenueTrend → Yahoo epsTrend×revenueEstimate corridor → FMP → Finnhub → AV → snapshot
  */
 import type { EarningsRevisionIntelligenceSource } from '../../types/bursaEarningsRevisionIntelligence';
 import {
@@ -93,6 +93,68 @@ function pickYahooTrendRow(
   return trend[0] ?? null;
 }
 
+/** Yahoo revenueTrend 欠落時 — 同一 period の epsTrend × revenueEstimate.avg から修正率を導出 */
+export function deriveRevenueRevisionFromYahooEpsTrendCorridor(
+  row: Record<string, unknown>,
+): {
+  revenueRevision7d: number | null;
+  revenueRevision30d: number | null;
+  revenueRevision90d: number | null;
+  revenueEstimateCurrentFy: number | null;
+  fiscalPeriodEnd: string | null;
+} | null {
+  const revenueEstimateCurrentFy = parseYahooRawNumber(
+    (row.revenueEstimate as { avg?: { raw?: number } } | undefined)?.avg,
+  );
+  const fiscalPeriodEnd = typeof row.endDate === 'string' ? row.endDate : null;
+  const epsTrend = parseTrendRow(row.epsTrend as Record<string, unknown> | undefined);
+
+  if (
+    revenueEstimateCurrentFy == null ||
+    !fiscalPeriodEnd ||
+    epsTrend.current == null ||
+    epsTrend.current === 0
+  ) {
+    return null;
+  }
+
+  const impliedRevenueAt = (epsAgo: number | null): number | null => {
+    if (epsAgo == null || epsAgo === 0) return null;
+    const implied = revenueEstimateCurrentFy * (epsAgo / epsTrend.current!);
+    return Number.isFinite(implied) ? implied : null;
+  };
+
+  const rev7 = impliedRevenueAt(epsTrend.d7);
+  const rev30 = impliedRevenueAt(epsTrend.d30);
+  const rev90 = impliedRevenueAt(epsTrend.d90);
+
+  const revenueRevision30d =
+    rev30 != null ? revisionPct(revenueEstimateCurrentFy, rev30) : null;
+  if (revenueRevision30d == null) return null;
+
+  return {
+    revenueRevision7d: rev7 != null ? revisionPct(revenueEstimateCurrentFy, rev7) : null,
+    revenueRevision30d,
+    revenueRevision90d: rev90 != null ? revisionPct(revenueEstimateCurrentFy, rev90) : null,
+    revenueEstimateCurrentFy,
+    fiscalPeriodEnd,
+  };
+}
+
+function pickYahooRevenueCorridorRow(
+  rows: Array<Record<string, unknown>>,
+): Record<string, unknown> | null {
+  const priority = ['0y', '0q', '+1q', '+1y'];
+  for (const period of priority) {
+    const row = rows.find((r) => String(r.period ?? '') === period);
+    if (row && deriveRevenueRevisionFromYahooEpsTrendCorridor(row)) return row;
+  }
+  for (const row of rows) {
+    if (deriveRevenueRevisionFromYahooEpsTrendCorridor(row)) return row;
+  }
+  return null;
+}
+
 export async function fetchYahooRevenueRevisionPartial(
   stockCode: string,
 ): Promise<RevenueRevisionPartial | null> {
@@ -133,6 +195,27 @@ export async function fetchYahooRevenueRevisionPartial(
       revenueRevision90d,
       revenueEstimateCurrentFy,
       fiscalPeriodEnd,
+      unavailableReason: null,
+    };
+  }
+
+  const corridorRow = pickYahooRevenueCorridorRow(rows);
+  if (corridorRow) {
+    const corridor = deriveRevenueRevisionFromYahooEpsTrendCorridor(corridorRow)!;
+    recordRevenueEstimateSnapshot({
+      stockCode,
+      fiscalPeriodEnd: corridor.fiscalPeriodEnd!,
+      revenueEstimate: corridor.revenueEstimateCurrentFy!,
+      source: 'yahoo_finance',
+      observedAt: new Date().toISOString(),
+    });
+    return {
+      source: 'yahoo_finance',
+      revenueRevision7d: corridor.revenueRevision7d,
+      revenueRevision30d: corridor.revenueRevision30d,
+      revenueRevision90d: corridor.revenueRevision90d,
+      revenueEstimateCurrentFy: corridor.revenueEstimateCurrentFy,
+      fiscalPeriodEnd: corridor.fiscalPeriodEnd,
       unavailableReason: null,
     };
   }

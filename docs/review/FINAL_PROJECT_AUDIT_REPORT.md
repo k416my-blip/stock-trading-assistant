@@ -20,26 +20,28 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 | 区分 | 件数 | 比率 |
 |------|------|------|
 | サブフェーズ総数（Phase13〜24） | 28 | 100% |
-| **完了** | 23 | **82%** |
-| **部分完了** | 5 | **18%** |
+| **完了** | 25 | **89%** |
+| **部分完了** | 3 | **11%** |
 | **保留** | 0 | 0% |
 | **未着手** | 0 | 0% |
 | Phase11 配線済み | 28/28 | **100%** |
 
-**加重本番利用可能度: 約 87%**
+**加重本番利用可能度: 約 96%**
 
-計算: 完了=1.0 · 部分完了=0.65 → (23 + 5×0.65) / 28 ≈ 0.87
+計算: 完了=1.0 · 部分完了=0.65 → (25 + 3×0.65) / 28 ≈ 0.96
 
 ### 前回監査からの変化
 
-| 項目 | 前回 (`PHASE_COMPLETENESS_AUDIT_REPORT.md`) | 今回 |
-|------|---------------------------------------------|------|
-| 完了率 | 79% (22/28) | **82% (23/28)** |
-| 加重本番利用可能度 | 約 85% | **約 87%** |
-| Phase23.1 UI | 未露出 | **Material Analysis PASS** (v16) |
-| Phase24 UI | 未露出 | **Material Analysis PASS** (v16) |
-| Phase24 Live | 6/6 PASS | 維持 |
-| Concierge Enhanced | evidence 欠落 | **v17 PASS** (`CONCIERGE_ENHANCED_ANALYSIS_FINAL_REPORT.md`) |
+| 項目 | 前回 (`PHASE_COMPLETENESS_AUDIT_REPORT.md`) | 前回監査 (`b620867`) | 今回 |
+|------|---------------------------------------------|----------------------|------|
+| 完了率 | 79% (22/28) | **82% (23/28)** | **89% (25/28)** |
+| 加重本番利用可能度 | 約 85% | 約 87% | **約 96%** |
+| Phase19 Macro | 8/12 Live · 参照定数 | 部分完了 | **12/12 完了** (`5459c1d`) |
+| Phase23 Revenue | 0/6 | 0/6 | **6/6 完了** |
+| Phase23.1 UI | 未露出 | **Material Analysis PASS** (v16) | 維持 · revenue データ連携 |
+| Phase24 UI | 未露出 | **Material Analysis PASS** (v16) | 維持 |
+| Phase24 Live | — | 6/6 PASS | 維持 |
+| Concierge Enhanced | evidence 欠落 | **v17 PASS** | 維持 |
 
 ---
 
@@ -55,11 +57,11 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 | **16** | Institutional Ownership | **部分完了** | 16.5/16.6/16.7 完了 · **16.8 TOP30 深度不足** (~2.2ペア/銘柄) |
 | **17** | Dividend Intelligence | **部分完了** | 配線完了 · **17.5 フィールド取得率 71%** · 5Y CAGR 未取得 |
 | **18** | News Intelligence | **完了** | 18.5〜18.8 内包 · unit/audit PASS |
-| **19** | Macro Intelligence | **部分完了** | **8/12 Live** · Fed/OPR/CPI 等4指標は参照定数 |
+| **19** | Macro Intelligence | **完了** | **12/12 Live** · 参照定数削除 · `PHASE19_LIVE_MACRO_COMPLETION_REPORT.md` (`5459c1d`) |
 | **20** | Valuation Intelligence | **完了** | 20.1 内包 · audit PASS |
 | **21** | Fair Value Intelligence | **部分完了** | 21.5〜21.8 完了 · **金融株 DCF 不可**が多い |
 | **22** | Analyst Target + Gap + Conviction | **完了** | 22/22.1/22.2 6/6 |
-| **23** | Earnings Revision | **部分完了** | EPS 6/6 · **Revenue Revision 30D 全6銘柄未取得** |
+| **23** | Earnings Revision | **完了** | EPS 6/6 · **Revenue Revision 6/6** · `PHASE23_REVENUE_COMPLETION_REPORT.md` |
 | **24** | Analyst Consensus Intelligence | **部分完了** | Live Yahoo 6/6 · UI 実装済 · **Finnhub/AV/FMP 未検証** · 6銘柄 UI scan 1/6 |
 
 ### 2.2 サブフェーズ詳細
@@ -74,13 +76,13 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 | 17 | 完了 | |
 | 17.5 | 部分完了 | 5Y Dividend CAGR |
 | 18 / 18.5 / 18.6 / 18.7 / 18.8 | 完了 | |
-| 19 | 部分完了 | 参照定数 4 指標 |
+| 19 | 完了 | 12/12 Live · `MACRO_REFERENCE_VALUES` 削除 |
 | 19.5 | 完了 | 6/6 |
 | 20 / 20.1 | 完了 | |
 | 21 | 部分完了 | DCF 非対称 |
 | 21.5 / 21.6 / 21.7 / 21.8 | 完了 | |
 | 22 / 22.1 / 22.2 | 完了 | |
-| 23 | 部分完了 | revenue revision gap |
+| 23 | 完了 | EPS + Revenue 6/6 |
 | **23.1** | **完了** | 6/6 smoke · **UI 露出完了** (v16) · `PHASE23_1_UI_REVALIDATION_REPORT.md` |
 | 24 | 部分完了 | Live 6/6 · UI 露出 · multi-provider / 6銘柄 UI scan 未 |
 
@@ -118,9 +120,9 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 | アナリスト | 14, 22, 24 | 24 は Yahoo 6/6 実証 |
 | インサイダー・機関 | 15, 16系 | KLSE HTML 必須 |
 | 配当・ニュース | 17, 18 | NewsAPI キー無効時 RSS フォールバック |
-| マクロ・セクター | 19, 19.5 | 19 は 4 指標が静的参照 |
+| マクロ・セクター | 19, 19.5 | 19 は 12/12 Live 実証 |
 | バリュエーション | 20, 21, 22.1 | 21 DCF は銘柄依存 |
-| リビジョン・確信 | 23, 23.1, 22.2 | 23 revenue 系列が弱い |
+| リビジョン・確信 | 23, 23.1, 22.2 | 23 Revenue 6/6 · 23.1 Stable 時 revenue bias |
 
 ---
 
@@ -128,19 +130,17 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 
 | # | 項目 | 影響 | 証跡 |
 |---|------|------|------|
-| 1 | Phase19 マクロ参照定数（Fed/OPR/CPI 等） | 高 | `MACRO_REFERENCE_VALUES` · 8/12 Live |
-| 2 | Phase23 Revenue Revision 30D 未取得 | 中 | `PHASE23_EARNINGS_REVISION_INTELLIGENCE_REPORT.md` |
-| 3 | Phase17.5 5Y Dividend CAGR 未取得 | 中 | `PHASE16_8_PHASE17_5_AUDIT_REPORT.md` |
-| 4 | Phase24 Finnhub/AV/FMP 実キー検証未 | 中 | Yahoo のみ 6/6 |
-| 5 | Phase14/22/24 アナリスト系スコア重複 | 低〜中 | UX 混乱リスク |
-| 6 | `PRODUCTION_READINESS_REPORT.md` 陳腐化 | 中 | Phase24「mock only」記載 |
-| 7 | NewsAPI 429 長時間耐性未証明 | 中 | 12h 106 fetch だが quota stress 未 |
-| 8 | Phase11 live E2E テスト欠如 | 中 | CLI/unit のみ |
-| 9 | Phase17–23 device verify 不均一 | 低〜中 | Phase13–16, 24 のみ実機 |
-| 10 | Windows MAX_PATH → ローカル AAB 不可 | 高（リリース） | `PRODUCTION_AAB_BUILD_REPORT.md` |
-| 11 | 12h メモリ +35.4% WARN | 低 | `PHASE12_5_LONG_RUN_REPORT.md` |
-| 12 | 監査用 Phase24 mock fixture 残存 | 低 | `useMockFixture=true` 時のみ · 意図的 |
-| 13 | README Phase 表が Phase12 までで古い | 低 | `README.md` 2026-06-09 |
+| 1 | Phase17.5 5Y Dividend CAGR 未取得 | 中 | `PHASE16_8_PHASE17_5_AUDIT_REPORT.md` |
+| 2 | Phase24 Finnhub/AV/FMP 実キー検証未 | 中 | Yahoo のみ 6/6 |
+| 3 | Phase14/22/24 アナリスト系スコア重複 | 低〜中 | UX 混乱リスク |
+| 4 | `PRODUCTION_READINESS_REPORT.md` 陳腐化 | 中 | Phase24「mock only」記載 |
+| 5 | NewsAPI 429 長時間耐性未証明 | 中 | 12h 106 fetch だが quota stress 未 |
+| 6 | Phase11 live E2E テスト欠如 | 中 | CLI/unit のみ |
+| 7 | Phase17–23 device verify 不均一 | 低〜中 | Phase13–16, 24 のみ実機 |
+| 8 | Windows MAX_PATH → ローカル AAB 不可 | 高（リリース） | `PRODUCTION_AAB_BUILD_REPORT.md` |
+| 9 | 12h メモリ +35.4% WARN | 低 | `PHASE12_5_LONG_RUN_REPORT.md` |
+| 10 | 監査用 Phase24 mock fixture 残存 | 低 | `useMockFixture=true` 時のみ · 意図的 |
+| 11 | README Phase 表が Phase12 までで古い | 低 | `README.md` 2026-06-09 |
 
 **コード内 TODO/FIXME:** `src/` 配下 **0 件**（2026-06-19 grep）
 
@@ -205,14 +205,12 @@ Release flavor 分離 · monitor 除去設定 · プライバシー草案 · Dat
 
 1. production AAB 生成（Jul 01 以降 `npm run build:android:production`）
 2. プライバシーポリシー URL ホスト + Play Console 登録
-3. Phase19 Live マクロ 4 指標
-4. Phase23 Revenue Revision プロバイダ
-5. Phase24 multi-provider 実キー検証 + 6 銘柄 UI scan
-6. `PRODUCTION_READINESS_REPORT.md` 更新（Phase24 Live 反映）
-7. 第二デバイス 3h screen-off
-8. NewsAPI 429 hardening
-9. ストア素材（screenshot · 1024×500 · コンテンツレーティング · サポートメール）
-10. production AAB 実機スモーク（monitor=0 確認）
+3. Phase24 multi-provider 実キー検証 + 6 銘柄 UI scan
+4. `PRODUCTION_READINESS_REPORT.md` 更新（Phase24 Live 反映）
+5. 第二デバイス 3h screen-off
+6. NewsAPI 429 hardening
+7. ストア素材（screenshot · 1024×500 · コンテンツレーティング · サポートメール）
+8. production AAB 実機スモーク（monitor=0 確認）
 
 ---
 
@@ -231,7 +229,6 @@ Release flavor 分離 · monitor 除去設定 · プライバシー草案 · Dat
 | リスク | 影響 | 緩和 |
 |--------|------|------|
 | NewsAPI 429 / 401 | ニュース空白 | RSS fallback · cache TTL |
-| Phase19 参照定数 | マクロ判断の精度低下 | Live feed 追加 |
 | Windows ローカル Gradle | 開発者ビルド不可 | EAS cloud · WSL2 |
 
 ### 低
@@ -251,11 +248,9 @@ Release flavor 分離 · monitor 除去設定 · プライバシー草案 · Dat
 | 2 | プライバシー URL 公開 + Data Safety 入力 | リリース | Play 必須 |
 | 3 | ストア素材（screenshot · FG · レーティング） | リリース | Play 必須 |
 | 4 | `PRODUCTION_READINESS_REPORT.md` 更新 | ドキュメント | ステークホルダー齟齬 |
-| 5 | Phase19 Fed/OPR/CPI Live フィード | 実装 | 参照定数排除 |
-| 6 | Phase23 Revenue Revision プロバイダ | 実装 | Cross Signal 精度 |
-| 7 | Phase17.5 5Y CAGR ソース | 実装 | 配当完成度 71%→100% |
-| 8 | Phase24 Finnhub/AV/FMP キー検証 | 検証 | Yahoo 以外フォールバック |
-| 9 | Phase24/23.1 Concierge UI 自動再検証（v17） | 検証 | v16 Concierge FAIL 解消確認 |
+| 5 | Phase17.5 5Y CAGR ソース | 実装 | 配当完成度 71%→100% |
+| 6 | Phase24 Finnhub/AV/FMP キー検証 | 検証 | Yahoo 以外フォールバック |
+| 7 | Phase24/23.1 Concierge UI 自動再検証（v17） | 検証 | v16 Concierge FAIL 解消確認 |
 | 10 | production AAB 実機スモーク | 検証 | monitor=0 · API 永続化 |
 | 11 | 第二デバイス 3h screen-off | 検証 | 単一 OEM リスク |
 | 12 | NewsAPI 429 hardening | 実装 | 12h stress |
@@ -285,11 +280,9 @@ gantt
  第二デバイス3h :b2, after a3, 5d
  PRODUCTION_READINESS更新 :b3, 2026-06-19, 1d
  section P2 データ完全性
- Phase19 Live macro :c1, after b3, 5d
- Phase23 revenue revision :c2, after c1, 4d
- Phase24 multi-provider :c3, after c2, 3d
+ Phase24 multi-provider :c1, after b3, 3d
  section P3 hardening
- NewsAPI 429 :d1, after c3, 4d
+ NewsAPI 429 :d1, after c1, 4d
  Phase11 live E2E :d2, after d1, 3d
 ```
 
@@ -301,7 +294,9 @@ gantt
 
 | 領域 | レポート | 結果 |
 |------|----------|------|
-| Phase 完成度 | `PHASE_COMPLETENESS_AUDIT_REPORT.md` | 79%→今回 82% |
+| Phase 完成度 | `PHASE_COMPLETENESS_AUDIT_REPORT.md` | 79%→今回 **89%** |
+| Phase19 Live | `PHASE19_LIVE_MACRO_COMPLETION_REPORT.md` | **12/12 PASS** (`5459c1d`) |
+| Phase23 Revenue | `PHASE23_REVENUE_COMPLETION_REPORT.md` | **6/6 PASS** |
 | Phase24 Live | `PHASE24_COMPLETION_AUDIT_REPORT.md` | 6/6 PASS |
 | Phase23.1 UI | `PHASE23_1_UI_REVALIDATION_REPORT.md` | PASS (1155) |
 | Phase24 UI | `PHASE24_UI_REVALIDATION_REPORT.md` | PASS (1155) |
@@ -317,11 +312,13 @@ gantt
 
 ## 13. 結論
 
-Phase13〜24 は **オーケストレータ未実装ゼロ** · **Phase11 全配線** · **本番 mock 不使用** まで到達。完成率 **82%**、加重本番利用可能度 **約 87%**。
+Phase13〜24 は **オーケストレータ未実装ゼロ** · **Phase11 全配線** · **本番 mock 不使用** まで到達。完成率 **89% (25/28)**、加重本番利用可能度 **約 96%**。
+
+Phase19（12/12 Live · 参照定数削除）および Phase23（Revenue Revision 6/6）が今回完了。
 
 **Play Internal Testing は現時点 NO。** Jul 01 EAS quota リセット後の production AAB + プライバシー URL + ストア素材が最短クリティカルパス。
 
-次サイクルは新規 Phase 追加より **Play 投入 · データ完全性（19/23/24）· ドキュメント整合 · 多デバイス検証** を優先するのが合理的。
+次サイクルは新規 Phase 追加より **Play 投入 · データ完全性（24）· ドキュメント整合 · 多デバイス検証** を優先するのが合理的。
 
 ---
 
