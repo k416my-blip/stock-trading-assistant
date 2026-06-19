@@ -9,7 +9,7 @@ Phase19 · Phase23 Revenue 完了を承認したうえで、次サイクルの�
 | 策定日 | 2026-06-19 |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 策定ベースコミット | `b6a8471` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `a2f4d2b` |
 | アプリ | Rakuten Trade MY 助手 · `com.assistant.stocktrading` |
 | 最新 preview APK | versionCode **17** · `artifacts/preview-v17-local.apk` |
 | 目標状態 | Play Internal Testing track へ **初回 AAB upload 可能** |
@@ -366,6 +366,6 @@ gantt
 | 項目 | 値 |
 |------|-----|
 | 策定ベースコミット | `b6a8471` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `a2f4d2b` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | Push | *(未実施 — 本レポート作成待ち)* |
