@@ -37,6 +37,7 @@ import { enrichStockWithAnalystTargetIntelligence } from './bursaPhase22Analysis
 import { enrichStockWithValuationGapIntelligence } from './bursaPhase22_1Analysis';
 import { enrichStockWithEarningsRevisionIntelligence } from './bursaPhase23Analysis';
 import { enrichStockWithConvictionIntelligence } from './bursaPhase22_2Analysis';
+import { enrichStockWithAnalystConsensusIntelligence } from './bursaPhase24Analysis';
 import { getSectorPeerCodes } from './bursaSectorPeers';
 import { getBursaUniverseStockCodes } from './bursaStockUniverse';
 
@@ -174,6 +175,12 @@ async function analyzeOneStock(input: {
     stock: enriched,
     apiKeys,
     fetchLiveExternal,
+  });
+  enriched = await enrichStockWithAnalystConsensusIntelligence({
+    stock: enriched,
+    apiKeys,
+    fetchLiveExternal,
+    useMockFixture: false,
   });
   enriched = await enrichStockWithInsiderTrading({
     stock: enriched,

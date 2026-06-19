@@ -1,6 +1,6 @@
 /**
  * Phase24 — Analyst Consensus Intelligence プロバイダー
- * Step 4: mock fixture 6銘柄 · Phase14 派生強化 · live fetch 禁止
+ * Live: Yahoo Finance → Finnhub → Alpha Vantage → FMP（Phase14 fetcher 再利用）
  */
 import type { BursaAnalystConsensusAnalysis } from '../../types/bursaAnalystConsensus';
 import type {
@@ -9,6 +9,16 @@ import type {
   AnalystRevisionDirectionLabel,
 } from '../../types/bursaAnalystConsensusIntelligence';
 import { AUDIT_ANALYST_CONSENSUS_STOCKS } from '../../constants/bursaAnalystConsensusIntelligence';
+import {
+  fetchAlphaVantageAnalystConsensus,
+  fetchFinnhubAnalystConsensus,
+  fetchFmpAnalystConsensus,
+  fetchYahooAnalystConsensus,
+  type AnalystConsensusApiKeys,
+  type AnalystConsensusPartial,
+} from './bursaAnalystConsensusProviders';
+import { buildYahooChartUrl } from '../quoteProviders/yahooFinanceQuote';
+import { defaultQuoteFetchHeaders, fetchHttpWithRetry } from '../quoteProviders/providerFetchUtil';
 
 export type AnalystConsensusIntelligencePartial = {
   source: AnalystConsensusIntelligenceSource;
@@ -175,7 +185,156 @@ export function createMockFixtureProvider(
 }
 
 export const UNAVAILABLE_PROVIDER_REASON =
-  'Analyst consensus provider unavailable — live fetch disabled (Step 4 offline)';
+  'Analyst consensus provider unavailable — no live data returned';
+
+export function mapConsensusTrendToRevision(
+  trend: BursaAnalystConsensusAnalysis['consensusTrend'],
+): AnalystRevisionDirectionLabel | null {
+  if (!trend) return null;
+  if (trend === 'Maintained') return 'Stable';
+  return trend;
+}
+
+function mapProviderSource(source: AnalystConsensusPartial['source']): AnalystConsensusIntelligenceSource {
+  if (source === 'yahoo_finance') return 'yahoo_finance';
+  if (source === 'finnhub') return 'finnhub';
+  if (source === 'alpha_vantage') return 'alpha_vantage';
+  if (source === 'fmp') return 'fmp';
+  return 'none';
+}
+
+async function fetchLiveCurrentPrice(stockCode: string): Promise<number | null> {
+  const symbol = `${normalizeAuditStockCode(stockCode)}.KL`;
+  try {
+    const res = await fetchHttpWithRetry(buildYahooChartUrl(symbol), {
+      timeoutMs: 10_000,
+      logLabel: 'yahoo_price_for_phase24_consensus',
+      headers: defaultQuoteFetchHeaders(),
+    });
+    if (!res.response.ok) return null;
+    const json = JSON.parse(res.bodyText) as {
+      chart?: { result?: Array<{ meta?: { regularMarketPrice?: number } }> };
+    };
+    const price = json.chart?.result?.[0]?.meta?.regularMarketPrice;
+    return typeof price === 'number' && Number.isFinite(price) ? price : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Phase14 provider partial → Phase24 intelligence partial */
+export function mapAnalystConsensusPartialToIntelligence(
+  partial: AnalystConsensusPartial,
+  currentPrice: number | null,
+  updatedAt: string | null = new Date().toISOString(),
+  providerError: string | null = null,
+): AnalystConsensusIntelligencePartial {
+  const counts = partial.ratingCounts;
+  const buyCount = counts ? (counts.strongBuy ?? 0) + (counts.buy ?? 0) : null;
+  const holdCount = counts?.hold ?? null;
+  const sellCount = counts ? (counts.sell ?? 0) + (counts.strongSell ?? 0) : null;
+  const consensusRating =
+    partial.rating ?? deriveConsensusRatingFromCounts(counts);
+  const revision = mapConsensusTrendToRevision(partial.consensusTrend);
+
+  let impliedUpsidePct: number | null = null;
+  if (
+    partial.averageTargetPrice != null &&
+    currentPrice != null &&
+    currentPrice > 0 &&
+    partial.averageTargetPrice > 0
+  ) {
+    impliedUpsidePct = ((partial.averageTargetPrice - currentPrice) / Math.abs(currentPrice)) * 100;
+  }
+
+  return {
+    source: mapProviderSource(partial.source),
+    analystCount: counts?.analystCount ?? null,
+    buyCount,
+    holdCount,
+    sellCount,
+    consensusRating,
+    targetPrice: partial.averageTargetPrice,
+    currentPrice,
+    impliedUpsidePct,
+    targetRevisionDirection: revision,
+    targetRevisionPct: null,
+    ratingRevisionDirection: revision,
+    consensusDispersion: dispersionFromRatingCounts(counts),
+    updatedAt,
+    providerError,
+  };
+}
+
+export async function fetchLiveAnalystConsensusIntelligencePartials(input: {
+  stockCode: string;
+  apiKeys?: AnalystConsensusApiKeys;
+}): Promise<{ partials: AnalystConsensusIntelligencePartial[]; errors: string[] }> {
+  const code = normalizeAuditStockCode(input.stockCode);
+  const keys = input.apiKeys ?? {
+    finnhubApiKey: '',
+    alphaVantageApiKey: '',
+    fmpApiKey: '',
+  };
+  const errors: string[] = [];
+  const rawPartials: AnalystConsensusPartial[] = [];
+
+  const attempt = async (label: string, fn: () => Promise<AnalystConsensusPartial | null>) => {
+    try {
+      const result = await fn();
+      if (result) rawPartials.push(result);
+      else errors.push(`${label}: no data`);
+    } catch (e) {
+      errors.push(`${label}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+
+  await attempt('yahoo_finance', () => fetchYahooAnalystConsensus(code));
+  if (keys.finnhubApiKey.trim()) {
+    await attempt('finnhub', () => fetchFinnhubAnalystConsensus(code, keys.finnhubApiKey));
+  }
+  if (keys.alphaVantageApiKey.trim()) {
+    await attempt('alpha_vantage', () =>
+      fetchAlphaVantageAnalystConsensus(code, keys.alphaVantageApiKey),
+    );
+  }
+  if (keys.fmpApiKey.trim()) {
+    await attempt('fmp', () => fetchFmpAnalystConsensus(code, keys.fmpApiKey));
+  }
+
+  const currentPrice = await fetchLiveCurrentPrice(code);
+  const updatedAt = new Date().toISOString();
+  const partials = rawPartials.map((p) =>
+    mapAnalystConsensusPartialToIntelligence(p, currentPrice, updatedAt),
+  );
+
+  if (partials.length === 0) {
+    return {
+      partials: [
+        {
+          source: 'none',
+          analystCount: null,
+          buyCount: null,
+          holdCount: null,
+          sellCount: null,
+          consensusRating: null,
+          targetPrice: null,
+          currentPrice: null,
+          impliedUpsidePct: null,
+          targetRevisionDirection: null,
+          targetRevisionPct: null,
+          ratingRevisionDirection: null,
+          consensusDispersion: null,
+          updatedAt: null,
+          providerError: errors.length > 0 ? errors.join('; ') : UNAVAILABLE_PROVIDER_REASON,
+        },
+      ],
+      errors,
+    };
+  }
+
+  return { partials, errors };
+}
 
 export function createUnavailableProvider(
   reason: string = UNAVAILABLE_PROVIDER_REASON,
@@ -370,12 +529,12 @@ export async function fetchAllAnalystConsensusIntelligencePartials(input: {
   analystConsensus?: BursaAnalystConsensusAnalysis | null;
   useMockFixture?: boolean;
   fetchLiveExternal?: boolean;
+  apiKeys?: AnalystConsensusApiKeys;
 }): Promise<AnalystConsensusIntelligencePartial | null> {
   const partials: AnalystConsensusIntelligencePartial[] = [];
+  const liveErrors: string[] = [];
 
-  const wantMock =
-    input.useMockFixture === true ||
-    (input.useMockFixture !== false && isAuditMockStock(input.stockCode));
+  const wantMock = input.useMockFixture === true;
 
   if (wantMock) {
     const mock = getMockFixtureForStock(input.stockCode) ?? { ...MOCK_ANALYST_CONSENSUS_FIXTURE };
@@ -385,20 +544,36 @@ export async function fetchAllAnalystConsensusIntelligencePartials(input: {
   const fromPhase14 = buildAnalystConsensusPartialFromPhase14(input.analystConsensus);
   if (fromPhase14) partials.push(fromPhase14);
 
-  // Step 4: live external fetch 禁止（adapter stub のみ）
   if (input.fetchLiveExternal) {
-    const unavailable = await createUnavailableProvider(
-      'Live external fetch disabled in Step 4 — use Phase14 or mock fixture',
-    ).fetch(input.stockCode);
-    if (unavailable) partials.push(unavailable);
+    const live = await fetchLiveAnalystConsensusIntelligencePartials({
+      stockCode: input.stockCode,
+      apiKeys: input.apiKeys,
+    });
+    liveErrors.push(...live.errors);
+    for (const p of live.partials) {
+      if (p.source !== 'none' || p.analystCount != null || p.targetPrice != null || p.consensusRating) {
+        partials.push(p);
+      } else if (p.providerError) {
+        partials.push(p);
+      }
+    }
   }
 
   const merged = mergeAnalystConsensusIntelligencePartials(partials);
-  const externalProviderError = input.fetchLiveExternal
-    ? partials.find((p) => p.providerError)?.providerError
-    : null;
-  if (merged && externalProviderError && !merged.providerError) {
-    merged.providerError = externalProviderError;
+  const providerErrorFromLive =
+    liveErrors.length > 0 && merged && (merged.analystCount != null || merged.targetPrice != null)
+      ? liveErrors.join('; ')
+      : null;
+  if (merged && providerErrorFromLive && !merged.providerError) {
+    merged.providerError = providerErrorFromLive;
+  }
+  if (merged && merged.providerError && liveErrors.length === 0) {
+    /* keep existing */
+  } else if (merged && !merged.providerError) {
+    const errPartial = partials.find((p) => p.providerError);
+    if (errPartial?.providerError && !merged.analystCount && !merged.targetPrice && !merged.consensusRating) {
+      merged.providerError = errPartial.providerError;
+    }
   }
   return merged ?? partials.find((p) => p.providerError) ?? null;
 }

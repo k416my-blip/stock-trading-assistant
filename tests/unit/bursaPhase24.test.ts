@@ -243,11 +243,12 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(analysis.evaluationJa).toContain('アナリスト');
   });
 
-  it('enrichStockWithAnalystConsensusIntelligence auto-mocks audit stocks offline', async () => {
+  it('enrichStockWithAnalystConsensusIntelligence uses mock only when useMockFixture=true', async () => {
     for (const code of AUDIT_ANALYST_CONSENSUS_STOCKS) {
       const enriched = await enrichStockWithAnalystConsensusIntelligence({
         stock: minimalStock(code),
         fetchLiveExternal: false,
+        useMockFixture: true,
       });
       expect(enriched.analystConsensusIntelligence?.availability).toBe('available');
       expect(enriched.fetchedFields).toContain('phase24.analyst_consensus_intelligence');
@@ -264,13 +265,13 @@ describe('bursaPhase24 analyst consensus intelligence', () => {
     expect(enriched.missingFields).toContain('phase24.analyst_consensus_intelligence');
   });
 
-  it('fetchAll with fetchLiveExternal adds provider_error path without live call', async () => {
+  it('fetchAll with fetchLiveExternal returns unavailable for unknown stock without mock', async () => {
     const partial = await fetchAllAnalystConsensusIntelligencePartials({
       stockCode: '9999',
       useMockFixture: false,
       fetchLiveExternal: true,
     });
-    expect(partial?.providerError).toContain('Live external fetch disabled');
+    expect(partial?.providerError).toBeTruthy();
   });
 
   it('4707 mock fixture has negative upside score', async () => {
@@ -416,14 +417,14 @@ describe('bursaPhase24 edge cases', () => {
     expect(partial?.consensusRating).toBeNull();
   });
 
-  it('provider error with partial mock data still returns available analysis', async () => {
+  it('live fetch with mock flag merges yahoo over mock fixture when available', async () => {
     const analysis = await buildAnalystConsensusIntelligenceAnalysis({
       stockCode: '1155',
       useMockFixture: true,
       fetchLiveExternal: true,
     });
     expect(analysis.availability).toBe('available');
-    expect(analysis.warnings).toContain('provider_error');
+    expect(analysis.source).toBe('yahoo_finance');
     expect(analysis.consensusScore).toBeGreaterThanOrEqual(ANALYST_CONSENSUS_SCORE_MIN);
   });
 

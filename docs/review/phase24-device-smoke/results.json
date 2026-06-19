@@ -1,0 +1,74 @@
+[
+  {
+    "code": "1155",
+    "label": "Maybank",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+7",
+    "confidence": "High",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  },
+  {
+    "code": "1023",
+    "label": "CIMB",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+14",
+    "confidence": "High",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  },
+  {
+    "code": "1295",
+    "label": "Public Bank",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+10",
+    "confidence": "High",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  },
+  {
+    "code": "5347",
+    "label": "Tenaga",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+10",
+    "confidence": "High",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  },
+  {
+    "code": "4707",
+    "label": "Nestle",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+11",
+    "confidence": "Medium",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  },
+  {
+    "code": "6033",
+    "label": "Petronas Gas",
+    "phase14Source": "yahoo_finance",
+    "phase24Source": "yahoo_finance",
+    "availability": "available",
+    "score": "+4",
+    "confidence": "High",
+    "mockUsed": false,
+    "status": "PASS",
+    "error": null
+  }
+]

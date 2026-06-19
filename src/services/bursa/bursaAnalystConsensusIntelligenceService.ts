@@ -2,6 +2,7 @@
  * Phase24 — Analyst Consensus Intelligence（Step 3: service 骨格 · scoring · warnings）
  */
 import type { BursaAnalystConsensusAnalysis } from '../../types/bursaAnalystConsensus';
+import type { AnalysisApiKeys } from '../analysisApiKeys';
 import type {
   AnalystConsensusIntelligenceConfidence,
   AnalystConsensusIntelligenceDisplayFields,
@@ -29,6 +30,7 @@ import {
   fetchAllAnalystConsensusIntelligencePartials,
   type AnalystConsensusIntelligencePartial,
 } from './bursaAnalystConsensusIntelligenceProviders';
+import { resolveAnalystConsensusApiKeys } from './bursaAnalystConsensusService';
 
 function clampScore(n: number): number {
   return Math.max(ANALYST_CONSENSUS_SCORE_MIN, Math.min(ANALYST_CONSENSUS_SCORE_MAX, Math.round(n)));
@@ -362,12 +364,17 @@ export async function buildAnalystConsensusIntelligenceAnalysis(input: {
   analystConsensus?: BursaAnalystConsensusAnalysis | null;
   useMockFixture?: boolean;
   fetchLiveExternal?: boolean;
+  apiKeys?: AnalysisApiKeys;
 }): Promise<BursaAnalystConsensusIntelligenceAnalysis> {
+  const consensusApiKeys = input.apiKeys
+    ? resolveAnalystConsensusApiKeys(input.apiKeys)
+    : undefined;
   const merged = await fetchAllAnalystConsensusIntelligencePartials({
     stockCode: input.stockCode,
     analystConsensus: input.analystConsensus,
     useMockFixture: input.useMockFixture,
     fetchLiveExternal: input.fetchLiveExternal ?? false,
+    apiKeys: consensusApiKeys,
   });
 
   const warnings = collectAnalystConsensusWarnings({ partial: merged });
