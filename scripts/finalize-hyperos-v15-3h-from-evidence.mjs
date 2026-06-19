@@ -181,3 +181,4 @@ _(filled after commit/push)_
 fs.writeFileSync(REPORT_PATH, md);
 fs.writeFileSync(EVIDENCE_PATH, JSON.stringify({ ...ev, metrics, eval_, fin, summaryPath: path.relative(ROOT, summaryPath).replace(/\\/g, '/') }, null, 2));
 console.log(go, JSON.stringify(eval_));
+process.exitCode = eval_.overall ? 0 : 1;

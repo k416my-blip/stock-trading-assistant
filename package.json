@@ -27,6 +27,8 @@
     "verify:x-polygon-api-safe": "node scripts/verify-x-polygon-api-safe.mjs",
     "android": "expo run:android",
     "build:android:preview": "eas build -p android --profile preview",
+    "build:android:production": "eas build -p android --profile production",
+    "build:android:apk": "eas build -p android --profile apk",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",

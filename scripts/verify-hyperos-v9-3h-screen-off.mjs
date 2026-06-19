@@ -651,10 +651,20 @@ _(filled after commit/push)_
   return ORCHESTRATOR_REPORT_PATH;
 }
 
+function resolveOrchestratorProcessExitCode(eval_, phase12_5ExitCode) {
+  if (!eval_.overall) return 1;
+  if (phase12_5ExitCode != null && phase12_5ExitCode !== 0) return 1;
+  return 0;
+}
+
 async function finalizeRun(ev, phaseChild) {
-  if (ev.endedAt) return;
+  if (ev.endedAt) return ev.eval ?? { overall: false };
   await new Promise((resolve) => {
-    if (!phaseChild || phaseChild.exitCode != null) return resolve();
+    if (!phaseChild) return resolve();
+    if (phaseChild.exitCode != null) {
+      ev.phase12_5ExitCode = phaseChild.exitCode;
+      return resolve();
+    }
     phaseChild.on('exit', (code) => {
       ev.phase12_5ExitCode = code;
       resolve();
@@ -1212,7 +1222,7 @@ async function main() {
     }
   }
 
-  process.exitCode = eval_.overall && ev.phase12_5ExitCode === 0 ? 0 : 1;
+  process.exitCode = resolveOrchestratorProcessExitCode(eval_, ev.phase12_5ExitCode);
 }
 
 main().catch((e) => {

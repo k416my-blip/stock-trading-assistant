@@ -7,22 +7,34 @@
     "production": {
       "distribution": "store",
       "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": ""
+      },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "credentialsSource": "remote"
       }
     },
     "preview": {
       "distribution": "internal",
       "autoIncrement": false,
+      "env": {
+        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": "1"
+      },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "credentialsSource": "remote"
       }
     },
     "apk": {
       "distribution": "internal",
       "autoIncrement": false,
+      "env": {
+        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": ""
+      },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "credentialsSource": "remote"
       }
     }
   },

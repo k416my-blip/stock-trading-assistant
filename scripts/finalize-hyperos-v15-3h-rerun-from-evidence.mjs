@@ -286,3 +286,4 @@ fs.writeFileSync(ORCH_PATH, orchMd);
 writeJsonAtomicSync(EVIDENCE_PATH, { ...ev, metrics, eval_, orchEval, fin });
 console.log('ORCH', orchGo, orchEval);
 console.log('APP', appGo, eval_);
+process.exitCode = eval_.overall && orchEval.overall ? 0 : 1;
