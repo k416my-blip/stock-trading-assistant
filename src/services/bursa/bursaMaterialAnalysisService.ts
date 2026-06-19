@@ -33,6 +33,9 @@ import { VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaValu
 import { CONVICTION_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaConvictionIntelligence';
 import { EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaEarningsRevisionIntelligence';
 import { NEWS_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaNewsIntelligence';
+import { ANALYST_CONSENSUS_INTELLIGENCE_UNAVAILABLE_JA } from '../../types/bursaAnalystConsensusIntelligence';
+import { EARNINGS_REVISION_CROSS_SIGNAL_UNAVAILABLE_JA } from '../../types/bursaEarningsRevisionCrossSignal';
+import { earningsRevisionCrossSignalMaterialScoreAdjustment } from './bursaEarningsRevisionCrossSignalService';
 
 export const MATERIAL_ANALYSIS_MISSING_JA = MATERIAL_MISSING_JA;
 
@@ -109,6 +112,11 @@ export type MaterialStockRow = {
   convictionIntelligenceDisplayJa: import('../../types/bursaConvictionIntelligence').ConvictionIntelligenceDisplayFields | null;
   earningsRevisionIntelligenceEvaluationJa: string;
   earningsRevisionIntelligenceDisplayJa: import('../../types/bursaEarningsRevisionIntelligence').EarningsRevisionIntelligenceDisplayFields | null;
+  analystConsensusIntelligenceEvaluationJa: string;
+  analystConsensusIntelligenceDisplayJa: import('../../types/bursaAnalystConsensusIntelligence').AnalystConsensusIntelligenceDisplayFields | null;
+  earningsRevisionCrossSignalEvaluationJa: string;
+  earningsRevisionCrossSignalDisplayJa: import('../../types/bursaEarningsRevisionCrossSignal').EarningsRevisionCrossSignalDisplayFields | null;
+  earningsRevisionCrossSignalMaterialImpactJa: string;
 };
 
 export type MaterialAnalysisReport = {
@@ -258,6 +266,15 @@ function mapStock(s: BursaStockMaterialAnalysis): MaterialStockRow {
     earningsRevisionIntelligenceEvaluationJa:
       s.earningsRevisionIntelligence?.evaluationJa ?? EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA,
     earningsRevisionIntelligenceDisplayJa: s.earningsRevisionIntelligence?.displayJa ?? null,
+    analystConsensusIntelligenceEvaluationJa:
+      s.analystConsensusIntelligence?.evaluationJa ?? ANALYST_CONSENSUS_INTELLIGENCE_UNAVAILABLE_JA,
+    analystConsensusIntelligenceDisplayJa: s.analystConsensusIntelligence?.displayJa ?? null,
+    earningsRevisionCrossSignalEvaluationJa:
+      s.earningsRevisionCrossSignal?.evaluationJa ?? EARNINGS_REVISION_CROSS_SIGNAL_UNAVAILABLE_JA,
+    earningsRevisionCrossSignalDisplayJa: s.earningsRevisionCrossSignal?.displayJa ?? null,
+    earningsRevisionCrossSignalMaterialImpactJa: s.earningsRevisionCrossSignal
+      ? fmtScore(earningsRevisionCrossSignalMaterialScoreAdjustment(s.earningsRevisionCrossSignal))
+      : MATERIAL_MISSING_JA,
   };
 }
 

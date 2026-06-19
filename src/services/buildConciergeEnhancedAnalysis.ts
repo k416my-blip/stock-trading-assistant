@@ -27,6 +27,8 @@ import { VALUATION_GAP_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaValuati
 import { CONVICTION_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaConvictionIntelligence';
 import { EARNINGS_REVISION_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaEarningsRevisionIntelligence';
 import { NEWS_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaNewsIntelligence';
+import { ANALYST_CONSENSUS_INTELLIGENCE_UNAVAILABLE_JA } from '../types/bursaAnalystConsensusIntelligence';
+import { EARNINGS_REVISION_CROSS_SIGNAL_UNAVAILABLE_JA } from '../types/bursaEarningsRevisionCrossSignal';
 
 function fmtPrice(n: number | null | undefined, currency: string): string {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -262,6 +264,20 @@ function summarizeEarningsRevisionIntelligence(materialRow: MaterialStockRow | n
   return materialRow.earningsRevisionIntelligenceEvaluationJa;
 }
 
+function summarizeAnalystConsensusIntelligence(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.analystConsensusIntelligenceEvaluationJa) {
+    return ANALYST_CONSENSUS_INTELLIGENCE_UNAVAILABLE_JA;
+  }
+  return materialRow.analystConsensusIntelligenceEvaluationJa;
+}
+
+function summarizeEarningsRevisionCrossSignal(materialRow: MaterialStockRow | null | undefined): string {
+  if (!materialRow?.earningsRevisionCrossSignalEvaluationJa) {
+    return EARNINGS_REVISION_CROSS_SIGNAL_UNAVAILABLE_JA;
+  }
+  return materialRow.earningsRevisionCrossSignalEvaluationJa;
+}
+
 function defaultSourceEvaluations(
   materialRow: MaterialStockRow | null | undefined,
   sym: ConciergeEvidenceBundle['symbols'][0],
@@ -281,6 +297,8 @@ function defaultSourceEvaluations(
     valuationGapIntelligence: summarizeValuationGapIntelligence(materialRow),
     convictionIntelligence: summarizeConvictionIntelligence(materialRow),
     earningsRevisionIntelligence: summarizeEarningsRevisionIntelligence(materialRow),
+    analystConsensusIntelligence: summarizeAnalystConsensusIntelligence(materialRow),
+    earningsRevisionCrossSignal: summarizeEarningsRevisionCrossSignal(materialRow),
     news: summarizeNews(materialRow, sym),
     x: summarizeX(materialRow, sym),
     reddit: summarizeReddit(materialRow, sym),
@@ -468,6 +486,35 @@ export function buildConciergeEnhancedAnalysis(input: {
           revisionScore: materialRow.earningsRevisionIntelligenceDisplayJa.revisionScore,
           revisionConfidence: materialRow.earningsRevisionIntelligenceDisplayJa.revisionConfidence,
           source: materialRow.earningsRevisionIntelligenceDisplayJa.source,
+        }
+      : null,
+    analystConsensusIntelligenceDetailJa: materialRow?.analystConsensusIntelligenceDisplayJa
+      ? {
+          source: materialRow.analystConsensusIntelligenceDisplayJa.source,
+          consensusRating: materialRow.analystConsensusIntelligenceDisplayJa.consensusRating,
+          targetPrice: materialRow.analystConsensusIntelligenceDisplayJa.targetPrice,
+          currentPrice: materialRow.analystConsensusIntelligenceDisplayJa.currentPrice,
+          impliedUpsidePct: materialRow.analystConsensusIntelligenceDisplayJa.impliedUpsidePct,
+          consensusScore: materialRow.analystConsensusIntelligenceDisplayJa.consensusScore,
+          confidence: materialRow.analystConsensusIntelligenceDisplayJa.confidence,
+          analystCount: materialRow.analystConsensusIntelligenceDisplayJa.analystCount,
+          ratingRevisionDirection:
+            materialRow.analystConsensusIntelligenceDisplayJa.ratingRevisionDirection,
+          targetRevisionDirection:
+            materialRow.analystConsensusIntelligenceDisplayJa.targetRevisionDirection,
+          warnings: materialRow.analystConsensusIntelligenceDisplayJa.warnings,
+        }
+      : null,
+    earningsRevisionCrossSignalDetailJa: materialRow?.earningsRevisionCrossSignalDisplayJa
+      ? {
+          crossSignalDirection: materialRow.earningsRevisionCrossSignalDisplayJa.crossSignalDirection,
+          crossSignalScore: materialRow.earningsRevisionCrossSignalDisplayJa.crossSignalScore,
+          revisionBias: materialRow.earningsRevisionCrossSignalDisplayJa.revisionBias,
+          insiderBias: materialRow.earningsRevisionCrossSignalDisplayJa.insiderBias,
+          institutionalBias: materialRow.earningsRevisionCrossSignalDisplayJa.institutionalBias,
+          alignmentCount: materialRow.earningsRevisionCrossSignalDisplayJa.alignmentCount,
+          confidence: materialRow.earningsRevisionCrossSignalDisplayJa.confidence,
+          materialImpact: materialRow.earningsRevisionCrossSignalMaterialImpactJa,
         }
       : null,
     positiveMaterialsJa,

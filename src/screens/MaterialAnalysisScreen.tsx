@@ -163,6 +163,39 @@ function StockMaterialCard({
         </>
       ) : null}
 
+      <Text style={styles.subLabel}>Phase24 Analyst Consensus Intelligence</Text>
+      <Text style={styles.item}>{row.analystConsensusIntelligenceEvaluationJa}</Text>
+      {row.analystConsensusIntelligenceDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Source: {row.analystConsensusIntelligenceDisplayJa.source}
+          </Text>
+          <Text style={styles.item}>
+            Consensus: {row.analystConsensusIntelligenceDisplayJa.consensusRating} · Analysts:{' '}
+            {row.analystConsensusIntelligenceDisplayJa.analystCount}
+          </Text>
+          <Text style={styles.item}>
+            Target: {row.analystConsensusIntelligenceDisplayJa.targetPrice} · Current:{' '}
+            {row.analystConsensusIntelligenceDisplayJa.currentPrice} · Upside:{' '}
+            {row.analystConsensusIntelligenceDisplayJa.impliedUpsidePct}
+          </Text>
+          <Text style={styles.item}>
+            Score: {row.analystConsensusIntelligenceDisplayJa.consensusScore} · Confidence:{' '}
+            {row.analystConsensusIntelligenceDisplayJa.confidence}
+          </Text>
+          <Text style={styles.item}>
+            Rating Revision: {row.analystConsensusIntelligenceDisplayJa.ratingRevisionDirection} ·
+            Target Revision: {row.analystConsensusIntelligenceDisplayJa.targetRevisionDirection} (
+            {row.analystConsensusIntelligenceDisplayJa.targetRevisionPct})
+          </Text>
+          {row.analystConsensusIntelligenceDisplayJa.warnings !== '—' ? (
+            <Text style={styles.item}>
+              Warnings: {row.analystConsensusIntelligenceDisplayJa.warnings}
+            </Text>
+          ) : null}
+        </>
+      ) : null}
+
       <Text style={styles.subLabel}>Phase15 Insider Trading</Text>
       <Text style={styles.item}>{row.insiderTradingEvaluationJa}</Text>
       {row.insiderTradingDisplayJa ? (
@@ -524,6 +557,35 @@ function StockMaterialCard({
           {row.earningsRevisionIntelligenceDisplayJa.unavailableReason !== 'データ未取得' ? (
             <Text style={styles.item}>
               未取得理由: {row.earningsRevisionIntelligenceDisplayJa.unavailableReason}
+            </Text>
+          ) : null}
+        </>
+      ) : null}
+
+      <Text style={styles.subLabel}>Phase23.1 Earnings Revision Cross Signal</Text>
+      <Text style={styles.item}>{row.earningsRevisionCrossSignalEvaluationJa}</Text>
+      {row.earningsRevisionCrossSignalDisplayJa ? (
+        <>
+          <Text style={styles.item}>
+            Cross Signal: {row.earningsRevisionCrossSignalDisplayJa.crossSignalDirection}
+          </Text>
+          <Text style={styles.item}>
+            Direction: {row.earningsRevisionCrossSignalDisplayJa.crossSignalDirection} · Score:{' '}
+            {row.earningsRevisionCrossSignalDisplayJa.crossSignalScore}
+          </Text>
+          <Text style={styles.item}>
+            Alignment: {row.earningsRevisionCrossSignalDisplayJa.alignmentCount} — Revision:{' '}
+            {row.earningsRevisionCrossSignalDisplayJa.revisionBias} · Insider:{' '}
+            {row.earningsRevisionCrossSignalDisplayJa.insiderBias} · Institutional:{' '}
+            {row.earningsRevisionCrossSignalDisplayJa.institutionalBias}
+          </Text>
+          <Text style={styles.item}>
+            Confidence: {row.earningsRevisionCrossSignalDisplayJa.confidence} · Material Impact:{' '}
+            {row.earningsRevisionCrossSignalMaterialImpactJa}
+          </Text>
+          {row.earningsRevisionCrossSignalDisplayJa.unavailableReason !== '—' ? (
+            <Text style={styles.item}>
+              備考: {row.earningsRevisionCrossSignalDisplayJa.unavailableReason}
             </Text>
           ) : null}
         </>

@@ -113,6 +113,33 @@ export function ConciergeEnhancedAnalysisBlock({ report }: Props) {
       ) : null}
 
       <Text selectable style={styles.row}>
+        <Text style={styles.key}>9-A. Analyst Consensus Intelligence (Phase24): </Text>
+        {ev.analystConsensusIntelligence}
+      </Text>
+      {report.analystConsensusIntelligenceDetailJa ? (
+        <>
+          <Text selectable style={styles.sourceLine}>
+            Source: {report.analystConsensusIntelligenceDetailJa.source} · Consensus:{' '}
+            {report.analystConsensusIntelligenceDetailJa.consensusRating} · Analysts:{' '}
+            {report.analystConsensusIntelligenceDetailJa.analystCount}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Target: {report.analystConsensusIntelligenceDetailJa.targetPrice} · Current:{' '}
+            {report.analystConsensusIntelligenceDetailJa.currentPrice} · Upside:{' '}
+            {report.analystConsensusIntelligenceDetailJa.impliedUpsidePct}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Score: {report.analystConsensusIntelligenceDetailJa.consensusScore} · Confidence:{' '}
+            {report.analystConsensusIntelligenceDetailJa.confidence}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Rating Revision: {report.analystConsensusIntelligenceDetailJa.ratingRevisionDirection} ·
+            Target Revision: {report.analystConsensusIntelligenceDetailJa.targetRevisionDirection}
+          </Text>
+        </>
+      ) : null}
+
+      <Text selectable style={styles.row}>
         <Text style={styles.key}>10. Insider売買評価: </Text>
         {ev.insiderTrading}
       </Text>
@@ -421,6 +448,31 @@ export function ConciergeEnhancedAnalysisBlock({ report }: Props) {
             Direction: {report.earningsRevisionIntelligenceDetailJa.revisionDirection} · Score:{' '}
             {report.earningsRevisionIntelligenceDetailJa.revisionScore} · Confidence:{' '}
             {report.earningsRevisionIntelligenceDetailJa.revisionConfidence}
+          </Text>
+        </>
+      ) : null}
+      <Text selectable style={styles.row}>
+        <Text style={styles.key}>Phase23.1 Cross Signal評価: </Text>
+        {ev.earningsRevisionCrossSignal}
+      </Text>
+      {report.earningsRevisionCrossSignalDetailJa ? (
+        <>
+          <Text selectable style={styles.sourceLine}>
+            Cross Signal: {report.earningsRevisionCrossSignalDetailJa.crossSignalDirection}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Direction: {report.earningsRevisionCrossSignalDetailJa.crossSignalDirection} · Score:{' '}
+            {report.earningsRevisionCrossSignalDetailJa.crossSignalScore}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Alignment: {report.earningsRevisionCrossSignalDetailJa.alignmentCount} — Revision:{' '}
+            {report.earningsRevisionCrossSignalDetailJa.revisionBias} · Insider:{' '}
+            {report.earningsRevisionCrossSignalDetailJa.insiderBias} · Institutional:{' '}
+            {report.earningsRevisionCrossSignalDetailJa.institutionalBias}
+          </Text>
+          <Text selectable style={styles.sourceLine}>
+            Confidence: {report.earningsRevisionCrossSignalDetailJa.confidence} · Material Impact:{' '}
+            {report.earningsRevisionCrossSignalDetailJa.materialImpact}
           </Text>
         </>
       ) : null}

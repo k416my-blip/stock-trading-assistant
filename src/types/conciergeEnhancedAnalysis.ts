@@ -36,6 +36,8 @@ export type ConciergeSourceEvaluations = {
   valuationGapIntelligence: string;
   convictionIntelligence: string;
   earningsRevisionIntelligence: string;
+  analystConsensusIntelligence: string;
+  earningsRevisionCrossSignal: string;
   news: string;
   x: string;
   reddit: string;
@@ -257,6 +259,31 @@ export type ConciergeEnhancedAnalysisReport = {
     revisionScore: string;
     revisionConfidence: string;
     source: string;
+  } | null;
+  /** Phase24 — Analyst Consensus Intelligence 詳細 */
+  analystConsensusIntelligenceDetailJa: {
+    source: string;
+    consensusRating: string;
+    targetPrice: string;
+    currentPrice: string;
+    impliedUpsidePct: string;
+    consensusScore: string;
+    confidence: string;
+    analystCount: string;
+    ratingRevisionDirection: string;
+    targetRevisionDirection: string;
+    warnings: string;
+  } | null;
+  /** Phase23.1 — Earnings Revision Cross Signal 詳細 */
+  earningsRevisionCrossSignalDetailJa: {
+    crossSignalDirection: string;
+    crossSignalScore: string;
+    revisionBias: string;
+    insiderBias: string;
+    institutionalBias: string;
+    alignmentCount: string;
+    confidence: string;
+    materialImpact: string;
   } | null;
   positiveMaterialsJa: string[];
   negativeMaterialsJa: string[];
