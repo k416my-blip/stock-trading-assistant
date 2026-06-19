@@ -9,7 +9,7 @@ versionCode **16** 実機 APK（OpenAI API キー保存済み前提）にて、C
 | 実施日 | 2026-06-19 |
 | デバイス | `FYRWXSNNAIOR9DCM`（23090RA98G / HyperOS） |
 | APK | versionCode **16** / versionName **1.0.0** |
-| Git commit（レポート提出） | `58fb071` |
+| Git commit（レポート提出） | `8e623ac` |
 | Git HEAD（検証実施時） | `5a6905919e0e3ab24122996f86b2d6f99494fca8`（`5a69059`） |
 | APK ビルド commit（既知） | `9dda7c797fbc519a9128448b690de5a63e21ada9`（`9dda7c7`） |
 | 実行時間 | 約 **22.7 分**（材料分析待機 + 2 プロンプト × 最大 5 分待機） |
