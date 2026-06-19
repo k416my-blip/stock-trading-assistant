@@ -10,7 +10,7 @@ UX0.1 正式仕様候補への追加検討。**AI信頼度の説明文** · **�
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 親仕様 | `BEGINNER_MODE_REFINEMENT_REPORT.md`（**UX0.1 承認済 · 正式仕様候補**） |
 | 監査ベースコミット | `93433f5` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `bbf2415` |
 | スコープ | **設計のみ**（実装なし） |
 | バージョン | **UX0.2**（UX0.1 への additive refinements） |
 
@@ -340,6 +340,6 @@ export function buildMandatoryReasonLines(input: {
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `93433f5` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `bbf2415` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | Push | *(未実施 — 本レポート作成待ち)* |
