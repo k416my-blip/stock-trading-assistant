@@ -177,8 +177,8 @@ Commit24（`COMMIT24_API_KEY_PERSISTENCE_AND_SAFE_STORAGE_REPORT.md`）のコー
 
 | 項目 | 値 |
 |------|-----|
-| commit | _(commit 後に記入)_ |
-| push | _(push 後に記入)_ |
+| commit | `b7998ba2f12fe449d000938d0ffaa0239d4cccfb` |
+| push | **成功** — `origin/cursor/top3-maxdd-capital-audit`（`88615fd..b7998ba`） |
 | 変更ファイル | `eas.json` · `package.json` · orchestrator scripts ×3 · tests ×2 · 本レポート |
 
 ---
