@@ -350,6 +350,6 @@ export type BeginnerTodayActionsCard = {
 |------|-----|
 | 親レポート | `BEGINNER_MODE_UX_REDESIGN_REPORT.md` |
 | 監査ベースコミット | `85098af` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `0a16e70` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | Push | **SUCCESS** |
