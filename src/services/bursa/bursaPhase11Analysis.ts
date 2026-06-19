@@ -36,6 +36,7 @@ import { enrichStockWithFairValueIntelligence } from './bursaPhase21Analysis';
 import { enrichStockWithAnalystTargetIntelligence } from './bursaPhase22Analysis';
 import { enrichStockWithValuationGapIntelligence } from './bursaPhase22_1Analysis';
 import { enrichStockWithEarningsRevisionIntelligence } from './bursaPhase23Analysis';
+import { enrichStockWithEarningsRevisionCrossSignal } from './bursaPhase23_1Analysis';
 import { enrichStockWithConvictionIntelligence } from './bursaPhase22_2Analysis';
 import { enrichStockWithAnalystConsensusIntelligence } from './bursaPhase24Analysis';
 import { getSectorPeerCodes } from './bursaSectorPeers';
@@ -251,8 +252,11 @@ async function analyzeOneStock(input: {
     stock: withValuationGap,
     fetchLiveExternal,
   });
-  return enrichStockWithConvictionIntelligence({
+  const withCrossSignal = enrichStockWithEarningsRevisionCrossSignal({
     stock: withEarningsRevision,
+  });
+  return enrichStockWithConvictionIntelligence({
+    stock: withCrossSignal,
   });
 }
 

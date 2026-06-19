@@ -1,0 +1,89 @@
+{
+  "commit": "daa8a3f",
+  "rows": [
+    {
+      "code": "1155",
+      "label": "Maybank",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Buying",
+      "crossSignalDirection": "Bullish（強気クロスシグナル）",
+      "crossSignalScore": 5,
+      "alignmentCount": 2,
+      "materialScore": 100,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "code": "1023",
+      "label": "CIMB",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Selling",
+      "crossSignalDirection": "Neutral（中立・乖離）",
+      "crossSignalScore": 0,
+      "alignmentCount": 0,
+      "materialScore": 100,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "code": "1295",
+      "label": "Public Bank",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Strong Selling",
+      "crossSignalDirection": "Neutral（中立・乖離）",
+      "crossSignalScore": 0,
+      "alignmentCount": 0,
+      "materialScore": 94,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "code": "5347",
+      "label": "Tenaga",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Strong Buying",
+      "crossSignalDirection": "Bullish（強気クロスシグナル）",
+      "crossSignalScore": 5,
+      "alignmentCount": 2,
+      "materialScore": 100,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "code": "4707",
+      "label": "Nestle",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Strong Buying",
+      "crossSignalDirection": "Bullish（強気クロスシグナル）",
+      "crossSignalScore": 5,
+      "alignmentCount": 2,
+      "materialScore": 77,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    },
+    {
+      "code": "6033",
+      "label": "Petronas Gas",
+      "revisionDirection": "Stable（横ばい）",
+      "insiderActivity": "買い優勢",
+      "institutionalFlow": "Strong Buying",
+      "crossSignalDirection": "Bullish（強気クロスシグナル）",
+      "crossSignalScore": 5,
+      "alignmentCount": 2,
+      "materialScore": 91,
+      "crossSignalAvailable": true,
+      "status": "PASS",
+      "error": null
+    }
+  ]
+}
