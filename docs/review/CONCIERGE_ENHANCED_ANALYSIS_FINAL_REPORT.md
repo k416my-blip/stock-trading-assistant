@@ -82,9 +82,10 @@ evidence 修正込み versionCode **17** APK を再インストールし、「Ma
 
 | 項目 | 値 |
 |------|-----|
-| Commit hash | 本レポート作成時の最終コミット（下記 push 後に記載） |
-| ブランチ | `cursor/top3-maxdd-capital-audit` |
-| Push | `origin/cursor/top3-maxdd-capital-audit` |
+| Commit hash（full） | `aad1895b911531c582027a36d4a4f22ef4160f6e` |
+| Commit hash（short） | `aad1895` |
+| Message | `fix(concierge): attach evidenceData to chat messages and validate OpenAI on device` |
+| Push | `origin/cursor/top3-maxdd-capital-audit` — **成功** (`a12eaf8..aad1895`)
 
 ---
 

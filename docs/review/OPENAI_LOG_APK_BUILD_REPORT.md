@@ -75,8 +75,9 @@ OpenAI 診断ログ強化（`[CONCIERGE_OPENAI] request_end` 等）と evidence 
 | 項目 | 値 |
 |------|-----|
 | ビルド時ベース | `a12eaf89164337cd1651f4f55704f7637d48fd43` |
-| 最終 commit | Step 4 完了後に本レポートと同時コミット（下記レポート参照） |
-| Push | 最終コミット後 `origin/cursor/top3-maxdd-capital-audit` |
+| Commit hash（full） | `aad1895b911531c582027a36d4a4f22ef4160f6e` |
+| Commit hash（short） | `aad1895` |
+| Push | `origin/cursor/top3-maxdd-capital-audit` — **成功** (`a12eaf8..aad1895`)
 
 ---
 

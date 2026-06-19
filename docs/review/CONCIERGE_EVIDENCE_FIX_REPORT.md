@@ -86,5 +86,6 @@ Concierge assistant メッセージに `evidenceData` が付与されず `hasEvi
 | 項目 | 値 |
 |------|-----|
 | 変更ファイル | `conciergeEvidenceCache.ts` · `AppContext.tsx` · `AiAssistantChat.tsx` |
-| Commit | Step 4 完了コミット（`CONCIERGE_ENHANCED_ANALYSIS_FINAL_REPORT.md` 参照） |
-| Push | `origin/cursor/top3-maxdd-capital-audit` |
+| Commit hash（full） | `aad1895b911531c582027a36d4a4f22ef4160f6e` |
+| Commit hash（short） | `aad1895` |
+| Push | `origin/cursor/top3-maxdd-capital-audit` — **成功**

@@ -101,4 +101,4 @@ v16 実機（`FYRWXSNNAIOR9DCM`）の **設定画面** から OpenAI API 接続�
 | Commit hash（full） | `a12eaf89164337cd1651f4f55704f7637d48fd43` |
 | Commit hash（short） | `a12eaf8` |
 | Message | `docs(concierge): add rootcause logcat evidence and update commit refs` |
-| Push | 本 Step 時点で既に `origin/cursor/top3-maxdd-capital-audit` に push 済 |
+| Push | `origin/cursor/top3-maxdd-capital-audit` — 検証時点で既 push 済 · 最終 `aad1895` |
