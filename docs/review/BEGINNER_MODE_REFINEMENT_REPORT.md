@@ -12,7 +12,7 @@
 | 監査ベースコミット | `85098af` |
 | レポート提出コミット | *(作成・push 後に更新)* |
 | スコープ | **設計 refinements のみ**（実装なし） |
-| 後続 | **UX0.2** — `BEGINNER_MODE_HOME_SCREEN_REPORT.md`（ホーム · 説明文 · 理由必須） |
+| 後続 | **UX0.2** → **UX0.3** — `BEGINNER_MODE_HOME_SCREEN_REPORT.md`（ホーム · 3段階信頼度 · 平易理由 · タブ名） |
 
 ---
 
@@ -342,6 +342,8 @@ export type BeginnerTodayActionsCard = {
 | 実装 | Play IT 後 · UX0.1 仕様で UX1 着手 |
 
 **UX0.1 refinements を UX0 にマージし、実装仕様の正とする。**
+
+> **UX0.3（2026-06-19）:** UX0.1 の AI信頼度(%) · 「今日やること」は `BEGINNER_MODE_HOME_SCREEN_REPORT.md` で **3段階ラベル · 「今日のAIアドバイス」 · 理由平易化 · タブ名「銘柄チェック」** に発展。実装仕様の正は **UX0.3**。
 
 ---
 
