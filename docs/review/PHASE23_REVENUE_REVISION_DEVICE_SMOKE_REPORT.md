@@ -4,7 +4,7 @@
 Phase23 Revenue Revision 6銘柄 Live パイプライン検証。
 
 - 実行日時: 2026-06-19T03:31:57.079Z
-- Git commit: `bcb9ede`
+- Git commit: `fc0de08`
 - 対象銘柄: 1155, 1023, 1295, 5347, 4707, 6033
 
 ## 結果サマリー

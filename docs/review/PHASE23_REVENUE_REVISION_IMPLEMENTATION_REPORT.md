@@ -4,7 +4,7 @@
 Phase23 Revenue Revision — Yahoo revenueTrend 欠落 (.KL) 向け FMP / Finnhub / Alpha Vantage / Estimate Snapshot カスケード。
 
 - 実行日時: 2026-06-19T03:31:57.078Z
-- Git commit: `bcb9ede`
+- Git commit: `fc0de08`
 - Push: pending
 
 ## 実装サマリー
