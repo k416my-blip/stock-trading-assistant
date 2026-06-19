@@ -2,7 +2,10 @@ import type { AiChatStructuredReply } from '../types/aiChat';
 import type { ConciergeEvidenceBundle } from '../types/conciergeEvidence';
 import type { ConciergeShortAnswer, ConciergeShortAnswerFact } from '../types/conciergeUx';
 import { buildShortAnswerFromStructured } from './conciergeHumanizeText';
-import { logConciergeShortAnswerDiag } from './conciergeEvidenceTrace';
+import {
+  logConciergeEvidenceBundleDiag,
+  logConciergeShortAnswerDiag,
+} from './conciergeEvidenceTrace';
 
 function fmtPrice(n: number | null | undefined, currency: string): string {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -37,11 +40,30 @@ export function buildConciergeShortAnswer(
   const sym = evidence?.symbols[0];
   const guide = evidence?.actionGuide?.symbols?.[0];
   if (!sym) {
+    const symbolList = evidence?.symbols?.map((s) => s.symbol) ?? [];
+    const actionGuideSymbolList = evidence?.actionGuide?.symbols?.map((s) => s.symbol) ?? [];
+    logConciergeEvidenceBundleDiag({
+      symbolsCount: evidence?.symbols?.length ?? 0,
+      symbolList,
+      actionGuideSymbolsCount: evidence?.actionGuide?.symbols?.length ?? 0,
+      actionGuideSymbolList,
+      hasActionGuide: Boolean(evidence?.actionGuide),
+      allowSpeculativeAi: evidence?.riskControl?.allowSpeculativeAi ?? false,
+      overallConfidencePct: evidence?.riskControl?.overallConfidencePct ?? null,
+      messageId,
+      note: !evidence ? 'evidence_undefined' : symbolList.length === 0 ? 'symbols_empty' : 'symbols[0]_missing',
+    });
     logConciergeShortAnswerDiag({
       hasEvidence: false,
       factsCount: 0,
       symbol: null,
       messageId,
+      symbolsCount: evidence?.symbols?.length ?? 0,
+      symbolList,
+      actionGuideSymbolsCount: evidence?.actionGuide?.symbols?.length ?? 0,
+      actionGuideSymbolList,
+      evidencePresent: Boolean(evidence),
+      reason: !evidence ? 'evidence_undefined' : symbolList.length === 0 ? 'symbols_empty' : 'symbols[0]_missing',
     });
     return base;
   }

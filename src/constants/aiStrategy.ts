@@ -3,8 +3,8 @@ export const AI_API_CHAT_URL = 'https://api.openai.com/v1/responses';
 
 export const AI_API_MODEL = 'gpt-4o-mini';
 
-/** チャットAPIリクエストのハードタイムアウト */
-export const AI_API_TIMEOUT_MS = 30_000;
+/** チャットAPIリクエストのハードタイムアウト（暫定: rootcause 調査のため 60s） */
+export const AI_API_TIMEOUT_MS = 60_000;
 
 /** 10秒超過でUIに遅延ヒントを表示 */
 export const AI_CONCIERGE_SLOW_UI_MS = 10_000;
@@ -12,8 +12,8 @@ export const AI_CONCIERGE_SLOW_UI_MS = 10_000;
 /** 起動時のAPIキー読み込み・接続チェック */
 export const AI_BOOT_CHECK_TIMEOUT_MS = 5_000;
 
-/** UIで in-flight が許容される上限（OpenAI 30秒で強制終了） */
-export const AI_MAX_IN_FLIGHT_MS = 30_000;
+/** UIで in-flight が許容される上限（暫定: OpenAI 60秒で強制終了） */
+export const AI_MAX_IN_FLIGHT_MS = 60_000;
 
 /** 通常会話の max_output_tokens */
 export const AI_API_MAX_OUTPUT_TOKENS = 480;

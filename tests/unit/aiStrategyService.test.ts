@@ -101,7 +101,7 @@ describe('aiStrategyService', () => {
 
   it('uses official responses API URL and timeouts', () => {
     expect(AI_API_CHAT_URL).toBe('https://api.openai.com/v1/responses');
-    expect(AI_API_TIMEOUT_MS).toBe(30_000);
+    expect(AI_API_TIMEOUT_MS).toBe(60_000);
     expect(AI_BOOT_CHECK_TIMEOUT_MS).toBe(5_000);
   });
 

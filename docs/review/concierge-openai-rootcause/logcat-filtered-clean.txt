@@ -1,0 +1,8 @@
+--------- beginning of main
+06-19 21:31:22.737  6655  6693 W ReactNativeJS: '[API_KEY_LOAD]', '{"provider":"openai","exists":true,"length":164}'
+06-19 21:31:22.868  6655  6693 W ReactNativeJS: '[API_KEY_LOAD]', '{"provider":"openai","exists":true,"length":164}'
+06-19 21:31:22.896  6655  6693 W ReactNativeJS: '[INVESTMENT_DISPLAY_MODE] 現在モード', 'trust'
+06-19 21:31:25.216  6655  6693 W ReactNativeJS: '[DAILY_COMMENT_TARGET]', '{"symbol":null,"score":null,"action":null,"conflict":false,"source":"no_portfolio"}'
+06-19 21:31:25.367  6655  6693 W ReactNativeJS: '[DAILY_COMMENT_TARGET]', '{"symbol":null,"score":null,"action":null,"conflict":false,"source":"no_portfolio"}'
+06-19 21:31:25.430  6655  6693 W ReactNativeJS: '[DAILY_COMMENT_TARGET]', '{"symbol":null,"score":null,"action":null,"conflict":false,"source":"no_portfolio"}'
+06-19 21:31:30.319  6655  6693 W ReactNativeJS: '[API_KEY_LOAD]', '{"provider":"openai","exists":true,"length":164}'

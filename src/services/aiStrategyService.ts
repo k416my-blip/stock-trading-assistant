@@ -458,6 +458,10 @@ function requestStatusForApiFailure(error: string): AiRequestStatus {
   return 'fallback_mock';
 }
 
+function logConciergeOpenAi(payload: Record<string, unknown>): void {
+  console.warn('[CONCIERGE_OPENAI]', JSON.stringify(payload));
+}
+
 async function callAiApi(
   apiKey: string,
   userMessage: string,
@@ -484,23 +488,41 @@ async function callAiApi(
 
   const { signal, dispose } = linkAbortSignals(AI_API_TIMEOUT_MS, externalSignal);
   const started = Date.now();
+  const requestStart = new Date(started).toISOString();
   markConciergeChatPerf('openai_send');
-  console.warn(
-    '[CONCIERGE_OPENAI]',
-    JSON.stringify({
-      instructionsChars: instructions.length,
-      userPayloadChars: userPayloadJson.length,
-      totalPromptChars: instructions.length + userPayloadJson.length,
-      maxOutputTokens,
-      model: AI_API_MODEL,
-    }),
-  );
+  logConciergeOpenAi({
+    phase: 'request_start',
+    requestStart,
+    instructionsChars: instructions.length,
+    userPayloadChars: userPayloadJson.length,
+    totalPromptChars: instructions.length + userPayloadJson.length,
+    maxOutputTokens,
+    model: AI_API_MODEL,
+    timeoutMs: AI_API_TIMEOUT_MS,
+  });
 
   try {
     if (signal.aborted) {
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        timeout: false,
+        aborted: true,
+        parseResult: 'aborted_before_send',
+      });
       return { ok: false, error: 'aborted', aborted: true };
     }
     if (isCircuitOpen('openai')) {
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        timeout: false,
+        parseResult: 'circuit_open',
+      });
       return { ok: false, error: 'circuit_open' };
     }
 
@@ -528,10 +550,31 @@ async function callAiApi(
       signal,
     });
 
+    const elapsedAfterFetch = Date.now() - started;
+    const requestEndFetch = new Date().toISOString();
+    const contentLengthHeader = response.headers.get('content-length');
+    const rawBody = await response.text();
+    const responseSize =
+      rawBody.length > 0
+        ? rawBody.length
+        : contentLengthHeader
+          ? Number(contentLengthHeader)
+          : 0;
+
+    logConciergeOpenAi({
+      phase: 'response_received',
+      requestStart,
+      requestEnd: requestEndFetch,
+      elapsedMs: elapsedAfterFetch,
+      httpStatus: response.status,
+      responseSize,
+      timeout: false,
+    });
+
     if (!response.ok) {
       let errorCode = mapHttpError(response.status);
       try {
-        const errBody = (await response.json()) as OpenAiErrorBody;
+        const errBody = JSON.parse(rawBody) as OpenAiErrorBody;
         if (response.status === 401) {
           errorCode = 'http_401';
         } else if (response.status === 429) {
@@ -543,6 +586,16 @@ async function callAiApi(
         // ignore JSON parse errors on error responses
       }
       recordApiFailure('openai');
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        httpStatus: response.status,
+        responseSize,
+        parseResult: errorCode,
+        timeout: false,
+      });
       secureWarn('[ai-strategy] api http error', {
         endpoint: 'responses',
         model: AI_API_MODEL,
@@ -550,45 +603,123 @@ async function callAiApi(
         errorType: errorCode,
         parseSuccess: false,
         timedOut: false,
+        responseSize,
       });
       return { ok: false, error: errorCode };
     }
 
-    const data = (await response.json()) as OpenAiErrorBody & Record<string, unknown>;
+    let data: OpenAiErrorBody & Record<string, unknown>;
+    try {
+      data = JSON.parse(rawBody) as OpenAiErrorBody & Record<string, unknown>;
+    } catch (parseErr) {
+      const parseMsg = parseErr instanceof Error ? parseErr.message : 'invalid json envelope';
+      recordApiFailure('openai');
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        httpStatus: response.status,
+        responseSize,
+        parseResult: 'invalid_json_envelope',
+        timeout: false,
+        error: parseMsg,
+      });
+      secureWarn('[ai-strategy] api envelope json parse failed', {
+        endpoint: 'responses',
+        model: AI_API_MODEL,
+        errorType: 'invalid_json',
+        parseSuccess: false,
+        timedOut: false,
+        responseSize,
+        error: parseMsg,
+      });
+      return { ok: false, error: 'invalid json' };
+    }
+
     if (data.status === 'failed' || data.status === 'cancelled' || data.error) {
+      const envelopeError = mapResponseEnvelopeError(data);
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        httpStatus: response.status,
+        responseSize,
+        parseResult: envelopeError,
+        timeout: false,
+        envelopeStatus: data.status ?? null,
+      });
       secureWarn('[ai-strategy] api envelope failed', {
         endpoint: 'responses',
         model: AI_API_MODEL,
         errorType: 'response_failed',
         parseSuccess: false,
         timedOut: false,
+        responseSize,
       });
-      return { ok: false, error: mapResponseEnvelopeError(data) };
+      return { ok: false, error: envelopeError };
     }
 
     const content = extractResponsesApiText(data);
     if (!content) {
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        httpStatus: response.status,
+        responseSize,
+        parseResult: 'empty_response',
+        timeout: false,
+      });
       secureWarn('[ai-strategy] api parse failed', {
         endpoint: 'responses',
         model: AI_API_MODEL,
         errorType: 'empty_response',
         parseSuccess: false,
         timedOut: false,
+        responseSize,
       });
       return { ok: false, error: 'empty response' };
     }
 
     const parsed = parseAiApiJsonContent(content);
     if (!parsed) {
+      logConciergeOpenAi({
+        phase: 'request_end',
+        requestStart,
+        requestEnd: new Date().toISOString(),
+        elapsedMs: Date.now() - started,
+        httpStatus: response.status,
+        responseSize,
+        parseResult: 'invalid_json_content',
+        contentChars: content.length,
+        timeout: false,
+      });
       secureWarn('[ai-strategy] api json parse failed', {
         endpoint: 'responses',
         model: AI_API_MODEL,
         errorType: 'invalid_json',
         parseSuccess: false,
         timedOut: false,
+        responseSize,
+        contentChars: content.length,
       });
       return { ok: false, error: 'invalid json' };
     }
+
+    logConciergeOpenAi({
+      phase: 'request_end',
+      requestStart,
+      requestEnd: new Date().toISOString(),
+      elapsedMs: Date.now() - started,
+      httpStatus: response.status,
+      responseSize,
+      parseResult: 'ok',
+      contentChars: content.length,
+      timeout: false,
+    });
 
     secureLog('[ai-strategy] api parse ok', {
       endpoint: 'responses',
@@ -629,13 +760,39 @@ async function callAiApi(
     return { ok: true, structured, text };
   } catch (e) {
     recordApiFailure('openai');
-    if (isAbortError(e) || signal.aborted) {
+    const elapsedMs = Date.now() - started;
+    const timedOut = isAbortError(e) || signal.aborted;
+    const errName = e instanceof Error ? e.name : 'unknown';
+    const errMsg = e instanceof Error ? e.message : 'unknown';
+    const errStack = e instanceof Error ? e.stack?.split('\n').slice(0, 4).join(' | ') : undefined;
+    logConciergeOpenAi({
+      phase: 'request_end',
+      requestStart,
+      requestEnd: new Date().toISOString(),
+      elapsedMs,
+      timeout: timedOut && !externalSignal?.aborted,
+      aborted: timedOut && Boolean(externalSignal?.aborted),
+      parseResult: timedOut ? 'timeout' : 'network_or_throw',
+      errorName: errName,
+      error: errMsg,
+      errorStack: errStack,
+    });
+    secureWarn('[ai-strategy] api call exception', {
+      endpoint: 'responses',
+      model: AI_API_MODEL,
+      timedOut,
+      aborted: externalSignal?.aborted ?? false,
+      errorName: errName,
+      error: errMsg,
+      elapsedMs,
+    });
+    if (timedOut) {
       if (externalSignal?.aborted) {
         return { ok: false, error: 'aborted', aborted: true };
       }
       return { ok: false, error: 'timeout' };
     }
-    const msg = e instanceof Error ? e.message : 'unknown';
+    const msg = errMsg;
     if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('fetch')) {
       return { ok: false, error: 'network' };
     }

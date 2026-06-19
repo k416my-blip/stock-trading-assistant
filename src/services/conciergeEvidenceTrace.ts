@@ -25,8 +25,29 @@ export function logConciergeShortAnswerDiag(payload: {
   factsCount: number;
   symbol: string | null;
   messageId?: string;
+  symbolsCount?: number;
+  symbolList?: string[];
+  actionGuideSymbolsCount?: number;
+  actionGuideSymbolList?: string[];
+  evidencePresent?: boolean;
+  reason?: string;
 }): void {
   console.warn('[CONCIERGE_SHORT_ANSWER]', JSON.stringify(payload));
+}
+
+/** Metro — hasEvidence=false 追跡用エビデンスバンドル要約 */
+export function logConciergeEvidenceBundleDiag(payload: {
+  symbolsCount: number;
+  symbolList: string[];
+  actionGuideSymbolsCount: number;
+  actionGuideSymbolList: string[];
+  hasActionGuide: boolean;
+  allowSpeculativeAi: boolean;
+  overallConfidencePct: number | null;
+  messageId?: string;
+  note?: string;
+}): void {
+  console.warn('[CONCIERGE_EVIDENCE_DIAG]', JSON.stringify(payload));
 }
 
 /** Metro — 本日のAIコメントが参照する bestToday[0] */

@@ -1,0 +1,44 @@
+{
+  "runIndex": 3,
+  "prompt": "Maybankを分析",
+  "sendMeta": {
+    "method": "composer"
+  },
+  "waitSettled": true,
+  "waitMs": 43554,
+  "uiAiAnalysis": true,
+  "uiMock": false,
+  "uiTimeout": false,
+  "openAiEventCount": 3,
+  "classification": "G",
+  "classificationLabel": "no_openai_request",
+  "lastOpenAiEnd": null,
+  "openAiEvents": [
+    {},
+    {},
+    {}
+  ],
+  "evidenceLines": [
+    "06-19 21:22:07.664 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.664 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.664 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.664 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.742 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.742 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.743 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.743 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.868 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.869 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.869 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:07.870 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:09.473 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:09.473 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:09.473 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:09.473 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:34.524 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:34.525 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:34.527 27309 27373 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+    "06-19 21:22:34.528 27309 27373 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r"
+  ],
+  "logcatFile": "logcat-run-3.txt"
+}
