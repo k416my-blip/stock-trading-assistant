@@ -1,7 +1,7 @@
 # Phase24 Device Smoke Report
 
 **Date:** 2026-06-19T01:49:23.727Z
-**Commit:** ec8d8f3
+**Commit:** 5422fb3
 **Mode:** Live API (`fetchLiveExternal=true`, `useMockFixture=false`)
 
 ## Verdict: **PASS** (6/6)
@@ -26,3 +26,8 @@
 ```bash
 npx tsx scripts/bursa-phase24-device-verify.ts
 ```
+
+## GitHub sync
+
+Commit: **5422fb3**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)

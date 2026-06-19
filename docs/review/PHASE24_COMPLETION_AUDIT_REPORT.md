@@ -108,4 +108,5 @@
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: **5422fb3**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)
