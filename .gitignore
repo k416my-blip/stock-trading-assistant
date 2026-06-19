@@ -33,6 +33,7 @@ ios/build/
 # Environment & secrets (never commit)
 .env
 .env.*
+.env.local
 .env.example
 *.pem
 *.key
@@ -76,3 +77,7 @@ scripts/_probe-rkstorage.py
 # OS
 .DS_Store
 Thumbs.db
+
+# HyperOS long-run temp logcat (multi-GB; summaries kept in repo)
+docs/review/hyperos-screen-off-survival/logcat-live*.log
+docs/review/hyperos-screen-off-survival/logcat-live-verify*.log

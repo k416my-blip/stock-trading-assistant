@@ -48,4 +48,10 @@
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: _(this deliverable commit)_  
+Push: _(filled after push)_
+
+## Related final deliverables
+
+- `docs/review/FINAL_12H_VALIDATION_REPORT.md`
+- `docs/review/PRODUCTION_READINESS_REPORT.md`

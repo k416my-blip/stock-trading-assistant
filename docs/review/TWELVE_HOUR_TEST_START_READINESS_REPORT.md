@@ -1,13 +1,18 @@
 # Twelve-Hour Test Start Readiness Report
 
-**Date:** 2026-06-16  
+**Date:** 2026-06-16 (updated 2026-06-19)  
 **Branch:** `cursor/top3-maxdd-capital-audit`  
 **APK:** `artifacts/preview-v15.apk` (versionCode 15)  
 **Device:** FYRWXSNNAIOR9DCM (Redmi Note 13 Pro / HyperOS)
 
+> **Superseded outcome:** 12h production validation **GO** — run `20260618-202947`.  
+> See `FINAL_12H_VALIDATION_REPORT.md` and `HYPEROS_12H_VALIDATION_LEARNINGS.md`.
+
 ---
 
-## Verdict: **CONDITIONAL GO** — start 12h after 30m logcat PASS
+## Verdict: **GO** (completed 2026-06-19)
+
+Historical gate below was **CONDITIONAL GO** pending 30m logcat PASS — all gates since resolved.
 
 | Gate | Status | Evidence |
 |------|--------|----------|
