@@ -157,7 +157,7 @@ Concierge Enhanced Analysis で OpenAI 応答が UI に反映されずモック�
 
 | 項目 | 値 |
 |------|-----|
-| 本レポート提出時 commit | `5d2a5ba`（実装本体: `6d087ed`） |
+| 本レポート提出時 commit | `58c1575`（実装本体: `6d087ed`） |
 | 先行 APK ビルド commit | `9dda7c797fbc519a9128448b690de5a63e21ada9` |
 
 ---
