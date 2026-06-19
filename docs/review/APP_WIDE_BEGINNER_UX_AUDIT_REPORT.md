@@ -576,3 +576,6 @@ const BEGINNER_VISIBLE_TABS: MainTabKey[] = [
 | `BEGINNER_MODE_UX_REDESIGN_REPORT.md` | UX0 材料分析基盤 |
 | `BEGINNER_MODE_REFINEMENT_REPORT.md` | UX0.1 4 分類 |
 | `BEGINNER_MODE_HOME_SCREEN_REPORT.md` | UX0.3 今日のAIアドバイス · 3 段階信頼度 |
+| `APP_WIDE_BEGINNER_NAVIGATION_REPORT.md` | **UX1.1** — 4 タブ導線 · 「このまま持つ？」 · AI相談タブ · 5 分ジャーニー（本監査のナビゲーション正） |
+
+> **UX1.1（2026-06-19）:** 本レポート UX1.0 の 5 タブ案（おすすめ配分 · 初心者ガイド含む）は **UX1.1 で 4 タブに改訂**。Concierge を専用タブ「AI相談」化 · 理解目標を 5 秒→**5 分**（オンボーディング付き）に拡張。画面別監査は UX1.0 を維持し、**ナビゲーション / 導線の正は UX1.1**。
