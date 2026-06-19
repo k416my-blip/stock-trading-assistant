@@ -11,7 +11,20 @@ OpenAI 単独判断に加え、Gemini / Claude をセカンドオピニオンと
 | 監査ベースコミット | `74db83f` |
 | レポート提出コミット | `9c49f59` |
 | スコープ | **設計のみ**（実装なし） |
+| **ステータス** | **M0 完了 · クローズ**（2026-06-19 設計承認） |
+| **実装開始条件** | **Play Internal Testing 完了後**（M1→M5 順次） |
 | 前提 | Phase19 / Phase23 完了承認済み · 新規分析 Phase 追加なし |
+
+### 現在の優先順位（Play Internal Testing）
+
+Multi-AI 実装（M1–M5）は **保留**。次サイクルは Play Internal Testing Ready を優先:
+
+1. Privacy Policy URL 公開
+2. Play Console Data Safety
+3. Store Listing 素材
+4. Production AAB（2026-07-01 EAS quota 回復後）
+
+参照: `PLAY_INTERNAL_TESTING_EXECUTION_PLAN.md`
 
 ### 役割分担（ユーザー設計案）
 
@@ -301,18 +314,20 @@ sequenceDiagram
 
 ## 6. 実装ステップ（推奨順）
 
-| Phase | 内容 | 成果物 | 依存 |
-|-------|------|--------|------|
-| **M0** | 本設計監査 · feature flag 定義 | 本レポート | — |
-| **M1** | API キー · SecureStore · Settings UI · 接続テスト | gemini/claude provider | — |
-| **M2** | Gemini / Claude adapter + unit test | `providers/*.ts` | M1 |
-| **M3** | `multiAiReviewOrchestrator` · 並列 fetch · partial fail | orchestrator + types | M2 |
-| **M4** | Concierge analysis モード hook（OpenAI 成功後 async） | `useMultiAiReview` | M3 |
-| **M5** | `MultiAiReviewPanel` UI · Concierge 統合 | コンポーネント | M4 |
-| **M6** | Action Center batch 拡張（任意） | hybrid source `multi_ai` | M5 |
-| **M7** | device smoke · レポート · Play Data Safety 追記 | smoke report | M5 |
+| Phase | 内容 | 成果物 | 依存 | ステータス |
+|-------|------|--------|------|------------|
+| **M0** | 本設計監査 · feature flag 定義 | 本レポート | — | **✅ 完了 · クローズ** |
+| **M1** | API キー · SecureStore · Settings UI · 接続テスト | gemini/claude provider | Play IT 完了 | **⏸ 保留** |
+| **M2** | Gemini / Claude adapter + unit test | `providers/*.ts` | M1 | **⏸ 保留** |
+| **M3** | `multiAiReviewOrchestrator` · 並列 fetch · partial fail | orchestrator + types | M2 | **⏸ 保留** |
+| **M4** | Concierge analysis モード hook（OpenAI 成功後 async） | `useMultiAiReview` | M3 | **⏸ 保留** |
+| **M5** | `MultiAiReviewPanel` UI · Concierge 統合 | コンポーネント | M4 | **⏸ 保留** |
+| **M6** | Action Center batch 拡張（任意） | hybrid source `multi_ai` | M5 | **⏸ 保留** |
+| **M7** | device smoke · レポート · Play Data Safety 追記 | smoke report | M5 | **⏸ 保留** |
 
-**Play Internal Testing との関係:** M1–M5 は Play 投入 **後** または feature flag OFF で並行開発可能。Data Safety は M7 で OpenAI に加え Gemini / Claude 送信を追記。
+**実装ゲート:** Play Internal Testing track 初回 upload 完了まで **M1–M7 に着手しない**。
+
+**再開時の順序:** M1 → M2 → M3 → M4 → M5（M6–M7 は任意）
 
 ---
 
@@ -378,7 +393,9 @@ sequenceDiagram
 | 4. キー UI（Gemini / Claude） | **なし** — OpenAI のみ |
 | 5. 3AI 表示位置 | **Concierge `AI分析結果` 直下** を第一候補 · Action Center は第二 |
 
-**設計判断:** 既存 `aiSecondEvaluatorService` のパイプラインを **Multi-AI Orchestrator** に発展させ、OpenAI 主応答の **非同期セカンドオピニオン**として Gemini / Claude を追加するのが最小侵襲。Play Internal Testing 完了後 **M1（キー UI）→ M5（Concierge パネル）** を推奨。
+**設計判断:** 既存 `aiSecondEvaluatorService` のパイプラインを **Multi-AI Orchestrator** に発展させ、OpenAI 主応答の **非同期セカンドオピニオン**として Gemini / Claude を追加するのが最小侵襲。
+
+**M0 クローズ（2026-06-19）:** 設計承認済み。実装は Play Internal Testing 完了後に M1→M5 を順次実施。現時点の優先は Privacy Policy · Data Safety · Store Listing · Production AAB。
 
 ---
 

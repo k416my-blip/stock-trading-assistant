@@ -14,6 +14,8 @@ Phase19 · Phase23 Revenue 完了を承認したうえで、次サイクルの�
 | 最新 preview APK | versionCode **17** · `artifacts/preview-v17-local.apk` |
 | 目標状態 | Play Internal Testing track へ **初回 AAB upload 可能** |
 
+**スコープ外（Play IT 完了まで保留）:** Multi-AI Review Layer 実装 M1–M5 — 設計は `MULTI_AI_REVIEW_DESIGN_REPORT.md`（**M0 クローズ**）
+
 ---
 
 ## 1. 現在の blockers
@@ -368,4 +370,4 @@ gantt
 | 策定ベースコミット | `b6a8471` |
 | レポート提出コミット | `a2f4d2b` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
-| Push | *(未実施 — 本レポート作成待ち)* |
+| Push | **SUCCESS** |
