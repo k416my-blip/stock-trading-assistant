@@ -66,18 +66,21 @@
 
 | 項目 | 結果 |
 |------|------|
-| 実機 adb | デバイス `FYRWXSNNAIOR9DCM` 接続確認 |
-| Phase A ビルド APK | **未インストール** — 本コミット後の preview APK は未ビルド |
-| スクリーンショット | **未取得** — 新ビルドなしのため UI キャプチャ不可 |
+| 実機 adb | デバイス `FYRWXSNNAIOR9DCM` |
+| Phase A APK | **versionCode 18** · `artifacts/preview-v18-phase-a.apk`（ローカル Gradle ビルド · 35.9 MB） |
+| インストール | `adb install -r` **成功** |
+| FAB（Beginner） | **非表示**（`fabVisibleInBeginner: false`） |
 
-### 手動確認手順（次ビルド後）
+| # | ファイル | 内容 |
+|---|----------|------|
+| 1 | `docs/review/phase-a-screenshots/01-settings-beginner-mode.png` | 表示モード **初心者** 選択 · 3 択 UI |
+| 2 | `docs/review/phase-a-screenshots/02-home-4-tabs.png` | タブ **4 つのみ**（ホーム/保有銘柄/銘柄チェック/AI相談） |
+| 3 | `docs/review/phase-a-screenshots/03-stock-check-no-phase.png` | タイトル **銘柄チェック** · Phase 未取得時 |
+| 4 | `docs/review/phase-a-screenshots/04-ai-consult-tab.png` | **AI相談** タブ · チャット UI |
+| 5 | `docs/review/phase-a-screenshots/05-home-no-fab.png` | ホーム · Concierge FAB **なし** |
 
-1. 設定 → 表示モード → **初心者** を選択
-2. タブが 4 つのみ（ホーム / 保有銘柄 / 銘柄チェック / AI相談）であること
-3. 右下 Concierge FAB が **非表示** であること
-4. 銘柄チェック → 銘柄カードに Phase13–24 見出しが **存在しない** こと
-5. AI相談タブでチャット入力 UI が表示されること
-6. 表示モード → **プロ** に切替 → 全タブ + FAB 復帰
+キャプチャスクリプト: `scripts/capture-phase-a-screenshots.mjs`  
+メタ: `docs/review/phase-a-screenshots/capture-meta.json`
 
 ---
 
@@ -85,9 +88,12 @@
 
 | 項目 | 内容 |
 |------|------|
-| ビルドコマンド | `npm run build:android:apk`（EAS profile `apk`） |
-| 実行 | **未実行**（Play IT 準備と並行のため Phase A コードのみ先行） |
-| アプリ version | `package.json` `1.0.0`（preview ビルド番号は EAS 依存） |
+| ビルド経路 | `C:\p\sta` 短パス · `gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a` |
+| Gradle | **BUILD SUCCESSFUL** |
+| versionCode | **18**（`app.json` · `android/app/build.gradle`） |
+| APK | `artifacts/preview-v18-phase-a.apk`（35,902,113 bytes · gitignore 対象） |
+| 実機インストール | `adb install -r` → **Success** · `versionCode=18` 確認 |
+| 検証日 | 2026-06-20 |
 
 ---
 
