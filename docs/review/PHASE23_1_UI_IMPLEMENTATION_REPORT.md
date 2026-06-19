@@ -72,8 +72,8 @@ Material Impact 例: Strong Bullish mock → `+6`（score 18 × 0.55 ≈ 10, cap
 
 | 項目 | 値 |
 |------|-----|
-| Commit | （sync 後更新） |
-| Push | `origin/cursor/top3-maxdd-capital-audit` |
+| Commit | **`69cf90f`** |
+| Push | **成功** — `fa0cb50..69cf90f` |
 
 ---
 

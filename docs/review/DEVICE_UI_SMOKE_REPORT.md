@@ -81,8 +81,8 @@ node scripts/bursa-phase24-23_1-ui-device-verify.mjs
 
 | 項目 | 値 |
 |------|-----|
-| Commit | （sync 後更新） |
-| Push | `origin/cursor/top3-maxdd-capital-audit` |
+| Commit | **`69cf90f`** |
+| Push | **成功** — `fa0cb50..69cf90f` |
 
 ---
 
