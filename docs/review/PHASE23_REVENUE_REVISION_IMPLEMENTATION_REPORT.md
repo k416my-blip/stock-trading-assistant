@@ -5,7 +5,7 @@ Phase23 Revenue Revision — Yahoo revenueTrend 欠落 (.KL) 向け FMP / Finnhu
 
 - 実行日時: 2026-06-19T03:31:57.078Z
 - Git commit: `fc0de08`
-- Push: pending
+- Push: success (`origin/cursor/top3-maxdd-capital-audit` @ `9805984`)
 
 ## 実装サマリー
 
