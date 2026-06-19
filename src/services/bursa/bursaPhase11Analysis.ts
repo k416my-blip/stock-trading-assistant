@@ -100,7 +100,7 @@ function buildSectorRankMaterial(input: {
   return null;
 }
 
-async function analyzeOneStock(input: {
+export async function analyzeOneStockForPhase11(input: {
   bundle: BursaDisclosureBundle;
   stockHtml: string | null;
   apiKeys: AnalysisApiKeys;
@@ -226,11 +226,13 @@ async function analyzeOneStock(input: {
     stock: enriched,
     sector,
     fetchLiveExternal,
+    apiKeys,
   });
   enriched = await enrichStockWithSectorRotationIntelligence({
     stock: enriched,
     sector,
     fetchLiveExternal,
+    apiKeys,
   });
   enriched = await enrichStockWithValuationIntelligence({
     stock: enriched,
@@ -297,6 +299,8 @@ export async function buildBursaPhase11Analysis(input?: {
   apiKeys?: AnalysisApiKeys;
   fetchLiveExternal?: boolean;
   phase9?: BursaPhase9Analysis | null;
+  /** E2E / 監査用 — 省略時は VERIFY_CODES */
+  targetStockCodes?: string[];
 }): Promise<BursaPhase11Analysis> {
   const holdings = input?.holdings ?? [];
   let apiKeys = input?.apiKeys;
@@ -305,16 +309,21 @@ export async function buildBursaPhase11Analysis(input?: {
     apiKeys = await loadAnalysisApiKeys();
   }
   const fetchLiveExternal = input?.fetchLiveExternal ?? true;
+  const codesFilter =
+    input?.targetStockCodes?.map(normalizeCode) ??
+    (input?.bundles?.length ? input.bundles.map((b) => b.stockCode) : VERIFY_CODES);
   const bundles =
     input?.bundles ??
     (await fetchBundles(holdings)).filter((b) =>
-      VERIFY_CODES.includes(b.stockCode) || holdings.some((h) => normalizeCode(h.symbol) === b.stockCode),
+      codesFilter.includes(b.stockCode) ||
+      VERIFY_CODES.includes(b.stockCode) ||
+      holdings.some((h) => normalizeCode(h.symbol) === b.stockCode),
     );
 
   const targetBundles =
     bundles.length > 0
-      ? bundles.filter((b) => VERIFY_CODES.includes(b.stockCode))
-      : bundles.slice(0, 4);
+      ? bundles.filter((b) => codesFilter.includes(b.stockCode))
+      : bundles.slice(0, codesFilter.length || 4);
 
   let phase9 = input?.phase9 ?? null;
   if (!phase9 && targetBundles.length > 0) {
@@ -325,17 +334,18 @@ export async function buildBursaPhase11Analysis(input?: {
     });
   }
 
-  const stocks = await Promise.all(
-    targetBundles.map((bundle) =>
-      analyzeOneStock({
+  const stocks: BursaStockMaterialAnalysis[] = [];
+  for (const bundle of targetBundles) {
+    stocks.push(
+      await analyzeOneStockForPhase11({
         bundle,
         stockHtml: input?.stockHtmlByCode?.[bundle.stockCode] ?? null,
         apiKeys,
         fetchLiveExternal,
         phase9,
       }),
-    ),
-  );
+    );
+  }
 
   const fetchedFields: string[] = ['phase11.stocks'];
   const missingFields: string[] = [];
@@ -359,6 +369,7 @@ export async function buildBursaPhase11FromBundles(input: {
   apiKeys?: AnalysisApiKeys;
   fetchLiveExternal?: boolean;
   phase9?: BursaPhase9Analysis | null;
+  targetStockCodes?: string[];
 }): Promise<BursaPhase11Analysis> {
   return buildBursaPhase11Analysis({
     bundles: input.bundles,
@@ -367,5 +378,6 @@ export async function buildBursaPhase11FromBundles(input: {
     apiKeys: input.apiKeys,
     fetchLiveExternal: input.fetchLiveExternal ?? false,
     phase9: input.phase9,
+    targetStockCodes: input.targetStockCodes,
   });
 }

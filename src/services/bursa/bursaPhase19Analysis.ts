@@ -16,15 +16,21 @@ import {
   macroIntelligenceToMaterialInputs,
 } from './bursaMacroIntelligenceService';
 import { isPhase11NewsMaterialSource } from './bursaNewsIntelligenceService';
+import type { AnalysisApiKeys } from '../analysisApiKeys';
 
 let sharedGlobalMacro: BursaMacroIntelligenceAnalysis | null = null;
 
-export async function getSharedGlobalMacroIntelligence(
-  forceRefresh = false,
-): Promise<BursaMacroIntelligenceAnalysis> {
+export async function getSharedGlobalMacroIntelligence(input?: {
+  forceRefresh?: boolean;
+  apiKeys?: AnalysisApiKeys;
+}): Promise<BursaMacroIntelligenceAnalysis> {
+  const forceRefresh = input?.forceRefresh ?? false;
   if (!forceRefresh && sharedGlobalMacro) return sharedGlobalMacro;
-  const { loadAnalysisApiKeys } = await import('../analysisApiKeys');
-  const apiKeys = await loadAnalysisApiKeys();
+  let apiKeys = input?.apiKeys;
+  if (!apiKeys) {
+    const { loadAnalysisApiKeys } = await import('../analysisApiKeys');
+    apiKeys = await loadAnalysisApiKeys();
+  }
   sharedGlobalMacro = await buildGlobalMacroIntelligenceAnalysis({ forceRefresh, apiKeys });
   return sharedGlobalMacro;
 }
@@ -38,12 +44,13 @@ export async function enrichStockWithMacroIntelligence(input: {
   sector?: string | null;
   globalMacro?: BursaMacroIntelligenceAnalysis | null;
   fetchLiveExternal?: boolean;
+  apiKeys?: AnalysisApiKeys;
 }): Promise<BursaStockMaterialAnalysis> {
   const global =
     input.globalMacro ??
     (input.fetchLiveExternal === false
       ? sharedGlobalMacro
-      : await getSharedGlobalMacroIntelligence());
+      : await getSharedGlobalMacroIntelligence({ apiKeys: input.apiKeys }));
 
   if (!global) {
     return input.stock;

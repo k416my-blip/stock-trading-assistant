@@ -18,6 +18,7 @@ import {
   sectorRotationToMaterialInputs,
 } from './bursaSectorRotationEngine';
 import { isPhase11NewsMaterialSource } from './bursaNewsIntelligenceService';
+import type { AnalysisApiKeys } from '../analysisApiKeys';
 
 type GlobalSectorRotation = ReturnType<typeof buildGlobalSectorRotationAnalysis>;
 let sharedGlobalRotation: GlobalSectorRotation | null = null;
@@ -34,10 +35,12 @@ function isPhase19MacroMaterialSource(
   return isPhase11NewsMaterialSource(source, sourceLabelJa, id);
 }
 
-export async function getSharedGlobalSectorRotation(
-  macro?: BursaMacroIntelligenceAnalysis | null,
-): Promise<GlobalSectorRotation> {
-  const globalMacro = macro ?? (await getSharedGlobalMacroIntelligence());
+export async function getSharedGlobalSectorRotation(input?: {
+  macro?: BursaMacroIntelligenceAnalysis | null;
+  apiKeys?: AnalysisApiKeys;
+}): Promise<GlobalSectorRotation> {
+  const globalMacro =
+    input?.macro ?? (await getSharedGlobalMacroIntelligence({ apiKeys: input?.apiKeys }));
   if (sharedGlobalRotation && sharedGlobalRotation.hasExtractableData) {
     return sharedGlobalRotation;
   }
@@ -80,15 +83,17 @@ export async function enrichStockWithSectorRotationIntelligence(input: {
   sector?: string | null;
   globalMacro?: BursaMacroIntelligenceAnalysis | null;
   fetchLiveExternal?: boolean;
+  apiKeys?: AnalysisApiKeys;
 }): Promise<BursaStockMaterialAnalysis> {
   const macro = input.stock.macroIntelligence;
   if (!macro) {
     return input.stock;
   }
 
-  const globalRotation = await getSharedGlobalSectorRotation(
-    input.globalMacro ?? macro,
-  );
+  const globalRotation = await getSharedGlobalSectorRotation({
+    macro: input.globalMacro ?? macro,
+    apiKeys: input.apiKeys,
+  });
 
   const sectorRotation = applySectorRotationToStock({
     global: globalRotation,
