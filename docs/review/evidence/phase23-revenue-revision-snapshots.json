@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "snapshots": [
+    {
+      "stockCode": "1155",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 30657811350,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:28.959Z"
+    },
+    {
+      "stockCode": "1023",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 23116786330,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:34.899Z"
+    },
+    {
+      "stockCode": "1295",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 15231239630,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:40.618Z"
+    },
+    {
+      "stockCode": "5347",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 68628278990,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:46.076Z"
+    },
+    {
+      "stockCode": "4707",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 7228917430,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:51.219Z"
+    },
+    {
+      "stockCode": "6033",
+      "fiscalPeriodEnd": "2026-12-31",
+      "revenueEstimate": 6573494020,
+      "source": "yahoo_finance",
+      "observedAt": "2026-06-19T03:31:57.036Z"
+    }
+  ]
+}

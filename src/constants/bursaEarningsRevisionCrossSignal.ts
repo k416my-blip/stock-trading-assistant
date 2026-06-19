@@ -19,6 +19,12 @@ export const CROSS_SIGNAL_BEARISH_SCORE = -10;
 export const CROSS_SIGNAL_DIVERGENCE_SCORE = 3;
 export const CROSS_SIGNAL_REVISION_ONLY_SCORE = 6;
 
+/** Phase23.1 — EPS Stable 時に Revenue Revision で bias を決める閾値（%） */
+export const REVENUE_REVISION_BIAS_UP_PCT = 5;
+export const REVENUE_REVISION_BIAS_DOWN_PCT = -5;
+export const REVENUE_REVISION_STRONG_BIAS_UP_PCT = 10;
+export const REVENUE_REVISION_STRONG_BIAS_DOWN_PCT = -10;
+
 export const CROSS_SIGNAL_MATERIAL_WEIGHT = 0.55;
 export const CROSS_SIGNAL_MATERIAL_SCORE_CAP = 12;
 

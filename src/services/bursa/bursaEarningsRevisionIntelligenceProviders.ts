@@ -9,6 +9,11 @@ import {
   fetchYahooQuoteSummaryModules,
   parseYahooRawNumber,
 } from '../quoteProviders/yahooQuoteSummaryClient';
+import {
+  applyRevenueRevisionPartialToEarningsPartial,
+  fetchAllRevenueRevisionPartials,
+  type RevenueRevisionApiKeys,
+} from './bursaRevenueRevisionProviders';
 
 export type EarningsRevisionPartial = {
   source: EarningsRevisionIntelligenceSource;
@@ -241,9 +246,13 @@ export function mergeEarningsRevisionPartials(
   const ordered = [...partials].sort((a, b) => {
     const rank = (s: EarningsRevisionIntelligenceSource) => {
       if (s === 'yahoo_finance') return 0;
-      if (s === 'analyst_consensus') return 1;
-      if (s === 'bursa_financial_report') return 2;
-      return 3;
+      if (s === 'estimate_snapshot') return 1;
+      if (s === 'fmp') return 2;
+      if (s === 'finnhub') return 3;
+      if (s === 'alpha_vantage') return 4;
+      if (s === 'analyst_consensus') return 5;
+      if (s === 'bursa_financial_report') return 6;
+      return 9;
     };
     return rank(a.source) - rank(b.source);
   });
@@ -297,6 +306,7 @@ export function mergeEarningsRevisionPartials(
     merged.epsRevision30d != null ||
     merged.epsRevision90d != null ||
     merged.revenueEstimateCurrentFy != null ||
+    merged.revenueRevision30d != null ||
     merged.upgradeCount != null ||
     merged.downgradeCount != null;
 
@@ -308,6 +318,7 @@ export async function fetchAllEarningsRevisionPartials(input: {
   analystConsensus?: BursaAnalystConsensusAnalysis | null;
   financialReport?: FinancialReportAnalysis | null;
   fetchLiveExternal: boolean;
+  apiKeys?: RevenueRevisionApiKeys;
 }): Promise<EarningsRevisionPartial | null> {
   const partials: EarningsRevisionPartial[] = [];
 
@@ -322,5 +333,14 @@ export async function fetchAllEarningsRevisionPartials(input: {
   const fromFr = buildEarningsRevisionFromFinancialReport(input.financialReport);
   if (fromFr) partials.push(fromFr);
 
-  return mergeEarningsRevisionPartials(partials);
+  const merged = mergeEarningsRevisionPartials(partials);
+  if (!merged) return null;
+
+  const revenueRevision = await fetchAllRevenueRevisionPartials({
+    stockCode: input.stockCode,
+    fetchLiveExternal: input.fetchLiveExternal,
+    apiKeys: input.apiKeys,
+  });
+
+  return applyRevenueRevisionPartialToEarningsPartial(merged, revenueRevision);
 }

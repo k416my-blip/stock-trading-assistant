@@ -75,8 +75,21 @@ describe('bursaPhase23 earnings revision intelligence', () => {
         source: 'yahoo_finance',
         hasEpsRevision90d: true,
         hasUpgradeDowngrade: true,
+        hasRevenueRevision30d: false,
       }),
     ).toBe('High');
+  });
+
+  it('resolveRevisionConfidence boosts Medium when revenue revision present', () => {
+    expect(
+      resolveRevisionConfidence({
+        fieldCount: 6,
+        source: 'estimate_snapshot',
+        hasEpsRevision90d: true,
+        hasUpgradeDowngrade: false,
+        hasRevenueRevision30d: true,
+      }),
+    ).toBe('Medium');
   });
 
   it('mergeEarningsRevisionPartials prefers Yahoo revisions over consensus estimates', () => {

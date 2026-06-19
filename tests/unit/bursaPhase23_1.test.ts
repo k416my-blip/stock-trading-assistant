@@ -155,6 +155,16 @@ describe('bursaPhase23_1 earnings revision cross signal', () => {
     expect(resolveRevisionComponentBias(null)).toBe('unavailable');
   });
 
+  it('resolveRevisionComponentBias uses revenue revision when EPS direction is Stable', () => {
+    const stableWithRevenueUp = mockRevision('Stable', 0);
+    stableWithRevenueUp.revenueRevision30d = 8;
+    expect(resolveRevisionComponentBias(stableWithRevenueUp)).toBe('bullish');
+
+    const stableWithRevenueDown = mockRevision('Stable', 0);
+    stableWithRevenueDown.revenueRevision30d = -8;
+    expect(resolveRevisionComponentBias(stableWithRevenueDown)).toBe('bearish');
+  });
+
   it('resolveInsiderComponentBias maps buy and sell dominance', () => {
     expect(resolveInsiderComponentBias(mockInsider('買い優勢'))).toBe('bullish');
     expect(resolveInsiderComponentBias(mockInsider('売り優勢'))).toBe('bearish');

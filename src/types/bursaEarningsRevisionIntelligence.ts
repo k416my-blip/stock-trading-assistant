@@ -13,6 +13,10 @@ export type EarningsRevisionIntelligenceSource =
   | 'yahoo_finance'
   | 'analyst_consensus'
   | 'bursa_financial_report'
+  | 'fmp'
+  | 'finnhub'
+  | 'alpha_vantage'
+  | 'estimate_snapshot'
   | 'none';
 
 export type EarningsRevisionIntelligenceDisplayFields = {

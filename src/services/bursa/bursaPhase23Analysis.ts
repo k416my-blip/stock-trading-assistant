@@ -29,12 +29,18 @@ function isPhase23EarningsRevisionMaterialSource(
 export async function enrichStockWithEarningsRevisionIntelligence(input: {
   stock: BursaStockMaterialAnalysis;
   fetchLiveExternal: boolean;
+  apiKeys?: {
+    finnhubApiKey?: string;
+    alphaVantageApiKey?: string;
+    fmpApiKey?: string;
+  };
 }): Promise<BursaStockMaterialAnalysis> {
   const earningsRevisionIntelligence = await buildEarningsRevisionIntelligenceAnalysis({
     stockCode: input.stock.stockCode,
     analystConsensus: input.stock.analystConsensus,
     financialReport: input.stock.earningsCall?.financialReportAnalysis,
     fetchLiveExternal: input.fetchLiveExternal,
+    apiKeys: input.apiKeys,
   });
 
   const filterDup = <T extends { source: string; sourceLabelJa?: string; id?: string }>(items: T[]) =>
@@ -85,9 +91,15 @@ export async function enrichStockWithEarningsRevisionIntelligence(input: {
     } else {
       missingFields.push('phase23.earnings_revision_series');
     }
+    if (earningsRevisionIntelligence.revenueRevision30d != null) {
+      fetchedFields.push('phase23.revenue_revision_series');
+    } else {
+      missingFields.push('phase23.revenue_revision_series');
+    }
   } else {
     missingFields.push('phase23.earnings_revision_intelligence');
     missingFields.push('phase23.earnings_revision_series');
+    missingFields.push('phase23.revenue_revision_series');
   }
 
   return {

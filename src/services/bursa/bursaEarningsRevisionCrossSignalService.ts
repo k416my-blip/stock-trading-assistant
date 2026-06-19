@@ -14,6 +14,10 @@ import {
   CROSS_SIGNAL_SCORE_MIN,
   CROSS_SIGNAL_STRONG_BEARISH_SCORE,
   CROSS_SIGNAL_STRONG_BULLISH_SCORE,
+  REVENUE_REVISION_BIAS_DOWN_PCT,
+  REVENUE_REVISION_BIAS_UP_PCT,
+  REVENUE_REVISION_STRONG_BIAS_DOWN_PCT,
+  REVENUE_REVISION_STRONG_BIAS_UP_PCT,
 } from '../../constants/bursaEarningsRevisionCrossSignal';
 import type { BursaEarningsRevisionIntelligenceAnalysis } from '../../types/bursaEarningsRevisionIntelligence';
 import type {
@@ -43,6 +47,15 @@ export function resolveRevisionComponentBias(
   }
   if (isUpwardRevision(revision.revisionDirection)) return 'bullish';
   if (isDownwardRevision(revision.revisionDirection)) return 'bearish';
+
+  const revenueRev = revision.revenueRevision30d;
+  if (revenueRev != null && revision.revisionDirection === 'Stable') {
+    if (revenueRev >= REVENUE_REVISION_STRONG_BIAS_UP_PCT) return 'bullish';
+    if (revenueRev <= REVENUE_REVISION_STRONG_BIAS_DOWN_PCT) return 'bearish';
+    if (revenueRev >= REVENUE_REVISION_BIAS_UP_PCT) return 'bullish';
+    if (revenueRev <= REVENUE_REVISION_BIAS_DOWN_PCT) return 'bearish';
+  }
+
   return 'neutral';
 }
 
@@ -196,12 +209,17 @@ function buildEvaluationJa(input: {
   insiderBias: CrossSignalComponentBias;
   institutionalBias: CrossSignalComponentBias;
   score: number;
+  revenueRevision30d?: number | null;
 }): string {
   const dir = CROSS_SIGNAL_DIRECTION_JA[input.direction];
   const rev = CROSS_SIGNAL_COMPONENT_BIAS_JA[input.revisionBias];
   const ins = CROSS_SIGNAL_COMPONENT_BIAS_JA[input.insiderBias];
   const inst = CROSS_SIGNAL_COMPONENT_BIAS_JA[input.institutionalBias];
-  return `Phase23.1 Cross Signal ${dir}（Score ${input.score}）— Revision:${rev} / Insider:${ins} / Institutional:${inst}`;
+  const revPct =
+    input.revenueRevision30d != null
+      ? ` · Revenue30D ${input.revenueRevision30d >= 0 ? '+' : ''}${input.revenueRevision30d.toFixed(1)}%`
+      : '';
+  return `Phase23.1 Cross Signal ${dir}（Score ${input.score}）— Revision:${rev}${revPct} / Insider:${ins} / Institutional:${inst}`;
 }
 
 function fmtScore(score: number): string {
@@ -247,6 +265,7 @@ export function buildEarningsRevisionCrossSignalAnalysis(input: {
     insiderBias,
     institutionalBias,
     score,
+    revenueRevision30d: input.earningsRevisionIntelligence?.revenueRevision30d ?? null,
   });
 
   return {

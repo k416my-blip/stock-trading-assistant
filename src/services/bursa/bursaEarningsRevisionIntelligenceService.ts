@@ -65,6 +65,14 @@ function sourceLabel(source: string): string {
       return 'Phase14 Analyst Consensus';
     case 'bursa_financial_report':
       return 'Bursa/KLSE Financial Report';
+    case 'fmp':
+      return 'FMP Analyst Estimates';
+    case 'finnhub':
+      return 'Finnhub Revenue Estimate';
+    case 'alpha_vantage':
+      return 'Alpha Vantage Earnings';
+    case 'estimate_snapshot':
+      return 'Estimate Snapshot (30D)';
     default:
       return EARNINGS_REVISION_FIELD_MISSING_JA;
   }
@@ -123,14 +131,22 @@ export function resolveRevisionConfidence(input: {
   source: string;
   hasEpsRevision90d: boolean;
   hasUpgradeDowngrade: boolean;
+  hasRevenueRevision30d: boolean;
 }): EarningsRevisionConfidence {
   if (
     input.fieldCount >= 8 &&
-    input.source === 'yahoo_finance' &&
+    (input.source === 'yahoo_finance' || input.source === 'estimate_snapshot') &&
     input.hasEpsRevision90d &&
     input.hasUpgradeDowngrade
   ) {
     return 'High';
+  }
+  if (
+    input.fieldCount >= 5 &&
+    input.hasRevenueRevision30d &&
+    (input.hasEpsRevision90d || input.hasUpgradeDowngrade)
+  ) {
+    return 'Medium';
   }
   if (input.fieldCount >= 4) return 'Medium';
   return 'Low';
@@ -239,12 +255,18 @@ export async function buildEarningsRevisionIntelligenceAnalysis(input: {
   analystConsensus?: BursaAnalystConsensusAnalysis | null;
   financialReport?: FinancialReportAnalysis | null;
   fetchLiveExternal: boolean;
+  apiKeys?: {
+    finnhubApiKey?: string;
+    alphaVantageApiKey?: string;
+    fmpApiKey?: string;
+  };
 }): Promise<BursaEarningsRevisionIntelligenceAnalysis> {
   const merged = await fetchAllEarningsRevisionPartials({
     stockCode: input.stockCode,
     analystConsensus: input.analystConsensus,
     financialReport: input.financialReport,
     fetchLiveExternal: input.fetchLiveExternal,
+    apiKeys: input.apiKeys,
   });
 
   if (!merged) {
@@ -270,6 +292,7 @@ export async function buildEarningsRevisionIntelligenceAnalysis(input: {
     source: merged.source,
     hasEpsRevision90d: merged.epsRevision90d != null,
     hasUpgradeDowngrade: merged.upgradeCount != null || merged.downgradeCount != null,
+    hasRevenueRevision30d: merged.revenueRevision30d != null,
   });
 
   const displayJa: EarningsRevisionIntelligenceDisplayFields = {
@@ -297,6 +320,7 @@ export async function buildEarningsRevisionIntelligenceAnalysis(input: {
         'Earnings Revision Intelligence',
         displayJa.revisionDirection,
         `EPS 30D ${displayJa.epsRevision30d} · 90D ${displayJa.epsRevision90d}`,
+        `Revenue 30D ${displayJa.revenueRevision30d}`,
         `Score ${displayJa.revisionScore} · Confidence ${revisionConfidence}`,
       ].join(' · ')
     : [
