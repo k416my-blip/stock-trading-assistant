@@ -23,17 +23,6 @@ export const PHASE19_MACRO_INDICATOR_DEFS: Array<{
   { id: 'klci', labelJa: 'KLCI', yahooSymbol: '^KLSE', unitJa: 'pt', inverseForEquities: false },
 ];
 
-/** ライブ未取得時の参照値（手動更新想定 · 推測値ではなく監査用アンカー） */
-export const MACRO_REFERENCE_VALUES: Record<
-  'fed_rate' | 'my_opr' | 'us_cpi' | 'my_cpi',
-  number
-> = {
-  fed_rate: 5.25,
-  my_opr: 3.0,
-  us_cpi: 3.2,
-  my_cpi: 1.8,
-};
-
 /** 参照レベル評価閾値 */
 export const MACRO_LEVEL_THRESHOLDS = {
   fed_rate: { bearishAbove: 5.0, bullishBelow: 4.0 },

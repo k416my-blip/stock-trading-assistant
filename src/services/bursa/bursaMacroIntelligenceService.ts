@@ -6,11 +6,9 @@ import {
   MACRO_CHANGE_BULLISH_PCT,
   MACRO_INTELLIGENCE_UNAVAILABLE_JA,
   MACRO_LEVEL_THRESHOLDS,
-  MACRO_REFERENCE_VALUES,
   MACRO_SECTOR_LABEL_JA,
   PHASE19_MACRO_INDICATOR_DEFS,
 } from '../../constants/bursaMacroIntelligence';
-import { FED_FUNDS_RATE_REFERENCE_PCT } from '../../constants/globalMarket';
 import type {
   BursaMacroIntelligenceAnalysis,
   MacroDashboard,
@@ -31,6 +29,13 @@ import {
   resolveStockMacroSector,
   scoreToMacroSentiment,
 } from './bursaMacroSectorAdjustment';
+import {
+  fetchMacroLiveIndicators,
+  macroLiveIdForIndicator,
+  resetMacroLiveCache,
+  type MacroLiveIndicatorSnapshot,
+} from './bursaMacroLiveProviders';
+import type { AnalysisApiKeys } from '../analysisApiKeys';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 let cachedGlobal: BursaMacroIntelligenceAnalysis | null = null;
@@ -82,7 +87,7 @@ function snapshotValue(snap: YahooInstrumentSnapshot): number | null {
 function buildIndicatorRow(
   def: (typeof PHASE19_MACRO_INDICATOR_DEFS)[number],
   snap: YahooInstrumentSnapshot | null,
-  referenceValue?: number,
+  live?: MacroLiveIndicatorSnapshot | null,
 ): MacroIndicatorRow {
   if (def.yahooSymbol && snap) {
     const value = snapshotValue(snap);
@@ -103,16 +108,25 @@ function buildIndicatorRow(
     };
   }
 
-  const refKey = def.id as keyof typeof MACRO_REFERENCE_VALUES;
-  const value =
-    referenceValue ??
-  (refKey in MACRO_REFERENCE_VALUES
-      ? MACRO_REFERENCE_VALUES[refKey as keyof typeof MACRO_REFERENCE_VALUES]
-      : def.id === 'fed_rate'
-        ? FED_FUNDS_RATE_REFERENCE_PCT
-        : null);
+  const liveId = macroLiveIdForIndicator(def.id);
+  if (liveId && live?.fromLive && live.value != null) {
+    const levelId = def.id as 'fed_rate' | 'my_opr' | 'us_cpi' | 'my_cpi';
+    const sentiment = classifyByLevel(levelId, live.value);
+    const changeLabel =
+      live.changePct != null ? fmtPct(live.changePct) : def.id.includes('cpi') ? 'YoY' : '—';
+    return {
+      id: def.id,
+      labelJa: def.labelJa,
+      value: live.value,
+      changePct: live.changePct,
+      unitJa: def.unitJa,
+      sentiment,
+      fromLive: true,
+      rationaleJa: `Live ${live.source} · ${fmtVal(live.value, def.unitJa)} · ${changeLabel} · ${sentiment}`,
+    };
+  }
 
-  if (value == null) {
+  if (liveId) {
     return {
       id: def.id,
       labelJa: def.labelJa,
@@ -121,25 +135,19 @@ function buildIndicatorRow(
       unitJa: def.unitJa,
       sentiment: 'Neutral',
       fromLive: false,
-      rationaleJa: MACRO_INTELLIGENCE_UNAVAILABLE_JA,
+      rationaleJa: live?.errorJa ?? MACRO_INTELLIGENCE_UNAVAILABLE_JA,
     };
   }
-
-  const levelId = def.id as 'fed_rate' | 'my_opr' | 'us_cpi' | 'my_cpi';
-  const sentiment =
-    def.id === 'fed_rate' || def.id === 'my_opr' || def.id === 'us_cpi' || def.id === 'my_cpi'
-      ? classifyByLevel(levelId, value)
-      : 'Neutral';
 
   return {
     id: def.id,
     labelJa: def.labelJa,
-    value,
+    value: null,
     changePct: null,
     unitJa: def.unitJa,
-    sentiment,
+    sentiment: 'Neutral',
     fromLive: false,
-    rationaleJa: `参照 ${fmtVal(value, def.unitJa)} · ${sentiment}`,
+    rationaleJa: MACRO_INTELLIGENCE_UNAVAILABLE_JA,
   };
 }
 
@@ -238,23 +246,43 @@ export async function fetchMacroIndicatorSnapshots(
 
 export async function buildGlobalMacroIntelligenceAnalysis(input?: {
   forceRefresh?: boolean;
+  apiKeys?: AnalysisApiKeys;
 }): Promise<BursaMacroIntelligenceAnalysis> {
   const now = Date.now();
   if (!input?.forceRefresh && cachedGlobal && now - cachedGlobalAt < CACHE_TTL_MS) {
     return cachedGlobal;
   }
 
-  const snapshots = await fetchMacroIndicatorSnapshots(input?.forceRefresh ?? false);
+  if (input?.forceRefresh) {
+    resetMacroLiveCache();
+  }
+
+  const [snapshots, liveIndicators] = await Promise.all([
+    fetchMacroIndicatorSnapshots(input?.forceRefresh ?? false),
+    fetchMacroLiveIndicators({
+      forceRefresh: input?.forceRefresh,
+      keys: {
+        alphaVantageApiKey: input?.apiKeys?.alphaVantageApiKey,
+        fmpApiKey: input?.apiKeys?.fmpApiKey,
+      },
+    }),
+  ]);
+
   const indicators = PHASE19_MACRO_INDICATOR_DEFS.map((def) => {
     const snap = def.yahooSymbol ? snapshotFor(snapshots, def.yahooSymbol) : null;
-    return buildIndicatorRow(def, snap);
+    const liveId = macroLiveIdForIndicator(def.id);
+    const live = liveId ? liveIndicators[liveId] : null;
+    return buildIndicatorRow(def, snap, live);
   });
 
   const dashboard = buildMacroDashboard(indicators);
   const macroScore = computeMacroScore(indicators);
   const macroSentiment = scoreToMacroSentiment(macroScore);
   const sectorImpacts = buildAllSectorImpacts(dashboard);
-  const hasExtractableData = dashboard.liveCount >= 4 || dashboard.referenceCount >= 4;
+  const liveMacroCount = ['fed_rate', 'my_opr', 'us_cpi', 'my_cpi'].filter(
+    (id) => liveIndicators[id as keyof typeof liveIndicators]?.fromLive,
+  ).length;
+  const hasExtractableData = dashboard.liveCount >= 4 || liveMacroCount >= 2;
   const availability = hasExtractableData ? 'available' : 'unavailable';
 
   const analysis: BursaMacroIntelligenceAnalysis = {

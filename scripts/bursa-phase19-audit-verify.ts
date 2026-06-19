@@ -159,7 +159,10 @@ async function main(): Promise<void> {
   let crashCount = 0;
   const rows: AuditRow[] = [];
 
-  const globalMacro = await buildGlobalMacroIntelligenceAnalysis({ forceRefresh: true });
+  const globalMacro = await buildGlobalMacroIntelligenceAnalysis({
+    forceRefresh: true,
+    apiKeys,
+  });
   const dashboardRows = formatMacroDashboardRows(globalMacro.dashboard);
   const sectorTable = formatSectorImpactTable(globalMacro.sectorImpacts);
 

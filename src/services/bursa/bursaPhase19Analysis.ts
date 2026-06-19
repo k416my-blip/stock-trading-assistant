@@ -23,7 +23,9 @@ export async function getSharedGlobalMacroIntelligence(
   forceRefresh = false,
 ): Promise<BursaMacroIntelligenceAnalysis> {
   if (!forceRefresh && sharedGlobalMacro) return sharedGlobalMacro;
-  sharedGlobalMacro = await buildGlobalMacroIntelligenceAnalysis({ forceRefresh });
+  const { loadAnalysisApiKeys } = await import('../analysisApiKeys');
+  const apiKeys = await loadAnalysisApiKeys();
+  sharedGlobalMacro = await buildGlobalMacroIntelligenceAnalysis({ forceRefresh, apiKeys });
   return sharedGlobalMacro;
 }
 
