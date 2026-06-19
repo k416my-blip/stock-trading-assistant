@@ -113,7 +113,8 @@
 | 実装コミット | `3aa64e0` — `feat(ux): Phase A appUxMode and beginner 4-tab navigator` |
 | レポートコミット | `059df64` — `docs(review): UX Phase A implementation report` |
 | push 先 | `origin/cursor/top3-maxdd-capital-audit` |
-| push 結果 | **成功** — 実装 `ce0e35f..3aa64e0`、レポート `3aa64e0..059df64` |
+| 検証コミット | `7ab2373` — スクリーンショット · v18 APK 実機 smoke |
+| push 結果 | **成功** — `6e3c459..7ab2373` |
 
 ---
 
