@@ -8,7 +8,7 @@
       "distribution": "store",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": ""
+        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": "0"
       },
       "android": {
         "buildType": "app-bundle",
@@ -30,7 +30,7 @@
       "distribution": "internal",
       "autoIncrement": false,
       "env": {
-        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": ""
+        "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": "0"
       },
       "android": {
         "buildType": "apk",
