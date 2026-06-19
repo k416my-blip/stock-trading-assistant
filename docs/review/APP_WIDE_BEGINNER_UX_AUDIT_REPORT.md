@@ -9,7 +9,7 @@
 | 監査日 | 2026-06-19 |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 監査ベースコミット | `9a6f8c9` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `017e549` |
 | スコープ | **設計監査のみ**（実装なし） |
 | 親仕様 | UX0（`BEGINNER_MODE_UX_REDESIGN_REPORT.md`）· UX0.1 · **UX0.3**（`BEGINNER_MODE_HOME_SCREEN_REPORT.md`） |
 | バージョン | **UX1.0 — App-Wide** |
@@ -564,9 +564,8 @@ const BEGINNER_VISIBLE_TABS: MainTabKey[] = [
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `9a6f8c9` |
-| レポート提出コミット | *(未作成 — Agent mode で commit)* |
-| 想定コミットメッセージ | `docs(ux): app-wide beginner UX audit report` |
-| Push | *(未実施)* |
+| レポート提出コミット | `017e549` |
+| Push | **SUCCESS** |
 
 ---
 
