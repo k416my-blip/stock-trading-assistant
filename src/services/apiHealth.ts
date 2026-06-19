@@ -8,6 +8,7 @@ import {
 } from './twelveDataConnectionTest';
 import { testOpenAiResponsesConnection } from './openAiConnectionTest';
 import type { SupportedApiProviderId } from '../config/apiProviders';
+import { X_HTTP_402_USER_MESSAGE_JA } from '../constants/xApiOptional';
 import { resolveApiKeyForConnectionTest } from './safeApiKey';
 
 const API_TIMEOUT_MS = 8000;
@@ -78,49 +79,15 @@ async function testTwelveData(apiKey: string): Promise<ApiConnectionResult> {
 
 async function testNewsApi(apiKey: string): Promise<ApiConnectionResult> {
   try {
-    const url = `https://newsapi.org/v2/top-headlines?category=business&country=us&pageSize=1&apiKey=${encodeURIComponent(apiKey)}`;
-    const res = await fetchWithTimeout(url, { method: 'GET' }, API_TIMEOUT_MS);
-    const bodyText = await res.text();
-    let responseBody: unknown = bodyText;
-    try {
-      responseBody = JSON.parse(bodyText);
-    } catch {
-      /* keep text */
+    const { runNewsApiConnectionTest, failureKindLabelJa } = await import('./newsApiConnectionDebug');
+    const tested = await runNewsApiConnectionTest(apiKey);
+    if (tested.ok) {
+      return result(
+        true,
+        tested.tempRateLimit ? 'NewsAPI 利用上限（一時）' : REAL_API_CONNECTION_SUCCESS_JA,
+      );
     }
-    const { logNewsApiDebug, extractNewsApiErrorCode, extractNewsApiErrorMessage, buildOperationalNewsUrls } =
-      await import('./newsApiFetchDebug');
-    const { inspectNewsApiKeySources } = await import('./newsApiKeyResolver');
-    const keySources = await inspectNewsApiKeySources();
-    const operationalUrls = buildOperationalNewsUrls('business', apiKey);
-    logNewsApiDebug({
-      apiKeyExists: Boolean(apiKey.trim()),
-      apiKeyLength: apiKey.trim().length,
-      apiKeyOrigin: 'secure_store',
-      apiKeyFingerprint: apiKey.length > 8 ? `${apiKey.slice(0, 4)}…${apiKey.slice(-4)}` : null,
-      requestUrl: url.replace(/apiKey=[^&]+/i, 'apiKey=***'),
-      endpoint: 'top-headlines',
-      status: res.status,
-      responseBodyCode: extractNewsApiErrorCode(responseBody),
-      responseBodyMessage: extractNewsApiErrorMessage(responseBody),
-      articlesCount: Array.isArray((responseBody as { articles?: unknown[] })?.articles)
-        ? (responseBody as { articles: unknown[] }).articles.length
-        : 0,
-      responseBody,
-      operationalUrls,
-      error: res.ok ? null : String(res.status),
-      keySources,
-      keyComparison: {
-        operationalMatchesConnectionTest: true,
-        operationalMatchesSecureStore: true,
-        operationalMatchesFreshLoad: true,
-        connectionTestEndpoint: url.replace(/apiKey=[^&]+/i, 'apiKey=***'),
-        noteJa: '接続テスト — top-headlines（Settings）',
-      },
-    });
-    if (res.ok) return result(true, REAL_API_CONNECTION_SUCCESS_JA);
-    if (res.status === 401 || res.status === 403) return result(false, 'NewsAPI キー無効');
-    if (res.status === 429) return result(false, 'NewsAPI 利用上限');
-    return result(false, `NewsAPI エラー (${res.status})`);
+    return result(false, tested.errorReasonJa ?? failureKindLabelJa(tested.failureKind));
   } catch {
     return result(false, 'NewsAPI タイムアウト/接続失敗');
   }
@@ -160,25 +127,37 @@ async function testXApi(apiKey: string): Promise<ApiConnectionResult> {
       API_TIMEOUT_MS,
     );
     const bodyText = await res.text();
-    let parsedBody: unknown = bodyText;
-    try {
-      parsedBody = JSON.parse(bodyText);
-    } catch {
-      /* keep raw text */
-    }
 
     console.log('[x-api] connection-test', {
       url,
       status: res.status,
       ok: res.ok,
-      response: {
-        data: parsedBody,
-      },
     });
 
-    if (res.ok) return result(true, 'X API 接続成功');
+    if (res.ok) {
+      let tweetCount = 0;
+      try {
+        const parsed = JSON.parse(bodyText) as { data?: unknown[] };
+        tweetCount = Array.isArray(parsed.data) ? parsed.data.length : 0;
+      } catch {
+        /* ignore */
+      }
+      if (tweetCount > 0) return result(true, 'X API 接続成功');
+      return result(true, 'X API 認証成功（search/recent 結果0件 · キーは有効）');
+    }
     if (res.status === 401) return result(false, 'Bearer Token 無効または権限不足');
-    if (res.status === 403) return result(false, 'X API プラン制限または endpoint 権限不足');
+    if (res.status === 402) {
+      return result(
+        true,
+        `X API キーは有効（402: ${X_HTTP_402_USER_MESSAGE_JA} · 保存は可能）`,
+      );
+    }
+    if (res.status === 403) {
+      return result(
+        false,
+        'X API プラン制限（search/recent は Basic 以上が必要な場合があります）',
+      );
+    }
     if (res.status === 429) return result(false, 'Rate Limit 超過');
     return result(false, `X API エラー (${res.status})`);
   } catch {
@@ -219,13 +198,37 @@ async function testPolygon(apiKey: string): Promise<ApiConnectionResult> {
   try {
     const url = `https://api.polygon.io/v2/aggs/ticker/AAPL/prev?adjusted=true&apiKey=${encodeURIComponent(apiKey)}`;
     const res = await fetchWithTimeout(url, { method: 'GET' }, API_TIMEOUT_MS);
-    if (!res.ok) return result(false, `Polygon エラー (${res.status})`);
-    const data = (await res.json()) as { status?: string; results?: unknown[]; error?: string };
-    if (data.status === 'OK' || (Array.isArray(data.results) && data.results.length > 0)) {
+    const bodyText = await res.text();
+    let data: { status?: string; results?: unknown[]; error?: string; message?: string } = {};
+    try {
+      data = JSON.parse(bodyText) as typeof data;
+    } catch {
+      return result(false, 'Polygon 応答パース失敗');
+    }
+
+    if (res.status === 401 || res.status === 403) {
+      return result(false, `Polygon キー無効または権限不足 (${res.status})`);
+    }
+    if (!res.ok) {
+      return result(false, `Polygon エラー (${res.status})`);
+    }
+
+    const status = String(data.status ?? '').toUpperCase();
+    if (status === 'ERROR') {
+      const err = data.error ?? data.message ?? '不明';
+      return result(false, `Polygon キー無効（${err}）`);
+    }
+    // Free tier often returns DELAYED with empty results — key is still valid
+    if (status === 'OK' || status === 'DELAYED') {
+      const count = Array.isArray(data.results) ? data.results.length : 0;
+      if (count > 0) return result(true, 'Polygon 接続成功');
+      return result(true, 'Polygon 認証成功（DELAYED/結果0件 · キーは有効）');
+    }
+    if (Array.isArray(data.results) && data.results.length > 0) {
       return result(true, 'Polygon 接続成功');
     }
     if (data.error) return result(false, 'Polygon キー無効');
-    return result(false, 'Polygon 応答不正');
+    return result(false, `Polygon 応答不正（status=${status || 'unknown'}）`);
   } catch {
     return result(false, 'Polygon タイムアウト/接続失敗');
   }

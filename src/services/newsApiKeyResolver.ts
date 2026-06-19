@@ -8,7 +8,7 @@ import { loadApiKey } from './apiKeys';
 import { getSecret } from './secretStorage';
 import { redactFetchUrl } from './conciergeOperationalFetchLog';
 
-const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY'] as const;
+const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY', 'NEWSAPI_KEY'] as const;
 
 export type NewsApiKeyOrigin =
   | 'secure_store'
@@ -113,9 +113,9 @@ export function keysMatch(a: string, b: string): boolean {
   return na === nb;
 }
 
-export function connectionTestNewsUrl(apiKey: string): string {
+export function connectionTestNewsUrl(_apiKey: string): string {
   return redactFetchUrl(
-    `https://newsapi.org/v2/top-headlines?category=business&country=us&pageSize=1&apiKey=${encodeURIComponent(apiKey)}`,
+    'https://newsapi.org/v2/top-headlines?country=us&pageSize=1',
   );
 }
 

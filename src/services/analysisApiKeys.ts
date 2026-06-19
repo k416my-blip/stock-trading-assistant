@@ -25,7 +25,7 @@ const EMPTY: AnalysisApiKeys = {
   fmpApiKey: '',
 };
 
-const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY'] as const;
+const NEWS_ENV = ['EXPO_PUBLIC_NEWS_API_KEY', 'NEWS_API_KEY', 'NEWSAPI_KEY'] as const;
 const ALPHA_ENV = ['ALPHA_VANTAGE_API_KEY', 'EXPO_PUBLIC_ALPHA_VANTAGE_API_KEY'] as const;
 const FMP_ENV = ['FMP_API_KEY', 'EXPO_PUBLIC_FMP_API_KEY'] as const;
 const FINNHUB_ENV = ['FINNHUB_API_KEY', 'EARNINGS_API_KEY', 'EXPO_PUBLIC_EARNINGS_API_KEY'] as const;

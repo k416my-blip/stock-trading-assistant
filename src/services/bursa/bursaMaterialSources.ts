@@ -67,76 +67,52 @@ async function fetchNewsApiHeadlines(input: {
   apiKey: string;
 }): Promise<NewsApiFetchOutcome> {
   const fetchedAt = new Date().toISOString();
-  const q = encodeURIComponent(`${input.companyName ?? ''} ${input.stockCode} Malaysia`.trim());
-  const url = `https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&pageSize=6`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), NEWS_API_TIMEOUT_MS);
+  const query = `${input.companyName ?? ''} ${input.stockCode} Malaysia`.trim();
   try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'X-Api-Key': input.apiKey.trim() },
-    });
-    const bodyText = await res.text();
-    if (!res.ok) {
-      const tempRateLimit = res.status === 429;
+    const { fetchNewsApiWithFallback } = await import('../newsApiClient');
+    const fetched = await fetchNewsApiWithFallback(
+      query,
+      input.apiKey,
+      6,
+      NEWS_API_TIMEOUT_MS,
+    );
+    if (fetched.tempRateLimit) {
       return {
         items: [],
         diagnostics: {
           articleCount: 0,
           fetchedAt,
-          errorReason: tempRateLimit ? 'NEWSAPI_TEMP_RATE_LIMIT' : `HTTP ${res.status}: ${bodyText.slice(0, 200)}`,
-          httpStatus: res.status,
+          errorReason: 'NEWSAPI_TEMP_RATE_LIMIT',
+          httpStatus: fetched.status,
         },
       };
     }
-    let json: {
-      status?: string;
-      message?: string;
-      articles?: Array<{ title?: string; url?: string; publishedAt?: string }>;
-    };
-    try {
-      json = JSON.parse(bodyText) as typeof json;
-    } catch {
+    if (!fetched.ok) {
       return {
         items: [],
         diagnostics: {
           articleCount: 0,
           fetchedAt,
-          errorReason: 'JSONパース失敗',
-          httpStatus: res.status,
+          errorReason: fetched.errorReason ?? `HTTP ${fetched.status}`,
+          httpStatus: fetched.status,
         },
       };
     }
-    if (json.status === 'error') {
-      return {
-        items: [],
-        diagnostics: {
-          articleCount: 0,
-          fetchedAt,
-          errorReason: json.message ?? 'News API error',
-          httpStatus: res.status,
-        },
-      };
-    }
-    const articles = json.articles ?? [];
-    const items = articles
-      .map((a) => a.title?.trim())
-      .filter((t): t is string => Boolean(t))
-      .slice(0, 6)
-      .map((title, i) => ({
-        source: 'news_api' as const,
-        title,
-        url: articles[i]?.url ?? null,
-        publishedAt: articles[i]?.publishedAt ?? null,
-        idSuffix: `news-${i}`,
-      }));
+    const articles = fetched.articles;
+    const items = fetched.titles.slice(0, 6).map((title, i) => ({
+      source: 'news_api' as const,
+      title,
+      url: articles[i]?.url ?? null,
+      publishedAt: articles[i]?.publishedAt ?? null,
+      idSuffix: `news-${i}`,
+    }));
     return {
       items,
       diagnostics: {
         articleCount: items.length,
         fetchedAt,
         errorReason: items.length === 0 ? '記事0件' : null,
-        httpStatus: res.status,
+        httpStatus: fetched.status,
       },
     };
   } catch (e) {
@@ -150,8 +126,6 @@ async function fetchNewsApiHeadlines(input: {
         httpStatus: null,
       },
     };
-  } finally {
-    clearTimeout(timer);
   }
 }
 

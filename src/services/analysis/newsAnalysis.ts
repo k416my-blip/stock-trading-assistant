@@ -119,26 +119,20 @@ async function fetchNewsFromApi(
 ): Promise<NewsHeadline[] | null> {
   const trimmed = apiKey.trim();
   if (!trimmed) return null;
-  const q = encodeURIComponent(`${stock.symbol} ${stock.name}`.trim());
-  const url = `https://newsapi.org/v2/everything?q=${q}&language=en&sortBy=publishedAt&pageSize=6&apiKey=${encodeURIComponent(trimmed)}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), NEWS_API_TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { articles?: Array<{ title?: string }> };
-    const headlines = (json.articles ?? [])
-      .map((a) => a.title?.trim())
-      .filter((t): t is string => Boolean(t))
-      .slice(0, 6)
-      .map((title) => ({
-        title,
-        sentiment: titleSentiment(title),
-      }));
-    return headlines.length > 0 ? headlines : null;
+    const { fetchNewsApiWithFallback } = await import('../newsApiClient');
+    const fetched = await fetchNewsApiWithFallback(
+      `${stock.symbol} ${stock.name}`.trim(),
+      trimmed,
+      6,
+      NEWS_API_TIMEOUT_MS,
+    );
+    if (!fetched.ok || fetched.titles.length === 0) return null;
+    return fetched.titles.slice(0, 6).map((title) => ({
+      title,
+      sentiment: titleSentiment(title),
+    }));
   } catch {
     return null;
-  } finally {
-    clearTimeout(timer);
   }
 }

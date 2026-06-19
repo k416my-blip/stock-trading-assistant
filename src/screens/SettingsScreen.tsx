@@ -41,6 +41,7 @@ import {
   runNewsApiEverythingTest,
   type NewsApiEverythingTestResult,
 } from '../services/newsApiEverythingTest';
+import { failureKindLabelJa } from '../services/newsApiConnectionDebug';
 import {
   runXApiSearchRecentTest,
   type XApiSearchRecentTestResult,
@@ -278,23 +279,46 @@ export function SettingsScreen() {
     try {
       const result = await runNewsApiEverythingTest(apiKeyInputs.newsapi);
       setNewsApiTestResult(result);
-      console.log('[News API テスト]', JSON.stringify({
-        ok: result.ok,
-        httpStatus: result.httpStatus,
-        articleCount: result.articleCount,
-        titles: result.titles,
-        errorReason: result.errorReason,
-      }));
+      console.warn(
+        '[NEWSAPI_CONNECTION_TEST]',
+        JSON.stringify({
+          ok: result.ok,
+          httpStatus: result.httpStatus,
+          failureKind: result.failureKind,
+          failureKindJa: failureKindLabelJa(result.failureKind),
+          adoptedEndpoint: result.adoptedEndpoint,
+          adoptedStage: result.adoptedStage,
+          adoptedAuthMode: result.adoptedAuthMode,
+          responseBodySummary: result.responseBodySummary,
+          articleCount: result.articleCount,
+          errorReason: result.errorReasonJa,
+          probes: result.probes.map((p) => ({
+            stage: p.stage,
+            httpStatus: p.httpStatus,
+            authMode: p.authMode,
+            failureKind: p.failureKind,
+            summary: p.responseBodySummary,
+          })),
+        }),
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setNewsApiTestResult({
         ok: false,
         httpStatus: 0,
+        adoptedEndpoint: null,
+        adoptedStage: null,
+        adoptedAuthMode: null,
+        failureKind: 'network_error',
+        errorReasonJa: msg,
+        responseBodyMasked: msg,
+        responseBodySummary: msg.slice(0, 160),
         responseBody: msg,
+        errorReason: msg,
         articleCount: 0,
         titles: [],
         testedAt: new Date().toISOString(),
-        errorReason: msg,
+        probes: [],
       });
     } finally {
       setNewsApiTestRunning(false);
@@ -514,9 +538,11 @@ export function SettingsScreen() {
               ) : null}
               {provider.id === 'newsapi' ? (
                 <View style={styles.newsApiTestBlock}>
-                  <Text style={styles.newsApiTestTitle}>News API everything テスト</Text>
+                  <Text style={styles.newsApiTestTitle}>News API 接続テスト</Text>
                   <Text style={styles.apiHelpText}>
-                    GET /v2/everything?q=Maybank&pageSize=5 · Header X-Api-Key
+                    A: GET /v2/top-headlines?country=us&pageSize=5{'\n'}
+                    B: GET /v2/everything?q=Maybank&pageSize=5&language=en{'\n'}
+                    Header: X-Api-Key / Authorization Bearer（両方試行）
                   </Text>
                   <Button
                     label={newsApiTestRunning ? 'テスト中…' : 'News API テスト'}
@@ -534,6 +560,22 @@ export function SettingsScreen() {
                       >
                         {newsApiTestResult.ok ? '接続成功' : '接続失敗'}
                       </Text>
+                      <Text style={styles.newsApiTestMeta} selectable>
+                        HTTP Status: {newsApiTestResult.httpStatus || '—'}
+                      </Text>
+                      <Text style={styles.newsApiTestMeta} selectable>
+                        分類: {failureKindLabelJa(newsApiTestResult.failureKind)}
+                      </Text>
+                      {newsApiTestResult.adoptedEndpoint ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          採用 endpoint: {newsApiTestResult.adoptedEndpoint}
+                        </Text>
+                      ) : null}
+                      {newsApiTestResult.adoptedAuthMode ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          採用 Header: {newsApiTestResult.adoptedAuthMode}
+                        </Text>
+                      ) : null}
                       {newsApiTestResult.ok ? (
                         <>
                           <Text style={styles.newsApiTestMeta}>
@@ -550,25 +592,38 @@ export function SettingsScreen() {
                               </Text>
                             ))
                           ) : (
-                            <Text style={styles.newsApiTestTitleLine}>（0件）</Text>
+                            <Text style={styles.newsApiTestTitleLine}>（0件 · レート制限等）</Text>
                           )}
                         </>
                       ) : (
                         <>
-                          <Text style={styles.newsApiTestMeta} selectable>
-                            HTTP Status: {newsApiTestResult.httpStatus || '—'}
-                          </Text>
-                          {newsApiTestResult.errorReason ? (
+                          {newsApiTestResult.errorReasonJa ? (
                             <Text style={styles.newsApiTestMeta} selectable>
-                              理由: {newsApiTestResult.errorReason}
+                              理由: {newsApiTestResult.errorReasonJa}
                             </Text>
                           ) : null}
-                          <Text style={styles.newsApiTestMeta}>response body:</Text>
-                          <Text style={styles.newsApiTestBody} selectable>
-                            {newsApiTestResult.responseBody || '（空）'}
-                          </Text>
                         </>
                       )}
+                      {newsApiTestResult.responseBodySummary ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          body要約: {newsApiTestResult.responseBodySummary}
+                        </Text>
+                      ) : null}
+                      <Text style={styles.newsApiTestMeta}>response body（マスク）:</Text>
+                      <Text style={styles.newsApiTestBody} selectable>
+                        {newsApiTestResult.responseBodyMasked || '（空）'}
+                      </Text>
+                      {newsApiTestResult.probes.length > 0 ? (
+                        <>
+                          <Text style={styles.newsApiTestMeta}>プローブ:</Text>
+                          {newsApiTestResult.probes.map((probe, i) => (
+                            <Text key={`news-probe-${i}`} style={styles.newsApiTestTitleLine} selectable>
+                              {probe.stage} · {probe.authMode} · HTTP {probe.httpStatus} ·{' '}
+                              {failureKindLabelJa(probe.failureKind)}
+                            </Text>
+                          ))}
+                        </>
+                      ) : null}
                     </View>
                   ) : null}
                 </View>
