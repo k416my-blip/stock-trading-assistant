@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { AiChatMessage } from '../types/aiChat';
+import type { ConciergeEvidenceBundle } from '../types/conciergeEvidence';
 import type { AiRequestStatus, AiStrategyChatResult } from '../types/aiStrategy';
 import { AI_ERROR_TIMEOUT, AI_MAX_IN_FLIGHT_MS, AI_CONCIERGE_SLOW_UI_MS } from '../constants/aiStrategy';
 import {
@@ -105,6 +106,7 @@ import {
 import { useBursaMaterialOptional } from '../context/BursaMaterialContext';
 import { userNamesExplicitStockTarget } from '../services/conciergeEvidenceBuilder';
 import { logEvidenceTrace } from '../services/conciergeEvidenceTrace';
+import { getLastConciergeTurnEvidence } from '../services/conciergeEvidenceCache';
 import { ConciergeUxModeToggle } from './concierge/ConciergeUxModeToggle';
 import { ConciergeOneScreenDashboard } from './concierge/ConciergeOneScreenDashboard';
 import { ConciergeMarketRadar } from './concierge/ConciergeMarketRadar';
@@ -221,6 +223,31 @@ function StructuredBlock({
   );
 }
 
+function mergeEvidenceOntoMessage(
+  msg: AiChatMessage,
+  evidence?: ConciergeEvidenceBundle,
+): AiChatMessage {
+  const resolved = evidence ?? getLastConciergeTurnEvidence() ?? undefined;
+  if (!resolved?.symbols?.length) return msg;
+  if (msg.evidenceData?.symbols?.length && msg.evidenceData.actionGuide?.symbols?.length) {
+    return msg;
+  }
+  return {
+    ...msg,
+    evidenceData: {
+      ...resolved,
+      ...msg.evidenceData,
+      symbols: msg.evidenceData?.symbols?.length ? msg.evidenceData.symbols : resolved.symbols,
+      actionGuide: msg.evidenceData?.actionGuide?.symbols?.length
+        ? msg.evidenceData.actionGuide
+        : resolved.actionGuide,
+      riskControl: msg.evidenceData?.riskControl ?? resolved.riskControl,
+      analysisDiagnostics:
+        msg.evidenceData?.analysisDiagnostics ?? resolved.analysisDiagnostics,
+    },
+  };
+}
+
 function resultToMessage(
   result: AiStrategyChatResult,
   userText: string,
@@ -229,6 +256,7 @@ function resultToMessage(
     staleHoldingsCount: number;
     apiHealthDegraded: boolean;
   },
+  evidenceFallback?: ConciergeEvidenceBundle,
 ): AiChatMessage {
   const base = createAssistantChatMessagePartial({
     id: `a-${Date.now()}`,
@@ -237,10 +265,13 @@ function resultToMessage(
     responseIntent: classifyConciergeResponseIntent(userText),
   });
   const enriched = enrichConciergeChatMessage(base, userText, ops);
-  let msg: AiChatMessage = {
-    ...enriched,
-    evidenceData: result.evidenceData ?? enriched.evidenceData,
-  };
+  let msg: AiChatMessage = mergeEvidenceOntoMessage(
+    {
+      ...enriched,
+      evidenceData: result.evidenceData ?? enriched.evidenceData,
+    },
+    evidenceFallback ?? result.evidenceData,
+  );
   if (result.globalMarketAnalysis) msg = { ...msg, globalMarketAnalysis: result.globalMarketAnalysis };
   if (result.portfolioIntelligence) {
     msg = { ...msg, portfolioIntelligence: result.portfolioIntelligence };
@@ -456,10 +487,13 @@ export function AiAssistantChat({
     return () => clearTimeout(watchdog);
   }, [isSending]);
 
+  const historyHydratedRef = useRef(false);
   useEffect(() => {
     void loadAiChatHistory().then((loaded) => {
-      if (mountedRef.current) {
-        setMessages(normalizeChatHistory(loaded));
+      if (!mountedRef.current || historyHydratedRef.current) return;
+      historyHydratedRef.current = true;
+      if (loaded.length > 0) {
+        setMessages((prev) => (prev.length > 1 ? prev : normalizeChatHistory(loaded)));
       }
     });
   }, []);
@@ -648,6 +682,7 @@ export function AiAssistantChat({
       };
 
       let assistantAdded = false;
+      let lastTurnEvidence: ConciergeEvidenceBundle | undefined;
       const markUserDelivery = (status: AiChatMessage['deliveryStatus'], failureKindJa?: string) => {
         if (!status) return;
         setMessages((prev) =>
@@ -664,12 +699,15 @@ export function AiAssistantChat({
         await stopVoiceOutput();
         setSpeakingMessageId(null);
         const baseEnriched = enrichConciergeChatMessage(msg, trimmed, conciergeOps);
-        const enriched: AiChatMessage = {
-          ...baseEnriched,
-          evidenceData: msg.evidenceData ?? baseEnriched.evidenceData,
-          globalMarketAnalysis: msg.globalMarketAnalysis,
-          portfolioIntelligence: msg.portfolioIntelligence,
-        };
+        const enriched: AiChatMessage = mergeEvidenceOntoMessage(
+          {
+            ...baseEnriched,
+            evidenceData: msg.evidenceData ?? baseEnriched.evidenceData,
+            globalMarketAnalysis: msg.globalMarketAnalysis,
+            portfolioIntelligence: msg.portfolioIntelligence,
+          },
+          lastTurnEvidence,
+        );
         logEvidenceTrace('append_assistant', {
           hasEvidence: Boolean(enriched.evidenceData?.symbols?.length),
           symbol: enriched.evidenceData?.symbols[0]?.symbol ?? null,
@@ -796,11 +834,15 @@ export function AiAssistantChat({
             setStatusJa(statusJaForRequestStatus(status));
           },
         });
+        lastTurnEvidence = result.evidenceData;
 
         if (!mountedRef.current || controller.signal.aborted) return;
 
         applyResult(result);
-        await appendAssistant(resultToMessage(result, trimmed, conciergeOps), result.source === 'api');
+        await appendAssistant(
+          resultToMessage(result, trimmed, conciergeOps, lastTurnEvidence),
+          result.source === 'api',
+        );
       } catch (e) {
         if (!mountedRef.current) return;
         if (isAbortError(e) && controller.signal.aborted) return;
@@ -819,7 +861,10 @@ export function AiAssistantChat({
         setUsedMockFallback(true);
         markUserDelivery('failed', failureKindJa);
         if (!assistantAdded) {
-          await appendAssistant(createAssistantChatMessage(trimmed), false);
+          await appendAssistant(
+            mergeEvidenceOntoMessage(createAssistantChatMessage(trimmed), lastTurnEvidence),
+            false,
+          );
         }
       } finally {
         if (abortRef.current === controller) {
@@ -832,7 +877,10 @@ export function AiAssistantChat({
             setMessages((prev) => {
               const last = prev[prev.length - 1];
               if (last?.role !== 'user') return prev;
-              return appendChatMessages(prev, createAssistantChatMessage(last.text));
+              return appendChatMessages(
+                prev,
+                mergeEvidenceOntoMessage(createAssistantChatMessage(last.text), lastTurnEvidence),
+              );
             });
             setUsedMockFallback(true);
             const idle = resolveIdleConnectionStatus({

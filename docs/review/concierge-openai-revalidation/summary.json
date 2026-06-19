@@ -1,0 +1,87 @@
+{
+  "status": "COMPLETE",
+  "gitHead": "a12eaf89164337cd1651f4f55704f7637d48fd43",
+  "gitShort": "a12eaf8",
+  "device": "FYRWXSNNAIOR9DCM",
+  "versionCode": "17",
+  "prompt": "Maybankを分析",
+  "runCount": 1,
+  "timeoutMsConfigured": 60000,
+  "materialLoaded": true,
+  "runs": [
+    {
+      "runIndex": 1,
+      "prompt": "Maybankを分析",
+      "sendMeta": {
+        "method": "composer"
+      },
+      "waitSettled": true,
+      "waitMs": 43545,
+      "uiAiAnalysis": true,
+      "uiMock": false,
+      "uiTimeout": false,
+      "openAiEventCount": 3,
+      "classification": "PASS",
+      "classificationLabel": "openai_ok",
+      "lastOpenAiEnd": {
+        "phase": "request_end",
+        "requestStart": "2026-06-19T13:51:21.807Z",
+        "requestEnd": "2026-06-19T13:51:25.599Z",
+        "elapsedMs": 3792,
+        "httpStatus": 200,
+        "responseSize": 6997,
+        "parseResult": "ok",
+        "contentChars": 678,
+        "timeout": false
+      },
+      "openAiEvents": [
+        {
+          "phase": "request_start",
+          "timeoutMs": 60000
+        },
+        {
+          "phase": "response_received",
+          "elapsedMs": 3785,
+          "httpStatus": 200,
+          "responseSize": 6997,
+          "timeout": false
+        },
+        {
+          "phase": "request_end",
+          "elapsedMs": 3792,
+          "httpStatus": 200,
+          "responseSize": 6997,
+          "parseResult": "ok",
+          "timeout": false
+        }
+      ],
+      "evidenceLines": [
+        "06-19 21:51:21.858 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:21.859 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.609 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.610 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.611 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.611 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.647 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781877085605\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.647 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781877085605\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.745 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.745 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.745 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.745 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.749 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781877085605\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:25.749 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781877085605\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.851 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"welcome\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.894 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"welcome\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.895 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781873613711\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.896 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781873613711\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.916 13747 13784 W ReactNativeJS: '[CONCIERGE_EVIDENCE_DIAG]', '{\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"hasActionGuide\":false,\"allowSpeculativeAi\":false,\"overallConfidencePct\":null,\"messageId\":\"a-1781877085605\",\"note\":\"evidence_undefined\"}'\r",
+        "06-19 21:51:43.916 13747 13784 W ReactNativeJS: '[CONCIERGE_SHORT_ANSWER]', '{\"hasEvidence\":false,\"factsCount\":0,\"symbol\":null,\"messageId\":\"a-1781877085605\",\"symbolsCount\":0,\"symbolList\":[],\"actionGuideSymbolsCount\":0,\"actionGuideSymbolList\":[],\"evidencePresent\":false,\"reason\":\"evidence_undefined\"}'\r"
+      ],
+      "logcatFile": "logcat-run-1.txt"
+    }
+  ],
+  "categoryCounts": {
+    "PASS": 1
+  },
+  "generatedAt": "2026-06-19T13:52:07.280Z"
+}

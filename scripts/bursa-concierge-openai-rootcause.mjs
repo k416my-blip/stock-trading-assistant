@@ -10,8 +10,10 @@ import { setTimeout as sleep } from 'node:timers/promises';
 const DEVICE = process.env.ADB_DEVICE || 'FYRWXSNNAIOR9DCM';
 const ADB = `adb -s ${DEVICE}`;
 const PKG = 'com.assistant.stocktrading';
-const OUT = path.join('docs', 'review', 'concierge-openai-rootcause');
-const RUN_COUNT = 5;
+const OUT = process.env.OUT_DIR
+  ? path.join('docs', 'review', process.env.OUT_DIR)
+  : path.join('docs', 'review', 'concierge-openai-rootcause');
+const RUN_COUNT = Number(process.env.RUN_COUNT ?? 5);
 const PROMPT = 'Maybankを分析';
 const WAIT_BETWEEN_RUNS_MS = 90_000;
 const ENHANCED_WAIT_MS = 360_000;

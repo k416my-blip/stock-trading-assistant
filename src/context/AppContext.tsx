@@ -505,6 +505,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const diagReport = exportDiagnosticsReport(50);
       const apiDash = apiHealthDashboard;
       const { buildConciergeChatContext } = await import('../services/conciergeChatContextBuilder');
+      const { setLastConciergeTurnEvidence } = await import('../services/conciergeEvidenceCache');
       const { context, evidenceData } = await buildConciergeChatContext({
         userMessage,
         state: current,
@@ -524,6 +525,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         apiDash,
         sessionMemory: options?.sessionMemory,
       });
+      setLastConciergeTurnEvidence(evidenceData);
 
       const result = await sendAiStrategyChat({
         userMessage,

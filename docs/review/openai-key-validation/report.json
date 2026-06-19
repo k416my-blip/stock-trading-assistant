@@ -1,0 +1,30 @@
+{
+  "generatedAt": "2026-06-19T13:43:26.262Z",
+  "commit": "a12eaf89164337cd1651f4f55704f7637d48fd43",
+  "commitShort": "a12eaf8",
+  "device": "FYRWXSNNAIOR9DCM",
+  "package": "com.assistant.stocktrading",
+  "versionCode": 16,
+  "preTest": {
+    "saveStatus": "設定済み（sk-proj-dCj9K2DoXzLqnKRJ_****IlkA）",
+    "connStatus": "未テスト"
+  },
+  "postTest": {
+    "saveStatus": "設定済み（sk-proj-dCj9K2DoXzLqnKRJ_****IlkA）",
+    "connStatus": "成功"
+  },
+  "connectionTestTapped": true,
+  "logResult": {
+    "logLines": [],
+    "httpStatus": null,
+    "ok": null,
+    "outcome": null,
+    "messageJa": null,
+    "parseSuccess": null,
+    "model": null,
+    "responseSummary": null,
+    "timedOut": null
+  },
+  "modelFromConstants": "gpt-4o-mini",
+  "pass": true
+}
