@@ -4,7 +4,7 @@
 Phase23 Revenue Revision 6銘柄 Live パイプライン検証 · Phase23.1 Cross Signal 連携確認。
 
 - 実行日時: 2026-06-19T14:29:32.908Z
-- Git commit: `d68afae`
+- Git commit: `19b6971`
 - 対象銘柄: 1155, 1023, 1295, 5347, 4707, 6033
 
 ## 結果サマリー

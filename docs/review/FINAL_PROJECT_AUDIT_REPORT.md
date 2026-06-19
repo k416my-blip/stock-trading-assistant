@@ -9,7 +9,7 @@ Phase13〜Phase24 および Play Internal Testing 準備状況を再監査し、
 | 監査日 | 2026-06-19 |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 監査ベースコミット | `62edd73` |
-| レポート提出コミット | `b620867` |
+| レポート提出コミット | `19b6971` |
 | 統合ハブ | `src/services/bursa/bursaPhase11Analysis.ts` |
 | 最新 APK | versionCode **17** · `artifacts/preview-v17-local.apk` |
 
@@ -327,6 +327,6 @@ Phase19（12/12 Live · 参照定数削除）および Phase23（Revenue Revisio
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `62edd73` |
-| レポート提出コミット | `b620867` |
+| レポート提出コミット | `19b6971` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | Push | **SUCCESS** |

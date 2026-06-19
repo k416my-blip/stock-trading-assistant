@@ -4,8 +4,8 @@
 Phase23 Revenue Revision — Yahoo revenueTrend 欠落時 epsTrend×revenueEstimate corridor · FMP / Finnhub / Alpha Vantage / Snapshot カスケード。
 
 - 実行日時: 2026-06-19T14:29:32.907Z
-- Git commit: `d68afae`
-- Push: pending
+- Git commit: `19b6971`
+- Push: success (`origin/cursor/top3-maxdd-capital-audit` @ `19b6971`)
 
 ## 根本原因（0/6）
 
@@ -65,8 +65,8 @@ Phase23 Revenue Revision — Yahoo revenueTrend 欠落時 epsTrend×revenueEstim
 | 項目 | 値 |
 |------|-----|
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
-| commit hash | pending |
-| Push | pending |
+| commit hash | `19b6971` |
+| Push | **SUCCESS** |
 
 ## 再実行
 ```bash
