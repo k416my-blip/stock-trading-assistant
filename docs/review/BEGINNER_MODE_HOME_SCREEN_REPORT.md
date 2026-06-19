@@ -10,7 +10,7 @@ UX0.1 正式仕様候補への追加検討。**AI信頼度の初心者表現** �
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 親仕様 | `BEGINNER_MODE_REFINEMENT_REPORT.md`（**UX0.1 承認済 · 正式仕様候補**） |
 | 監査ベースコミット | `624fccc`（UX0.2 提出済） |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `ace0bd6` |
 | スコープ | **設計のみ**（実装なし） |
 | バージョン | **UX0.3**（UX0.2 への additive refinements） |
 
@@ -490,6 +490,6 @@ UX0.2 提出コミット: `bbf2415` · hash 更新: `624fccc`
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `624fccc` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `ace0bd6` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
-| Push | *(未実施 — 本レポート作成待ち)* |
+| Push | **SUCCESS** |
