@@ -1,0 +1,95 @@
+{
+  "commit": "77b0a17",
+  "adb": true,
+  "device": "FYRWXSNNAIOR9DCM       device product:zircon_global model:23090RA98G device:zircon transport_id:8",
+  "startedAt": "2026-06-19T04:06:29.996Z",
+  "finishedAt": "2026-06-19T04:38:52.410Z",
+  "pass": false,
+  "materialScreenOk": false,
+  "materialPassCount": 0,
+  "totalStocks": 6,
+  "conciergeMarkers": 1,
+  "conciergePass": false,
+  "crashFree": true,
+  "fatalsBefore": 0,
+  "fatalsAfter": 0,
+  "phase24ScrollMarkers": 4,
+  "phase231ScrollMarkers": 1,
+  "stocks": [
+    {
+      "code": "1155",
+      "label": "Maybank",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    },
+    {
+      "code": "1023",
+      "label": "CIMB",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    },
+    {
+      "code": "1295",
+      "label": "Public Bank",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    },
+    {
+      "code": "5347",
+      "label": "Tenaga",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    },
+    {
+      "code": "4707",
+      "label": "Nestle",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    },
+    {
+      "code": "6033",
+      "label": "Petronas Gas",
+      "phase24Markers": 4,
+      "phase24Total": 6,
+      "phase231Markers": 1,
+      "phase231Total": 5,
+      "materialPass": false,
+      "xmlHasCode": false
+    }
+  ],
+  "screenshots": [
+    "00-launch.png",
+    "01-material-tab.png",
+    "02-material-loaded.png",
+    "03-phase24-scroll.png",
+    "04-phase23_1-scroll.png",
+    "05-concierge-open.png",
+    "06-concierge-enhanced.png",
+    "material-1023.png",
+    "material-1155.png",
+    "material-1295.png",
+    "material-4707.png",
+    "material-5347.png",
+    "material-6033.png"
+  ]
+}
