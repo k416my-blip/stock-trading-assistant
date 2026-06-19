@@ -61,6 +61,7 @@ export type MainTabParamList = {
   MarketMonitoring: undefined;
   AiNotifications: undefined;
   MaterialAnalysis: undefined;
+  ConciergeConsult: undefined;
   History: undefined;
   BeginnerGuide: undefined;
 };

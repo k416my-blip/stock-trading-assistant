@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
   portfolioHealthySnapshot: '@sta/portfolio_healthy_snapshot_v2',
   executionJournal: '@sta/execution_journal_v1',
   aiPreferences: '@sta/ai_preferences_v1',
+  appUxMode: '@sta/app_ux_mode_v1',
   aiChatHistory: '@sta/ai_chat_history_v1',
   tradeQueueAck: '@sta/trade_queue_ack_v1',
   apiHealthSnapshot: '@sta/api_health_snapshot_v1',

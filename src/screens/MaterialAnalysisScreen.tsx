@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
+import { useAppUxMode } from '../context/AppUxModeContext';
 import { useBursaMaterial } from '../context/BursaMaterialContext';
 import type { RootStackParamList } from '../navigation/types';
 import {
@@ -67,9 +68,11 @@ function AuditRow({ row }: { row: MaterialApiAuditRow }) {
 function StockMaterialCard({
   row,
   onPress,
+  hidePhaseSections = false,
 }: {
   row: MaterialStockRow;
   onPress: () => void;
+  hidePhaseSections?: boolean;
 }) {
   const scoreColor =
     row.scoreSign === 'positive'
@@ -132,6 +135,8 @@ function StockMaterialCard({
         </>
       ) : null}
 
+      {!hidePhaseSections ? (
+        <>
       <Text style={styles.subLabel}>Phase13 Earnings Call</Text>
       <Text style={styles.item}>{row.earningsCallEvaluationJa}</Text>
       {row.earningsCallDisplayJa ? (
@@ -620,6 +625,8 @@ function StockMaterialCard({
           <Text style={styles.item}>{row.convictionIntelligenceDisplayJa.reasonLine3}</Text>
         </>
       ) : null}
+        </>
+      ) : null}
 
       <Text style={styles.subLabel}>好材料</Text>
       {row.positive.length === 0 ? (
@@ -677,6 +684,7 @@ function StockMaterialCard({
 
 export function MaterialAnalysisScreen() {
   const { report, auditReport, loading, error, refresh } = useBursaMaterial();
+  const { isBeginnerMode } = useAppUxMode();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const onRefresh = useCallback(() => {
@@ -702,7 +710,7 @@ export function MaterialAnalysisScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} testID="material-analysis-screen">
-        <Text style={styles.pageTitle}>材料分析</Text>
+        <Text style={styles.pageTitle}>{isBeginnerMode ? '銘柄チェック' : '材料分析'}</Text>
         <Text style={styles.liveTag}>{report.dataSourceLabel}</Text>
         <Pressable onPress={onRefresh}>
           <Text style={styles.refresh}>再取得</Text>
@@ -736,6 +744,7 @@ export function MaterialAnalysisScreen() {
             <StockMaterialCard
               key={row.stockCode}
               row={row}
+              hidePhaseSections={isBeginnerMode}
               onPress={() =>
                 navigation.navigate('StockReport', { symbol: row.stockCode, market: 'bursa' })
               }

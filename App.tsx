@@ -10,6 +10,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppErrorBoundary } from './src/components/AppErrorBoundary';
 import { AppProvider, useApp } from './src/context/AppContext';
+import { AppUxModeProvider } from './src/context/AppUxModeContext';
 import { PerformanceCostProvider } from './src/context/PerformanceCostContext';
 import { ProductionStabilityProvider } from './src/context/ProductionStabilityContext';
 import { AiTradeQueueProvider } from './src/context/AiTradeQueueContext';
@@ -198,15 +199,17 @@ export default function App() {
     <AppErrorBoundary fallbackTitle="起動復旧モード">
       <SafeAreaProvider>
         <AppProvider>
-          <AiTradeQueueProvider>
-            <PerformanceCostProvider>
-              <ProductionStabilityProvider>
-                <UrgencySignalProvider>
-                  <AppWithBoundary />
-                </UrgencySignalProvider>
-              </ProductionStabilityProvider>
-            </PerformanceCostProvider>
-          </AiTradeQueueProvider>
+          <AppUxModeProvider>
+            <AiTradeQueueProvider>
+              <PerformanceCostProvider>
+                <ProductionStabilityProvider>
+                  <UrgencySignalProvider>
+                    <AppWithBoundary />
+                  </UrgencySignalProvider>
+                </ProductionStabilityProvider>
+              </PerformanceCostProvider>
+            </AiTradeQueueProvider>
+          </AppUxModeProvider>
         </AppProvider>
       </SafeAreaProvider>
     </AppErrorBoundary>

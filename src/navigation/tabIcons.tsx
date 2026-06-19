@@ -15,6 +15,7 @@ const TAB_ICON: Record<keyof MainTabParamList, { active: IonName; inactive: IonN
   MarketMonitoring: { active: 'pulse', inactive: 'pulse-outline' },
   AiNotifications: { active: 'notifications', inactive: 'notifications-outline' },
   MaterialAnalysis: { active: 'newspaper', inactive: 'newspaper-outline' },
+  ConciergeConsult: { active: 'chatbubbles', inactive: 'chatbubbles-outline' },
   History: { active: 'time', inactive: 'time-outline' },
   BeginnerGuide: { active: 'book', inactive: 'book-outline' },
 };

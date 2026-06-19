@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { wrapBursaScreen } from '../components/BursaDataErrorBoundary';
+import { useAppUxMode } from '../context/AppUxModeContext';
 import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
 import { MATERIAL_ANALYSIS_MISSING_JA } from '../services/bursa/bursaMaterialAnalysisService';
 import { MONITORING_MISSING_JA } from '../services/bursa/bursaMarketMonitoringService';
@@ -13,7 +14,12 @@ import { TODAY_TRADING_MISSING_JA } from '../services/bursa/bursaTodayTradingSer
 import { ASSET_MGMT_MISSING_JA } from '../services/bursa/bursaAssetManagementService';
 import { AllocationPlanScreen } from '../screens/AllocationPlanScreen';
 import PortfolioScreen from '../screens/PortfolioScreen';
+import { ConciergeTabScreen } from '../screens/ConciergeTabScreen';
 import { theme } from '../theme';
+import {
+  isTabVisibleForAppUxMode,
+  tabTitleForAppUxMode,
+} from './beginnerTabNavigatorConfig';
 import { TabBarIcon } from './tabIcons';
 import type { MainTabParamList } from './types';
 
@@ -42,20 +48,6 @@ const LazyAiNotificationsScreen = lazy(() =>
 const LazyMaterialAnalysisScreen = lazy(() =>
   import('../screens/MaterialAnalysisScreen').then((m) => ({ default: m.MaterialAnalysisScreen })),
 );
-
-const TAB_TITLES: Record<keyof MainTabParamList, string> = {
-  Home: 'ホーム',
-  AllocationPlan: 'おすすめ配分',
-  Screener: '銘柄検索',
-  Portfolio: '保有銘柄',
-  AssetManagement: 'AI資産運用',
-  TodayTrading: '今日の売買',
-  MarketMonitoring: '市場監視',
-  AiNotifications: 'AI通知',
-  MaterialAnalysis: '材料分析',
-  History: '売買履歴',
-  BeginnerGuide: '初心者ガイド',
-};
 
 function TabBarButton(props: BottomTabBarButtonProps) {
   return (
@@ -96,93 +88,111 @@ function lazyBursaScreen(
   return lazyScreen(Wrapped, title);
 }
 
-const HomeTabScreen = lazyScreen(LazyHomeScreen, TAB_TITLES.Home);
+const HomeTabScreen = lazyScreen(LazyHomeScreen, 'ホーム');
 const AllocationPlanTabScreen = AllocationPlanScreen;
-const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, TAB_TITLES.Screener);
+const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, '銘柄検索');
 const PortfolioTabScreen = PortfolioScreen;
 const AssetManagementTabScreen = lazyBursaScreen(
   LazyAssetManagementScreen,
-  TAB_TITLES.AssetManagement,
+  'AI資産運用',
   'AssetManagement',
   ASSET_MGMT_MISSING_JA,
 );
 const TodayTradingTabScreen = lazyBursaScreen(
   LazyTodayTradingScreen,
-  TAB_TITLES.TodayTrading,
+  '今日の売買',
   'TodayTrading',
   TODAY_TRADING_MISSING_JA,
 );
 const MarketMonitoringTabScreen = lazyBursaScreen(
   LazyMarketMonitoringScreen,
-  TAB_TITLES.MarketMonitoring,
+  '市場監視',
   'MarketMonitoring',
   MONITORING_MISSING_JA,
 );
 const AiNotificationsTabScreen = lazyBursaScreen(
   LazyAiNotificationsScreen,
-  TAB_TITLES.AiNotifications,
+  'AI通知',
   'AiNotifications',
   CONCIERGE_NOTIFY_MISSING_JA,
 );
 const MaterialAnalysisTabScreen = lazyBursaScreen(
   LazyMaterialAnalysisScreen,
-  TAB_TITLES.MaterialAnalysis,
+  '材料分析',
   'MaterialAnalysis',
   MATERIAL_ANALYSIS_MISSING_JA,
 );
-const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, TAB_TITLES.History);
-const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, TAB_TITLES.BeginnerGuide);
+const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, '売買履歴');
+const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, '初心者ガイド');
+const ConciergeConsultTabScreen = ConciergeTabScreen;
+
+type TabDefinition = {
+  name: keyof MainTabParamList;
+  component: ComponentType;
+};
+
+const ALL_TABS: TabDefinition[] = [
+  { name: 'Home', component: HomeTabScreen },
+  { name: 'AllocationPlan', component: AllocationPlanTabScreen },
+  { name: 'Screener', component: ScreenerTabScreen },
+  { name: 'Portfolio', component: PortfolioTabScreen },
+  { name: 'AssetManagement', component: AssetManagementTabScreen },
+  { name: 'TodayTrading', component: TodayTradingTabScreen },
+  { name: 'MarketMonitoring', component: MarketMonitoringTabScreen },
+  { name: 'AiNotifications', component: AiNotificationsTabScreen },
+  { name: 'MaterialAnalysis', component: MaterialAnalysisTabScreen },
+  { name: 'ConciergeConsult', component: ConciergeConsultTabScreen },
+  { name: 'History', component: HistoryTabScreen },
+  { name: 'BeginnerGuide', component: BeginnerGuideTabScreen },
+];
 
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = 56 + insets.bottom;
+  const { appUxMode } = useAppUxMode();
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerStyle: { backgroundColor: theme.colors.surface },
-        headerTintColor: theme.colors.text,
-        headerShadowVisible: false,
-        title: TAB_TITLES[route.name],
-        headerRight: () => <HeaderUrgencyBadge />,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textMuted,
-        tabBarButton: TabBarButton,
-        tabBarIcon: ({ focused, color, size }) => (
-          <TabBarIcon
-            routeName={route.name as keyof MainTabParamList}
-            focused={focused}
-            color={color}
-            size={size}
-          />
-        ),
-        tabBarLabel: TAB_TITLES[route.name],
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarItemStyle: styles.tabItem,
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-          borderTopWidth: StyleSheet.hairlineWidth,
-          height: tabBarHeight,
-          paddingBottom: insets.bottom,
-          paddingTop: 6,
-          elevation: 8,
-        },
-        tabBarHideOnKeyboard: true,
-        sceneStyle: { backgroundColor: theme.colors.background },
-      })}
+      screenOptions={({ route }) => {
+        const visible = isTabVisibleForAppUxMode(appUxMode, route.name);
+        const title = tabTitleForAppUxMode(appUxMode, route.name);
+        return {
+          headerStyle: { backgroundColor: theme.colors.surface },
+          headerTintColor: theme.colors.text,
+          headerShadowVisible: false,
+          title,
+          headerRight: () => <HeaderUrgencyBadge />,
+          tabBarActiveTintColor: theme.colors.primary,
+          tabBarInactiveTintColor: theme.colors.textMuted,
+          tabBarButton: visible ? TabBarButton : () => null,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabBarIcon
+              routeName={route.name as keyof MainTabParamList}
+              focused={focused}
+              color={color}
+              size={size}
+            />
+          ),
+          tabBarLabel: title,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarItemStyle: visible ? styles.tabItem : styles.tabItemHidden,
+          tabBarStyle: {
+            backgroundColor: theme.colors.surface,
+            borderTopColor: theme.colors.border,
+            borderTopWidth: StyleSheet.hairlineWidth,
+            height: tabBarHeight,
+            paddingBottom: insets.bottom,
+            paddingTop: 6,
+            elevation: 8,
+          },
+          tabBarHideOnKeyboard: true,
+          sceneStyle: { backgroundColor: theme.colors.background },
+        };
+      }}
     >
-      <Tab.Screen name="Home" component={HomeTabScreen} />
-      <Tab.Screen name="AllocationPlan" component={AllocationPlanTabScreen} />
-      <Tab.Screen name="Screener" component={ScreenerTabScreen} />
-      <Tab.Screen name="Portfolio" component={PortfolioTabScreen} />
-      <Tab.Screen name="AssetManagement" component={AssetManagementTabScreen} />
-      <Tab.Screen name="TodayTrading" component={TodayTradingTabScreen} />
-      <Tab.Screen name="MarketMonitoring" component={MarketMonitoringTabScreen} />
-      <Tab.Screen name="AiNotifications" component={AiNotificationsTabScreen} />
-      <Tab.Screen name="MaterialAnalysis" component={MaterialAnalysisTabScreen} />
-      <Tab.Screen name="History" component={HistoryTabScreen} />
-      <Tab.Screen name="BeginnerGuide" component={BeginnerGuideTabScreen} />
+      {ALL_TABS.map(({ name, component }) => (
+        <Tab.Screen key={name} name={name} component={component} />
+      ))}
     </Tab.Navigator>
   );
 }
@@ -193,6 +203,12 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     paddingVertical: 2,
+  },
+  tabItemHidden: {
+    display: 'none',
+    width: 0,
+    height: 0,
+    overflow: 'hidden',
   },
   tabLabel: {
     fontSize: 10,

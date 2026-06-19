@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SettingsMenuRow } from '../components/ApiKeyPromoCard';
@@ -15,7 +15,14 @@ import {
   APP_MODE_PRACTICE_LABEL,
 } from '../constants/platformClarification';
 import { MARKET_LABEL } from '../constants/rakutenTrade';
+import {
+  APP_UX_MODE_HINTS_JA,
+  APP_UX_MODE_LABELS_JA,
+} from '../constants/appUxMode';
+import { useAppUxMode } from '../context/AppUxModeContext';
 import { useApp } from '../context/AppContext';
+import type { AppUxMode } from '../types/appUxMode';
+import { APP_UX_MODES } from '../types/appUxMode';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
@@ -50,6 +57,7 @@ import {
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, isPractice, resetAllAppData, reloadStoredApiKeys, saveAnalysisApiKeys } = useApp();
+  const { appUxMode, setAppUxMode } = useAppUxMode();
   const [resetting, setResetting] = useState(false);
   const [apiKeyInputs, setApiKeyInputs] = useState(createEmptyApiKeyDrafts);
   const [apiKeyStatus, setApiKeyStatus] = useState<Record<SupportedApiProviderId, ApiKeyConfiguredStatus>>(
@@ -429,6 +437,42 @@ export function SettingsScreen() {
 
   return (
     <Screen title="設定" subtitle="API・通知・市場など">
+      <Card>
+        <Text style={styles.sectionTitle}>表示モード</Text>
+        <Text style={styles.sectionHint}>
+          初心者は4タブのやさしい表示。標準は主要タブ。プロは全機能とPhase詳細を表示します。
+        </Text>
+        {APP_UX_MODES.map((mode, index) => (
+          <Pressable
+            key={mode}
+            onPress={() => void setAppUxMode(mode as AppUxMode)}
+            style={({ pressed }) => [
+              styles.uxModeRow,
+              index < APP_UX_MODES.length - 1 && styles.uxModeRowBorder,
+              pressed && styles.uxModeRowPressed,
+              appUxMode === mode && styles.uxModeRowSelected,
+            ]}
+          >
+            <View style={styles.uxModeBody}>
+              <Text
+                style={[
+                  styles.uxModeLabel,
+                  appUxMode === mode && styles.uxModeLabelSelected,
+                ]}
+              >
+                {APP_UX_MODE_LABELS_JA[mode]}
+              </Text>
+              <Text style={styles.uxModeHint}>{APP_UX_MODE_HINTS_JA[mode]}</Text>
+            </View>
+            {appUxMode === mode ? (
+              <Text style={styles.uxModeCheck}>✓</Text>
+            ) : (
+              <View style={styles.uxModeRadioOff} />
+            )}
+          </Pressable>
+        ))}
+      </Card>
+
       <Card>
         <Text style={styles.sectionTitle}>APIキー管理（設定に集約）</Text>
         <Text style={styles.sectionHint}>
@@ -975,6 +1019,53 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     lineHeight: 18,
     marginBottom: theme.spacing.md,
+  },
+  uxModeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  uxModeRowBorder: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.border,
+  },
+  uxModeRowPressed: {
+    opacity: 0.85,
+  },
+  uxModeRowSelected: {
+    backgroundColor: `${theme.colors.primary}14`,
+    borderRadius: theme.radius.md,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  uxModeBody: {
+    flex: 1,
+    gap: 2,
+  },
+  uxModeLabel: {
+    color: theme.colors.text,
+    fontWeight: '600',
+    fontSize: theme.fontSize.md,
+  },
+  uxModeLabelSelected: {
+    color: theme.colors.primary,
+  },
+  uxModeHint: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 18,
+  },
+  uxModeCheck: {
+    color: theme.colors.primary,
+    fontWeight: '800',
+    fontSize: theme.fontSize.lg,
+  },
+  uxModeRadioOff: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: theme.colors.border,
   },
   resetCard: { borderColor: theme.colors.danger, borderWidth: 1 },
   resetTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.md },
