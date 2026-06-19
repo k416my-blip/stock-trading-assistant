@@ -9,7 +9,7 @@
 | 監査日 | 2026-06-19 |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 監査ベースコミット | `b68f8d6` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `1b2fc7f` |
 | スコープ | **設計監査のみ**（実装なし） |
 | ステータス | **UX0 設計監査 · 承認待ち** |
 
@@ -336,6 +336,6 @@ const uxMode = aiPreferences.conciergeUxMode ?? 'beginner';
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `b68f8d6` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `1b2fc7f` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | Push | *(未実施 — 本レポート作成待ち)* |
