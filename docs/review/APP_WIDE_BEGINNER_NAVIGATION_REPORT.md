@@ -9,7 +9,7 @@ UX0.3 ホーム設計 · UX1.0 アプリ全体監査を踏まえ、**ナビゲ�
 | 監査日 | 2026-06-19 |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 監査ベースコミット | `038fec5` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `d096799` |
 | スコープ | **設計のみ**（実装なし） |
 | 親仕様 | UX0.3（`BEGINNER_MODE_HOME_SCREEN_REPORT.md`）· UX1.0（`APP_WIDE_BEGINNER_UX_AUDIT_REPORT.md`） |
 | バージョン | **UX1.1 — Beginner Navigation** |
@@ -624,6 +624,6 @@ export const BEGINNER_CONCIERGE_QUICK_ACTIONS = [
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `038fec5` |
-| レポート提出コミット | *(作成・push 後に更新)* |
+| レポート提出コミット | `d096799` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
-| Push | *(push 後に更新)* |
+| Push | **SUCCESS** |
