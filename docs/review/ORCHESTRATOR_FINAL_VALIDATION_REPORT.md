@@ -97,8 +97,8 @@ Commit: **780118f** / **5b054dc** — streamed `readLogcatMetricsFromFile()`
 
 ## GitHub sync
 
-Commit: _(this deliverable commit)_  
-Push: _(filled after push)_
+Commit: **ad28e0a**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)
 
 ## Related final deliverables
 

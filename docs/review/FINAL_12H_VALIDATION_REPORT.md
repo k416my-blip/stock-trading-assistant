@@ -141,4 +141,5 @@ Large raw logcat files (`logcat-live-*.log`, ~2.3 GB total) were removed after s
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: **ad28e0a**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)
