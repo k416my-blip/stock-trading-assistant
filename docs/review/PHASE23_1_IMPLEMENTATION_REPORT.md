@@ -104,12 +104,10 @@ npx tsx scripts/bursa-phase23_1-verify.ts
 
 ## 6. GitHub 同期
 
-（コミット・プッシュ後に更新）
-
 | 項目 | 値 |
 |------|-----|
-| Commit | （下記参照） |
-| Push | `origin/cursor/top3-maxdd-capital-audit` |
+| Commit | `21d5bd8` |
+| Push | `origin/cursor/top3-maxdd-capital-audit` — 成功 |
 
 ---
 
