@@ -278,10 +278,10 @@ Phase13〜24 は **オーケストレータ未実装フェーズゼロ**、**Pha
 
 | 項目 | 値 |
 |------|-----|
-| 監査ベースコミット | `a7236ec` |
-| レポート追加コミット | （下記 sync 後に更新） |
+| 監査ベースコミット | `a7236ec`（Phase23.1 完了） |
+| レポート追加コミット | **`b282268`** |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
-| Push | （下記 sync 後に更新） |
+| Push | **成功** — `a7236ec..b282268` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
