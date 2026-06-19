@@ -1,0 +1,46 @@
+{
+  "commit": "6c00efc",
+  "adb": true,
+  "device": "FYRWXSNNAIOR9DCM       device product:zircon_global model:23090RA98G device:zircon transport_id:8",
+  "installedVersionCode": 15,
+  "stock": {
+    "code": "1155",
+    "label": "Maybank"
+  },
+  "startedAt": "2026-06-19T06:01:39.276Z",
+  "finishedAt": "2026-06-19T06:16:57.108Z",
+  "phase24": {
+    "heading": "Phase24 Analyst Consensus Intelligence",
+    "found": false,
+    "scrolls": 45,
+    "markers": 4,
+    "total": 6,
+    "screenshot": "phase24-1155.png"
+  },
+  "phase231": {
+    "heading": "Phase23.1 Earnings Revision Cross Signal",
+    "found": false,
+    "scrolls": 45,
+    "markers": 1,
+    "total": 5,
+    "screenshot": "phase23_1-1155.png"
+  },
+  "concierge": {
+    "fabMethod": "content-desc",
+    "fabError": null,
+    "panelOpen": true,
+    "markers": 0,
+    "total": 5,
+    "screenshots": [
+      "concierge-1155-open.png",
+      "concierge-1155-enhanced.png"
+    ]
+  },
+  "pass": false,
+  "screenshots": [
+    "concierge-1155-enhanced.png",
+    "concierge-1155-open.png",
+    "phase23_1-1155.png",
+    "phase24-1155.png"
+  ]
+}

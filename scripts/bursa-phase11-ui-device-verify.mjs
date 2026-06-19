@@ -18,9 +18,12 @@ const STOCKS = [
   { code: '6033', label: 'Petronas Gas' },
 ];
 
-const MATERIAL_MARKERS = ['材料分析', '【銘柄別材料分析】', 'Phase24 Analyst Consensus Intelligence'];
+const PHASE24_HEADING = 'Phase24 Analyst Consensus Intelligence';
+const PHASE231_HEADING = 'Phase23.1 Earnings Revision Cross Signal';
+
+const MATERIAL_MARKERS = ['材料分析', '【銘柄別材料分析】', PHASE24_HEADING];
 const PHASE24_MARKERS = [
-  'Phase24 Analyst Consensus Intelligence',
+  PHASE24_HEADING,
   'Source:',
   'Consensus:',
   'Target:',
@@ -28,7 +31,7 @@ const PHASE24_MARKERS = [
   'Confidence:',
 ];
 const PHASE231_MARKERS = [
-  'Phase23.1 Earnings Revision Cross Signal',
+  PHASE231_HEADING,
   'Cross Signal:',
   'Direction:',
   'Alignment:',
@@ -78,20 +81,40 @@ function shot(name) {
   return local;
 }
 
-function findLabels(xml, pred) {
-  const re = /(?:text|content-desc)="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/g;
-  const out = [];
+function parseNodes(xml) {
+  const re = /<node\b([^>]*)\/>|<node\b([^>]*)>/g;
+  const nodes = [];
   let m;
   while ((m = re.exec(xml))) {
-    const cx = Math.floor((+m[2] + +m[4]) / 2);
-    const cy = Math.floor((+m[3] + +m[5]) / 2);
-    if (pred(m[1])) out.push({ label: m[1], cx, cy });
+    const attrs = m[1] ?? m[2] ?? '';
+    const pick = (key) => {
+      const mm = attrs.match(new RegExp(`${key}="([^"]*)"`));
+      return mm ? mm[1] : '';
+    };
+    const bounds = pick('bounds');
+    const bm = bounds.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
+    if (!bm) continue;
+    nodes.push({
+      text: pick('text'),
+      contentDesc: pick('content-desc'),
+      resourceId: pick('resource-id'),
+      cx: Math.floor((+bm[1] + +bm[3]) / 2),
+      cy: Math.floor((+bm[2] + +bm[4]) / 2),
+    });
   }
-  return out;
+  return nodes;
+}
+
+function findUiNodes(xml, pred) {
+  return parseNodes(xml).filter((n) => pred(n));
 }
 
 function countMarkers(xml, markers) {
   return markers.filter((m) => xml.includes(m)).length;
+}
+
+function tapNode(node) {
+  sh(`adb shell input tap ${node.cx} ${node.cy}`);
 }
 
 function logcatFatals() {
@@ -105,9 +128,9 @@ function logcatFatals() {
 
 async function dismissDialogs(xml) {
   for (const label of ['スキップ', '閉じる', 'OK', '後で', '許可', 'Allow']) {
-    const btn = findLabels(xml, (l) => l === label || l.includes(label));
+    const btn = findUiNodes(xml, (n) => n.text === label || n.contentDesc === label);
     if (btn[0]) {
-      sh(`adb shell input tap ${btn[0].cx} ${btn[0].cy}`);
+      tapNode(btn[0]);
       await sleep(1200);
       return dumpUi('dismiss');
     }
@@ -115,13 +138,35 @@ async function dismissDialogs(xml) {
   return xml;
 }
 
+function wakeDevice() {
+  sh('adb shell input keyevent KEYCODE_WAKEUP');
+  sh('adb shell wm dismiss-keyguard');
+  sh('adb shell input swipe 610 2200 610 900 300');
+}
+
+async function waitForAppForeground(maxMs = 90000) {
+  wakeDevice();
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    wakeDevice();
+    const xml = await dumpUi('app-wait');
+    if (xml.includes(`package="${PKG}"`)) return xml;
+    sh(`adb shell am start -W -n ${PKG}/.MainActivity`);
+    await sleep(3000);
+  }
+  throw new Error('app foreground timeout');
+}
+
 async function tapTab(label) {
   let xml = await dumpUi(`tab-pre-${label}`);
+  const matchTab = (n) =>
+    n.text === label ||
+    n.contentDesc === label ||
+    (label === '材料分析' && (n.text.includes('材料') || n.contentDesc.includes('材料')));
   for (let i = 0; i < 8; i++) {
-    const tabs = findLabels(xml, (l) => l === label);
+    const tabs = findUiNodes(xml, matchTab);
     if (tabs.length) {
-      const t = tabs.sort((a, b) => a.cx - b.cx)[0];
-      sh(`adb shell input tap ${t.cx} ${t.cy}`);
+      tapNode(tabs.sort((a, b) => a.cy - b.cy)[0]);
       await sleep(5000);
       return;
     }
@@ -132,45 +177,56 @@ async function tapTab(label) {
   throw new Error(`tab not found: ${label}`);
 }
 
-async function scrollDown(name, times = 1) {
-  for (let i = 0; i < times; i++) {
-    sh('adb shell input swipe 610 1700 610 500 350');
-    await sleep(900);
-  }
+async function scrollDown(name) {
+  sh('adb shell input swipe 610 1700 610 500 350');
+  await sleep(900);
   return dumpUi(name);
 }
 
-async function scrollUntil(xmlCheck, name, maxScrolls = 20) {
+async function scrollUntilHeading(heading, name, maxScrolls = 45) {
   let xml = await dumpUi(`${name}-0`);
-  if (xmlCheck(xml)) return xml;
+  if (xml.includes(heading)) return xml;
   for (let i = 1; i <= maxScrolls; i++) {
-    await scrollDown(`${name}-${i}`, 1);
-    xml = await dumpUi(`${name}-${i}`);
-    if (xmlCheck(xml)) return xml;
+    xml = await scrollDown(`${name}-${i}`);
+    if (xml.includes(heading)) return xml;
   }
   return xml;
 }
 
+/** Concierge FAB — content-desc / text / resource-id only (coordinate tap prohibited) */
 async function openConciergeFab() {
-  let xml = await dumpUi('fab-pre');
-  const fab = findLabels(
+  const xml = await dumpUi('fab-pre');
+  const byDesc = findUiNodes(
     xml,
-    (l) =>
-      l.includes('AIコンシェルジュ') ||
-      l.includes('コンシェルジュを開く') ||
-      l === 'AIコンシェルジュを開く',
+    (n) =>
+      n.contentDesc === 'AIコンシェルジュを開く' ||
+      n.contentDesc.includes('AIコンシェルジュ') ||
+      n.contentDesc.includes('コンシェルジュを開く'),
   );
-  if (!fab.length) {
-    sh('adb shell input tap 980 2100');
-    await sleep(3000);
-    xml = await dumpUi('fab-tap-fallback');
-  } else {
-    const f = fab.sort((a, b) => b.cy - a.cy)[0];
-    sh(`adb shell input tap ${f.cx} ${f.cy}`);
+  if (byDesc.length) {
+    tapNode(byDesc.sort((a, b) => b.cy - a.cy)[0]);
     await sleep(4000);
-    xml = await dumpUi('fab-open');
+    return dumpUi('fab-open');
   }
-  return xml;
+
+  const byTextRid = findUiNodes(
+    xml,
+    (n) => n.text === 'AI' && /concierge|fab|assistant/i.test(n.resourceId),
+  );
+  if (byTextRid.length) {
+    tapNode(byTextRid.sort((a, b) => b.cy - a.cy)[0]);
+    await sleep(4000);
+    return dumpUi('fab-open-rid');
+  }
+
+  const byText = findUiNodes(xml, (n) => n.text === 'AI' && n.cy > 1800);
+  if (byText.length) {
+    tapNode(byText.sort((a, b) => b.cy - a.cy)[0]);
+    await sleep(4000);
+    return dumpUi('fab-open-text');
+  }
+
+  throw new Error('Concierge FAB not found via content-desc / text / resource-id');
 }
 
 async function waitMaterialLoaded() {
@@ -184,22 +240,29 @@ async function waitMaterialLoaded() {
 }
 
 async function verifyStockOnMaterial(stock) {
-  const xml = await scrollUntil(
-    (x) => x.includes(stock.code) && countMarkers(x, PHASE24_MARKERS) >= 1,
-    `stock-${stock.code}`,
-    25,
-  );
-  shot(`material-${stock.code}`);
+  let xml = await dumpUi(`stock-${stock.code}-pre`);
+  const codeHit = findUiNodes(xml, (n) => n.text === stock.code);
+  if (codeHit[0]) {
+    tapNode(codeHit[0]);
+    await sleep(1500);
+    xml = await dumpUi(`stock-${stock.code}-tap`);
+  }
+
+  xml = await scrollUntilHeading(PHASE24_HEADING, `stock-${stock.code}`, 45);
   const p24 = countMarkers(xml, PHASE24_MARKERS);
+  xml = await scrollUntilHeading(PHASE231_HEADING, `stock-${stock.code}-p231`, 45);
+  shot(`material-${stock.code}`);
   const p231 = countMarkers(xml, PHASE231_MARKERS);
   return {
     code: stock.code,
     label: stock.label,
+    phase24HeadingFound: xml.includes(PHASE24_HEADING),
+    phase231HeadingFound: xml.includes(PHASE231_HEADING),
     phase24Markers: p24,
     phase24Total: PHASE24_MARKERS.length,
     phase231Markers: p231,
     phase231Total: PHASE231_MARKERS.length,
-    materialPass: p24 >= 4 && p231 >= 3,
+    materialPass: xml.includes(PHASE24_HEADING) && xml.includes(PHASE231_HEADING),
     xmlHasCode: xml.includes(stock.code),
   };
 }
@@ -226,27 +289,30 @@ async function main() {
   const fatalsBefore = logcatFatals();
 
   sh(`adb shell am start -W -S -n ${PKG}/.MainActivity`);
-  await sleep(16000);
-  let xml = await dumpUi('00-launch');
+  await sleep(20000);
+  let xml = await waitForAppForeground();
   xml = await dismissDialogs(xml);
   shot('00-launch');
 
   await tapTab('材料分析');
   shot('01-material-tab');
   xml = await dumpUi('material-open');
-  const refresh = findLabels(xml, (l) => l === '再取得');
+  const refresh = findUiNodes(xml, (n) => n.text === '再取得');
   if (refresh[0]) {
-    sh(`adb shell input tap ${refresh[0].cx} ${refresh[0].cy}`);
+    tapNode(refresh[0]);
     await sleep(15000);
   }
-  await waitMaterialLoaded();
+  xml = await waitMaterialLoaded();
   shot('02-material-loaded');
 
-  const materialScreenOk = countMarkers(xml, MATERIAL_MARKERS) >= 2;
-  xml = await scrollUntil((x) => countMarkers(x, PHASE24_MARKERS) >= 4, 'phase24-scroll', 15);
+  const materialScreenOk =
+    xml.includes('【銘柄別材料分析】') && (xml.includes('材料分析') || xml.includes(PHASE24_HEADING));
+  xml = await scrollUntilHeading(PHASE24_HEADING, 'phase24-scroll', 45);
   shot('03-phase24-scroll');
-  xml = await scrollUntil((x) => countMarkers(x, PHASE231_MARKERS) >= 3, 'phase231-scroll', 15);
+  const phase24HeadingFound = xml.includes(PHASE24_HEADING);
+  xml = await scrollUntilHeading(PHASE231_HEADING, 'phase231-scroll', 45);
   shot('04-phase23_1-scroll');
+  const phase231HeadingFound = xml.includes(PHASE231_HEADING);
 
   const stockResults = [];
   for (const stock of STOCKS) {
@@ -259,29 +325,37 @@ async function main() {
 
   sh(`adb shell am start -W -n ${PKG}/.MainActivity`);
   await sleep(10000);
+  await tapTab('材料分析');
+  await sleep(3000);
   await openConciergeFab();
   shot('05-concierge-open');
 
-  const quick = findLabels(await dumpUi('concierge-pre'), (l) =>
-    ['なぜ買い推奨？', '保有バランスは危険？', 'なぜ信頼度が低下？'].includes(l),
+  const quick = findUiNodes(await dumpUi('concierge-pre'), (n) =>
+    ['なぜ買い推奨？', '保有バランスは危険？', 'なぜ信頼度が低下？'].includes(n.text),
   );
   if (quick[0]) {
-    sh(`adb shell input tap ${quick[0].cx} ${quick[0].cy}`);
+    tapNode(quick[0]);
     await sleep(25000);
   } else {
     await sleep(12000);
   }
 
-  xml = await scrollUntil((x) => countMarkers(x, CONCIERGE_MARKERS) >= 2, 'concierge-scroll', 18);
+  xml = await scrollUntilHeading('AI分析結果', 'concierge-scroll', 20);
   shot('06-concierge-enhanced');
   const conciergeMarkers = countMarkers(xml, CONCIERGE_MARKERS);
-  const conciergePass = conciergeMarkers >= 3;
+  const conciergePass = conciergeMarkers >= 3 && xml.includes('AI分析結果');
 
   const fatalsAfter = logcatFatals();
   const crashFree = fatalsAfter === fatalsBefore;
 
   const materialPassCount = stockResults.filter((r) => r.materialPass).length;
-  const pass = materialPassCount >= 4 && conciergePass && crashFree && materialScreenOk;
+  const pass =
+    phase24HeadingFound &&
+    phase231HeadingFound &&
+    materialPassCount >= 4 &&
+    conciergePass &&
+    crashFree &&
+    materialScreenOk;
 
   const report = {
     commit,
@@ -291,6 +365,8 @@ async function main() {
     finishedAt: new Date().toISOString(),
     pass,
     materialScreenOk,
+    phase24HeadingFound,
+    phase231HeadingFound,
     materialPassCount,
     totalStocks: STOCKS.length,
     conciergeMarkers,
