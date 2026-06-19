@@ -283,5 +283,5 @@ Gradle 設定は **16 ビルド準備済**。bundle 修正後の `assembleReleas
 | 項目 | 値 |
 |------|-----|
 | 調査時 HEAD | **`6c2e5c1`** |
-| 本レポート commit | **（提出コミット — push 後更新）** |
-| Push | **（push 結果参照）** |
+| 本レポート commit | **`916fce1`** |
+| Push | **成功** — `6c2e5c1..916fce1` → `origin/cursor/top3-maxdd-capital-audit` |
