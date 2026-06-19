@@ -122,6 +122,6 @@ newsApiEverythingTest.test.ts   2/2 PASS
 
 | 項目 | 値 |
 |------|-----|
-| 前回 Commit | `33dd82e`（2段階診断） |
-| 本修正 | RSS fallback + production_blocked（コミット後更新） |
-| APK | `artifacts/preview-v16-local.apk` |
+| Commit | `5ee6df0` |
+| Push | **Success** — `33dd82e..5ee6df0` → `origin/cursor/top3-maxdd-capital-audit` |
+| APK | `artifacts/preview-v16-local.apk`（RSS fallback 込み再ビルド · 実機インストール済） |
