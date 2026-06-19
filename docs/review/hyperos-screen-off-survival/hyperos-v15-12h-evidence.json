@@ -8,10 +8,10 @@
   "hours": 12,
   "startedAt": "2026-06-18T12:29:47.644Z",
   "startMyt": "2026-06-18 20:29:47 MYT",
-  "endMyt": "2026-06-19 08:30:03 MYT",
-  "endedAt": null,
+  "endMyt": "2026-06-19 08:41:11 MYT",
+  "endedAt": "2026-06-19T00:41:11.311Z",
   "baselinePid": "30438",
-  "finalPid": null,
+  "finalPid": "30438",
   "pidLostEvents": 0,
   "lastPid": "30438",
   "survivalEnabledSeen": true,
@@ -797,6 +797,40 @@
       "wakeLockHeld": true,
       "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Dozing\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x41\r\n  mLastWakeTime=561091138 (116978 ms ago)\r\n  mLastGlobalWakeTimeRealtime=700980351 (in 139772235 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWak",
       "wakefulness": "Dozing"
+    },
+    {
+      "at": "2026-06-19T00:25:24.967Z",
+      "elapsedMin": 715,
+      "pid": "30438",
+      "heartbeatDelta": 4,
+      "heartbeatTotal": 156,
+      "priceDelta": 2,
+      "priceTotal": 85,
+      "newsDelta": 1,
+      "newsTotal": 106,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=562064903 (63713 ms ago)\r\n  mLastGlobalWakeTimeRealtime=701954192 (in 139825576 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWakeU",
+      "wakefulness": "Awake"
+    },
+    {
+      "at": "2026-06-19T00:40:46.374Z",
+      "elapsedMin": 730,
+      "pid": "30438",
+      "heartbeatDelta": 2,
+      "heartbeatTotal": 158,
+      "priceDelta": 0,
+      "priceTotal": 85,
+      "newsDelta": 0,
+      "newsTotal": 106,
+      "fgsRunning": true,
+      "fgsSnippet": "  * ServiceRecord{a7f495f u0 com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService c:com.assistant.stocktrading}\r\n    intent={cmp=com.assistant.stocktrading/expo.modules.stanativeruntime.LongRunForegroundService}\r\n    infoAllowStartForeground=[callingPackage: com.assistan",
+      "fgsHitCount": 4,
+      "wakeLockHeld": true,
+      "wakelockSnippet": "    no_cached_wake_locks=true\r\n  mWakefulness=Awake\r\n  mWakefulnessChanging=false\r\n  mWakeLockSummary=0x23\r\n  mLastWakeTime=562064903 (985121 ms ago)\r\n  mLastGlobalWakeTimeRealtime=701954192 (in 138904168 ms)\r\n  mHoldingWakeLockSuspendBlocker=true\r\n  mWakeUpWhenPluggedOrUnpluggedConfig=true\r\n  mWake",
+      "wakefulness": "Awake"
     }
   ],
   "checkpoints": [
@@ -865,6 +899,12 @@
       "ok": true,
       "stdout": "",
       "stderr": ""
+    },
+    {
+      "label": "12h",
+      "ok": true,
+      "stdout": "",
+      "stderr": ""
     }
   ],
   "dumpsysPaths": [
@@ -913,7 +953,9 @@
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-654m-services.txt",
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-669m-services.txt",
     "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-684m-services.txt",
-    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-700m-services.txt"
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-700m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-715m-services.txt",
+    "docs/review/hyperos-screen-off-survival/dumpsys-evidence/20260618-202947-730m-services.txt"
   ],
   "pidTimeline": [
     {
@@ -1191,29 +1233,95 @@
       "elapsedMin": 700,
       "pid": "30438",
       "note": ""
+    },
+    {
+      "at": "2026-06-19T00:25:24.967Z",
+      "elapsedMin": 715,
+      "pid": "30438",
+      "note": ""
+    },
+    {
+      "at": "2026-06-19T00:40:46.374Z",
+      "elapsedMin": 730,
+      "pid": "30438",
+      "note": ""
     }
   ],
-  "finalHeartbeatCount": 0,
-  "finalSurvivalStatusCount": 0,
-  "finalPriceCount": 0,
-  "finalNewsCount": 0,
-  "screenOffEnforcedCount": 31,
+  "finalHeartbeatCount": 158,
+  "finalSurvivalStatusCount": 145,
+  "finalPriceCount": 85,
+  "finalNewsCount": 106,
+  "screenOffEnforcedCount": 33,
   "phase12_5ExitCode": null,
   "notes": [
     "APK reinstall skipped (versionCode=15, apk=preview-v15.apk)"
   ],
   "runLiveLogPath": "docs/review/hyperos-screen-off-survival/logcat-live-20260618-202947.log",
-  "pollPeakHeartbeat": 152,
-  "pollPeakPrice": 83,
-  "pollPeakNews": 105,
+  "pollPeakHeartbeat": 158,
+  "pollPeakPrice": 85,
+  "pollPeakNews": 106,
   "_streamMetrics": {
     "raw": null,
-    "heartbeat": 152,
-    "price": 83,
-    "news": 105,
-    "survival": 140,
-    "monitorLines": 881,
-    "survivalOk": 134,
+    "heartbeat": 158,
+    "price": 85,
+    "news": 106,
+    "survival": 145,
+    "monitorLines": 913,
+    "survivalOk": 139,
     "streamed": true
+  },
+  "finalStaSurvivalNative": 0,
+  "runLiveLogBytes": 1106005156,
+  "streamedFinalize": true,
+  "finalizeRan": true,
+  "summaryPath": "docs/review/hyperos-screen-off-survival/logcat-summary-12h-20260618-202947.txt",
+  "metrics": {
+    "fatal": 0,
+    "anr": 0,
+    "rnTypeError": 0,
+    "undefined": 0
+  },
+  "eval_": {
+    "overall": true,
+    "pidOk": "30438",
+    "hbOk": true,
+    "priceOk": true,
+    "newsOk": true,
+    "fgsOk": true,
+    "wlOk": true,
+    "crashOk": true,
+    "screenOk": true,
+    "pollsComplete": true,
+    "expectedHb": 47
+  },
+  "fin": {
+    "ok": true,
+    "path": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\twelve-hour-test\\adb-logcat-final-20260619-084110.log",
+    "snapshotPath": "C:\\Users\\k416m\\Documents\\Projects\\stock-trading-assistant\\docs\\review\\phase12-5-long-run\\logcat-snapshot-20260619-084110.txt",
+    "warning": null,
+    "source": "live-copy+adb-dump",
+    "metrics": {
+      "fatal": 0,
+      "anr": 0,
+      "rnTypeError": 0,
+      "undefined": 0
+    }
+  },
+  "orchEval": {
+    "overall": true,
+    "writeEvidenceOk": true,
+    "autoFinalizeOk": true,
+    "runScopedLogOk": true,
+    "heartbeatCountOk": true,
+    "priceCountOk": true,
+    "evidenceJsonOk": true,
+    "pollsComplete": true,
+    "runLiveLogBytes": 1106005156,
+    "finalHeartbeatCount": 158,
+    "finalPriceCount": 85,
+    "fixCommit": "5b054dc",
+    "streamingOk": true,
+    "metricsViaStream": true,
+    "priorFailureRef": "20260616-210645 ERR_STRING_TOO_LONG @ ~5h"
   }
 }

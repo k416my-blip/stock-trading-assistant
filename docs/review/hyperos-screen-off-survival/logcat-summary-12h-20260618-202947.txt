@@ -1,0 +1,10 @@
+# HyperOS 12h logcat summary (20260619-084111) [streamed]
+bytes: 1106005156
+12H-MONITOR lines: 913
+heartbeat: 158
+survival_events: 145
+survival_health_ok: 139
+price_update: 85
+news_fetch: 106
+FATAL: 0
+ANR: 0
