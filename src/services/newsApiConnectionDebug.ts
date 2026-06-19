@@ -10,7 +10,7 @@ import {
 } from '../constants/newsApiRateLimit';
 import { buildNewsApiPath, type NewsApiEndpoint } from './newsApiClient';
 
-export type NewsApiAuthMode = 'x-api-key' | 'authorization-bearer';
+export type NewsApiAuthMode = 'x-api-key' | 'authorization-bearer' | 'api-key-query';
 
 export type NewsApiFailureKind =
   | 'success'
@@ -64,6 +64,8 @@ export type NewsApiConnectionTestResult = {
   rssFallbackOk: boolean;
   rssFallbackCount: number;
   adoptedNewsSource: 'newsapi' | 'rss' | null;
+  /** NewsAPI が 401 apiKeyInvalid を返した */
+  newsApiKeyInvalid: boolean;
 };
 
 const NEWS_API_TEST_TIMEOUT_MS = 12_000;
@@ -76,10 +78,23 @@ export function getAdoptedNewsApiAuthMode(): NewsApiAuthMode {
 
 export function buildNewsApiAuthHeaders(apiKey: string, mode: NewsApiAuthMode): Record<string, string> {
   const key = apiKey.trim();
+  if (mode === 'api-key-query') {
+    return {};
+  }
   if (mode === 'authorization-bearer') {
     return { Authorization: `Bearer ${key}` };
   }
   return { 'X-Api-Key': key };
+}
+
+export function buildNewsApiProbeUrl(
+  requestUrl: string,
+  apiKey: string,
+  mode: NewsApiAuthMode,
+): string {
+  if (mode !== 'api-key-query') return requestUrl;
+  const sep = requestUrl.includes('?') ? '&' : '?';
+  return `${requestUrl}${sep}apiKey=${encodeURIComponent(apiKey.trim())}`;
 }
 
 export function maskNewsApiResponseBody(body: string, apiKey?: string): string {
@@ -193,7 +208,7 @@ const STAGES: Array<{
   },
 ];
 
-const AUTH_MODES: NewsApiAuthMode[] = ['x-api-key', 'authorization-bearer'];
+const AUTH_MODES: NewsApiAuthMode[] = ['x-api-key', 'authorization-bearer', 'api-key-query'];
 
 async function probeNewsApiStage(input: {
   stage: NewsApiConnectionStage;
@@ -203,10 +218,11 @@ async function probeNewsApiStage(input: {
   apiKey: string;
 }): Promise<NewsApiStageProbe> {
   const requestUrl = buildNewsApiPath(input.endpoint, input.params);
+  const fetchUrl = buildNewsApiProbeUrl(requestUrl, input.apiKey, input.authMode);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), NEWS_API_TEST_TIMEOUT_MS);
   try {
-    const res = await fetch(requestUrl, {
+    const res = await fetch(fetchUrl, {
       signal: controller.signal,
       headers: {
         ...buildNewsApiAuthHeaders(input.apiKey, input.authMode),
@@ -408,6 +424,7 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
     probes.some((p) => p.ok && (p.articleCount > 0 || p.httpStatus === 200) && p.failureKind === 'success'),
   );
   const productionBlocked = probes.some((p) => p.failureKind === 'production_blocked');
+  const newsApiKeyInvalid = probes.some((p) => p.failureKind === 'invalid_key');
 
   let rssFallback = { ok: false, count: 0, titles: [] as string[], summary: '' };
   if (!newsApiDirectOk) {
@@ -424,7 +441,7 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
       winner.articleCount === 0,
   );
 
-  const rssRescue = !newsApiDirectOk && productionBlocked && rssFallback.ok;
+  const rssRescue = !newsApiDirectOk && rssFallback.ok;
   const ok = newsApiDirectOk || tempRateLimit || rssRescue;
   const adoptedNewsSource: 'newsapi' | 'rss' | null = newsApiDirectOk
     ? 'newsapi'
@@ -437,9 +454,18 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
 
   let errorReasonJa: string | null = null;
   if (rssRescue) {
-    errorReasonJa = `NewsAPI Developerは実機不可（426）· RSSフォールバック成功（${rssFallback.count}件）`;
+    if (newsApiKeyInvalid) {
+      errorReasonJa = `NewsAPIキー無効（401）· RSSフォールバック成功（${rssFallback.count}件）· newsapi.org でキーを再確認`;
+    } else if (productionBlocked) {
+      errorReasonJa = `NewsAPI Developerは実機不可（426）· RSSフォールバック成功（${rssFallback.count}件）`;
+    } else {
+      errorReasonJa = `NewsAPI直接失敗 · RSSフォールバック成功（${rssFallback.count}件）`;
+    }
   } else if (!ok) {
-    if (productionBlocked) {
+    if (newsApiKeyInvalid) {
+      errorReasonJa =
+        '401 · APIキー無効 — newsapi.org/account でキーをコピーし直して「保存」してください';
+    } else if (productionBlocked) {
       errorReasonJa =
         'Developer プランは実機APK不可（426）。Business プラン($449/月) または RSS フォールバック';
     } else {
@@ -475,6 +501,7 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
     rssFallbackOk: rssFallback.ok,
     rssFallbackCount: rssFallback.count,
     adoptedNewsSource,
+    newsApiKeyInvalid,
   };
 
   logNewsApiConnectionTest({
@@ -493,7 +520,9 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
     rssFallbackOk: result.rssFallbackOk,
     rssFallbackCount: result.rssFallbackCount,
     newsApiDirectOk: result.newsApiDirectOk,
+    newsApiKeyInvalid: result.newsApiKeyInvalid,
     probeCount: probes.length,
+    apiKeyLength: apiKey.trim().length,
   });
 
   return result;

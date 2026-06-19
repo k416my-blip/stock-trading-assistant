@@ -46,6 +46,7 @@ export async function runNewsApiEverythingTest(
       rssFallbackOk: false,
       rssFallbackCount: 0,
       adoptedNewsSource: null,
+      newsApiKeyInvalid: false,
     };
   }
 

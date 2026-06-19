@@ -16,7 +16,9 @@ const PLACEHOLDER_EXACT = new Set([
 ]);
 
 export function normalizeStoredApiKey(raw: string): string {
-  let key = raw.trim();
+  let key = raw
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .trim();
   if (/^bearer\s+/i.test(key)) {
     key = key.replace(/^bearer\s+/i, '').trim();
   }

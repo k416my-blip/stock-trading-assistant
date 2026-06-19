@@ -82,8 +82,17 @@ async function testNewsApi(apiKey: string): Promise<ApiConnectionResult> {
     const { runNewsApiConnectionTest, failureKindLabelJa } = await import('./newsApiConnectionDebug');
     const tested = await runNewsApiConnectionTest(apiKey);
     if (tested.ok) {
+      if (tested.rssFallbackOk && tested.newsApiKeyInvalid) {
+        return result(
+          true,
+          'RSSフォールバック成功（NewsAPIキー無効·401 — newsapi.org で再確認）',
+        );
+      }
       if (tested.rssFallbackOk && tested.productionBlocked) {
         return result(true, 'RSSフォールバック成功（NewsAPI Developerは実機不可）');
+      }
+      if (tested.rssFallbackOk && !tested.newsApiDirectOk) {
+        return result(true, 'RSSフォールバック成功');
       }
       return result(
         true,
