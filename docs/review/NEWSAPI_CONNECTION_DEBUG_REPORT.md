@@ -117,5 +117,6 @@ Settings → News API テスト実行時、各 probe と summary が JSON で出
 
 | 項目 | 値 |
 |------|-----|
-| Commit | _(push 後に更新)_ |
-| Push | _(push 後に更新)_ |
+| Commit | `7eb6471d3c70c41ba2fbd429a9aaf1cd532c79dd` |
+| Push | **Success** — `4a0e597..7eb6471` → `origin/cursor/top3-maxdd-capital-audit` |
+| APK | `artifacts/preview-v16-local.apk`（再ビルド済 · 実機インストール済） |
