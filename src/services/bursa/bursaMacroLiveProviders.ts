@@ -259,6 +259,56 @@ async function fetchUsCpiFromFmp(apiKey: string): Promise<MacroLiveIndicatorSnap
   };
 }
 
+const BNM_API_ACCEPT = 'application/vnd.BNM.API.v1+json';
+
+type BnmOprRow = {
+  date?: string;
+  change_in_opr?: number;
+  new_opr_level?: number;
+};
+
+type BnmOprResponse = {
+  data?: BnmOprRow | BnmOprRow[];
+};
+
+export function parseBnmOprResponse(json: unknown): { value: number; changePct: number | null } | null {
+  if (!json || typeof json !== 'object') return null;
+  const data = (json as BnmOprResponse).data;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row || typeof row !== 'object') return null;
+  const value = row.new_opr_level;
+  if (value == null || !Number.isFinite(value) || value < 1 || value > 10) return null;
+  const change = row.change_in_opr;
+  const changePct =
+    change != null && Number.isFinite(change) && change !== 0 ? change : null;
+  return { value, changePct };
+}
+
+async function fetchMalaysiaOprFromBnmApi(): Promise<MacroLiveIndicatorSnapshot | null> {
+  const url = 'https://api.bnm.gov.my/public/opr';
+  try {
+    const { response, bodyText } = await fetchHttpWithRetry(url, {
+      logLabel: 'bnm_opr_api',
+      timeoutMs: 20_000,
+      symbol: 'MY_OPR',
+      headers: { Accept: BNM_API_ACCEPT },
+    });
+    if (!response.ok) return null;
+    const parsed = parseBnmOprResponse(JSON.parse(bodyText) as unknown);
+    if (!parsed) return null;
+    return {
+      id: 'my_opr',
+      value: parsed.value,
+      changePct: parsed.changePct,
+      fromLive: true,
+      source: 'bnm_api',
+      errorJa: null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function parseOprFromHtml(html: string): number | null {
   const patterns = [
     /Overnight Policy Rate[^0-9]{0,40}([\d.]+)\s*(?:%|percent|per cent)/i,
@@ -419,6 +469,7 @@ export async function fetchMacroLiveIndicators(input?: {
 
   const myOpr = await (async () => {
     const r =
+      (await fetchMalaysiaOprFromBnmApi()) ??
       (await fetchMalaysiaOprFromBnm()) ??
       (fmp ? await fetchMalaysiaOprFromFmpCalendar(fmp) : null);
     return r?.fromLive && r.value != null ? r : unavailable('my_opr', 'データ未取得');

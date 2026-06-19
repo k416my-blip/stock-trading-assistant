@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  parseBnmOprResponse,
   parseOprFromHtml,
   pctChange,
   yoyFromMonthlyIndex,
@@ -32,6 +33,27 @@ describe('bursaMacroLiveProviders helpers', () => {
     it('returns null when year-ago value is zero', () => {
       const values = [0, ...Array.from({ length: 12 }, () => 100)];
       expect(yoyFromMonthlyIndex(values)).toBeNull();
+    });
+  });
+
+  describe('parseBnmOprResponse', () => {
+    it('parses latest OPR from BNM Open API JSON', () => {
+      const json = {
+        data: { year: 2026, date: '2026-05-07', change_in_opr: 0, new_opr_level: 2.75 },
+      };
+      expect(parseBnmOprResponse(json)).toEqual({ value: 2.75, changePct: null });
+    });
+
+    it('parses change_in_opr when non-zero', () => {
+      const json = {
+        data: [{ date: '2025-07-09', change_in_opr: -0.25, new_opr_level: 2.75 }],
+      };
+      expect(parseBnmOprResponse(json)).toEqual({ value: 2.75, changePct: -0.25 });
+    });
+
+    it('returns null for invalid payloads', () => {
+      expect(parseBnmOprResponse(null)).toBeNull();
+      expect(parseBnmOprResponse({ data: { new_opr_level: 15 } })).toBeNull();
     });
   });
 
