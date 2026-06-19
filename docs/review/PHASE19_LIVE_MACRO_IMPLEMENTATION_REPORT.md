@@ -3,9 +3,9 @@
 ## 概要
 Phase19 Macro Intelligence — 参照定数 `MACRO_REFERENCE_VALUES` を廃止し、ライブ取得プロバイダへ置換。
 
-- 実行日時: 2026-06-19T14:18:52.169Z
-- Git commit: `1df6313`
-- Push: pending
+- 実行日時: 2026-06-19T14:19:31.866Z
+- Git commit: `5459c1d`
+- Push: success (`origin/cursor/top3-maxdd-capital-audit` @ `5459c1d`)
 
 ## 実装サマリー
 
@@ -47,9 +47,9 @@ Live: 12/12 · B5/N6/Be1
 - Malaysia CPI (YoY): 1.83% -0.65% [Neutral]
 - US 10Y Treasury: 4.45% 0.00% [Neutral]
 - USD/MYR: 4.13MYR +0.46% [Neutral]
-- DXY: 100.82pt -0.03% [Neutral]
+- DXY: 100.81pt -0.04% [Neutral]
 - Brent Oil: 79.76USD -0.11% [Neutral]
-- Gold: 4167.90USD -1.84% [Bullish]
+- Gold: 4168.20USD -1.83% [Bullish]
 - S&P500: 7500.58pt +1.08% [Bullish]
 - NASDAQ: 26517.93pt +1.91% [Bullish]
 - KLCI: 1712.03pt +0.12% [Neutral]

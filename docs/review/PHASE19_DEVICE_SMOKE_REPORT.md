@@ -3,8 +3,9 @@
 ## 概要
 Phase19 Live Macro Intelligence 6銘柄パイプライン検証。
 
-- 実行日時: 2026-06-19T14:18:52.169Z
-- Git commit: `1df6313`
+- 実行日時: 2026-06-19T14:19:31.866Z
+- Git commit: `5459c1d`
+- Push: success (`origin/cursor/top3-maxdd-capital-audit` @ `5459c1d`)
 - 対象銘柄: 1155, 1023, 1295, 5347, 4707, 6033
 
 ## 結果サマリー
