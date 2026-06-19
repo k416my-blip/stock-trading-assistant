@@ -115,5 +115,5 @@ node scripts/bursa-phase11-ui-device-verify.mjs
 
 | 項目 | 値 |
 |------|-----|
-| Commit | **（本レポート提出コミット — 下記 push 後に更新）** |
-| Push | **（下記 push 結果参照）** |
+| Commit | **`f594ae8`** |
+| Push | **成功** — `77b0a17..f594ae8` → `origin/cursor/top3-maxdd-capital-audit` |

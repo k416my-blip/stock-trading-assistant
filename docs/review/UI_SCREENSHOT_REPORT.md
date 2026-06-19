@@ -115,5 +115,5 @@ Preview APK を最新コミットで再ビルド後、1155 カード内を Phase
 
 | 項目 | 値 |
 |------|-----|
-| Commit | **（本レポート提出コミット — push 後更新）** |
-| Push | **（push 結果参照）** |
+| Commit | **`f594ae8`** |
+| Push | **成功** — `77b0a17..f594ae8` → `origin/cursor/top3-maxdd-capital-audit` |
