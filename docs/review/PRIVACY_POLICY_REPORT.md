@@ -256,4 +256,5 @@ Policy URL: [POLICY_URL]
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: **71465f2**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)

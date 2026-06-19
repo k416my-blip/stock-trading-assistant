@@ -99,4 +99,5 @@ Play Internal Testing へのアップロードは **現時点不可**。プラ�
 
 ## GitHub sync
 
-_(filled after commit/push)_
+Commit: **71465f2**  
+Push: **success** (`origin/cursor/top3-maxdd-capital-audit`)
