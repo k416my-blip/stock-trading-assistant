@@ -157,14 +157,18 @@ Concierge Enhanced Analysis で OpenAI 応答が UI に反映されずモック�
 
 | 項目 | 値 |
 |------|-----|
-| 本レポート提出時 commit | （push 後に下記「push 結果」に記載） |
+| 本レポート提出時 commit | `6d087ed9`（`6d087ed`） |
 | 先行 APK ビルド commit | `9dda7c797fbc519a9128448b690de5a63e21ada9` |
 
 ---
 
 ## push 結果
 
-（commit / push 実行後に更新）
+| 項目 | 結果 |
+|------|------|
+| push | **SUCCESS** |
+| remote | `origin/cursor/top3-maxdd-capital-audit` |
+| range | `b7a64b6..6d087ed` |
 
 ---
 
