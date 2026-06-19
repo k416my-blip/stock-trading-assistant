@@ -4,7 +4,8 @@
 Phase11 Live E2E — Phase13〜24 全チェーン一括検証（fetchLiveExternal=true）。
 
 - 実行日時: 2026-06-19T03:54:44.052Z
-- Git commit: `384276a`
+- Git commit: `b075fe0`
+- Push: **OK** → `origin/cursor/top3-maxdd-capital-audit` (384276a..b075fe0)
 - fetchLiveExternal: **true**
 
 ## 判定

@@ -4,7 +4,8 @@
 Phase11 Live E2E 6銘柄パイプラインスモーク。
 
 - 実行日時: 2026-06-19T03:54:44.052Z
-- Git commit: `384276a`
+- Git commit: `b075fe0`
+- Push: **OK** → `origin/cursor/top3-maxdd-capital-audit`
 - 対象銘柄: 1155, 1023, 1295, 5347, 4707, 6033
 
 ## 結果サマリー
