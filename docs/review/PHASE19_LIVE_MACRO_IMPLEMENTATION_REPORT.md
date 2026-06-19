@@ -4,8 +4,8 @@
 Phase19 Macro Intelligence — 参照定数 `MACRO_REFERENCE_VALUES` を廃止し、ライブ取得プロバイダへ置換。
 
 - 実行日時: 2026-06-19T03:13:15.597Z
-- Git commit: `58fb6b9`
-- Push: pending
+- Git commit: `9f94786`
+- Push: **OK** → `origin/cursor/top3-maxdd-capital-audit` (58fb6b9..9f94786)
 
 ## 実装サマリー
 
