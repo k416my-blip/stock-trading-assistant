@@ -82,6 +82,9 @@ async function testNewsApi(apiKey: string): Promise<ApiConnectionResult> {
     const { runNewsApiConnectionTest, failureKindLabelJa } = await import('./newsApiConnectionDebug');
     const tested = await runNewsApiConnectionTest(apiKey);
     if (tested.ok) {
+      if (tested.rssFallbackOk && tested.productionBlocked) {
+        return result(true, 'RSSフォールバック成功（NewsAPI Developerは実機不可）');
+      }
       return result(
         true,
         tested.tempRateLimit ? 'NewsAPI 利用上限（一時）' : REAL_API_CONNECTION_SUCCESS_JA,

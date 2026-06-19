@@ -319,6 +319,11 @@ export function SettingsScreen() {
         titles: [],
         testedAt: new Date().toISOString(),
         probes: [],
+        newsApiDirectOk: false,
+        productionBlocked: false,
+        rssFallbackOk: false,
+        rssFallbackCount: 0,
+        adoptedNewsSource: null,
       });
     } finally {
       setNewsApiTestRunning(false);
@@ -541,8 +546,9 @@ export function SettingsScreen() {
                   <Text style={styles.newsApiTestTitle}>News API 接続テスト</Text>
                   <Text style={styles.apiHelpText}>
                     A: GET /v2/top-headlines?country=us&pageSize=5{'\n'}
+                    A2: GET /v2/top-headlines?category=business&country=us&pageSize=5{'\n'}
                     B: GET /v2/everything?q=Maybank&pageSize=5&language=en{'\n'}
-                    Header: X-Api-Key / Authorization Bearer（両方試行）
+                    Header: X-Api-Key / Authorization Bearer · 426時 RSS フォールバック
                   </Text>
                   <Button
                     label={newsApiTestRunning ? 'テスト中…' : 'News API テスト'}
@@ -574,6 +580,21 @@ export function SettingsScreen() {
                       {newsApiTestResult.adoptedAuthMode ? (
                         <Text style={styles.newsApiTestMeta} selectable>
                           採用 Header: {newsApiTestResult.adoptedAuthMode}
+                        </Text>
+                      ) : null}
+                      {newsApiTestResult.adoptedNewsSource ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          採用ニュース源: {newsApiTestResult.adoptedNewsSource === 'rss' ? 'RSS' : 'NewsAPI'}
+                        </Text>
+                      ) : null}
+                      {newsApiTestResult.productionBlocked ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          NewsAPI: Developer プラン実機制限（426）
+                        </Text>
+                      ) : null}
+                      {newsApiTestResult.rssFallbackOk ? (
+                        <Text style={styles.newsApiTestMeta} selectable>
+                          RSS フォールバック: 成功（{newsApiTestResult.rssFallbackCount}件）
                         </Text>
                       ) : null}
                       {newsApiTestResult.ok ? (

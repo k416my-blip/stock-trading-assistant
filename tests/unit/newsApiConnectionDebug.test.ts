@@ -6,14 +6,24 @@ import {
   runNewsApiConnectionTest,
   summarizeNewsApiResponseBody,
 } from '../../src/services/newsApiConnectionDebug';
+import { isNewsApiDeveloperProductionBlocked } from '../../src/constants/newsApiRateLimit';
 
 describe('newsApiConnectionDebug helpers', () => {
   it('classifies HTTP status codes', () => {
     expect(classifyNewsApiFailureKind({ httpStatus: 401 })).toBe('invalid_key');
     expect(classifyNewsApiFailureKind({ httpStatus: 429 })).toBe('plan_or_rate_limit');
-    expect(classifyNewsApiFailureKind({ httpStatus: 426 })).toBe('plan_or_rate_limit');
+    expect(classifyNewsApiFailureKind({ httpStatus: 426 })).toBe('production_blocked');
     expect(classifyNewsApiFailureKind({ httpStatus: 400 })).toBe('bad_request');
     expect(classifyNewsApiFailureKind({ httpStatus: 0, networkError: true })).toBe('network_error');
+  });
+
+  it('detects developer production block', () => {
+    expect(
+      isNewsApiDeveloperProductionBlocked({
+        httpStatus: 426,
+        responseBody: JSON.stringify({ code: 'upgradeRequired', message: 'localhost only' }),
+      }),
+    ).toBe(true);
   });
 
   it('masks api keys in response body', () => {
@@ -34,7 +44,7 @@ describe('newsApiConnectionDebug helpers', () => {
 
   it('maps failure labels', () => {
     expect(failureKindLabelJa('invalid_key')).toContain('401');
-    expect(failureKindLabelJa('network_error')).toContain('network');
+    expect(failureKindLabelJa('production_blocked')).toContain('426');
   });
 });
 
@@ -42,16 +52,24 @@ describe('runNewsApiConnectionTest', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (url: string, init?: RequestInit) => {
-        const auth = (init?.headers as Record<string, string>) ?? {};
-        if (String(url).includes('top-headlines')) {
+      vi.fn(async (url: string) => {
+        if (String(url).includes('news.google.com')) {
           return {
             ok: true,
             status: 200,
             text: async () =>
+              '<rss><channel><title>Google News</title><item><title>Maybank rises</title></item></channel></rss>',
+          };
+        }
+        if (String(url).includes('top-headlines')) {
+          return {
+            ok: false,
+            status: 426,
+            text: async () =>
               JSON.stringify({
-                status: 'ok',
-                articles: [{ title: 'US business headline' }],
+                status: 'error',
+                code: 'upgradeRequired',
+                message: 'You can only use localhost on Developer plan',
               }),
           };
         }
@@ -59,11 +77,7 @@ describe('runNewsApiConnectionTest', () => {
           ok: false,
           status: 426,
           text: async () =>
-            JSON.stringify({
-              status: 'error',
-              code: 'upgradeRequired',
-              message: 'only localhost',
-            }),
+            JSON.stringify({ status: 'error', code: 'upgradeRequired', message: 'only localhost' }),
         };
       }),
     );
@@ -73,11 +87,12 @@ describe('runNewsApiConnectionTest', () => {
     vi.unstubAllGlobals();
   });
 
-  it('adopts stage A top-headlines on device', async () => {
+  it('rescues with RSS when NewsAPI returns 426 on device', async () => {
     const result = await runNewsApiConnectionTest('abcdefghijklmnopqrstuvwxyz123456');
+    expect(result.productionBlocked).toBe(true);
+    expect(result.rssFallbackOk).toBe(true);
     expect(result.ok).toBe(true);
-    expect(result.adoptedStage).toBe('A');
-    expect(result.httpStatus).toBe(200);
-    expect(result.probes.length).toBe(4);
+    expect(result.adoptedNewsSource).toBe('rss');
+    expect(result.probes.length).toBe(6);
   });
 });

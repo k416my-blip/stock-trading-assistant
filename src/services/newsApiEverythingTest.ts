@@ -41,6 +41,11 @@ export async function runNewsApiEverythingTest(
       titles: [],
       testedAt,
       probes: [],
+      newsApiDirectOk: false,
+      productionBlocked: false,
+      rssFallbackOk: false,
+      rssFallbackCount: 0,
+      adoptedNewsSource: null,
     };
   }
 

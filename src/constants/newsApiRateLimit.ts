@@ -33,6 +33,25 @@ export function isNewsApiTempRateLimit(input: {
   return code === 'rateLimited' || input.httpStatus === 429;
 }
 
+/** Developer プラン — 実機/本番からの直接呼び出し不可（426 / upgradeRequired） */
+export const NEWSAPI_DEVELOPER_PRODUCTION_BLOCKED = 'NEWSAPI_DEVELOPER_PRODUCTION_BLOCKED' as const;
+
+export function isNewsApiDeveloperProductionBlocked(input: {
+  httpStatus: number;
+  responseBody?: string | null;
+  errorCode?: string | null;
+}): boolean {
+  if (input.httpStatus === 426) return true;
+  const body = input.responseBody ? parseNewsApiErrorBody(input.responseBody) : null;
+  const code = input.errorCode ?? body?.code ?? null;
+  const msg = body?.message ?? input.responseBody ?? '';
+  if (code === 'upgradeRequired') return true;
+  if (/developer plan|development environment|localhost|production environment|staging environment/i.test(msg)) {
+    return true;
+  }
+  return false;
+}
+
 export function classifyNewsApiFailure(input: {
   httpStatus: number;
   responseBody?: string | null;

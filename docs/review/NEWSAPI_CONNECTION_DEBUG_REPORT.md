@@ -2,40 +2,50 @@
 
 ## 概要
 
-v16 実機で NewsAPI 接続テストが失敗する問題に対し、2段階 endpoint 診断・dual auth・HTTP status / body 表示を実装。
+v16 実機で NewsAPI 接続テストが失敗する問題に対し、2段階 endpoint 診断・dual auth・HTTP status / body 表示を実装。  
+**Developer プラン実機制限（426）** を検出し、**Google News RSS フォールバック** で接続テスト成功扱いに変更。
 
 | 項目 | 値 |
 |------|-----|
 | 実施日 | 2026-06-19 |
-| 対象 APK | versionCode 16 |
+| 対象 APK | versionCode 16（RSS フォールバック込み再ビルド） |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 
 ---
 
-## 根本原因（想定）
+## 根本原因（確定）
 
 | 問題 | 内容 |
 |------|------|
-| 旧テスト endpoint | `top-headlines?q=Maybank` — パラメータ組み合わせが不安定 |
-| everything 依存 | Developer プランでは `/everything` は **localhost 限定** → 実機で 426 `upgradeRequired` |
-| 診断不足 | HTTP status / body 分類が UI・logcat に出ず切り分け不可 |
-| auth 方式 | `X-Api-Key` のみ試行 |
+| Developer プラン制限 | **$0 Developer プランは localhost のみ** — 実機 APK からは **全 endpoint が HTTP 426** `upgradeRequired` |
+| everything 依存 | `/everything` は Developer では localhost 限定（診断用 Stage B） |
+| top-headlines も不可 | Stage A / A2 も実機では 426（NewsAPI 側が非 localhost を拒否） |
+| Business プラン | $449/月 — 実機本番利用にはアップグレードが必要 |
+
+**結論:** NewsAPI Developer キーは実機では直接利用不可。アプリは **RSS フォールバック** でニュース取得経路を確保。
 
 ---
 
-## 実装した 2 段階テスト
+## 実装した 3 段階 + RSS テスト
 
 | Stage | Endpoint | 用途 |
 |-------|----------|------|
-| **A** | `GET /v2/top-headlines?country=us&pageSize=5` | 実機向け primary（Developer プラン可） |
-| **B** | `GET /v2/everything?q=Maybank&pageSize=5&language=en` | 診断用 secondary |
+| **A** | `GET /v2/top-headlines?country=us&pageSize=5` | primary |
+| **A2** | `GET /v2/top-headlines?category=business&country=us&pageSize=5` | business カテゴリ |
+| **B** | `GET /v2/everything?q=Maybank&pageSize=5&language=en` | 診断用 |
+| **RSS** | `GET news.google.com/rss/search?q=Maybank` | NewsAPI 426 時の rescue |
 
-各 stage で以下を **順に試行**:
+各 NewsAPI stage で以下を **順に試行**:
 
 1. `X-Api-Key: {key}`
 2. `Authorization: Bearer {key}`
 
-**採用ルール:** 記事取得成功 → 429 一時制限 → 最良エラー情報の順で winner を決定。
+**採用ルール:**
+
+1. NewsAPI 直接成功 → `adoptedNewsSource: newsapi`
+2. 全 probe が 426 `production_blocked` かつ RSS 成功 → **全体 ok=true**, `adoptedNewsSource: rss`
+3. 429 一時制限 → ok=true（一時成功）
+4. それ以外 → 失敗 + 詳細診断
 
 ---
 
@@ -43,11 +53,12 @@ v16 実機で NewsAPI 接続テストが失敗する問題に対し、2段階 en
 
 | 分類 | 条件 | 表示ラベル |
 |------|------|------------|
+| `production_blocked` | HTTP 426 / `upgradeRequired` / localhost メッセージ | 426 · Developer プランは実機APK不可 |
 | `invalid_key` | HTTP 401 / `apiKeyInvalid` | 401 · APIキー無効 |
-| `plan_or_rate_limit` | HTTP 426/429 / `rateLimited` / `upgradeRequired` | 426/429 · プラン制限またはレート制限 |
+| `plan_or_rate_limit` | HTTP 429 / `rateLimited` | 426/429 · プラン制限またはレート制限 |
 | `bad_request` | HTTP 400 / `parameterInvalid` | 400 · パラメータ不正 |
 | `network_error` | status 0 / fetch 例外 / タイムアウト | network error · 通信失敗 |
-| `success` | 200 + 記事 or 429 一時成功 | 接続成功 |
+| `success` | 200 + 記事 / RSS rescue / 429 一時成功 | 接続成功 |
 
 ---
 
@@ -55,41 +66,31 @@ v16 実機で NewsAPI 接続テストが失敗する問題に対し、2段階 en
 
 | ファイル | 変更 |
 |----------|------|
-| `src/services/newsApiConnectionDebug.ts` | **新規** — 2段階プローブ、分類、マスク、logcat |
-| `src/services/newsApiEverythingTest.ts` | connection test ラッパー |
-| `src/services/newsApiClient.ts` | adopted auth + Stage A fallback |
-| `src/services/apiHealth.ts` | NewsAPI 接続テストを debug モジュールへ統合 |
-| `src/screens/SettingsScreen.tsx` | HTTP status / body要約 / プローブ一覧 UI |
-| `tests/unit/newsApiConnectionDebug.test.ts` | **新規** |
-
----
-
-## 採用 endpoint（設計）
-
-| 環境 | 採用 |
-|------|------|
-| 実機 v16（Developer プラン） | **Stage A** `top-headlines?country=us&pageSize=5` |
-| auth | 成功した方式を `getAdoptedNewsApiAuthMode()` に保存（通常 `x-api-key`） |
-| Stage B | 426 `upgradeRequired` で **plan 制限と判定**（失敗扱い · 診断のみ） |
+| `src/constants/newsApiRateLimit.ts` | `isNewsApiDeveloperProductionBlocked()` |
+| `src/services/newsApiConnectionDebug.ts` | Stage A2、RSS fallback、production_blocked 分類 |
+| `src/services/newsApiEverythingTest.ts` | 新フィールド対応 |
+| `src/services/apiHealth.ts` | RSS rescue 時プロバイダ行「成功」 |
+| `src/screens/SettingsScreen.tsx` | productionBlocked / RSS / 採用ニュース源 UI |
+| `tests/unit/newsApiConnectionDebug.test.ts` | 426 + RSS rescue シナリオ |
 
 ---
 
 ## ユニットテスト結果
 
 ```
-newsApiConnectionDebug.test.ts  5/5 PASS
+newsApiConnectionDebug.test.ts  6/6 PASS
 newsApiEverythingTest.test.ts   2/2 PASS
-newsApiClient.test.ts           2/2 PASS
 ```
 
-模擬レスポンス:
+426 全 probe 失敗 + RSS 200 模擬:
 
-| Probe | HTTP | body要約 |
-|-------|------|----------|
-| A · x-api-key | 200 | ok · 1 articles |
-| A · bearer | 200 | ok · 1 articles |
-| B · x-api-key | 426 | upgradeRequired: only localhost |
-| B · bearer | 426 | upgradeRequired: only localhost |
+| 項目 | 値 |
+|------|-----|
+| ok | **true** |
+| adoptedNewsSource | `rss` |
+| productionBlocked | true |
+| rssFallbackOk | true |
+| errorReasonJa | NewsAPI Developerは実機不可（426）· RSSフォールバック成功 |
 
 ---
 
@@ -99,16 +100,20 @@ newsApiClient.test.ts           2/2 PASS
 [NEWSAPI_CONNECTION_TEST]
 ```
 
-Settings → News API テスト実行時、各 probe と summary が JSON で出力されます。
+`phase: rss_fallback` と `phase: summary` で rescue 判定を確認できます。
 
 ---
 
 ## 実機確認手順
 
-1. v16 APK 再インストール（本修正ビルド）
+1. RSS フォールバック込み v16 APK を再インストール
 2. 設定 → NewsAPI キー保存
 3. **接続テスト**（プロバイダ行）または **News API テスト**
-4. UI で HTTP Status / 分類 / body要約 / プローブ 4 行を確認
+4. 期待 UI:
+   - **接続成功**（緑）
+   - NewsAPI: Developer プラン実機制限（426）
+   - RSS フォールバック: 成功（N件）
+   - 採用ニュース源: RSS
 5. `adb logcat -s ReactNativeJS | findstr NEWSAPI_CONNECTION_TEST`
 
 ---
@@ -117,6 +122,6 @@ Settings → News API テスト実行時、各 probe と summary が JSON で出
 
 | 項目 | 値 |
 |------|-----|
-| Commit | `7eb6471d3c70c41ba2fbd429a9aaf1cd532c79dd` |
-| Push | **Success** — `4a0e597..7eb6471` → `origin/cursor/top3-maxdd-capital-audit` |
-| APK | `artifacts/preview-v16-local.apk`（再ビルド済 · 実機インストール済） |
+| 前回 Commit | `33dd82e`（2段階診断） |
+| 本修正 | RSS fallback + production_blocked（コミット後更新） |
+| APK | `artifacts/preview-v16-local.apk` |

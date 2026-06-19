@@ -1,7 +1,13 @@
 /**
  * NewsAPI 接続テスト — 2段階 endpoint + dual auth 診断
  */
-import { parseNewsApiErrorBody, isNewsApiTempRateLimit, NEWSAPI_TEMP_RATE_LIMIT } from '../constants/newsApiRateLimit';
+import {
+  parseNewsApiErrorBody,
+  isNewsApiTempRateLimit,
+  isNewsApiDeveloperProductionBlocked,
+  NEWSAPI_TEMP_RATE_LIMIT,
+  NEWSAPI_DEVELOPER_PRODUCTION_BLOCKED,
+} from '../constants/newsApiRateLimit';
 import { buildNewsApiPath, type NewsApiEndpoint } from './newsApiClient';
 
 export type NewsApiAuthMode = 'x-api-key' | 'authorization-bearer';
@@ -10,11 +16,12 @@ export type NewsApiFailureKind =
   | 'success'
   | 'invalid_key'
   | 'plan_or_rate_limit'
+  | 'production_blocked'
   | 'bad_request'
   | 'network_error'
   | 'other';
 
-export type NewsApiConnectionStage = 'A' | 'B';
+export type NewsApiConnectionStage = 'A' | 'A2' | 'B';
 
 export type NewsApiStageProbe = {
   stage: NewsApiConnectionStage;
@@ -49,6 +56,14 @@ export type NewsApiConnectionTestResult = {
   testedAt: string;
   tempRateLimit?: boolean;
   probes: NewsApiStageProbe[];
+  /** NewsAPI 直接呼び出し成功 */
+  newsApiDirectOk: boolean;
+  /** Developer プラン実機制限（426 等） */
+  productionBlocked: boolean;
+  /** RSS フォールバック成功 */
+  rssFallbackOk: boolean;
+  rssFallbackCount: number;
+  adoptedNewsSource: 'newsapi' | 'rss' | null;
 };
 
 const NEWS_API_TEST_TIMEOUT_MS = 12_000;
@@ -112,6 +127,15 @@ export function classifyNewsApiFailureKind(input: {
 
   if (code === 'apiKeyInvalid' || input.httpStatus === 401) return 'invalid_key';
   if (
+    isNewsApiDeveloperProductionBlocked({
+      httpStatus: input.httpStatus,
+      responseBody: input.responseBody,
+      errorCode: code,
+    })
+  ) {
+    return 'production_blocked';
+  }
+  if (
     code === 'rateLimited' ||
     code === 'upgradeRequired' ||
     input.httpStatus === 426 ||
@@ -132,6 +156,8 @@ export function failureKindLabelJa(kind: NewsApiFailureKind): string {
       return '401 · APIキー無効';
     case 'plan_or_rate_limit':
       return '426/429 · プラン制限またはレート制限';
+    case 'production_blocked':
+      return '426 · Developer プランは実機APK不可';
     case 'bad_request':
       return '400 · パラメータ不正';
     case 'network_error':
@@ -156,6 +182,11 @@ const STAGES: Array<{
     params: { country: 'us', pageSize: '5' },
   },
   {
+    stage: 'A2',
+    endpoint: 'top-headlines',
+    params: { category: 'business', country: 'us', pageSize: '5' },
+  },
+  {
     stage: 'B',
     endpoint: 'everything',
     params: { q: 'Maybank', pageSize: '5', language: 'en' },
@@ -177,7 +208,11 @@ async function probeNewsApiStage(input: {
   try {
     const res = await fetch(requestUrl, {
       signal: controller.signal,
-      headers: buildNewsApiAuthHeaders(input.apiKey, input.authMode),
+      headers: {
+        ...buildNewsApiAuthHeaders(input.apiKey, input.authMode),
+        'User-Agent': 'stock-trading-assistant/1.0',
+        Accept: 'application/json',
+      },
     });
     const bodyText = await res.text();
     const masked = maskNewsApiResponseBody(bodyText, input.apiKey);
@@ -205,7 +240,21 @@ async function probeNewsApiStage(input: {
       responseBody: bodyText,
       errorCode: parsed?.code ?? null,
     });
-    const ok = (apiOk && titles.length > 0) || tempRateLimit;
+    const productionBlocked = isNewsApiDeveloperProductionBlocked({
+      httpStatus: res.status,
+      responseBody: bodyText,
+      errorCode: parsed?.code ?? null,
+    });
+    const ok =
+      (apiOk && titles.length > 0) ||
+      tempRateLimit ||
+      (apiOk && res.status === 200 && json.status === 'ok');
+
+    const probeFailureKind = productionBlocked
+      ? 'production_blocked'
+      : tempRateLimit
+        ? 'plan_or_rate_limit'
+        : failureKind;
 
     const probe: NewsApiStageProbe = {
       stage: input.stage,
@@ -213,9 +262,13 @@ async function probeNewsApiStage(input: {
       requestUrl,
       authMode: input.authMode,
       httpStatus: res.status,
-      failureKind: tempRateLimit ? 'plan_or_rate_limit' : failureKind,
+      failureKind: probeFailureKind,
       responseBodyMasked: masked,
-      responseBodySummary: tempRateLimit ? NEWSAPI_TEMP_RATE_LIMIT : summary,
+      responseBodySummary: productionBlocked
+        ? NEWSAPI_DEVELOPER_PRODUCTION_BLOCKED
+        : tempRateLimit
+          ? NEWSAPI_TEMP_RATE_LIMIT
+          : summary,
       articleCount: titles.length,
       titles,
       ok,
@@ -285,6 +338,51 @@ function pickBestProbe(probes: NewsApiStageProbe[]): NewsApiStageProbe | null {
   return probes[0] ?? null;
 }
 
+async function probeRssFallbackConnectionTest(): Promise<{
+  ok: boolean;
+  count: number;
+  titles: string[];
+  summary: string;
+}> {
+  const url =
+    'https://news.google.com/rss/search?q=Maybank&hl=en-US&gl=US&ceid=US:en';
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), NEWS_API_TEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'stock-trading-assistant/1.0' },
+    });
+    const xml = await res.text();
+    const titles: string[] = [];
+    const re = /<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(xml)) !== null && titles.length < 5) {
+      const t = m[1].replace(/<[^>]+>/g, '').trim();
+      if (t.length > 4 && !t.toLowerCase().includes('google news')) titles.push(t);
+    }
+    const ok = res.ok && titles.length > 0;
+    logNewsApiConnectionTest({
+      phase: 'rss_fallback',
+      httpStatus: res.status,
+      articleCount: titles.length,
+      ok,
+    });
+    return {
+      ok,
+      count: titles.length,
+      titles,
+      summary: ok ? `RSS ok · ${titles.length} headlines` : `RSS HTTP ${res.status}`,
+    };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    logNewsApiConnectionTest({ phase: 'rss_fallback_exception', error: msg.slice(0, 160) });
+    return { ok: false, count: 0, titles: [], summary: msg.slice(0, 160) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiConnectionTestResult> {
   const testedAt = new Date().toISOString();
   const probes: NewsApiStageProbe[] = [];
@@ -306,6 +404,16 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
     probes.find((p) => p.ok) ??
     pickBestProbe(probes);
 
+  const newsApiDirectOk = Boolean(
+    probes.some((p) => p.ok && (p.articleCount > 0 || p.httpStatus === 200) && p.failureKind === 'success'),
+  );
+  const productionBlocked = probes.some((p) => p.failureKind === 'production_blocked');
+
+  let rssFallback = { ok: false, count: 0, titles: [] as string[], summary: '' };
+  if (!newsApiDirectOk) {
+    rssFallback = await probeRssFallbackConnectionTest();
+  }
+
   if (winner?.ok && winner.authMode) {
     adoptedAuthMode = winner.authMode;
   }
@@ -316,31 +424,57 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
       winner.articleCount === 0,
   );
 
-  const ok = Boolean(winner?.ok);
-  const failureKind = winner?.failureKind ?? 'other';
-  const errorReasonJa = ok
-    ? tempRateLimit
-      ? NEWSAPI_TEMP_RATE_LIMIT
-      : null
-    : failureKindLabelJa(failureKind);
+  const rssRescue = !newsApiDirectOk && productionBlocked && rssFallback.ok;
+  const ok = newsApiDirectOk || tempRateLimit || rssRescue;
+  const adoptedNewsSource: 'newsapi' | 'rss' | null = newsApiDirectOk
+    ? 'newsapi'
+    : rssRescue
+      ? 'rss'
+      : null;
+
+  let failureKind: NewsApiFailureKind = winner?.failureKind ?? 'other';
+  if (ok) failureKind = 'success';
+
+  let errorReasonJa: string | null = null;
+  if (rssRescue) {
+    errorReasonJa = `NewsAPI Developerは実機不可（426）· RSSフォールバック成功（${rssFallback.count}件）`;
+  } else if (!ok) {
+    if (productionBlocked) {
+      errorReasonJa =
+        'Developer プランは実機APK不可（426）。Business プラン($449/月) または RSS フォールバック';
+    } else {
+      errorReasonJa = failureKindLabelJa(failureKind);
+    }
+  } else if (tempRateLimit) {
+    errorReasonJa = NEWSAPI_TEMP_RATE_LIMIT;
+  }
 
   const result: NewsApiConnectionTestResult = {
     ok,
     httpStatus: winner?.httpStatus ?? 0,
-    adoptedEndpoint: winner?.requestUrl ?? null,
-    adoptedStage: winner?.stage ?? null,
-    adoptedAuthMode: winner?.authMode ?? null,
-    failureKind: ok ? 'success' : failureKind,
+    adoptedEndpoint: rssRescue
+      ? 'https://news.google.com/rss/search?q=Maybank'
+      : winner?.requestUrl ?? null,
+    adoptedStage: rssRescue ? null : winner?.stage ?? null,
+    adoptedAuthMode: rssRescue ? null : winner?.authMode ?? null,
+    failureKind,
     errorReasonJa,
     responseBodyMasked: winner?.responseBodyMasked ?? '',
-    responseBodySummary: winner?.responseBodySummary ?? '',
+    responseBodySummary: rssRescue
+      ? rssFallback.summary
+      : winner?.responseBodySummary ?? '',
     responseBody: winner?.responseBodyMasked ?? '',
     errorReason: errorReasonJa,
-    articleCount: winner?.articleCount ?? 0,
-    titles: winner?.titles ?? [],
+    articleCount: rssRescue ? rssFallback.count : winner?.articleCount ?? 0,
+    titles: rssRescue ? rssFallback.titles : winner?.titles ?? [],
     testedAt,
     tempRateLimit,
     probes,
+    newsApiDirectOk,
+    productionBlocked,
+    rssFallbackOk: rssFallback.ok,
+    rssFallbackCount: rssFallback.count,
+    adoptedNewsSource,
   };
 
   logNewsApiConnectionTest({
@@ -350,10 +484,15 @@ export async function runNewsApiConnectionTest(apiKey: string): Promise<NewsApiC
     adoptedEndpoint: result.adoptedEndpoint,
     adoptedStage: result.adoptedStage,
     adoptedAuthMode: result.adoptedAuthMode,
+    adoptedNewsSource: result.adoptedNewsSource,
     failureKind: result.failureKind,
     failureKindJa: failureKindLabelJa(result.failureKind),
     responseBodySummary: result.responseBodySummary,
     tempRateLimit: result.tempRateLimit,
+    productionBlocked: result.productionBlocked,
+    rssFallbackOk: result.rssFallbackOk,
+    rssFallbackCount: result.rssFallbackCount,
+    newsApiDirectOk: result.newsApiDirectOk,
     probeCount: probes.length,
   });
 
