@@ -4,7 +4,7 @@
 |------|------|
 | フェーズ | **Phase C — 初回オンボーディング · 理由3行 · 気をつける点 · BeginnerStockSummaryCard** |
 | 実装コミット | `8b556d2` |
-| レポートコミット | `PLACEHOLDER_REPORT` |
+| レポートコミット | `522c3ae` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | 日付 | 2026-06-20 |
 
@@ -93,9 +93,9 @@
 | 項目 | 値 |
 |------|-----|
 | 実装コミット | `8b556d2` |
-| レポートコミット | `PLACEHOLDER_REPORT` |
+| レポートコミット | `522c3ae` |
 | push 先 | `origin/cursor/top3-maxdd-capital-audit` |
-| push 結果 | `PLACEHOLDER_PUSH` |
+| push 結果 | **成功** — `1a59782..522c3ae` |
 
 ---
 
