@@ -169,7 +169,7 @@ Tests       55 passed (55)   # 既存 50 + validationHarness 5
 | 項目 | 値 |
 |------|-----|
 | 検証実行時 commit | `3388bdcbda73d97e21cd12c0c39713ce8d51f367` |
-| 本レポート commit | *commit 後に更新* |
+| 本レポート commit | `72ade71`（検証ハーネス `5b660c4` + 実機 NL スクショ） |
 | push | *push 後に更新* |
 
 ---
