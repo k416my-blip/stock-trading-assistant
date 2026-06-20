@@ -632,8 +632,8 @@ AI: RM500の入金（本日）として記録候補を作成しました。
 
 | 項目 | 値 |
 |------|-----|
-| commit | _(commit 後に更新)_ |
-| push | _(push 後に更新)_ |
+| commit | `f9d62e7` |
+| push | `origin/cursor/top3-maxdd-capital-audit` — **成功** (`26fb025..f9d62e7`) |
 
 ---
 
