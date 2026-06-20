@@ -101,7 +101,7 @@ npx vitest run tests/unit/rakutenImport
 
 | 項目 | 値 |
 |------|-----|
-| commit | `8859b59` |
+| commit | `ddca194` |
 | push | `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
