@@ -1,7 +1,7 @@
 {
   "blocked": false,
-  "ranAt": "2026-06-20T23:11:26.544Z",
-  "commitHash": "8e34ed0825d1851d4892b134fcb4a29ab316e2b2",
+  "ranAt": "2026-06-20T23:27:41.480Z",
+  "commitHash": "5d22d4b6300064ed2ce8da2c2472cabeb2a1c732",
   "apiKeySource": ".env",
   "fixtures": [
     {
@@ -20,8 +20,8 @@
             "symbol": "正解",
             "quantity": "正解",
             "price": "正解",
-            "fee": "正解",
-            "total": "未取得",
+            "fee": "誤認識",
+            "total": "正解",
             "currency": "正解"
           }
         },
@@ -33,8 +33,8 @@
             "symbol": "正解",
             "quantity": "正解",
             "price": "正解",
-            "fee": "正解",
-            "total": "未取得",
+            "fee": "誤認識",
+            "total": "正解",
             "currency": "正解"
           }
         },
@@ -46,8 +46,8 @@
             "symbol": "正解",
             "quantity": "正解",
             "price": "正解",
-            "fee": "正解",
-            "total": "未取得",
+            "fee": "誤認識",
+            "total": "正解",
             "currency": "正解"
           }
         },
@@ -59,8 +59,8 @@
             "symbol": "正解",
             "quantity": "正解",
             "price": "正解",
-            "fee": "正解",
-            "total": "未取得",
+            "fee": "誤認識",
+            "total": "正解",
             "currency": "正解"
           }
         }
@@ -70,9 +70,13 @@
         {
           "type": "fee",
           "date": "08/06/2026",
-          "amount": -5.4,
+          "quantity": null,
+          "price": null,
+          "fee": 5.4,
+          "total": -5.4,
           "currency": "MYR",
-          "confidence": 1,
+          "referenceNumber": null,
+          "confidence": 0.9,
           "fieldConfidence": {
             "type": 1,
             "executedAt": 1,
@@ -80,7 +84,7 @@
             "quantity": 0,
             "price": 0,
             "fee": 1,
-            "total": 0,
+            "total": 1,
             "currency": 1,
             "referenceNumber": 0
           }
@@ -88,9 +92,13 @@
         {
           "type": "deposit",
           "date": "05/06/2026",
-          "amount": 4880.23,
+          "quantity": null,
+          "price": null,
+          "fee": 0,
+          "total": 4880.23,
           "currency": "MYR",
-          "confidence": 1,
+          "referenceNumber": null,
+          "confidence": 0.9,
           "fieldConfidence": {
             "type": 1,
             "executedAt": 1,
@@ -106,12 +114,16 @@
         {
           "type": "deposit",
           "date": "05/06/2026",
-          "amount": 4880.23,
+          "quantity": null,
+          "price": null,
+          "fee": 0,
+          "total": 4880.23,
           "currency": "MYR",
+          "referenceNumber": null,
           "confidence": 0.9,
           "fieldConfidence": {
             "type": 1,
-            "executedAt": 0.9,
+            "executedAt": 1,
             "symbol": 0,
             "quantity": 0,
             "price": 0,
@@ -124,12 +136,16 @@
         {
           "type": "deposit",
           "date": "05/06/2026",
-          "amount": 5000,
+          "quantity": null,
+          "price": null,
+          "fee": 0,
+          "total": 5000,
           "currency": "MYR",
-          "confidence": 0.8,
+          "referenceNumber": null,
+          "confidence": 0.9,
           "fieldConfidence": {
             "type": 1,
-            "executedAt": 0.8,
+            "executedAt": 1,
             "symbol": 0,
             "quantity": 0,
             "price": 0,
@@ -189,15 +205,15 @@
       "total": 4
     },
     "fee": {
-      "正解": 4,
-      "誤認識": 0,
+      "正解": 0,
+      "誤認識": 4,
       "未取得": 0,
       "total": 4
     },
     "total": {
-      "正解": 0,
+      "正解": 4,
       "誤認識": 0,
-      "未取得": 4,
+      "未取得": 0,
       "total": 4
     },
     "currency": {
@@ -229,14 +245,14 @@
       "未取得": "0.0%"
     },
     "fee": {
-      "正解": "100.0%",
-      "誤認識": "0.0%",
+      "正解": "0.0%",
+      "誤認識": "100.0%",
       "未取得": "0.0%"
     },
     "total": {
-      "正解": "0.0%",
+      "正解": "100.0%",
       "誤認識": "0.0%",
-      "未取得": "100.0%"
+      "未取得": "0.0%"
     },
     "currency": {
       "正解": "100.0%",

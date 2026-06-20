@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ocrRowToCandidateFields } from '../../../src/services/rakutenImport/ocrRowToCandidate';
 import { parseOcrVisionJson } from '../../../src/services/rakutenImport/ocrVisionJsonParser';
 
 const SAMPLE_JSON = JSON.stringify({
@@ -52,5 +53,45 @@ describe('parseOcrVisionJson', () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.code).toBe('bad_json');
+  });
+
+  it('maps amount to total when total is omitted', () => {
+    const result = parseOcrVisionJson(
+      JSON.stringify({
+        rows: [
+          { type: 'deposit', date: '2026-06-05', amount: 4880.23, currency: 'MYR' },
+          { type: 'fee', date: '2026-06-08', amount: -5.4, currency: 'MYR' },
+        ],
+      }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.rows[0].total).toBe(4880.23);
+    expect(result.rows[1].total).toBe(-5.4);
+  });
+
+  it('amount-only rows yield deposit/fee candidates with totalMYR (regression)', () => {
+    const parsed = parseOcrVisionJson(
+      JSON.stringify({
+        rows: [
+          { type: 'deposit', date: '2026-06-05', amount: 5000, currency: 'MYR' },
+          { type: 'fee', date: '2026-06-08', amount: -5.4, currency: 'MYR' },
+        ],
+      }),
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const deposit = ocrRowToCandidateFields(parsed.rows[0], {
+      candidateId: 'dep',
+      batchId: 'batch',
+    });
+    const fee = ocrRowToCandidateFields(parsed.rows[1], {
+      candidateId: 'fee',
+      batchId: 'batch',
+    });
+    expect(deposit?.type).toBe('deposit');
+    expect(deposit?.totalMYR).toBe(5000);
+    expect(fee?.type).toBe('fee');
+    expect(fee?.totalMYR).toBe(-5.4);
   });
 });

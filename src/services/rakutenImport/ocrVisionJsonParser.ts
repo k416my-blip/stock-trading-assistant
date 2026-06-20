@@ -20,6 +20,16 @@ function isValidRow(row: unknown): row is OcrTransactionRow {
   return typeof r.type === 'string';
 }
 
+/** Vision が `amount` で返す行を `total` に正規化（total 優先）。 */
+function normalizeVisionRow(row: OcrTransactionRow): OcrTransactionRow {
+  const raw = row as OcrTransactionRow & { amount?: number };
+  if (raw.total == null && raw.amount != null) {
+    const { amount, ...rest } = raw;
+    return { ...rest, total: amount };
+  }
+  return row;
+}
+
 /** Parse and validate Vision JSON — no native deps (unit-test safe). */
 export function parseOcrVisionJson(raw: string): OcrVisionParseResult {
   try {
@@ -30,7 +40,7 @@ export function parseOcrVisionJson(raw: string): OcrVisionParseResult {
     if (!Array.isArray(rows) || rows.length === 0) {
       return { ok: false, error: '取引行が検出されませんでした。', code: 'empty_rows' };
     }
-    const valid = rows.filter(isValidRow);
+    const valid = rows.filter(isValidRow).map(normalizeVisionRow);
     if (valid.length === 0) {
       return { ok: false, error: 'OCR結果の形式が不正です。', code: 'bad_json' };
     }
