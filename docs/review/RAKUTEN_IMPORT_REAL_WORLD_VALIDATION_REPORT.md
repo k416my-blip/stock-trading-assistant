@@ -173,5 +173,5 @@ node scripts/rakuten-import-real-world-validation.mjs
 | 項目 | 値 |
 |------|-----|
 | 検証実行時 commit | `8e34ed0825d1851d4892b134fcb4a29ab316e2b2` |
-| 本レポート commit | `ac3a688` |
-| push | **成功** · `origin/cursor/top3-maxdd-capital-audit` · `8e34ed0..ac3a688` |
+| 本レポート commit | `415ef42`（検証ハーネス `ac3a688` + push 記録） |
+| push | **成功** · `origin/cursor/top3-maxdd-capital-audit` · `8e34ed0..415ef42` |
