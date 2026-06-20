@@ -113,6 +113,9 @@ import { ConciergeUxModeToggle } from './concierge/ConciergeUxModeToggle';
 import { ConciergeOneScreenDashboard } from './concierge/ConciergeOneScreenDashboard';
 import { ConciergeMarketRadar } from './concierge/ConciergeMarketRadar';
 import { ConciergeNotificationDigest } from './concierge/ConciergeNotificationDigest';
+import { ConciergeTodayProposalsPanel } from './concierge/ConciergeTodayProposalsPanel';
+import { ConciergeBursaNotificationDigestPanel } from './concierge/ConciergeBursaNotificationDigestPanel';
+import { AiTradeQueueSection } from './AiTradeQueueSection';
 import { ConciergeContextMemoryPanel } from './concierge/ConciergeContextMemoryPanel';
 import { ConciergeShortAnswerBlock } from './concierge/ConciergeShortAnswerBlock';
 import { ConciergeEnhancedAnalysisBlock } from './concierge/ConciergeEnhancedAnalysisBlock';
@@ -340,7 +343,7 @@ export function AiAssistantChat({
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
-  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state } = useApp();
+  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime } = useApp();
   const { isBeginnerMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
@@ -1148,6 +1151,20 @@ export function AiAssistantChat({
       <BeginnerConciergeQuickActions onAction={onSample} disabled={isLoading} />
     ) : null;
 
+  const ux20aConciergeIntegrationBlock = isConcierge ? (
+    <View testID="concierge-ux20a-integration">
+      <ConciergeTodayProposalsPanel />
+      <ConciergeBursaNotificationDigestPanel />
+      <AiTradeQueueSection
+        marketRegime={marketRegime}
+        scrollRef={conciergeScrollRef}
+        sectionTitle="今日の提案"
+        sectionSubtitle="AIが整理した売買候補と根拠"
+        testID="concierge-today-trade-proposals"
+      />
+    </View>
+  ) : null;
+
   const quickActionsBlock =
     !isConcierge ? (
       <View>
@@ -1466,6 +1483,7 @@ export function AiAssistantChat({
         showsVerticalScrollIndicator
         nestedScrollEnabled
       >
+        {ux20aConciergeIntegrationBlock}
         {beginnerQuickActionsBlock}
         {conciergeUxDashboardBlock}
         {isBeginnerMode ? null : analysisModeBlock}

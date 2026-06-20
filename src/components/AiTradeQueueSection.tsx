@@ -25,9 +25,18 @@ import { theme } from '../theme';
 type Props = {
   marketRegime?: MarketRegimeResult;
   scrollRef?: React.RefObject<ScrollViewType | null>;
+  sectionTitle?: string;
+  sectionSubtitle?: string;
+  testID?: string;
 };
 
-export function AiTradeQueueSection({ marketRegime, scrollRef }: Props) {
+export function AiTradeQueueSection({
+  marketRegime,
+  scrollRef,
+  sectionTitle,
+  sectionSubtitle,
+  testID,
+}: Props) {
   const { briefing: queueBriefing } = useAiTradeQueue();
   const briefing = useMemo(
     () => queueBriefing ?? buildMockAiStrategyBriefing(marketRegime),
@@ -133,14 +142,17 @@ export function AiTradeQueueSection({ marketRegime, scrollRef }: Props) {
     </View>
   );
 
+  const queueTitle = sectionTitle ?? AI_UI.tradeQueueTitle;
+  const queueSubtitle = sectionSubtitle ?? AI_UI.tradeQueueSubtitle;
+
   return (
-    <View style={styles.wrap}>
+    <View style={styles.wrap} testID={testID}>
       <ToastBanner message={toastMessage} onDismiss={clearToast} />
 
       <AiStrategyBriefingCard briefing={briefing} />
 
-      <Text style={styles.sectionTitle}>{AI_UI.tradeQueueTitle}</Text>
-      <Text style={styles.sectionSubtitle}>{AI_UI.tradeQueueSubtitle}</Text>
+      <Text style={styles.sectionTitle}>{queueTitle}</Text>
+      <Text style={styles.sectionSubtitle}>{queueSubtitle}</Text>
 
       <Pressable
         onPress={() => setShowDisabledItems(!showDisabledItems)}

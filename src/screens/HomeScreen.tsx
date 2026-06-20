@@ -8,7 +8,6 @@ import { HeaderProactiveBadge } from '../components/proactive/HeaderProactiveBad
 import { DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST } from '../constants/aiConciergeDevFlags';
 import { ProactiveSuggestionsHomeCard } from '../components/proactive/ProactiveSuggestionsHomeCard';
 import { CentralIntelligencePanel } from '../components/CentralIntelligencePanel';
-import { AiTradeQueueSection } from '../components/AiTradeQueueSection';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -160,6 +159,36 @@ export function HomeScreen() {
     });
   }, [tabNav, stackNav, simplifiedMode]);
 
+  const beginnerAdvice = useMemo(
+    () =>
+      buildBeginnerTodayAdvice({
+        holdings: isPractice ? state.practice.portfolio : state.portfolio,
+        materialReport: materialCtx?.report ?? null,
+        strategyBundle: proactive?.strategyBundle ?? null,
+        loading: materialCtx?.loading === true && !materialCtx?.report,
+      }),
+    [
+      isPractice,
+      state.portfolio,
+      state.practice.portfolio,
+      materialCtx?.report,
+      materialCtx?.loading,
+      proactive?.strategyBundle,
+    ],
+  );
+
+  const beginnerPortfolioSummary = useMemo(() => {
+    const holdings = (isPractice ? state.practice.portfolio : state.portfolio).filter(
+      (p) => p.shares > 0,
+    );
+    const holdingsMYR = isPractice
+      ? practiceStats.portfolioValueMYR
+      : portfolioMarketValueMYR(state) + Math.max(0, buyingPower.buyingPowerMYR);
+    return `${holdings.length} 銘柄 · 総資産 RM ${holdingsMYR.toLocaleString('ja-JP', {
+      maximumFractionDigits: 0,
+    })}`;
+  }, [isPractice, state, state.practice.portfolio, practiceStats.portfolioValueMYR, buyingPower.buyingPowerMYR]);
+
   if (trustMode) {
     const trustPresentation = trustPlan ? buildTrustPlanPresentation(trustPlan) : null;
     const depositDefault =
@@ -171,6 +200,11 @@ export function HomeScreen() {
         title={TRUST_HOME_TITLE_JA}
         subtitle={TRUST_HOME_SUBTITLE_JA}
       >
+        <BeginnerTodayAdviceCard
+          data={beginnerAdvice}
+          onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
+        />
+        <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
         <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
         <TrustOperatingPerformanceCard
           performanceHistory={
@@ -206,36 +240,6 @@ export function HomeScreen() {
     );
   }
 
-  const beginnerAdvice = useMemo(
-    () =>
-      buildBeginnerTodayAdvice({
-        holdings: isPractice ? state.practice.portfolio : state.portfolio,
-        materialReport: materialCtx?.report ?? null,
-        strategyBundle: proactive?.strategyBundle ?? null,
-        loading: materialCtx?.loading === true && !materialCtx?.report,
-      }),
-    [
-      isPractice,
-      state.portfolio,
-      state.practice.portfolio,
-      materialCtx?.report,
-      materialCtx?.loading,
-      proactive?.strategyBundle,
-    ],
-  );
-
-  const beginnerPortfolioSummary = useMemo(() => {
-    const holdings = (isPractice ? state.practice.portfolio : state.portfolio).filter(
-      (p) => p.shares > 0,
-    );
-    const holdingsMYR = isPractice
-      ? practiceStats.portfolioValueMYR
-      : portfolioMarketValueMYR(state) + Math.max(0, buyingPower.buyingPowerMYR);
-    return `${holdings.length} 銘柄 · 総資産 RM ${holdingsMYR.toLocaleString('ja-JP', {
-      maximumFractionDigits: 0,
-    })}`;
-  }, [isPractice, state, state.practice.portfolio, practiceStats.portfolioValueMYR, buyingPower.buyingPowerMYR]);
-
   if (isBeginnerMode) {
     return (
       <Screen
@@ -250,10 +254,10 @@ export function HomeScreen() {
         />
         <Text style={styles.portfolioSummary}>{beginnerPortfolioSummary}</Text>
         <View style={styles.ctaRow}>
-          <Button label="保有を確認" onPress={() => tabNav.navigate('Portfolio')} />
+          <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
           <Button
-            label="AIに相談する"
-            onPress={() => tabNav.navigate('ConciergeConsult')}
+            label="保有を確認"
+            onPress={() => tabNav.navigate('Portfolio')}
             variant="ghost"
           />
         </View>
@@ -280,6 +284,11 @@ export function HomeScreen() {
       subtitle={isPractice ? PRACTICE_SUBTITLE : PLATFORM_POSITIONING_SUBTITLE_JA}
     >
       <DegradedModeBanner />
+      <BeginnerTodayAdviceCard
+        data={beginnerAdvice}
+        onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
+      />
+      <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
       <BursaConciergeHomeCard />
       <BursaMaterialHomeCard />
       {!DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST ? <ProactiveSuggestionsHomeCard /> : null}
@@ -318,7 +327,6 @@ export function HomeScreen() {
       <MarketSessionPanel mode="all" />
       <MarketRegimeCard regime={marketRegime} compact />
       <CrossAssetFlowCard flow={crossAssetFlow} compact />
-      <AiTradeQueueSection marketRegime={marketRegime} scrollRef={scrollRef} />
     </Screen>
   );
 }
