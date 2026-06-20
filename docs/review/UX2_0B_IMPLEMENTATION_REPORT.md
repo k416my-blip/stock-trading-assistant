@@ -117,8 +117,8 @@ npx vitest run tests/unit/appUxMode.test.ts tests/unit/conciergeTodayProposalsBu
 
 | 項目 | 値 |
 |------|-----|
-| commit | _(commit 後に更新)_ |
-| push | _(push 後に更新)_ |
+| commit | `a2d3fb5` |
+| push | `origin/cursor/top3-maxdd-capital-audit` — **成功** (`abd8d5b..a2d3fb5`) |
 
 ---
 
