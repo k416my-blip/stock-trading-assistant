@@ -1,5 +1,7 @@
 const DEPOSIT_RE =
   /(?:入金|預け入|deposit|deposited|振込|振り込)/i;
+const WITHDRAWAL_RE = /(?:出金|withdrawal|withdraw)/i;
+const FEE_RE = /(?:手数料|brokerage fee|commission)/i;
 const BUY_RE = /(?:買(?:った|付|い)|購入|bought|buy\b)/i;
 const SELL_RE = /(?:売(?:った|却|り)|sold|sell\b)/i;
 const DIVIDEND_RE = /(?:配当|dividend)/i;
@@ -14,6 +16,12 @@ export function detectRakutenImportIntent(text: string): boolean {
   if (!trimmed || trimmed.length > 280) return false;
 
   if (DIVIDEND_RE.test(trimmed)) return true;
+
+  if (WITHDRAWAL_RE.test(trimmed) && AMOUNT_RE.test(trimmed)) return true;
+  if (/^RM\s*\d+/i.test(trimmed) && WITHDRAWAL_RE.test(trimmed)) return true;
+
+  if (FEE_RE.test(trimmed) && AMOUNT_RE.test(trimmed)) return true;
+  if (/^RM\s*\d+/i.test(trimmed) && FEE_RE.test(trimmed)) return true;
 
   if (DEPOSIT_RE.test(trimmed) && AMOUNT_RE.test(trimmed)) return true;
   if (/^RM\s*\d+/i.test(trimmed) && DEPOSIT_RE.test(trimmed)) return true;

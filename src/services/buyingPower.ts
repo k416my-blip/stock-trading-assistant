@@ -19,11 +19,12 @@ export function calculateBuyingPower(state: AppState): BuyingPowerResult {
     .filter((d) => !d.completed)
     .reduce((s, d) => s + d.amountMYR, 0);
 
-  const baseCapital = Math.max(settings.totalCapitalMYR, completedDeposits);
+  const withdrawnMYR = (state.withdrawals ?? []).reduce((s, w) => s + w.amountMYR, 0);
+  const effectiveCapital = Math.max(settings.totalCapitalMYR, completedDeposits) - withdrawnMYR;
 
   if (settings.accountType !== 'cash_upfront') {
     return {
-      totalCapitalMYR: baseCapital,
+      totalCapitalMYR: effectiveCapital,
       investedMYR: invested,
       buyingPowerMYR: 0,
       accountType: settings.accountType,
@@ -31,10 +32,10 @@ export function calculateBuyingPower(state: AppState): BuyingPowerResult {
     };
   }
 
-  const buyingPowerMYR = Math.max(0, baseCapital - invested);
+  const buyingPowerMYR = Math.max(0, effectiveCapital - invested);
 
   return {
-    totalCapitalMYR: baseCapital,
+    totalCapitalMYR: effectiveCapital,
     investedMYR: invested,
     buyingPowerMYR,
     accountType: settings.accountType,

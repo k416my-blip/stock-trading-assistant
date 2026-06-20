@@ -29,9 +29,11 @@ const DEFAULT_STATE: AppState = {
   settings: DEFAULT_SETTINGS,
   practice: createDefaultPracticeState(),
   deposits: [],
+  withdrawals: [],
   portfolio: [],
   trades: [],
   dividends: [],
+  feeAdjustments: [],
   performanceHistory: [],
   manualOrderList: [],
   notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
@@ -110,6 +112,9 @@ function migrateState(parsed: Record<string, unknown>): AppState {
     settings,
     practice: migratePractice(parsed.practice),
     deposits: Array.isArray(parsed.deposits) ? (parsed.deposits as AppState['deposits']) : [],
+    withdrawals: Array.isArray(parsed.withdrawals)
+      ? (parsed.withdrawals as AppState['withdrawals'])
+      : [],
     portfolio: Array.isArray(parsed.portfolio)
       ? (parsed.portfolio as AppState['portfolio']).map((p) =>
           normalizePortfolioPosition({
@@ -128,6 +133,9 @@ function migrateState(parsed: Record<string, unknown>): AppState {
         }))
       : [],
     dividends: Array.isArray(parsed.dividends) ? (parsed.dividends as AppState['dividends']) : [],
+    feeAdjustments: Array.isArray(parsed.feeAdjustments)
+      ? (parsed.feeAdjustments as AppState['feeAdjustments'])
+      : [],
     performanceHistory: Array.isArray(parsed.performanceHistory)
       ? (parsed.performanceHistory as { date: string; portfolioValueMYR?: number; portfolioValue?: number }[]).map(
           (pt) => ({

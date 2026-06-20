@@ -1,0 +1,12 @@
+{
+  "apk": "artifacts/preview-v25-rakuten-import-r25.apk",
+  "versionCode": 25,
+  "device": "23090RA98G",
+  "capturedAt": "2026-06-20T22:56:00.000Z",
+  "screenshots": [
+    "01-concierge-home.png",
+    "02-nl-withdrawal-card.png",
+    "03-nl-dividend-card.png",
+    "04-nl-fee-card.png"
+  ]
+}

@@ -58,7 +58,10 @@ import {
 } from '../../services/sellAllHoldings';
 import { buildManualImportCandidate } from '../../services/rakutenImport/buildManualImportCandidate';
 import { buildNaturalLanguageImportCandidate } from '../../services/rakutenImport/buildNaturalLanguageImportCandidate';
-import { commitImportCandidateInState } from '../../services/rakutenImport/commitImportCandidate';
+import {
+  buildCommitAuditDetailJa,
+  commitImportCandidateInState,
+} from '../../services/rakutenImport/commitImportCandidate';
 import {
   appendRakutenImportAuditEntry,
   createAuditEntry,
@@ -803,7 +806,7 @@ export function useAppPortfolioActions({
           candidateId: mutation.candidate.id,
           candidateType: mutation.candidate.type,
           mappedRecordIds: mutation.candidate.mappedRecordIds,
-          detailJa: 'ユーザー確認後に保存',
+          detailJa: buildCommitAuditDetailJa(mutation.candidate),
         }),
       );
       await pruneConfirmedBatches();

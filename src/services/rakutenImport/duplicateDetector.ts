@@ -54,8 +54,14 @@ function tradeAmountMYR(trade: {
 }
 
 function candidateAmountMYR(candidate: DuplicateDetectionInput['candidate']): number | null {
-  if (candidate.type === 'deposit') {
+  if (candidate.type === 'deposit' || candidate.type === 'withdrawal') {
     return candidate.totalMYR ?? null;
+  }
+  if (candidate.type === 'dividend') {
+    return candidate.totalMYR ?? null;
+  }
+  if (candidate.type === 'fee') {
+    return candidate.fee ?? candidate.totalMYR ?? null;
   }
   if (candidate.type === 'buy' || candidate.type === 'sell') {
     if (
@@ -139,6 +145,42 @@ export function detectDuplicateImport(
             matchedOn: ['date', 'amount'],
             score: 0.92,
             matchedKind: 'deposit',
+          },
+        };
+      }
+    }
+  }
+
+  if (candidate.type === 'withdrawal' && candAmount != null) {
+    for (const w of state.withdrawals ?? []) {
+      if (sameDay(w.withdrawnAt, candidate.executedAt) && amountClose(w.amountMYR, candAmount)) {
+        return {
+          score: 0.92,
+          blockSave: true,
+          hint: {
+            matchedEntryId: w.id,
+            matchedOn: ['date', 'amount'],
+            score: 0.92,
+            matchedKind: 'withdrawal',
+          },
+        };
+      }
+    }
+  }
+
+  if (candidate.type === 'dividend' && candAmount != null && candidate.symbol) {
+    const sym = candidate.symbol.toUpperCase();
+    for (const d of state.dividends) {
+      if (d.symbol.toUpperCase() !== sym) continue;
+      if (sameDay(d.receivedAt, candidate.executedAt) && amountClose(d.amount, candAmount)) {
+        return {
+          score: 0.92,
+          blockSave: true,
+          hint: {
+            matchedEntryId: d.id,
+            matchedOn: ['date', 'symbol', 'amount'],
+            score: 0.92,
+            matchedKind: 'dividend',
           },
         };
       }

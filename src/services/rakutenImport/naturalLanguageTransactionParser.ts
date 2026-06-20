@@ -17,6 +17,7 @@ export type NlParseResult = Pick<
   | 'currency'
   | 'quantity'
   | 'price'
+  | 'fee'
   | 'totalMYR'
   | 'fieldConfidence'
   | 'overallConfidence'
@@ -63,7 +64,7 @@ function extractAmount(text: string): number | undefined {
   const myr = text.match(/(\d+(?:\.\d+)?)\s*MYR/i);
   if (myr) return parseFloat(myr[1]);
   const leading = text.match(/^(\d+(?:\.\d+)?)\s*(?:RM|MYR)?/i);
-  if (leading && /deposit|入金/i.test(text)) return parseFloat(leading[1]);
+  if (leading && /deposit|入金|withdraw|出金/i.test(text)) return parseFloat(leading[1]);
   return undefined;
 }
 
@@ -111,6 +112,8 @@ function holdingQty(
 
 function detectType(text: string): BrokerTransactionType | undefined {
   if (/配当|dividend/i.test(text)) return 'dividend';
+  if (/出金|withdrawal|withdraw/i.test(text)) return 'withdrawal';
+  if (/手数料|brokerage fee|commission/i.test(text)) return 'fee';
   if (/入金|deposit|deposited|振込|振り込/i.test(text)) return 'deposit';
   if (/買(?:った|付|い)|購入|bought|\bbuy\b/i.test(text)) return 'buy';
   if (/売(?:った|却|り)|sold|\bsell\b/i.test(text)) return 'sell';
@@ -210,6 +213,52 @@ export function parseNaturalLanguageTransaction(
     );
   }
 
+  if (type === 'withdrawal') {
+    const amount = extractAmount(rawInputText);
+    const fieldConfidence: FieldConfidenceMap = {
+      type: 0.93,
+      currency: 0.95,
+      executedAt: executedAtConf,
+      total: amount != null ? 0.92 : 0.2,
+    };
+    return finalize(
+      {
+        type: 'withdrawal',
+        currency: 'MYR',
+        totalMYR: amount,
+        executedAt,
+        fieldConfidence,
+        rawInputText,
+      },
+      ['type', 'total', 'executedAt'],
+    );
+  }
+
+  if (type === 'fee') {
+    const amount = extractAmount(rawInputText);
+    const company = resolveCompany(rawInputText);
+    const fieldConfidence: FieldConfidenceMap = {
+      type: 0.9,
+      executedAt: executedAtConf,
+      fee: amount != null ? 0.88 : 0.2,
+      symbol: company ? 0.75 : 0.55,
+    };
+    return finalize(
+      {
+        type: 'fee',
+        currency: 'MYR',
+        fee: amount,
+        symbol: company?.symbol,
+        companyName: company?.companyName,
+        market: company?.market,
+        executedAt,
+        fieldConfidence,
+        rawInputText,
+      },
+      ['type', 'fee', 'executedAt'],
+    );
+  }
+
   const company = resolveCompany(rawInputText);
   const quantityFromText = extractQuantity(rawInputText);
   const price = extractPrice(rawInputText);
@@ -264,7 +313,7 @@ export function parseNaturalLanguageTransaction(
 export function buildConfirmPromptJa(
   candidate: Pick<
     BrokerTransactionCandidate,
-    'type' | 'totalMYR' | 'symbol' | 'quantity' | 'price' | 'companyName'
+    'type' | 'totalMYR' | 'symbol' | 'quantity' | 'price' | 'fee' | 'companyName'
   >,
 ): string {
   switch (candidate.type) {
@@ -284,8 +333,24 @@ export function buildConfirmPromptJa(
         candidate.price != null ? ` · RM${candidate.price}` : ' · 単価要確認';
       return `${name}を${qty}売却${px}として記録しますか？`;
     }
-    case 'dividend':
-      return '配当の入金として記録しますか？（銘柄・金額の確認が必要です）';
+    case 'dividend': {
+      const name = candidate.companyName ?? candidate.symbol ?? '銘柄';
+      const amt =
+        candidate.totalMYR != null
+          ? `RM${candidate.totalMYR.toLocaleString('ja-JP')}`
+          : '金額要確認';
+      return `${name}の配当${amt}として記録しますか？`;
+    }
+    case 'withdrawal':
+      return `RM${candidate.totalMYR?.toLocaleString('ja-JP') ?? '—'}の出金として記録しますか？`;
+    case 'fee': {
+      const amt =
+        candidate.fee != null
+          ? `RM${candidate.fee.toLocaleString('ja-JP')}`
+          : '金額要確認';
+      const sym = candidate.symbol ? `（${candidate.symbol}）` : '';
+      return `手数料${amt}${sym}として記録しますか？`;
+    }
     default:
       return 'この取引を記録しますか？';
   }

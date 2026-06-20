@@ -37,7 +37,7 @@ export interface DuplicateHint {
   matchedEntryId: string;
   matchedOn: ('date' | 'symbol' | 'quantity' | 'amount' | 'referenceNumber')[];
   score: number;
-  matchedKind: 'deposit' | 'trade' | 'dividend' | 'journal';
+  matchedKind: 'deposit' | 'trade' | 'dividend' | 'withdrawal' | 'journal';
 }
 
 export interface BrokerTransactionCandidate {
@@ -69,6 +69,8 @@ export interface BrokerTransactionCandidate {
     depositId?: string;
     tradeId?: string;
     dividendId?: string;
+    withdrawalId?: string;
+    feeAdjustmentId?: string;
   };
 
   createdAt: string;

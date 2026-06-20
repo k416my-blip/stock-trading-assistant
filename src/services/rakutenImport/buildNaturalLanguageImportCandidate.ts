@@ -44,6 +44,7 @@ export function buildNaturalLanguageImportCandidate(
     currency: nl.currency,
     quantity: nl.quantity,
     price: nl.price,
+    fee: nl.fee,
     totalMYR: nl.totalMYR,
     fieldConfidence: nl.fieldConfidence,
     overallConfidence: nl.overallConfidence,

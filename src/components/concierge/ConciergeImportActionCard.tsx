@@ -33,23 +33,31 @@ function typeLabel(type: BrokerTransactionCandidate['type']): string {
   switch (type) {
     case 'deposit':
       return '入金';
+    case 'withdrawal':
+      return '出金';
     case 'buy':
       return '買付';
     case 'sell':
       return '売却';
     case 'dividend':
       return '配当';
+    case 'fee':
+      return '手数料';
     default:
       return type;
   }
 }
 
 function formatSummary(c: BrokerTransactionCandidate): string {
-  if (c.type === 'deposit') {
+  if (c.type === 'deposit' || c.type === 'withdrawal') {
     return `RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'}`;
   }
   if (c.type === 'dividend') {
     return `${c.symbol ?? '銘柄未特定'} · RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'}`;
+  }
+  if (c.type === 'fee') {
+    const sym = c.symbol ? `${c.symbol} · ` : '';
+    return `${sym}RM ${c.fee?.toLocaleString('ja-JP') ?? '—'}`;
   }
   const sym = c.companyName ?? c.symbol ?? '—';
   const px =

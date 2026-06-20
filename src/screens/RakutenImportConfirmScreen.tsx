@@ -36,12 +36,16 @@ function typeLabel(type: BrokerTransactionCandidate['type']): string {
   switch (type) {
     case 'deposit':
       return '入金';
+    case 'withdrawal':
+      return '出金';
     case 'buy':
       return '買付';
     case 'sell':
       return '売却';
     case 'dividend':
       return '配当';
+    case 'fee':
+      return '手数料';
     default:
       return type;
   }
@@ -50,6 +54,17 @@ function typeLabel(type: BrokerTransactionCandidate['type']): string {
 function formatSummary(c: BrokerTransactionCandidate): string {
   if (c.type === 'deposit') {
     return `RM ${c.totalMYR?.toLocaleString('ja-JP')} の入金`;
+  }
+  if (c.type === 'withdrawal') {
+    return `RM ${c.totalMYR?.toLocaleString('ja-JP')} の出金`;
+  }
+  if (c.type === 'dividend') {
+    const name = c.companyName ?? c.symbol ?? '—';
+    return `${name} · RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'} の配当`;
+  }
+  if (c.type === 'fee') {
+    const sym = c.symbol ? `${c.symbol} · ` : '';
+    return `${sym}RM ${c.fee?.toLocaleString('ja-JP') ?? '—'} の手数料`;
   }
   const sym = c.symbol ?? '—';
   return `${sym} · ${c.quantity}株 @ ${CURRENCY_SYMBOL[c.currency]}${c.price}`;

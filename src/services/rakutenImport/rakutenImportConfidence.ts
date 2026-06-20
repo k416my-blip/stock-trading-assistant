@@ -31,19 +31,28 @@ export function getRequiredFields(type: BrokerTransactionType): ImportFieldKey[]
   switch (type) {
     case 'deposit':
       return ['type', 'total', 'executedAt', 'currency'];
+    case 'withdrawal':
+      return ['type', 'total', 'executedAt'];
     case 'buy':
     case 'sell':
       return ['type', 'symbol', 'quantity', 'price', 'executedAt'];
     case 'dividend':
       return ['type', 'symbol', 'total', 'executedAt'];
+    case 'fee':
+      return ['type', 'fee', 'executedAt'];
     default:
       return ['type'];
   }
 }
 
+function feeAmount(candidate: BrokerTransactionCandidate): number | undefined {
+  return candidate.fee ?? candidate.totalMYR;
+}
+
 function hasRequiredValues(candidate: BrokerTransactionCandidate): boolean {
   switch (candidate.type) {
     case 'deposit':
+    case 'withdrawal':
       return Boolean(candidate.totalMYR && candidate.totalMYR > 0 && candidate.executedAt);
     case 'buy':
     case 'sell':
@@ -62,14 +71,24 @@ function hasRequiredValues(candidate: BrokerTransactionCandidate): boolean {
           candidate.totalMYR > 0 &&
           candidate.executedAt,
       );
+    case 'fee': {
+      const amt = feeAmount(candidate);
+      return Boolean(amt && amt > 0 && candidate.executedAt);
+    }
     default:
       return false;
   }
 }
 
-/** R1 commit path supports deposit/buy/sell only; dividend blocked until R3+. */
 function isCommittableType(type: BrokerTransactionType): boolean {
-  return type === 'deposit' || type === 'buy' || type === 'sell';
+  return (
+    type === 'deposit' ||
+    type === 'withdrawal' ||
+    type === 'buy' ||
+    type === 'sell' ||
+    type === 'dividend' ||
+    type === 'fee'
+  );
 }
 
 export function canSaveImportCandidate(candidate: BrokerTransactionCandidate): boolean {

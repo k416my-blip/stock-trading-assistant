@@ -161,6 +161,24 @@ export interface DividendRecord {
   receivedAt: string;
 }
 
+export interface WithdrawalRecord {
+  id: string;
+  amountMYR: number;
+  withdrawnAt: string;
+  note?: string;
+  referenceNumber?: string;
+  source: import('./rakutenImport').ImportSource;
+}
+
+export interface FeeAdjustmentRecord {
+  id: string;
+  amountMYR: number;
+  adjustedAt: string;
+  symbol?: StockSymbol;
+  note?: string;
+  source: import('./rakutenImport').ImportSource;
+}
+
 export interface PerformancePoint {
   date: string;
   portfolioValueMYR: number;
@@ -339,9 +357,11 @@ export interface AppState {
   settings: UserSettings;
   practice: PracticeState;
   deposits: DepositPlan[];
+  withdrawals?: WithdrawalRecord[];
   portfolio: PortfolioPosition[];
   trades: TradeRecord[];
   dividends: DividendRecord[];
+  feeAdjustments?: FeeAdjustmentRecord[];
   performanceHistory: PerformancePoint[];
   manualOrderList: ManualOrderItem[];
   notificationSettings: NotificationSettings;

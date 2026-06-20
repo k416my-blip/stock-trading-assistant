@@ -79,15 +79,55 @@ describe('rakutenImportConfidence', () => {
     ).toBe(true);
   });
 
-  it('blocks dividend type even with high confidence', () => {
+  it('allows save for high-confidence dividend NL candidate', () => {
     expect(
       canSaveImportCandidate(
         baseCandidate({
           type: 'dividend',
-          overallConfidence: 0.95,
+          overallConfidence: 0.8,
           symbol: '1155',
+          market: 'bursa',
           totalMYR: 50,
           executedAt: '2026-06-20',
+          status: 'ready_to_confirm',
+          fieldConfidence: { type: 0.88, symbol: 0.75, total: 0.7, executedAt: 0.85 },
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it('allows save for withdrawal and fee types', () => {
+    expect(
+      canSaveImportCandidate(
+        baseCandidate({
+          type: 'withdrawal',
+          overallConfidence: 0.9,
+          totalMYR: 500,
+          executedAt: '2026-06-20',
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      canSaveImportCandidate(
+        baseCandidate({
+          type: 'fee',
+          overallConfidence: 0.88,
+          fee: 8,
+          executedAt: '2026-06-20',
+          fieldConfidence: { fee: 0.88, executedAt: 0.85, type: 0.9 },
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it('blocks ambiguous dividend without symbol/amount', () => {
+    expect(
+      canSaveImportCandidate(
+        baseCandidate({
+          type: 'dividend',
+          overallConfidence: 0.5,
+          executedAt: '2026-06-20',
+          lowConfidenceFields: ['symbol', 'total'],
         }),
       ),
     ).toBe(false);
