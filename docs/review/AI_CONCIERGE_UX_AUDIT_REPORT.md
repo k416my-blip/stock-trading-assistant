@@ -206,6 +206,6 @@ UX2.0a は **AI相談タブへの TradeQueue / 通知 / 提案統合** と **Hom
 
 | 項目 | 値 |
 |------|-----|
-| 監査レポートコミット | （commit 後に記録） |
+| 監査レポートコミット | `5ca6a22` |
 | push 先 | `origin/cursor/top3-maxdd-capital-audit` |
-| push 結果 | （push 後に記録） |
+| push 結果 | **成功** — `07b28d9..5ca6a22` |
