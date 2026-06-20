@@ -464,10 +464,10 @@ const PRO_TABS = [
 | 項目 | 値 |
 |------|-----|
 | 監査ベースコミット | `b77deed` |
-| 本レポート提出コミット | *(commit 後に記載)* |
+| 本レポート提出コミット | `d421983` |
 | ブランチ | `cursor/top3-maxdd-capital-audit` |
 | push 先 | `origin/cursor/top3-maxdd-capital-audit` |
-| push 結果 | *(push 後に記載)* |
+| push 結果 | **成功** — `b77deed..d421983` |
 
 ---
 
