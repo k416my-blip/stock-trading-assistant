@@ -68,11 +68,12 @@ export function HomeScreen() {
     applyAllocationPractice,
     addAllocationToManualOrderList,
   } = useApp();
-  const { isBeginnerMode } = useAppUxMode();
+  const { isBeginnerMode, isStandardMode, isProMode } = useAppUxMode();
   const materialCtx = useBursaMaterialOptional();
   const proactive = useProactiveConciergeOptional();
   const trustMode = isTrustDisplayMode(aiPreferences);
   const simplifiedMode = isSimplifiedInvestmentDisplayMode(aiPreferences);
+  const conciergeFirstHome = isStandardMode || isProMode;
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const scrollRef = useRef<ScrollView>(null);
@@ -145,19 +146,21 @@ export function HomeScreen() {
         <View style={styles.headerRight}>
           {!simplifiedMode ? <HeaderProactiveBadge /> : null}
           {!simplifiedMode ? <HeaderUrgencyBadge /> : null}
-          <Pressable
-            onPress={() => stackNav.navigate('Settings')}
-            hitSlop={12}
-            accessibilityRole="button"
-            accessibilityLabel="設定"
-            style={({ pressed }) => [styles.gearBtn, pressed && styles.gearBtnPressed]}
-          >
-            <Ionicons name="settings-outline" size={24} color={theme.colors.text} />
-          </Pressable>
+          {!isStandardMode ? (
+            <Pressable
+              onPress={() => stackNav.navigate('Settings')}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="設定"
+              style={({ pressed }) => [styles.gearBtn, pressed && styles.gearBtnPressed]}
+            >
+              <Ionicons name="settings-outline" size={24} color={theme.colors.text} />
+            </Pressable>
+          ) : null}
         </View>
       ),
     });
-  }, [tabNav, stackNav, simplifiedMode]);
+  }, [tabNav, stackNav, simplifiedMode, isStandardMode]);
 
   const beginnerAdvice = useMemo(
     () =>
@@ -197,27 +200,35 @@ export function HomeScreen() {
     return (
       <Screen
         ref={scrollRef}
-        title={TRUST_HOME_TITLE_JA}
-        subtitle={TRUST_HOME_SUBTITLE_JA}
+        title={isStandardMode ? '今日のポートフォリオ' : TRUST_HOME_TITLE_JA}
+        subtitle={
+          isStandardMode ? '今日の方針をやさしく整理します' : TRUST_HOME_SUBTITLE_JA
+        }
       >
         <BeginnerTodayAdviceCard
           data={beginnerAdvice}
           onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
         />
         <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
-        <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
-        <TrustOperatingPerformanceCard
-          performanceHistory={
-            isPractice ? state.practice.performanceHistory : state.performanceHistory
-          }
-          trackOperation={Boolean(trustPlan)}
-        />
-        <TrustMonthlyPerformanceCard
-          performanceHistory={
-            isPractice ? state.practice.performanceHistory : state.performanceHistory
-          }
-          plan={trustPlan}
-        />
+        {!isStandardMode ? (
+          <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
+        ) : null}
+        {!isStandardMode ? (
+          <>
+            <TrustOperatingPerformanceCard
+              performanceHistory={
+                isPractice ? state.practice.performanceHistory : state.performanceHistory
+              }
+              trackOperation={Boolean(trustPlan)}
+            />
+            <TrustMonthlyPerformanceCard
+              performanceHistory={
+                isPractice ? state.practice.performanceHistory : state.performanceHistory
+              }
+              plan={trustPlan}
+            />
+          </>
+        ) : null}
         {isPractice ? <PracticeModeBadge /> : null}
 
         {trustPresentation ? (
@@ -233,9 +244,11 @@ export function HomeScreen() {
           </Card>
         )}
 
-        <Card>
-          <Text style={styles.disclaimer}>{INVESTMENT_TRUST_DISCLAIMER_JA}</Text>
-        </Card>
+        {!isStandardMode ? (
+          <Card>
+            <Text style={styles.disclaimer}>{INVESTMENT_TRUST_DISCLAIMER_JA}</Text>
+          </Card>
+        ) : null}
       </Screen>
     );
   }
@@ -280,8 +293,20 @@ export function HomeScreen() {
   return (
     <Screen
       ref={scrollRef}
-      title={isPractice ? APP_MODE_PRACTICE_LABEL : PLATFORM_POSITIONING_TITLE_JA}
-      subtitle={isPractice ? PRACTICE_SUBTITLE : PLATFORM_POSITIONING_SUBTITLE_JA}
+      title={
+        conciergeFirstHome
+          ? '今日のポートフォリオ'
+          : isPractice
+            ? APP_MODE_PRACTICE_LABEL
+            : PLATFORM_POSITIONING_TITLE_JA
+      }
+      subtitle={
+        conciergeFirstHome
+          ? '今日の方針をやさしく整理します'
+          : isPractice
+            ? PRACTICE_SUBTITLE
+            : PLATFORM_POSITIONING_SUBTITLE_JA
+      }
     >
       <DegradedModeBanner />
       <BeginnerTodayAdviceCard
@@ -289,10 +314,14 @@ export function HomeScreen() {
         onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
       />
       <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
-      <BursaConciergeHomeCard />
-      <BursaMaterialHomeCard />
-      {!DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST ? <ProactiveSuggestionsHomeCard /> : null}
-      <CentralIntelligencePanel />
+      {!conciergeFirstHome ? (
+        <>
+          <BursaConciergeHomeCard />
+          <BursaMaterialHomeCard />
+          {!DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST ? <ProactiveSuggestionsHomeCard /> : null}
+          <CentralIntelligencePanel />
+        </>
+      ) : null}
       {isPractice ? (
         <>
           <PracticeModeBadge />

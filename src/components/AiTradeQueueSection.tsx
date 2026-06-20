@@ -28,6 +28,7 @@ type Props = {
   sectionTitle?: string;
   sectionSubtitle?: string;
   testID?: string;
+  defaultCollapsed?: boolean;
 };
 
 export function AiTradeQueueSection({
@@ -36,6 +37,7 @@ export function AiTradeQueueSection({
   sectionTitle,
   sectionSubtitle,
   testID,
+  defaultCollapsed = false,
 }: Props) {
   const { briefing: queueBriefing } = useAiTradeQueue();
   const briefing = useMemo(
@@ -60,6 +62,7 @@ export function AiTradeQueueSection({
   const [modalVisible, setModalVisible] = useState(false);
   const [dismissingIds, setDismissingIds] = useState<Set<string>>(() => new Set());
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [bodyExpanded, setBodyExpanded] = useState(!defaultCollapsed);
   const cardRefs = useRef<Record<string, ViewType | null>>({});
 
   const sections = useMemo(() => {
@@ -144,15 +147,39 @@ export function AiTradeQueueSection({
 
   const queueTitle = sectionTitle ?? AI_UI.tradeQueueTitle;
   const queueSubtitle = sectionSubtitle ?? AI_UI.tradeQueueSubtitle;
+  const activeCount =
+    sections.active.length + sections.expired.length + systemSignals.length;
 
   return (
     <View style={styles.wrap} testID={testID}>
       <ToastBanner message={toastMessage} onDismiss={clearToast} />
 
-      <AiStrategyBriefingCard briefing={briefing} />
+      {defaultCollapsed ? (
+        <Pressable
+          onPress={() => setBodyExpanded((v) => !v)}
+          style={styles.collapseHeader}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: bodyExpanded }}
+          testID={testID ? `${testID}-collapse-toggle` : undefined}
+        >
+          <View style={styles.collapseHeaderText}>
+            <Text style={styles.sectionTitle}>{queueTitle}</Text>
+            <Text style={styles.sectionSubtitle}>{queueSubtitle}</Text>
+          </View>
+          <Text style={styles.collapseToggle}>
+            {bodyExpanded ? '閉じる' : `詳細を見る${activeCount > 0 ? `（${activeCount}件）` : ''}`}
+          </Text>
+        </Pressable>
+      ) : (
+        <>
+          <Text style={styles.sectionTitle}>{queueTitle}</Text>
+          <Text style={styles.sectionSubtitle}>{queueSubtitle}</Text>
+        </>
+      )}
 
-      <Text style={styles.sectionTitle}>{queueTitle}</Text>
-      <Text style={styles.sectionSubtitle}>{queueSubtitle}</Text>
+      {bodyExpanded ? (
+        <>
+      <AiStrategyBriefingCard briefing={briefing} />
 
       <Pressable
         onPress={() => setShowDisabledItems(!showDisabledItems)}
@@ -207,12 +234,28 @@ export function AiTradeQueueSection({
         : null}
 
       <AiSuggestionExplanationModal visible={modalVisible} item={selected} onClose={closeDetails} />
+        </>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { marginBottom: theme.spacing.md },
+  collapseHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+  },
+  collapseHeaderText: { flex: 1 },
+  collapseToggle: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.sm,
+    fontWeight: '700',
+    paddingTop: 4,
+  },
   sectionTitle: {
     color: theme.colors.text,
     fontSize: theme.fontSize.lg,

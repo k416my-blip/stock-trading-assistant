@@ -38,6 +38,9 @@ const LazyTradeHistoryScreen = lazy(() =>
 const LazyBeginnerGuideScreen = lazy(() =>
   import('../screens/BeginnerGuideScreen').then((m) => ({ default: m.BeginnerGuideScreen })),
 );
+const LazySettingsScreen = lazy(() =>
+  import('../screens/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
+);
 const LazyAssetManagementScreen = lazy(() =>
   import('../screens/AssetManagementScreen').then((m) => ({ default: m.AssetManagementScreen })),
 );
@@ -129,6 +132,7 @@ const MaterialAnalysisTabScreen = lazyBursaScreen(
 );
 const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, '売買履歴');
 const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, '初心者ガイド');
+const SettingsTabScreen = lazyScreen(LazySettingsScreen, '設定');
 const ConciergeConsultTabScreen = ConciergeTabScreen;
 
 type TabDefinition = {
@@ -149,6 +153,7 @@ const ALL_TABS: TabDefinition[] = [
   { name: 'ConciergeConsult', component: ConciergeConsultTabScreen },
   { name: 'History', component: HistoryTabScreen },
   { name: 'BeginnerGuide', component: BeginnerGuideTabScreen },
+  { name: 'Settings', component: SettingsTabScreen },
 ];
 
 export function MainTabNavigator() {

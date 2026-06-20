@@ -1161,6 +1161,7 @@ export function AiAssistantChat({
         sectionTitle="今日の提案"
         sectionSubtitle="AIが整理した売買候補と根拠"
         testID="concierge-today-trade-proposals"
+        defaultCollapsed
       />
     </View>
   ) : null;

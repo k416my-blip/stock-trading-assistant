@@ -14,6 +14,7 @@ export const DEFAULT_TAB_TITLES: Record<keyof MainTabParamList, string> = {
   ConciergeConsult: 'AI相談',
   History: '売買履歴',
   BeginnerGuide: '初心者ガイド',
+  Settings: '設定',
 };
 
 const BEGINNER_TABS: (keyof MainTabParamList)[] = [
@@ -28,10 +29,8 @@ const STANDARD_TABS: (keyof MainTabParamList)[] = [
   'Portfolio',
   'MaterialAnalysis',
   'ConciergeConsult',
-  'AllocationPlan',
-  'Screener',
-  'TodayTrading',
-  'History',
+  'AiNotifications',
+  'Settings',
 ];
 
 const PRO_TABS: (keyof MainTabParamList)[] = [
@@ -69,6 +68,9 @@ export function tabTitleForAppUxMode(mode: AppUxMode, routeName: keyof MainTabPa
   }
   if (mode === 'standard' && routeName === 'MaterialAnalysis') {
     return '銘柄チェック';
+  }
+  if (mode === 'standard' && routeName === 'AiNotifications') {
+    return '通知';
   }
   return DEFAULT_TAB_TITLES[routeName];
 }

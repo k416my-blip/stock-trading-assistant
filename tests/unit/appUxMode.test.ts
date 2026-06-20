@@ -65,6 +65,23 @@ describe('beginnerTabNavigatorConfig', () => {
     ]);
   });
 
+  it('shows 6 tabs in standard mode', async () => {
+    const { visibleTabsForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
+    expect(visibleTabsForAppUxMode('standard')).toEqual([
+      'Home',
+      'Portfolio',
+      'MaterialAnalysis',
+      'ConciergeConsult',
+      'AiNotifications',
+      'Settings',
+    ]);
+  });
+
+  it('renames AiNotifications tab for standard', async () => {
+    const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
+    expect(tabTitleForAppUxMode('standard', 'AiNotifications')).toBe('通知');
+  });
+
   it('renames MaterialAnalysis tab for beginner', async () => {
     const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
     expect(tabTitleForAppUxMode('beginner', 'MaterialAnalysis')).toBe('銘柄チェック');

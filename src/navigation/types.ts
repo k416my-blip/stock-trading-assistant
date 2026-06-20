@@ -64,4 +64,5 @@ export type MainTabParamList = {
   ConciergeConsult: undefined;
   History: undefined;
   BeginnerGuide: undefined;
+  Settings: undefined;
 };

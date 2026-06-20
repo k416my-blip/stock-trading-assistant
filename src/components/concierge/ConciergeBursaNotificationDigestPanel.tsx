@@ -23,13 +23,15 @@ export function ConciergeBursaNotificationDigestPanel() {
   if (!report && latestThree.length === 0) return null;
 
   const unread = report?.unreadCount ?? 0;
+  const hasUnread = unread > 0;
 
   return (
     <Card style={styles.card} testID="concierge-bursa-notification-digest">
       <Text style={styles.title}>通知ダイジェスト</Text>
-      <Text style={styles.unread} testID="concierge-bursa-unread-count">
-        未読 {unread} 件
+      <Text style={styles.statusLine} testID="concierge-bursa-unread-count">
+        {hasUnread ? '未確認の通知があります' : '新しい通知はありません'}
       </Text>
+      <Text style={styles.subtitleLine}>重要そうな通知を3件だけ表示します</Text>
       {latestThree.length === 0 ? (
         <Text style={styles.empty}>新しい通知はありません</Text>
       ) : (
@@ -70,6 +72,18 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     fontWeight: '700',
     marginBottom: theme.spacing.sm,
+  },
+  statusLine: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.sm,
+    fontWeight: '600',
+    marginBottom: theme.spacing.xs,
+  },
+  subtitleLine: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    marginBottom: theme.spacing.sm,
+    lineHeight: 18,
   },
   empty: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
   row: {

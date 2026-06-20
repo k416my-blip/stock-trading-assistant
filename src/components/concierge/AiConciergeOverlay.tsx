@@ -10,7 +10,8 @@ export function AiConciergeOverlay() {
   const proactive = useProactiveConciergeOptional();
   const appUx = useAppUxModeOptional();
   const unread = proactive?.unreadCount ?? 0;
-  const hideFab = appUx?.isBeginnerMode === true;
+  const hideFab =
+    appUx?.isBeginnerMode === true || appUx?.isStandardMode === true;
 
   return (
     <>

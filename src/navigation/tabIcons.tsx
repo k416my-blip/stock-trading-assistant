@@ -18,6 +18,7 @@ const TAB_ICON: Record<keyof MainTabParamList, { active: IonName; inactive: IonN
   ConciergeConsult: { active: 'chatbubbles', inactive: 'chatbubbles-outline' },
   History: { active: 'time', inactive: 'time-outline' },
   BeginnerGuide: { active: 'book', inactive: 'book-outline' },
+  Settings: { active: 'settings', inactive: 'settings-outline' },
 };
 
 export function TabBarIcon({
