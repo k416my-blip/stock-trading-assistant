@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Rakuten Trade MY 助手</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.65;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+      color: #1a1a1a;
+      background: #fafafa;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e8e8e8; background: #0f1419; }
+      a { color: #7eb8ff; }
+    }
+    h1 { font-size: 1.5rem; margin-top: 0; }
+    h2 { font-size: 1.15rem; margin-top: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    h3 { font-size: 1rem; margin-top: 1.25rem; }
+    .meta { color: #666; font-size: 0.9rem; }
+    @media (prefers-color-scheme: dark) { .meta { color: #999; } }
+    .nav { margin: 1rem 0 2rem; padding: 0.75rem 1rem; background: #eee; border-radius: 8px; }
+    @media (prefers-color-scheme: dark) { .nav { background: #1a2332; } }
+    .nav a { margin-right: 1rem; }
+    .disclaimer { font-size: 0.9rem; padding: 0.75rem 1rem; border-left: 3px solid #c00; background: #fff5f5; }
+    @media (prefers-color-scheme: dark) { .disclaimer { background: #2a1515; } }
+    ul { padding-left: 1.25rem; }
+    hr { margin: 3rem 0; border: none; border-top: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Language">
+  <a href="#ja">日本語</a>
+  <a href="#en">English</a>
+</nav>
+
+<section id="ja" lang="ja">
+  <h1>プライバシーポリシー</h1>
+  <p class="meta"><strong>Rakuten Trade MY 助手</strong>（パッケージ名: com.assistant.stocktrading）<br>
+  最終更新日: 2026-06-21</p>
+
+  <div class="disclaimer">
+    本アプリは <strong>Rakuten Trade および証券会社の公式アプリではなく、非提携</strong>です。
+    注文の送信・自動売買は行いません。投資助言ではなく、参考情報に基づく分析支援ツールです。
+  </div>
+
+  <h2>1. はじめに</h2>
+  <p>本ポリシーは、マレーシア株（Bursa Malaysia）を中心とした投資分析・意思決定支援アプリ「Rakuten Trade MY 助手」（以下「本アプリ」）における情報の取り扱いを説明します。当方はユーザーアカウントを運営せず、当方が管理するバックエンドサーバーに個人プロフィールを蓄積する仕組みはありません。</p>
+
+  <h2>2. 端末内に保存する情報</h2>
+  <ul>
+    <li><strong>API キー</strong>（OpenAI、Twelve Data、News API、X API 等）— ユーザーが任意で入力。OS の暗号化ストレージ（SecureStore）に保存。</li>
+    <li><strong>ポートフォリオ・約定記録・練習モード</strong>の取引データ — 端末内ストレージ（AsyncStorage）のみ。</li>
+    <li><strong>アプリ設定</strong>（表示モード、通知設定、ガイド進捗等）— 端末内のみ。</li>
+    <li><strong>Rakuten 取引履歴インポート</strong>で確定した取引候補 — 端末内のみ（OCR 元画像そのものは永続保存しません）。</li>
+  </ul>
+
+  <h2>3. ネットワーク経由で送信する情報</h2>
+  <p>ユーザーが各機能を利用した場合、HTTPS で以下の第三者サービスへリクエストが送信されます。</p>
+  <ul>
+    <li><strong>OpenAI</strong> — AI コンシェルジュ、材料分析、および（任意機能）Rakuten 取引履歴スクリーンショットの OCR（Vision API）。送信内容には、ユーザーが入力した質問文、銘柄コード・分析コンテキスト、および OCR 利用時はユーザーが選択した<strong>画像（base64 エンコード）</strong>が含まれる場合があります。</li>
+    <li><strong>Twelve Data / Yahoo Finance 等</strong> — 株価・チャート取得（銘柄シンボル等）。</li>
+    <li><strong>News API / X API / Reddit RSS 等</strong> — ニュース・SNS 材料（検索クエリ、銘柄名等）。</li>
+    <li><strong>KLSE Screener 等</strong> — 公開 HTML ページの取得（URL リクエスト）。</li>
+  </ul>
+  <p>当方はユーザーデータを第三者に販売しません。送信はユーザー操作に基づく機能利用時に限られます。各サービスのプライバシーポリシーもご確認ください。</p>
+
+  <h2>4. 画像（OCR インポート）について</h2>
+  <ul>
+    <li>ユーザーが Rakuten 取引履歴のスクリーンショットを<strong>自ら選択</strong>した場合にのみ、写真ライブラリへアクセスします（Android 権限: READ_MEDIA_IMAGES / expo-image-picker）。</li>
+    <li>選択された画像は端末上で読み込まれ、OCR 実行時に OpenAI Vision API へ送信されます。当方サーバーへの画像アップロードは行いません。</li>
+    <li>OCR 元画像を当方が端末外に保存することはありません。解析結果（構造化された取引行）は、ユーザーが確認・確定したうえで端末内に保存されます。</li>
+    <li>本機能は OpenAI API キー設定時の任意機能です。</li>
+  </ul>
+
+  <h2>5. 収集しない情報</h2>
+  <ul>
+    <li>アカウント登録（メール、氏名、電話番号）は不要です。</li>
+    <li>位置情報、連絡先、マイク録音ファイルの収集は行いません。</li>
+    <li>広告 ID や Firebase Analytics 等の第三者分析 SDK は導入していません（2026-06-21 時点）。</li>
+    <li>決済情報は収集しません（ブローカー連携・注文執行なし）。</li>
+  </ul>
+
+  <h2>6. Android 権限</h2>
+  <ul>
+    <li><code>WAKE_LOCK</code> / <code>FOREGROUND_SERVICE</code> / <code>FOREGROUND_SERVICE_DATA_SYNC</code> — 株価・材料の定期更新（フォアグラウンドサービス）。</li>
+    <li><code>POST_NOTIFICATIONS</code> — AI・材料通知（ユーザー許可後）。</li>
+    <li><code>READ_MEDIA_IMAGES</code> — Rakuten 取引履歴 OCR 用のスクリーンショット選択（ユーザー操作時のみ）。</li>
+  </ul>
+
+  <h2>7. 利用目的</h2>
+  <ul>
+    <li>株価・ニュース・AI 分析機能の提供</li>
+    <li>ポートフォリオ管理（端末内）</li>
+    <li>取引履歴のインポート支援（OCR・手入力・AI 自然言語）</li>
+    <li>通知の配信（ユーザー許可時）</li>
+  </ul>
+
+  <h2>8. データの保存とセキュリティ</h2>
+  <ul>
+    <li>API キーは端末の SecureStore に保存します。</li>
+    <li>その他のデータは端末内 AsyncStorage に保存し、当方サーバーへ一括アップロードしません。</li>
+    <li>通信は TLS（HTTPS）を使用します。</li>
+  </ul>
+
+  <h2>9. データの削除</h2>
+  <ul>
+    <li>設定画面から API キーを個別に削除できます。</li>
+    <li>「すべてリセット」でアプリデータを削除できます。</li>
+    <li>Android のアプリ情報 → ストレージ消去、またはアンインストールで端末上のデータを削除できます。</li>
+  </ul>
+
+  <h2>10. 子どものプライバシー</h2>
+  <p>本アプリは 13 歳未満を対象としていません。</p>
+
+  <h2>11. 変更</h2>
+  <p>本ポリシーは必要に応じて更新します。重要な変更はアプリまたは Google Play ストアページで告知します。</p>
+
+  <h2>12. お問い合わせ</h2>
+  <p>プライバシーに関するお問い合わせ: <a href="mailto:k416my@gmail.com">k416my@gmail.com</a></p>
+</section>
+
+<hr>
+
+<section id="en" lang="en">
+  <h1>Privacy Policy</h1>
+  <p class="meta"><strong>Rakuten Trade MY Assistant</strong> (package: com.assistant.stocktrading)<br>
+  Last updated: 2026-06-21</p>
+
+  <div class="disclaimer">
+    This app is <strong>not</strong> affiliated with Rakuten Trade or any broker. It does <strong>not</strong> place orders or automate trading. It is an analysis and decision-support tool, not investment advice.
+  </div>
+
+  <h2>1. Overview</h2>
+  <p>This policy describes how the Rakuten Trade MY Assistant app handles information. We do not operate user accounts or a backend server that stores your personal profile.</p>
+
+  <h2>2. Data stored on your device</h2>
+  <ul>
+    <li><strong>API keys</strong> you optionally enter (OpenAI, Twelve Data, News API, X API, etc.) — encrypted secure storage.</li>
+    <li><strong>Portfolio, trade records, practice mode</strong> — local storage only.</li>
+    <li><strong>App settings</strong> and notification preferences — local storage only.</li>
+    <li><strong>Confirmed Rakuten import transactions</strong> — local storage only (source OCR images are not kept permanently).</li>
+  </ul>
+
+  <h2>3. Data sent over the network</h2>
+  <p>When you use features, HTTPS requests may be sent to third-party services including:</p>
+  <ul>
+    <li><strong>OpenAI</strong> — AI concierge, material analysis, and (optional) Rakuten transaction screenshot OCR (Vision API). This may include your questions, symbol/analysis context, and when you run OCR, the <strong>image you selected</strong> (base64-encoded).</li>
+    <li><strong>Twelve Data / Yahoo Finance</strong> — market data (symbols).</li>
+    <li><strong>News API / X API / Reddit RSS</strong> — news and social material (queries).</li>
+    <li><strong>KLSE Screener and similar sites</strong> — public HTML pages.</li>
+  </ul>
+  <p>We do not sell your data. Transmission occurs only when you use the relevant feature.</p>
+
+  <h2>4. Images (OCR import)</h2>
+  <ul>
+    <li>Photo library access occurs only when <strong>you choose</strong> a Rakuten Trade transaction history screenshot (READ_MEDIA_IMAGES / expo-image-picker).</li>
+    <li>The selected image is read on-device and sent to OpenAI Vision API when you run OCR. We do not upload images to our own servers.</li>
+    <li>We do not persistently store OCR source images off-device. Parsed rows are saved locally only after you review and confirm.</li>
+    <li>This feature is optional and requires your OpenAI API key.</li>
+  </ul>
+
+  <h2>5. What we do not collect</h2>
+  <ul>
+    <li>No account registration, email, name, or phone number required.</li>
+    <li>No location, contacts, or microphone recordings.</li>
+    <li>No advertising ID or third-party analytics SDK (as of 2026-06-21).</li>
+    <li>No payment information.</li>
+  </ul>
+
+  <h2>6. Android permissions</h2>
+  <ul>
+    <li>Foreground service permissions — periodic price and material updates.</li>
+    <li>Notifications — with your permission.</li>
+    <li>READ_MEDIA_IMAGES — screenshot picker for optional Rakuten OCR import.</li>
+  </ul>
+
+  <h2>7. Your choices</h2>
+  <ul>
+    <li>Delete API keys in Settings.</li>
+    <li>Reset all app data or uninstall the app.</li>
+  </ul>
+
+  <h2>8. Children</h2>
+  <p>This app is not directed at children under 13.</p>
+
+  <h2>9. Changes</h2>
+  <p>We may update this policy. Material changes will be communicated via the app or Play Store listing.</p>
+
+  <h2>10. Contact</h2>
+  <p>Privacy inquiries: <a href="mailto:k416my@gmail.com">k416my@gmail.com</a></p>
+</section>
+
+</body>
+</html>
