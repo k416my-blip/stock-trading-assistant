@@ -118,8 +118,8 @@ node scripts/rakuten-import-real-world-validation.mjs
 
 | 項目 | 値 |
 |------|-----|
-| コミット | （commit 後に記載） |
-| push | （push 後に記録） |
+| コミット | `1d54380` |
+| push | **成功** · `5d22d4b..1d54380` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
