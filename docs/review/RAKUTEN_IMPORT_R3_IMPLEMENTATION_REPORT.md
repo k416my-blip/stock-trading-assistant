@@ -124,5 +124,5 @@ npx vitest run tests/unit/rakutenImport
 
 | 項目 | 値 |
 |------|-----|
-| コミット | （push 後に更新） |
+| コミット | `6f2dcab` |
 | push | `origin/cursor/top3-maxdd-capital-audit` |
