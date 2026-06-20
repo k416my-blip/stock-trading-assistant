@@ -52,7 +52,7 @@ export function ConciergeBursaNotificationDigestPanel() {
           onPress={() => tabNav.navigate('AiNotifications')}
           accessibilityRole="button"
         >
-          <Text style={styles.link}>すべての通知を見る</Text>
+          <Text style={styles.link}>通知一覧へ</Text>
         </Pressable>
       ) : null}
     </Card>

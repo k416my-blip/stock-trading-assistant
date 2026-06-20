@@ -1,5 +1,5 @@
 /**
- * UX2.0b evidence capture — Home + AI相談 for Beginner / Standard / Pro
+ * UX2.0b evidence capture — Home + AI相談 + 設定 for Beginner / Standard / Pro
  * node scripts/capture-ux20b-screenshots.mjs
  */
 import fs from 'node:fs';
@@ -32,8 +32,15 @@ function sh(cmd) {
 }
 
 function dump() {
-  sh('adb shell uiautomator dump /sdcard/ui-ux20b.xml');
-  return sh('adb shell cat /sdcard/ui-ux20b.xml');
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      sh('adb shell uiautomator dump /sdcard/ui-ux20b.xml');
+      return sh('adb shell cat /sdcard/ui-ux20b.xml');
+    } catch (e) {
+      if (attempt === 2) throw e;
+    }
+  }
+  return '';
 }
 
 function findLabels(xml, pred) {
@@ -135,6 +142,16 @@ async function setUxMode(modeId, currentMode) {
   await sleep(1500);
 }
 
+async function captureSettingsScreen(mode) {
+  if (mode.settingsViaTab) {
+    await tapBottomTab(TAB_SETTINGS, { cx: 1117, cy: 2541 });
+  } else {
+    await tapBottomTab(TAB_HOME, { cx: 152, cy: 2541 });
+    sh(`adb shell input tap ${GEAR.cx} ${GEAR.cy}`);
+    await sleep(2500);
+  }
+}
+
 async function main() {
   const meta = {
     capturedAt: new Date().toISOString(),
@@ -168,6 +185,11 @@ async function main() {
     await sleep(1500);
     const conciergeShot = await screenshot(`${mode.id}-concierge`);
     meta.shots.push({ mode: mode.id, screen: 'concierge', file: conciergeShot });
+
+    await captureSettingsScreen(mode);
+    await sleep(1500);
+    const settingsShot = await screenshot(`${mode.id}-settings`);
+    meta.shots.push({ mode: mode.id, screen: 'settings', file: settingsShot });
   }
 
   fs.writeFileSync(path.join(OUT, 'capture-meta.json'), JSON.stringify(meta, null, 2));

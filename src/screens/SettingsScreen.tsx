@@ -57,7 +57,7 @@ import {
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, isPractice, resetAllAppData, reloadStoredApiKeys, saveAnalysisApiKeys } = useApp();
-  const { appUxMode, setAppUxMode } = useAppUxMode();
+  const { appUxMode, setAppUxMode, isBeginnerMode } = useAppUxMode();
   const [resetting, setResetting] = useState(false);
   const [apiKeyInputs, setApiKeyInputs] = useState(createEmptyApiKeyDrafts);
   const [apiKeyStatus, setApiKeyStatus] = useState<Record<SupportedApiProviderId, ApiKeyConfiguredStatus>>(
@@ -436,7 +436,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <Screen title="設定" subtitle="API・通知・市場など">
+    <Screen title="設定" subtitle={isBeginnerMode ? '通知・市場など' : 'API・通知・市場など'}>
       <Card>
         <Text style={styles.sectionTitle}>表示モード</Text>
         <Text style={styles.sectionHint}>
@@ -473,6 +473,29 @@ export function SettingsScreen() {
         ))}
       </Card>
 
+      {isBeginnerMode ? (
+        <Card>
+          <SettingsMenuRow
+            icon="notifications"
+            title="通知設定"
+            subtitle="買付・売却・損切りなどのアラート"
+            onPress={() => stackNav.navigate('NotificationSettings')}
+          />
+          <SettingsMenuRow
+            icon="globe-outline"
+            title="市場設定"
+            subtitle={MARKET_LABEL[state.settings.selectedMarket]}
+            onPress={() => stackNav.navigate('MarketSettings')}
+          />
+          <SettingsMenuRow
+            icon="lock-closed-outline"
+            title="セキュリティ"
+            subtitle="ローカル保存 · 整合性 · 機密データの削除"
+            onPress={() => stackNav.navigate('SecuritySettings')}
+          />
+        </Card>
+      ) : (
+        <>
       <Card>
         <Text style={styles.sectionTitle}>APIキー管理（設定に集約）</Text>
         <Text style={styles.sectionHint}>
@@ -983,6 +1006,8 @@ export function SettingsScreen() {
         <PlatformClarificationCard compact />
         <SettingsAdvancedDisclosureSection />
       </Card>
+        </>
+      )}
 
       <Card style={styles.resetCard}>
         <Text style={styles.resetTitle}>すべてリセット</Text>
@@ -996,12 +1021,14 @@ export function SettingsScreen() {
           variant="ghost"
           disabled={resetting}
         />
-        <Button
-          label="すべてのAPIキーを削除"
-          onPress={onDeleteAllApiKeysPress}
-          variant="ghost"
-          disabled={resetting}
-        />
+        {!isBeginnerMode ? (
+          <Button
+            label="すべてのAPIキーを削除"
+            onPress={onDeleteAllApiKeysPress}
+            variant="ghost"
+            disabled={resetting}
+          />
+        ) : null}
       </Card>
     </Screen>
   );

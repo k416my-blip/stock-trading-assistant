@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-06-20T09:55:01.911Z",
+  "capturedAt": "2026-06-20T10:13:12.572Z",
   "device": "FYRWXSNNAIOR9DCM",
   "versionCode": 22,
   "shots": [
@@ -14,6 +14,11 @@
       "file": "docs\\review\\ux20b-screenshots\\beginner-concierge.png"
     },
     {
+      "mode": "beginner",
+      "screen": "settings",
+      "file": "docs\\review\\ux20b-screenshots\\beginner-settings.png"
+    },
+    {
       "mode": "standard",
       "screen": "home",
       "file": "docs\\review\\ux20b-screenshots\\standard-home.png"
@@ -24,6 +29,11 @@
       "file": "docs\\review\\ux20b-screenshots\\standard-concierge.png"
     },
     {
+      "mode": "standard",
+      "screen": "settings",
+      "file": "docs\\review\\ux20b-screenshots\\standard-settings.png"
+    },
+    {
       "mode": "pro",
       "screen": "home",
       "file": "docs\\review\\ux20b-screenshots\\pro-home.png"
@@ -32,6 +42,11 @@
       "mode": "pro",
       "screen": "concierge",
       "file": "docs\\review\\ux20b-screenshots\\pro-concierge.png"
+    },
+    {
+      "mode": "pro",
+      "screen": "settings",
+      "file": "docs\\review\\ux20b-screenshots\\pro-settings.png"
     }
   ]
 }
