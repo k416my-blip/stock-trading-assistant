@@ -1,0 +1,18 @@
+{
+  "skipped": false,
+  "device": "23090RA98G",
+  "capturedAt": "2026-06-20T22:51:54.932Z",
+  "phrases": [
+    "500リンギット入金した",
+    "MaybankをRM9.20で100株買った",
+    "Maybankの配当がRM50入った",
+    "RM500 withdrawal"
+  ],
+  "screenshots": [
+    "00-concierge-home.png",
+    "01-deposit.png",
+    "02-buy.png",
+    "03-dividend.png",
+    "04-withdrawal.png"
+  ]
+}
