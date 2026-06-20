@@ -1,0 +1,266 @@
+{
+  "blocked": false,
+  "ranAt": "2026-06-20T23:11:26.544Z",
+  "commitHash": "8e34ed0825d1851d4892b134fcb4a29ab316e2b2",
+  "apiKeySource": ".env",
+  "fixtures": [
+    {
+      "fixtureId": "user-txn-history-cash-20260621",
+      "filename": "01-user-screenshot-20260621.jpg",
+      "ocrOk": true,
+      "expectedRowCount": 4,
+      "actualRowCount": 4,
+      "emptyScreenMatch": false,
+      "rowComparisons": [
+        {
+          "rowIndex": 0,
+          "type": "fee",
+          "fields": {
+            "date": "正解",
+            "symbol": "正解",
+            "quantity": "正解",
+            "price": "正解",
+            "fee": "正解",
+            "total": "未取得",
+            "currency": "正解"
+          }
+        },
+        {
+          "rowIndex": 1,
+          "type": "deposit",
+          "fields": {
+            "date": "正解",
+            "symbol": "正解",
+            "quantity": "正解",
+            "price": "正解",
+            "fee": "正解",
+            "total": "未取得",
+            "currency": "正解"
+          }
+        },
+        {
+          "rowIndex": 2,
+          "type": "deposit",
+          "fields": {
+            "date": "正解",
+            "symbol": "正解",
+            "quantity": "正解",
+            "price": "正解",
+            "fee": "正解",
+            "total": "未取得",
+            "currency": "正解"
+          }
+        },
+        {
+          "rowIndex": 3,
+          "type": "deposit",
+          "fields": {
+            "date": "正解",
+            "symbol": "正解",
+            "quantity": "正解",
+            "price": "正解",
+            "fee": "正解",
+            "total": "未取得",
+            "currency": "正解"
+          }
+        }
+      ],
+      "hallucinatedRows": 0,
+      "rawOcrRows": [
+        {
+          "type": "fee",
+          "date": "08/06/2026",
+          "amount": -5.4,
+          "currency": "MYR",
+          "confidence": 1,
+          "fieldConfidence": {
+            "type": 1,
+            "executedAt": 1,
+            "symbol": 0,
+            "quantity": 0,
+            "price": 0,
+            "fee": 1,
+            "total": 0,
+            "currency": 1,
+            "referenceNumber": 0
+          }
+        },
+        {
+          "type": "deposit",
+          "date": "05/06/2026",
+          "amount": 4880.23,
+          "currency": "MYR",
+          "confidence": 1,
+          "fieldConfidence": {
+            "type": 1,
+            "executedAt": 1,
+            "symbol": 0,
+            "quantity": 0,
+            "price": 0,
+            "fee": 0,
+            "total": 1,
+            "currency": 1,
+            "referenceNumber": 0
+          }
+        },
+        {
+          "type": "deposit",
+          "date": "05/06/2026",
+          "amount": 4880.23,
+          "currency": "MYR",
+          "confidence": 0.9,
+          "fieldConfidence": {
+            "type": 1,
+            "executedAt": 0.9,
+            "symbol": 0,
+            "quantity": 0,
+            "price": 0,
+            "fee": 0,
+            "total": 1,
+            "currency": 1,
+            "referenceNumber": 0
+          }
+        },
+        {
+          "type": "deposit",
+          "date": "05/06/2026",
+          "amount": 5000,
+          "currency": "MYR",
+          "confidence": 0.8,
+          "fieldConfidence": {
+            "type": 1,
+            "executedAt": 0.8,
+            "symbol": 0,
+            "quantity": 0,
+            "price": 0,
+            "fee": 0,
+            "total": 1,
+            "currency": 1,
+            "referenceNumber": 0
+          }
+        }
+      ]
+    },
+    {
+      "fixtureId": "txn-history-cash-empty-week",
+      "filename": "04-adb-transaction-history-cash.png",
+      "ocrOk": true,
+      "ocrCode": "empty_rows",
+      "expectedRowCount": 0,
+      "actualRowCount": 0,
+      "emptyScreenMatch": true,
+      "rowComparisons": [],
+      "hallucinatedRows": 0
+    },
+    {
+      "fixtureId": "menu-navigation-only",
+      "filename": "03-adb-myaccount.png",
+      "nonApplicable": true,
+      "notesJa": "非適用 — Menu ナビ画面のみ。取引行なし。OCR フィールド精度には含めない（expectedRows 0）。",
+      "ocrSkipped": true,
+      "expectedRowCount": 0,
+      "actualRowCount": 0,
+      "rowComparisons": []
+    }
+  ],
+  "fieldStats": {
+    "date": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    },
+    "symbol": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    },
+    "quantity": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    },
+    "price": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    },
+    "fee": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    },
+    "total": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 4,
+      "total": 4
+    },
+    "currency": {
+      "正解": 4,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 4
+    }
+  },
+  "fieldStatsPct": {
+    "date": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    },
+    "symbol": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    },
+    "quantity": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    },
+    "price": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    },
+    "fee": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    },
+    "total": {
+      "正解": "0.0%",
+      "誤認識": "0.0%",
+      "未取得": "100.0%"
+    },
+    "currency": {
+      "正解": "100.0%",
+      "誤認識": "0.0%",
+      "未取得": "0.0%"
+    }
+  },
+  "collectionSummary": {
+    "docsReviewSearch": "docs/review/rakuten-import-real-world/fixtures/ — ユーザー提供 01-user-screenshot-20260621.jpg（adb pull from /sdcard/DCIM/Screenshots/*ispeed*）",
+    "adbDeviceSearch": "/sdcard/DCIM/Screenshots — ispeed キーワード 1 件（上記と同一）",
+    "adbLiveCapture": "Menu → Transaction History (Cash, This Week) — 取引行 0 件。Trade History への adb ナビは端末ホーム画面へ逸脱のため未取得",
+    "coveredTransactionTypes": [
+      "deposit",
+      "fee"
+    ],
+    "missingTransactionTypes": [
+      "buy",
+      "sell",
+      "dividend",
+      "withdrawal"
+    ],
+    "nonApplicableScreenshots": [
+      "03-adb-myaccount.png（Menu ナビのみ・取引行なし）"
+    ],
+    "recommendationJa": "Buy/Sell/Dividend/Withdrawal を含む Transaction History または Trade History スクショを fixtures/ に追加し expectedRows を転記のうえ node scripts/rakuten-import-real-world-validation.mjs を再実行してください。"
+  }
+}

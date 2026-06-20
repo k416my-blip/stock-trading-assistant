@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-06-21T07:15:00+08:00",
+  "branch": "cursor/top3-maxdd-capital-audit",
+  "collectionSummary": {
+    "docsReviewSearch": "docs/review/rakuten-import-real-world/fixtures/ — ユーザー提供 01-user-screenshot-20260621.jpg（adb pull from /sdcard/DCIM/Screenshots/*ispeed*）",
+    "adbDeviceSearch": "/sdcard/DCIM/Screenshots — ispeed キーワード 1 件（上記と同一）",
+    "adbLiveCapture": "Menu → Transaction History (Cash, This Week) — 取引行 0 件。Trade History への adb ナビは端末ホーム画面へ逸脱のため未取得",
+    "coveredTransactionTypes": ["deposit", "fee"],
+    "missingTransactionTypes": ["buy", "sell", "dividend", "withdrawal"],
+    "nonApplicableScreenshots": ["03-adb-myaccount.png（Menu ナビのみ・取引行なし）"],
+    "recommendationJa": "Buy/Sell/Dividend/Withdrawal を含む Transaction History または Trade History スクショを fixtures/ に追加し expectedRows を転記のうえ node scripts/rakuten-import-real-world-validation.mjs を再実行してください。"
+  },
+  "fixtures": [
+    {
+      "id": "user-txn-history-cash-20260621",
+      "filename": "01-user-screenshot-20260621.jpg",
+      "screen": "My Account > Transaction History > Cash (This Year)",
+      "expectedScreenType": "transaction_history",
+      "expectedRows": [
+        {
+          "type": "fee",
+          "date": "2026-06-08",
+          "total": -5.4,
+          "currency": "MYR"
+        },
+        {
+          "type": "deposit",
+          "date": "2026-06-05",
+          "total": 4880.23,
+          "currency": "MYR"
+        },
+        {
+          "type": "deposit",
+          "date": "2026-06-05",
+          "total": 4880.23,
+          "currency": "MYR"
+        },
+        {
+          "type": "deposit",
+          "date": "2026-06-05",
+          "total": 5000,
+          "currency": "MYR"
+        }
+      ],
+      "notesJa": "ユーザー提供実スクショ。Charge(-5.40) · Deposit Success(4880.23) · Deposit Failure×2(4880.23, 5000.00)。Status(Success/Failure)は OCR 対象外。"
+    },
+    {
+      "id": "txn-history-cash-empty-week",
+      "filename": "04-adb-transaction-history-cash.png",
+      "screen": "Transaction History > Cash (This Week)",
+      "expectedScreenType": "transaction_history",
+      "expectedRows": [],
+      "notesJa": "adb キャプチャ。フィルタ This Week · 「No Transaction available」。空画面耐性確認用。"
+    },
+    {
+      "id": "menu-navigation-only",
+      "filename": "03-adb-myaccount.png",
+      "screen": "Menu",
+      "expectedScreenType": "navigation",
+      "expectedRows": [],
+      "notesJa": "非適用 — Menu ナビ画面のみ。取引行なし。OCR フィールド精度には含めない（expectedRows 0）。"
+    }
+  ]
+}
