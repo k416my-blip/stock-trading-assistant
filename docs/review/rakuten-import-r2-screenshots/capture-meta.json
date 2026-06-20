@@ -1,0 +1,11 @@
+{
+  "apk": "artifacts/preview-v24-rakuten-import-r2.apk",
+  "device": "adb device",
+  "capturedAt": "2026-06-20T14:37:00.000Z",
+  "screenshots": [
+    "01-concierge-home.png",
+    "02-nl-deposit-card.png",
+    "03-nl-deposit-confirm.png",
+    "04-nl-buy-low-confidence.png"
+  ]
+}

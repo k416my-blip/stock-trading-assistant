@@ -57,6 +57,7 @@ import {
   MANUAL_SELL_ORDER_METHOD,
 } from '../../services/sellAllHoldings';
 import { buildManualImportCandidate } from '../../services/rakutenImport/buildManualImportCandidate';
+import { buildNaturalLanguageImportCandidate } from '../../services/rakutenImport/buildNaturalLanguageImportCandidate';
 import { commitImportCandidateInState } from '../../services/rakutenImport/commitImportCandidate';
 import {
   appendRakutenImportAuditEntry,
@@ -75,7 +76,10 @@ import { restorePortfolioFromBackup } from '../../services/portfolioBackup';
 import { validateTradeIntent } from '../../services/tradeExecutionGate';
 import type { AiLearningState } from '../../services/analysis/aiLearning';
 import type { ExecutionLedgerMode } from '../../types/execution';
-import type { RakutenImportManualFormInput } from '../../types/rakutenImport';
+import type {
+  BrokerTransactionCandidate,
+  RakutenImportManualFormInput,
+} from '../../types/rakutenImport';
 import type { MarketRegimeResult } from '../../types/marketRegime';
 import type {
   AllocationPlan,
@@ -737,6 +741,38 @@ export function useAppPortfolioActions({
     [tradeBlockedReason, stateRef],
   );
 
+  const stageRakutenImportNaturalLanguage = useCallback(
+    async (text: string) => {
+      const blocked = tradeBlockedReason();
+      if (blocked) return { ok: false as const, error: blocked };
+
+      const journal = await loadExecutionJournal();
+      const built = buildNaturalLanguageImportCandidate(text, {
+        state: stateRef.current,
+        journalEntries: journal.entries,
+      });
+      if (!built.ok) return { ok: false as const, error: built.error };
+
+      const { batch, candidate } = built;
+      await saveImportBatch(batch);
+      await appendRakutenImportAuditEntry(
+        createAuditEntry({
+          event: 'candidate_created',
+          batchId: batch.id,
+          candidateId: candidate.id,
+          candidateType: candidate.type,
+          detailJa: candidate.rawInputText,
+        }),
+      );
+      return {
+        ok: true as const,
+        candidateId: candidate.id,
+        candidate: candidate as BrokerTransactionCandidate,
+      };
+    },
+    [tradeBlockedReason, stateRef],
+  );
+
   const commitRakutenImportCandidate = useCallback(
     async (candidateId: string) => {
       const blocked = tradeBlockedReason();
@@ -829,6 +865,7 @@ export function useAppPortfolioActions({
     updateHoldingSymbol,
     updateHoldingMarket,
     stageRakutenImportManual,
+    stageRakutenImportNaturalLanguage,
     commitRakutenImportCandidate,
     rejectRakutenImportCandidate,
   };

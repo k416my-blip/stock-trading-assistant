@@ -89,7 +89,10 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { SelectableText } from './ui/SelectableText';
 import { theme } from '../theme';
-import { ConciergeActionPanel } from './concierge/ConciergeActionPanel';
+import { ConciergeImportActionCard } from './concierge/ConciergeImportActionCard';
+import { detectRakutenImportIntent } from '../services/rakutenImport/detectRakutenImportIntent';
+import { buildConfirmPromptJa } from '../services/rakutenImport/naturalLanguageTransactionParser';
+import { canSaveImportCandidate } from '../services/rakutenImport/rakutenImportConfidence';
 import { ConciergeEvidencePanel } from './concierge/ConciergeEvidencePanel';
 import { MarketSituationCard } from './concierge/MarketSituationCard';
 import { ConciergeRiskControlPanel } from './concierge/ConciergeRiskControlPanel';
@@ -343,7 +346,7 @@ export function AiAssistantChat({
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
-  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime } = useApp();
+  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime, stageRakutenImportNaturalLanguage } = useApp();
   const { isBeginnerMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
@@ -827,6 +830,31 @@ export function AiAssistantChat({
           return;
         }
 
+        if (detectRakutenImportIntent(trimmed)) {
+          const stageResult = await stageRakutenImportNaturalLanguage(trimmed);
+          if (stageResult.ok) {
+            const { candidate, candidateId } = stageResult;
+            const confirmText = buildConfirmPromptJa(candidate);
+            const blocked = !canSaveImportCandidate(candidate);
+            await appendAssistant(
+              createAssistantChatMessagePartial({
+                id: `a-rakuten-import-${Date.now()}`,
+                text: confirmText,
+                responseIntent: 'app_help',
+                conversationMode: 'conversation',
+                rakutenImportCandidateId: candidateId,
+                rakutenImportBlocked: blocked,
+              }),
+              false,
+            );
+            setUsedMockFallback(false);
+            setApiConnected(false);
+            setRequestStatus('idle');
+            setStatusJa(AI_CONCIERGE_UI.statusInstant);
+            return;
+          }
+        }
+
         setRequestStatus('checking_api_key');
         setStatusJa(statusJaForRequestStatus('checking_api_key'));
         setUsedMockFallback(false);
@@ -917,6 +945,7 @@ export function AiAssistantChat({
       proactive?.refreshProactive,
       proactive?.strategyBundle,
       state.portfolio,
+      stageRakutenImportNaturalLanguage,
     ],
   );
 
@@ -1296,7 +1325,7 @@ export function AiAssistantChat({
             <ChatMessageTimestamp message={msg} compact={isConcierge} />
             <SelectableText style={styles.bubbleRole}>{roleLabelJa(msg)}</SelectableText>
             {msg.role === 'assistant' ? <ConciergeWarningBadge message={msg} /> : null}
-            {msg.role === 'assistant' && isConcierge ? (
+            {msg.role === 'assistant' && isConcierge && !msg.rakutenImportCandidateId ? (
               (() => {
                 const materialRow = msg.evidenceData?.symbols[0]
                   ? findMaterialRowForSymbol(
@@ -1347,6 +1376,12 @@ export function AiAssistantChat({
               </SelectableText>
             ) : null}
             {msg.role === 'assistant' ? <StructuredBlock message={msg} uxMode={uxMode} /> : null}
+            {msg.role === 'assistant' && msg.rakutenImportCandidateId ? (
+              <ConciergeImportActionCard
+                candidateId={msg.rakutenImportCandidateId}
+                blocked={msg.rakutenImportBlocked}
+              />
+            ) : null}
             {msg.role === 'assistant' && msg.globalMarketAnalysis ? (
               <ConciergePrioritySection
                 title="市場状況"

@@ -2,6 +2,7 @@ import { HOLDING_ERRORS } from '../../constants/holdingErrors';
 import type { AppState, DepositPlan, TradeRecord } from '../../types';
 import type { ExecutionJournalEntry } from '../../types/execution';
 import type { BrokerTransactionCandidate } from '../../types/rakutenImport';
+import { canSaveImportCandidate } from './rakutenImportConfidence';
 import { calculateBuyingPower } from '../buyingPower';
 import { toMYR } from '../fx';
 import {
@@ -27,6 +28,13 @@ function validateCandidate(candidate: BrokerTransactionCandidate): { ok: true } 
   }
   if (candidate.status === 'confirmed' || candidate.status === 'rejected') {
     return { ok: false, error: 'この候補はすでに処理済みです。' };
+  }
+  if (!canSaveImportCandidate(candidate)) {
+    return {
+      ok: false,
+      error:
+        '信頼度が低いか必須項目が不足しているため保存できません。修正画面で内容を入力してください。',
+    };
   }
 
   switch (candidate.type) {
@@ -66,7 +74,7 @@ function buildJournalEntry(
   const side = candidate.type === 'sell' ? 'sell' : 'buy';
   return {
     orderId: `rakuten-import-${candidate.id}`,
-    idempotencyKey: `rakuten_import_manual:${candidate.id}`,
+    idempotencyKey: `rakuten_import_${candidate.source}:${candidate.id}`,
     ledgerMode: 'manual',
     symbol: candidate.symbol ?? (candidate.type === 'deposit' ? 'CASH' : ''),
     market: candidate.market ?? 'bursa',
@@ -80,7 +88,8 @@ function buildJournalEntry(
     createdAt: candidate.executedAt ?? now,
     updatedAt: now,
     tradeRecordId: record?.id,
-    recordSource: 'rakuten_import_manual',
+    recordSource:
+      candidate.source === 'natural_language' ? 'rakuten_import_nl' : 'rakuten_import_manual',
     userConfirmationStatus: 'confirmed_by_user',
     brokerReferenceNumber: candidate.referenceNumber,
     importBatchId: candidate.batchId,
@@ -150,6 +159,11 @@ export function commitImportCandidateInState(
 
   const tradeSide = candidate.type;
 
+  const importNote =
+    candidate.source === 'natural_language'
+      ? 'Rakuten import (NL)'
+      : 'Rakuten import (manual)';
+
   const trade: TradeRecord = {
     id: `rakuten_import-${candidate.id}`,
     symbol: candidate.symbol!.toUpperCase(),
@@ -161,7 +175,7 @@ export function commitImportCandidateInState(
     brokerageFee: candidate.fee ?? 0,
     executedAt: candidate.executedAt!,
     notes: [
-      'Rakuten import (manual)',
+      importNote,
       candidate.referenceNumber ? `ref:${candidate.referenceNumber}` : null,
       candidate.userNote ?? null,
     ]

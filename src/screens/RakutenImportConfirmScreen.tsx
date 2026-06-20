@@ -9,9 +9,28 @@ import { CURRENCY_SYMBOL } from '../constants/rakutenTrade';
 import { useApp } from '../context/AppContext';
 import { previewBuyingPowerAfterImport } from '../services/rakutenImport/commitImportCandidate';
 import { findImportCandidate } from '../services/rakutenImport/rakutenImportStagingStorage';
+import {
+  canSaveImportCandidate,
+  confidenceLabelJa,
+  confidenceTier,
+} from '../services/rakutenImport/rakutenImportConfidence';
+import type { ImportFieldKey } from '../types/rakutenImport';
 import type { RootStackParamList } from '../navigation/types';
 import type { BrokerTransactionCandidate } from '../types/rakutenImport';
 import { theme } from '../theme';
+
+const FIELD_LABEL_JA: Record<ImportFieldKey, string> = {
+  executedAt: '日付',
+  symbol: '銘柄',
+  companyName: '会社名',
+  type: '種別',
+  quantity: '数量',
+  price: '単価',
+  fee: '手数料',
+  total: '金額',
+  currency: '通貨',
+  referenceNumber: '参照番号',
+};
 
 function typeLabel(type: BrokerTransactionCandidate['type']): string {
   switch (type) {
@@ -21,6 +40,8 @@ function typeLabel(type: BrokerTransactionCandidate['type']): string {
       return '買付';
     case 'sell':
       return '売却';
+    case 'dividend':
+      return '配当';
     default:
       return type;
   }
@@ -32,6 +53,12 @@ function formatSummary(c: BrokerTransactionCandidate): string {
   }
   const sym = c.symbol ?? '—';
   return `${sym} · ${c.quantity}株 @ ${CURRENCY_SYMBOL[c.currency]}${c.price}`;
+}
+
+function sourceLabel(source: BrokerTransactionCandidate['source']): string {
+  if (source === 'natural_language') return '自然文入力';
+  if (source === 'manual_form') return '手動入力';
+  return source;
 }
 
 export function RakutenImportConfirmScreen() {
@@ -59,8 +86,11 @@ export function RakutenImportConfirmScreen() {
     void load();
   }, [load]);
 
+  const saveAllowed = candidate ? canSaveImportCandidate(candidate) : false;
+  const duplicateBlocked = candidate?.status === 'duplicate_blocked';
+
   const preview =
-    candidate && candidate.status !== 'duplicate_blocked'
+    candidate && saveAllowed && !duplicateBlocked
       ? previewBuyingPowerAfterImport(state, candidate)
       : null;
 
@@ -114,7 +144,13 @@ export function RakutenImportConfirmScreen() {
     );
   }
 
-  const duplicateBlocked = candidate.status === 'duplicate_blocked';
+  const tier = confidenceTier(candidate.overallConfidence);
+  const confidenceStyle =
+    tier === 'high'
+      ? styles.confidenceHigh
+      : tier === 'needs_confirmation'
+        ? styles.confidenceWarn
+        : styles.confidenceBlocked;
 
   return (
     <Screen title="記録内容の確認" subtitle="保存前に必ず内容を確認してください">
@@ -128,10 +164,23 @@ export function RakutenImportConfirmScreen() {
           <Text style={styles.meta}>参照番号: {candidate.referenceNumber}</Text>
         ) : null}
         {candidate.userNote ? <Text style={styles.meta}>メモ: {candidate.userNote}</Text> : null}
-        <Text style={styles.confidence}>
-          信頼度: 高（手動入力 · {Math.round(candidate.overallConfidence * 100)}%）
+        <Text style={styles.meta}>入力経路: {sourceLabel(candidate.source)}</Text>
+        <Text style={[styles.confidence, confidenceStyle]}>
+          信頼度: {confidenceLabelJa(candidate.overallConfidence)} (
+          {Math.round(candidate.overallConfidence * 100)}%)
         </Text>
       </Card>
+
+      {candidate.lowConfidenceFields.length > 0 ? (
+        <Card style={styles.warnCard}>
+          <Text style={styles.warnTitle}>要確認フィールド</Text>
+          {candidate.lowConfidenceFields.map((field) => (
+            <Text key={field} style={styles.warnBody}>
+              ⚠ {FIELD_LABEL_JA[field] ?? field}
+            </Text>
+          ))}
+        </Card>
+      ) : null}
 
       {candidate.duplicateHint ? (
         <Card style={styles.warnCard}>
@@ -141,6 +190,15 @@ export function RakutenImportConfirmScreen() {
           <Text style={styles.warnBody}>
             一致: {candidate.duplicateHint.matchedOn.join(' · ')}（スコア{' '}
             {Math.round(candidate.duplicateHint.score * 100)}%）
+          </Text>
+        </Card>
+      ) : null}
+
+      {!saveAllowed && !duplicateBlocked ? (
+        <Card style={styles.warnCard}>
+          <Text style={styles.warnTitle}>保存不可</Text>
+          <Text style={styles.warnBody}>
+            信頼度が低いか必須項目が不足しています。修正するから内容を入力してください。
           </Text>
         </Card>
       ) : null}
@@ -162,7 +220,7 @@ export function RakutenImportConfirmScreen() {
         <Button
           label={busy ? '保存中…' : '記録する'}
           onPress={() => void onCommit()}
-          disabled={busy || duplicateBlocked || !!readOnlyBlockedMessage}
+          disabled={busy || duplicateBlocked || !saveAllowed || !!readOnlyBlockedMessage}
         />
         <Button
           label="修正する"
@@ -200,10 +258,13 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   confidence: {
-    color: theme.colors.success,
     fontSize: theme.fontSize.sm,
     marginTop: theme.spacing.sm,
+    fontWeight: '600',
   },
+  confidenceHigh: { color: theme.colors.success },
+  confidenceWarn: { color: theme.colors.warning },
+  confidenceBlocked: { color: theme.colors.danger },
   warnCard: {
     borderColor: theme.colors.warning,
     marginTop: theme.spacing.sm,

@@ -61,4 +61,7 @@ export type AiChatMessage = {
   globalMarketAnalysis?: GlobalMarketAnalysisBundle;
   /** ポートフォリオ学習・予測追跡サマリー */
   portfolioIntelligence?: PortfolioIntelligenceBundle;
+  /** Rakuten import confirm card (R2 NL) */
+  rakutenImportCandidateId?: string;
+  rakutenImportBlocked?: boolean;
 };
