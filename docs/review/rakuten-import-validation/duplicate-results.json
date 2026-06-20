@@ -1,0 +1,54 @@
+{
+  "ranAt": "2026-06-20T22:53:31.897Z",
+  "commitHash": "3388bdcbda73d97e21cd12c0c39713ce8d51f367",
+  "pass": true,
+  "firstPass": {
+    "candidateCount": 2,
+    "candidates": [
+      {
+        "type": "deposit",
+        "status": "ready_to_confirm",
+        "duplicateHint": null
+      },
+      {
+        "type": "buy",
+        "status": "ready_to_confirm",
+        "duplicateHint": null
+      }
+    ]
+  },
+  "secondPass": {
+    "candidateCount": 2,
+    "candidates": [
+      {
+        "type": "deposit",
+        "status": "duplicate_blocked",
+        "duplicateHint": {
+          "matchedEntryId": "dep-REF-DUP-VAL-1",
+          "matchedOn": [
+            "referenceNumber"
+          ],
+          "score": 0.98,
+          "matchedKind": "deposit"
+        },
+        "blockSave": true
+      },
+      {
+        "type": "buy",
+        "status": "duplicate_blocked",
+        "duplicateHint": {
+          "matchedEntryId": "trade-1155-dup",
+          "matchedOn": [
+            "date",
+            "symbol",
+            "quantity",
+            "amount"
+          ],
+          "score": 0.95,
+          "matchedKind": "trade"
+        },
+        "blockSave": true
+      }
+    ]
+  }
+}

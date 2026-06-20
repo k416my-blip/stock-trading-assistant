@@ -1,0 +1,86 @@
+{
+  "ranAt": "2026-06-20T22:53:31.862Z",
+  "commitHash": "3388bdcbda73d97e21cd12c0c39713ce8d51f367",
+  "passCount": 4,
+  "total": 4,
+  "results": [
+    {
+      "phrase": "500リンギット入金した",
+      "pass": true,
+      "expected": {
+        "type": "deposit",
+        "totalMYR": 500,
+        "saveable": true
+      },
+      "actual": {
+        "type": "deposit",
+        "totalMYR": 500,
+        "overallConfidence": 0.9175
+      },
+      "saveable": true,
+      "buildOk": true,
+      "buildStatus": "ready_to_confirm",
+      "duplicateHint": null
+    },
+    {
+      "phrase": "MaybankをRM9.20で100株買った",
+      "pass": true,
+      "expected": {
+        "type": "buy",
+        "symbol": "1155",
+        "quantity": 100,
+        "price": 9.2,
+        "saveable": true
+      },
+      "actual": {
+        "type": "buy",
+        "symbol": "1155",
+        "quantity": 100,
+        "price": 9.2,
+        "overallConfidence": 0.9039999999999999
+      },
+      "saveable": true,
+      "buildOk": true,
+      "buildStatus": "ready_to_confirm",
+      "duplicateHint": null
+    },
+    {
+      "phrase": "Maybankの配当がRM50入った",
+      "pass": true,
+      "expected": {
+        "type": "dividend",
+        "symbol": "1155",
+        "totalMYR": 50,
+        "saveable": true
+      },
+      "actual": {
+        "type": "dividend",
+        "symbol": "1155",
+        "totalMYR": 50,
+        "overallConfidence": 0.795
+      },
+      "saveable": true,
+      "buildOk": true,
+      "buildStatus": "ready_to_confirm",
+      "duplicateHint": null
+    },
+    {
+      "phrase": "RM500 withdrawal",
+      "pass": true,
+      "expected": {
+        "type": "withdrawal",
+        "totalMYR": 500,
+        "saveable": true
+      },
+      "actual": {
+        "type": "withdrawal",
+        "totalMYR": 500,
+        "overallConfidence": 0.9
+      },
+      "saveable": true,
+      "buildOk": true,
+      "buildStatus": "ready_to_confirm",
+      "duplicateHint": null
+    }
+  ]
+}

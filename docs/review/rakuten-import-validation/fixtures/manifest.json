@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-06-21T06:48:00+08:00",
+  "branch": "cursor/top3-maxdd-capital-audit",
+  "collectionSummary": {
+    "docsReviewSearch": "docs/review/ に Rakuten Trade Transaction History 実データ画像なし（R1–R3 スクショは自アプリ UI のみ）",
+    "adbDeviceSearch": "/sdcard/DCIM/Screenshots — rakuten/ispeed キーワード一致 0 件",
+    "adbLiveCapture": "ispeed.rakutentrade.my を起動し Menu > Transaction History / Order > Trade History を adb キャプチャ — いずれも取引行 0 件（空状態）",
+    "missingTransactionTypes": ["deposit", "buy", "sell", "dividend", "withdrawal"],
+    "recommendationJa": "ユーザーが Rakuten Trade アプリで Deposit/Buy/Sell/Dividend/Withdrawal を含む Transaction History スクショを docs/review/rakuten-import-validation/fixtures/ に追加し manifest.json の expectedRows を手動転記してください。"
+  },
+  "fixtures": [
+    {
+      "id": "txn-history-cash-empty",
+      "filename": "transaction-history-cash-empty.png",
+      "screen": "Transaction History > Cash",
+      "expectedScreenType": "transaction_history",
+      "expectedRows": [],
+      "notesJa": "実機キャプチャ。表示「No Transaction available」。OCR は行 0 を期待（幻覚行が出た場合は誤認識として計上）。"
+    },
+    {
+      "id": "trade-history-empty",
+      "filename": "trade-history-empty.png",
+      "screen": "Order > Trade History > Bursa",
+      "expectedScreenType": "trade_history",
+      "expectedRows": [],
+      "notesJa": "実機キャプチャ。Trade 行なし。OCR 対象外レイアウトだが空画面耐性確認用。"
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "blocked": false,
+  "ranAt": "2026-06-20T22:53:31.817Z",
+  "commitHash": "3388bdcbda73d97e21cd12c0c39713ce8d51f367",
+  "apiKeySource": ".env",
+  "fixtures": [
+    {
+      "fixtureId": "txn-history-cash-empty",
+      "filename": "transaction-history-cash-empty.png",
+      "ocrOk": true,
+      "ocrCode": "empty_rows",
+      "expectedRowCount": 0,
+      "actualRowCount": 0,
+      "emptyScreenMatch": true,
+      "rowComparisons": [],
+      "hallucinatedRows": 0,
+      "pipelineNote": "parseOcrVisionJson は empty_rows で失敗 — 空画面は正しく 0 行だが buildOcrImportBatch 経路ではエラーになる"
+    },
+    {
+      "fixtureId": "trade-history-empty",
+      "filename": "trade-history-empty.png",
+      "ocrOk": true,
+      "ocrCode": "empty_rows",
+      "expectedRowCount": 0,
+      "actualRowCount": 0,
+      "emptyScreenMatch": true,
+      "rowComparisons": [],
+      "hallucinatedRows": 0,
+      "pipelineNote": "parseOcrVisionJson は empty_rows で失敗 — 空画面は正しく 0 行だが buildOcrImportBatch 経路ではエラーになる"
+    }
+  ],
+  "fieldStats": {
+    "date": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "symbol": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "quantity": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "price": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "fee": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "total": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    },
+    "currency": {
+      "正解": 0,
+      "誤認識": 0,
+      "未取得": 0,
+      "total": 0
+    }
+  },
+  "fieldStatsPct": {
+    "date": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "symbol": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "quantity": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "price": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "fee": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "total": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    },
+    "currency": {
+      "正解": "—",
+      "誤認識": "—",
+      "未取得": "—"
+    }
+  },
+  "collectionSummary": {
+    "docsReviewSearch": "docs/review/ に Rakuten Trade Transaction History 実データ画像なし（R1–R3 スクショは自アプリ UI のみ）",
+    "adbDeviceSearch": "/sdcard/DCIM/Screenshots — rakuten/ispeed キーワード一致 0 件",
+    "adbLiveCapture": "ispeed.rakutentrade.my を起動し Menu > Transaction History / Order > Trade History を adb キャプチャ — いずれも取引行 0 件（空状態）",
+    "missingTransactionTypes": [
+      "deposit",
+      "buy",
+      "sell",
+      "dividend",
+      "withdrawal"
+    ],
+    "recommendationJa": "ユーザーが Rakuten Trade アプリで Deposit/Buy/Sell/Dividend/Withdrawal を含む Transaction History スクショを docs/review/rakuten-import-validation/fixtures/ に追加し manifest.json の expectedRows を手動転記してください。"
+  }
+}
