@@ -89,6 +89,11 @@ export async function findImportCandidate(
   return null;
 }
 
+export async function findImportBatch(batchId: string): Promise<ImportBatch | null> {
+  const store = await loadRakutenImportStaging();
+  return store.batches.find((b) => b.id === batchId) ?? null;
+}
+
 export async function pruneConfirmedBatches(): Promise<void> {
   const store = await loadRakutenImportStaging();
   store.batches = store.batches

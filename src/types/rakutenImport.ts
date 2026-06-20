@@ -63,6 +63,8 @@ export interface BrokerTransactionCandidate {
   lowConfidenceFields: ImportFieldKey[];
 
   rawInputText?: string;
+  /** OCR 元画像（端末内 URI） */
+  imageLocalUri?: string;
   duplicateHint?: DuplicateHint;
 
   mappedRecordIds?: {
@@ -84,6 +86,31 @@ export interface ImportBatch {
   source: ImportSource;
   candidates: BrokerTransactionCandidate[];
   createdAt: string;
+  /** バッチ単位の Transaction History スクショ参照 */
+  imageLocalUri?: string;
+}
+
+/** OpenAI Vision OCR — Transaction History 1行分 */
+export type OcrFieldConfidence = Partial<Record<ImportFieldKey, number>>;
+
+export interface OcrTransactionRow {
+  type: BrokerTransactionType;
+  date?: string;
+  symbol?: string;
+  company?: string;
+  quantity?: number;
+  price?: number;
+  fee?: number;
+  total?: number;
+  currency?: string;
+  referenceNumber?: string;
+  fieldConfidence?: OcrFieldConfidence;
+  /** 行全体の信頼度 0.0–1.0 */
+  confidence?: number;
+}
+
+export interface OcrVisionResponse {
+  rows: OcrTransactionRow[];
 }
 
 export type RakutenImportAuditEvent =

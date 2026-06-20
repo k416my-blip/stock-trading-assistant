@@ -49,6 +49,7 @@ import { StockReportScreen } from '../screens/StockReportScreen';
 import { BursaDiscoveryScreen } from '../screens/BursaDiscoveryScreen';
 import { RakutenImportConfirmScreen } from '../screens/RakutenImportConfirmScreen';
 import { RakutenImportManualEntryScreen } from '../screens/RakutenImportManualEntryScreen';
+import { RakutenImportOcrReviewScreen } from '../screens/RakutenImportOcrReviewScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -229,6 +230,11 @@ export function RootNavigator() {
           name="RakutenImportConfirm"
           component={RakutenImportConfirmScreen}
           options={{ title: '取引記録の確認' }}
+        />
+        <Stack.Screen
+          name="RakutenImportOcrReview"
+          component={RakutenImportOcrReviewScreen}
+          options={{ title: 'スクショ読み取り結果' }}
         />
         <Stack.Screen
           name="SecuritySettings"

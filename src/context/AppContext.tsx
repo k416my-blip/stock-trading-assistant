@@ -245,6 +245,12 @@ interface AppContextValue {
     | { ok: true; candidateId: string; candidate: import('../types/rakutenImport').BrokerTransactionCandidate }
     | { ok: false; error: string }
   >;
+  stageRakutenImportOcrScreenshot: (
+    imageUri: string,
+  ) => Promise<
+    | { ok: true; batchId: string; candidateIds: string[] }
+    | { ok: false; error: string }
+  >;
   commitRakutenImportCandidate: (
     candidateId: string,
   ) => Promise<{ ok: boolean; error?: string }>;
@@ -500,6 +506,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     undoLastHoldingRemoval,
     stageRakutenImportManual,
     stageRakutenImportNaturalLanguage,
+    stageRakutenImportOcrScreenshot,
     commitRakutenImportCandidate,
     rejectRakutenImportCandidate,
   } = portfolioActions;
@@ -746,6 +753,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateHoldingMarket,
       stageRakutenImportManual,
       stageRakutenImportNaturalLanguage,
+      stageRakutenImportOcrScreenshot,
       commitRakutenImportCandidate,
       rejectRakutenImportCandidate,
       twelveDataApiKey,
@@ -832,6 +840,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateHoldingMarket,
       stageRakutenImportManual,
       stageRakutenImportNaturalLanguage,
+      stageRakutenImportOcrScreenshot,
       commitRakutenImportCandidate,
       rejectRakutenImportCandidate,
       twelveDataApiKey,

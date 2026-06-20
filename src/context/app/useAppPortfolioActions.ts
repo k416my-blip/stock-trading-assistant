@@ -58,6 +58,7 @@ import {
 } from '../../services/sellAllHoldings';
 import { buildManualImportCandidate } from '../../services/rakutenImport/buildManualImportCandidate';
 import { buildNaturalLanguageImportCandidate } from '../../services/rakutenImport/buildNaturalLanguageImportCandidate';
+import { buildOcrImportBatch } from '../../services/rakutenImport/buildOcrImportBatch';
 import {
   buildCommitAuditDetailJa,
   commitImportCandidateInState,
@@ -776,6 +777,40 @@ export function useAppPortfolioActions({
     [tradeBlockedReason, stateRef],
   );
 
+  const stageRakutenImportOcrScreenshot = useCallback(
+    async (imageUri: string) => {
+      const blocked = tradeBlockedReason();
+      if (blocked) return { ok: false as const, error: blocked };
+
+      const journal = await loadExecutionJournal();
+      const built = await buildOcrImportBatch(imageUri, {
+        state: stateRef.current,
+        journalEntries: journal.entries,
+      });
+      if (!built.ok) return { ok: false as const, error: built.error };
+
+      const { batch } = built;
+      await saveImportBatch(batch);
+      for (const candidate of batch.candidates) {
+        await appendRakutenImportAuditEntry(
+          createAuditEntry({
+            event: 'candidate_created',
+            batchId: batch.id,
+            candidateId: candidate.id,
+            candidateType: candidate.type,
+            detailJa: `OCR: ${candidate.type} · ${candidate.executedAt?.slice(0, 10) ?? '—'}`,
+          }),
+        );
+      }
+      return {
+        ok: true as const,
+        batchId: batch.id,
+        candidateIds: batch.candidates.map((c) => c.id),
+      };
+    },
+    [tradeBlockedReason, stateRef],
+  );
+
   const commitRakutenImportCandidate = useCallback(
     async (candidateId: string) => {
       const blocked = tradeBlockedReason();
@@ -869,6 +904,7 @@ export function useAppPortfolioActions({
     updateHoldingMarket,
     stageRakutenImportManual,
     stageRakutenImportNaturalLanguage,
+    stageRakutenImportOcrScreenshot,
     commitRakutenImportCandidate,
     rejectRakutenImportCandidate,
   };

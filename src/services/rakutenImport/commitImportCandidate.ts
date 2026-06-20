@@ -44,9 +44,9 @@ function feeAmount(candidate: BrokerTransactionCandidate): number | undefined {
 }
 
 function importNote(candidate: BrokerTransactionCandidate): string {
-  return candidate.source === 'natural_language'
-    ? 'Rakuten import (NL)'
-    : 'Rakuten import (manual)';
+  if (candidate.source === 'natural_language') return 'Rakuten import (NL)';
+  if (candidate.source === 'ocr_screenshot') return 'Rakuten import (OCR)';
+  return 'Rakuten import (manual)';
 }
 
 function validateCandidate(candidate: BrokerTransactionCandidate): { ok: true } | { ok: false; error: string } {
@@ -149,7 +149,11 @@ function buildJournalEntry(
     updatedAt: now,
     tradeRecordId: record?.id ?? meta?.tradeId,
     recordSource:
-      candidate.source === 'natural_language' ? 'rakuten_import_nl' : 'rakuten_import_manual',
+      candidate.source === 'natural_language'
+        ? 'rakuten_import_nl'
+        : candidate.source === 'ocr_screenshot'
+          ? 'rakuten_import_ocr'
+          : 'rakuten_import_manual',
     userConfirmationStatus: 'confirmed_by_user',
     brokerReferenceNumber: candidate.referenceNumber,
     importBatchId: candidate.batchId,

@@ -37,7 +37,8 @@ export interface ExecutionJournalEntry {
     | 'practice'
     | 'rakuten_trade_manual'
     | 'rakuten_import_manual'
-    | 'rakuten_import_nl';
+    | 'rakuten_import_nl'
+    | 'rakuten_import_ocr';
   brokerReferenceNumber?: string;
   importBatchId?: string;
   importCandidateId?: string;

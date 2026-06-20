@@ -73,6 +73,7 @@ function formatSummary(c: BrokerTransactionCandidate): string {
 function sourceLabel(source: BrokerTransactionCandidate['source']): string {
   if (source === 'natural_language') return '自然文入力';
   if (source === 'manual_form') return '手動入力';
+  if (source === 'ocr_screenshot') return 'スクショ読み取り';
   return source;
 }
 

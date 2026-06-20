@@ -51,6 +51,7 @@ export type RootStackParamList = {
   AllocationCommitteeDetail: { candidate: AllocationCandidate };
   RakutenImportManualEntry: undefined;
   RakutenImportConfirm: { candidateId: string };
+  RakutenImportOcrReview: { batchId: string };
 };
 
 export type MainTabParamList = {

@@ -12,6 +12,8 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AiChatMessage } from '../types/aiChat';
 import type { ConciergeEvidenceBundle } from '../types/conciergeEvidence';
 import type { AiRequestStatus, AiStrategyChatResult } from '../types/aiStrategy';
@@ -91,6 +93,8 @@ import { SelectableText } from './ui/SelectableText';
 import { theme } from '../theme';
 import { ConciergeImportActionCard } from './concierge/ConciergeImportActionCard';
 import { detectRakutenImportIntent } from '../services/rakutenImport/detectRakutenImportIntent';
+import { pickTransactionHistoryImageWithAlert } from '../services/rakutenImport/pickTransactionHistoryImage';
+import type { RootStackParamList } from '../navigation/types';
 import { buildConfirmPromptJa } from '../services/rakutenImport/naturalLanguageTransactionParser';
 import { canSaveImportCandidate } from '../services/rakutenImport/rakutenImportConfidence';
 import { ConciergeEvidencePanel } from './concierge/ConciergeEvidencePanel';
@@ -346,7 +350,8 @@ export function AiAssistantChat({
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
-  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime, stageRakutenImportNaturalLanguage } = useApp();
+  const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime, stageRakutenImportNaturalLanguage, stageRakutenImportOcrScreenshot } = useApp();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isBeginnerMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
@@ -378,6 +383,7 @@ export function AiAssistantChat({
   const [staleWarning, setStaleWarning] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState<VoiceInputStatus>(() => getVoiceInputAvailability());
   const [voiceNoticeJa, setVoiceNoticeJa] = useState<string | null>(null);
+  const [ocrBusy, setOcrBusy] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
@@ -630,6 +636,42 @@ export function AiAssistantChat({
       },
     );
   }, [voiceStatus]);
+
+  const hasOpenAiKey = Boolean(aiApiKey.trim());
+
+  const onPressOcrScreenshot = useCallback(async () => {
+    if (!hasOpenAiKey) {
+      Alert.alert(
+        'OpenAI APIキー未設定',
+        '履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。',
+      );
+      return;
+    }
+    if (ocrBusy || isSending) return;
+    const uri = await pickTransactionHistoryImageWithAlert();
+    if (!uri) return;
+    setOcrBusy(true);
+    setStatusJa('履歴スクショを読み取り中…');
+    try {
+      const result = await stageRakutenImportOcrScreenshot(uri);
+      if (!result.ok) {
+        Alert.alert('読み取りできません', result.error);
+        setStatusJa(AI_CONCIERGE_UI.statusInstant);
+        return;
+      }
+      navigation.navigate('RakutenImportOcrReview', { batchId: result.batchId });
+      setStatusJa(AI_CONCIERGE_UI.statusInstant);
+    } finally {
+      setOcrBusy(false);
+    }
+  }, [
+    aiApiKey,
+    hasOpenAiKey,
+    isSending,
+    navigation,
+    ocrBusy,
+    stageRakutenImportOcrScreenshot,
+  ]);
 
   const scrollToEnd = useCallback(() => {
     const target = isConcierge ? conciergeScrollRef : scrollRef;
@@ -1229,6 +1271,25 @@ export function AiAssistantChat({
       <View style={styles.inputRow}>
         {isConcierge ? (
           <Pressable
+            onPress={() => void onPressOcrScreenshot()}
+            disabled={isSending || ocrBusy}
+            style={({ pressed }) => [
+              styles.voiceBtn,
+              !hasOpenAiKey && styles.ocrBtnDisabled,
+              pressed && styles.voiceBtnPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="履歴スクショを読み取る"
+          >
+            <Ionicons
+              name="camera-outline"
+              size={22}
+              color={hasOpenAiKey ? theme.colors.primary : theme.colors.textMuted}
+            />
+          </Pressable>
+        ) : null}
+        {isConcierge ? (
+          <Pressable
             onPress={onVoicePress}
             disabled={isSending}
             style={({ pressed }) => [
@@ -1713,6 +1774,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.12)',
   },
   voiceBtnPressed: { opacity: 0.8 },
+  ocrBtnDisabled: { opacity: 0.45 },
   inputConcierge: { minHeight: 48, maxHeight: 120, fontSize: theme.fontSize.md },
   voiceNotice: {
     color: theme.colors.warning,

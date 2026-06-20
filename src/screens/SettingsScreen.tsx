@@ -53,12 +53,22 @@ import {
   runXApiSearchRecentTest,
   type XApiSearchRecentTestResult,
 } from '../services/xApiSearchRecentTest';
+import { pickTransactionHistoryImageWithAlert } from '../services/rakutenImport/pickTransactionHistoryImage';
 
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { state, isPractice, resetAllAppData, reloadStoredApiKeys, saveAnalysisApiKeys } = useApp();
+  const {
+    state,
+    isPractice,
+    resetAllAppData,
+    reloadStoredApiKeys,
+    saveAnalysisApiKeys,
+    aiApiKey,
+    stageRakutenImportOcrScreenshot,
+  } = useApp();
   const { appUxMode, setAppUxMode, isBeginnerMode } = useAppUxMode();
   const [resetting, setResetting] = useState(false);
+  const [ocrBusy, setOcrBusy] = useState(false);
   const [apiKeyInputs, setApiKeyInputs] = useState(createEmptyApiKeyDrafts);
   const [apiKeyStatus, setApiKeyStatus] = useState<Record<SupportedApiProviderId, ApiKeyConfiguredStatus>>(
     () =>
@@ -147,6 +157,31 @@ export function SettingsScreen() {
   const refreshLabel =
     PRICE_REFRESH_OPTIONS.find((o) => o.minutes === state.settings.priceRefreshMinutes)?.label ??
     '15分（おすすめ）';
+
+  const hasOpenAiKey = Boolean(aiApiKey.trim());
+
+  const onPickOcrScreenshot = async () => {
+    if (!hasOpenAiKey) {
+      Alert.alert(
+        'OpenAI APIキー未設定',
+        '履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。',
+      );
+      return;
+    }
+    const uri = await pickTransactionHistoryImageWithAlert();
+    if (!uri) return;
+    setOcrBusy(true);
+    try {
+      const result = await stageRakutenImportOcrScreenshot(uri);
+      if (!result.ok) {
+        Alert.alert('読み取りできません', result.error);
+        return;
+      }
+      stackNav.navigate('RakutenImportOcrReview', { batchId: result.batchId });
+    } finally {
+      setOcrBusy(false);
+    }
+  };
 
   const refreshApiKeyStatuses = async () => {
     const statuses = await loadAllApiKeyConfiguredStatuses();
@@ -880,6 +915,18 @@ export function SettingsScreen() {
           title="Rakuten取引記録"
           subtitle="入金・買付・売却の手動記録（確認後に保存）"
           onPress={() => stackNav.navigate('RakutenImportManualEntry')}
+        />
+        <SettingsMenuRow
+          icon="camera-outline"
+          title="履歴スクショを読み取る"
+          subtitle={
+            hasOpenAiKey
+              ? ocrBusy
+                ? '読み取り中…'
+                : 'Transaction History 画像 → 候補一覧（確認後に保存）'
+              : 'OpenAI APIキー未設定 — 手動/自然文入力をご利用ください'
+          }
+          onPress={() => void onPickOcrScreenshot()}
         />
         <SettingsMenuRow
           icon="lock-closed-outline"

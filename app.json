@@ -25,12 +25,13 @@
         "backgroundColor": "#0f1419"
       },
       "package": "com.assistant.stocktrading",
-      "versionCode": 25,
+      "versionCode": 26,
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
         "FOREGROUND_SERVICE_DATA_SYNC",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "READ_MEDIA_IMAGES"
       ],
       "edgeToEdgeEnabled": false
     },
@@ -49,7 +50,13 @@
           ]
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Rakuten Trade 取引履歴のスクリーンショットを読み取るために写真ライブラリへのアクセスが必要です。"
+        }
+      ]
     ],
     "extra": {
       "eas": {
