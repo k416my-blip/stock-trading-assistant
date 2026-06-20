@@ -320,10 +320,10 @@ npx eas-cli submit -p android --profile production --latest
 
 | 項目 | 値 |
 |------|-----|
-| **Commit** | *(push 後に更新 — 下記 §10 実行結果)* |
+| **Commit** | `f12d087` — Add Play Internal Testing P0 privacy policy and execution report. |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
 | **Remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
-| **Push** | *(push 後に更新)* |
+| **Push** | **success** — `796844b..f12d087` → `origin/cursor/top3-maxdd-capital-audit` |
 
 **本コミット対象ファイル:**
 
