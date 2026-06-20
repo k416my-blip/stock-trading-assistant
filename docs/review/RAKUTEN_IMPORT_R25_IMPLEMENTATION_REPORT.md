@@ -126,7 +126,7 @@ npx vitest run tests/unit/rakutenImport
 
 | 項目 | 値 |
 |------|-----|
-| commit | `PLACEHOLDER` |
+| commit | `7356b0d` |
 | push | `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
