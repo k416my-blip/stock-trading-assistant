@@ -103,5 +103,6 @@ npx vitest run tests/unit/conciergeTodayProposalsBuilder.test.ts
 
 | 項目 | 値 |
 |------|-----|
-| 実装コミット | （commit 後に更新） |
-| push 結果 | （push 後に更新） |
+| 実装コミット | `2e60295` |
+| push 先 | `origin/cursor/top3-maxdd-capital-audit` |
+| push 結果 | **成功** |
