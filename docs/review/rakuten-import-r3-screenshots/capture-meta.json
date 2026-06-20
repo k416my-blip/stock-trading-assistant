@@ -1,0 +1,10 @@
+{
+  "apk": "artifacts\\preview-v26-rakuten-import-r3.apk",
+  "versionCode": 26,
+  "device": "FYRWXSNNAIOR9DCM",
+  "capturedAt": "2026-06-20T15:26:58.653Z",
+  "screenshots": [
+    "01-settings-ocr-entry.png",
+    "02-concierge-camera-button.png"
+  ]
+}
