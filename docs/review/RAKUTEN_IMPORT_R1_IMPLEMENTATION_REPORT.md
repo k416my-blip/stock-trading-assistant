@@ -95,8 +95,8 @@ npx vitest run tests/unit/rakutenImport
 
 | 項目 | 値 |
 |------|-----|
-| コミット | （push 後に `git rev-parse HEAD` で記録） |
-| push | （下記コミット・push 実行結果を参照） |
+| コミット | `aa1a506` |
+| push | 下記 push 結果を参照 |
 
 ---
 
