@@ -1,11 +1,15 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BeginnerTodayAdviceCard } from '../components/beginner/BeginnerTodayAdviceCard';
 import { Screen } from '../components/ui/Screen';
+import { useApp } from '../context/AppContext';
 import { useAppUxMode } from '../context/AppUxModeContext';
 import { useBursaMaterial } from '../context/BursaMaterialContext';
+import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import type { RootStackParamList } from '../navigation/types';
+import { buildBeginnerTodayAdvice } from '../services/beginner/beginnerTodayAdviceBuilder';
 import {
   MATERIAL_ANALYSIS_MISSING_JA,
   type ApiConnectionRow,
@@ -685,7 +689,20 @@ function StockMaterialCard({
 export function MaterialAnalysisScreen() {
   const { report, auditReport, loading, error, refresh } = useBursaMaterial();
   const { isBeginnerMode } = useAppUxMode();
+  const { state, isPractice } = useApp();
+  const proactive = useProactiveConciergeOptional();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const beginnerAdvice = useMemo(
+    () =>
+      buildBeginnerTodayAdvice({
+        holdings: isPractice ? state.practice.portfolio : state.portfolio,
+        materialReport: report,
+        strategyBundle: proactive?.strategyBundle ?? null,
+        loading: loading && !report,
+      }),
+    [isPractice, state.portfolio, state.practice.portfolio, report, loading, proactive?.strategyBundle],
+  );
 
   const onRefresh = useCallback(() => {
     void refresh();
@@ -711,6 +728,9 @@ export function MaterialAnalysisScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} testID="material-analysis-screen">
         <Text style={styles.pageTitle}>{isBeginnerMode ? '銘柄チェック' : '材料分析'}</Text>
+        {isBeginnerMode ? (
+          <BeginnerTodayAdviceCard data={beginnerAdvice} />
+        ) : null}
         <Text style={styles.liveTag}>{report.dataSourceLabel}</Text>
         <Pressable onPress={onRefresh}>
           <Text style={styles.refresh}>再取得</Text>

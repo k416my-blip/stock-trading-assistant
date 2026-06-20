@@ -1,7 +1,9 @@
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BeginnerPortfolioHoldingCard } from '../components/beginner/BeginnerPortfolioHoldingCard';
 import { PracticeModeBadge } from '../components/PracticeModeBadge';
 import { SellAllMissingPriceModal } from '../components/SellAllMissingPriceModal';
 import { LabeledValue, TermHint } from '../components/TermHint';
@@ -19,6 +21,9 @@ import { PortfolioHoldingsCardsSection } from '../components/portfolio/Portfolio
 import { RealAccountExposurePanel } from '../components/RealAccountExposurePanel';
 import { RealAccountPendingOrdersPanel } from '../components/RealAccountPendingOrdersPanel';
 import { useApp } from '../context/AppContext';
+import { useAppUxMode } from '../context/AppUxModeContext';
+import { useBursaMaterialOptional } from '../context/BursaMaterialContext';
+import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import { usePriceSyncActions } from '../context/PriceSyncContext';
 import { useRenderTrace } from '../utils/renderDiagnostics';
 
@@ -47,7 +52,9 @@ import {
   SELL_ALL_NO_HOLDINGS,
   type SellAllPriceInput,
 } from '../services/sellAllHoldings';
-import type { RootStackParamList } from '../navigation/types';
+import type { MainTabParamList, RootStackParamList } from '../navigation/types';
+import { parseMaterialQualityStarCount } from '../constants/beginnerAiTrustLevelJa';
+import { resolvePortfolioAiEvaluation } from '../services/portfolioAiEvaluationFromStrategyBundle';
 import type { PortfolioPosition, SellAllLineItem } from '../types';
 import { positionDisplayPrice } from '../utils/positionPrice';
 import { safeNumber } from '../utils/safeNumeric';
@@ -78,9 +85,19 @@ export function PortfolioScreen() {
     undoLastHoldingRemoval,
     killSwitches,
   } = useApp();
+  const { isBeginnerMode } = useAppUxMode();
+  const materialCtx = useBursaMaterialOptional();
+  const proactive = useProactiveConciergeOptional();
   const { reloadTwelveDataApiKeyFromStorage, syncPriceSyncForEmptyHoldings, refreshPortfolioPrices } =
     usePriceSyncActions();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const tabNav = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+
+  const portfolioEval = useMemo(() => {
+    const bundle = proactive?.strategyBundle;
+    if (!bundle) return null;
+    return resolvePortfolioAiEvaluation(bundle);
+  }, [proactive?.strategyBundle]);
 
   const portfolio = useMemo(() => {
     const raw = isPractice ? state.practice.portfolio : state.portfolio;
@@ -483,6 +500,74 @@ export function PortfolioScreen() {
       </View>
     );
   }, [isPractice, state.dividends]);
+
+  if (isBeginnerMode) {
+    return (
+      <Screen
+        scrollable={false}
+        title="保有銘柄"
+        subtitle={`あなたの保有: ${holdings.length} 銘柄`}
+      >
+        <ScrollView
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {isPractice ? <PracticeModeBadge /> : null}
+          {holdings.length === 0 ? (
+            <Card style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>保有銘柄がありません</Text>
+              <Button
+                label="銘柄を追加"
+                onPress={() => navigation.navigate('ManualAddHolding')}
+              />
+            </Card>
+          ) : (
+            holdings.map((h) => {
+              const sym = h.symbol.toUpperCase();
+              const evalRow = portfolioEval?.rankedHoldings.find(
+                (e) => e.symbol.toUpperCase() === sym,
+              );
+              const materialRow = materialCtx?.report?.stocks.find(
+                (s) => s.stockCode.toUpperCase() === sym,
+              );
+              const pnlPrefix = h.unrealizedProfitLoss >= 0 ? '+' : '';
+              return (
+                <BeginnerPortfolioHoldingCard
+                  key={h.positionId}
+                  symbol={sym}
+                  nameJa={h.name}
+                  isHeld
+                  fusedAction={evalRow?.action ?? 'hold'}
+                  finalScore={evalRow?.finalScore ?? 50}
+                  confidencePct={evalRow?.confidence}
+                  dataQualityStars={parseMaterialQualityStarCount(materialRow?.dataQuality?.stars)}
+                  priceLabel={
+                    h.priceAvailable
+                      ? `RM ${h.displayPrice.toFixed(2)}`
+                      : undefined
+                  }
+                  pnlLabel={
+                    h.priceAvailable
+                      ? `${pnlPrefix}RM ${Math.abs(h.unrealizedProfitLoss).toFixed(0)}`
+                      : undefined
+                  }
+                  onPressWhy={() => tabNav?.navigate('MaterialAnalysis')}
+                  onPressAskAi={() => tabNav?.navigate('ConciergeConsult')}
+                />
+              );
+            })
+          )}
+          <Button
+            label="銘柄を追加"
+            onPress={() => navigation.navigate('ManualAddHolding')}
+            variant="ghost"
+          />
+        </ScrollView>
+      </Screen>
+    );
+  }
 
   return (
     <>

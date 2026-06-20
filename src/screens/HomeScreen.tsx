@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BursaConciergeHomeCard } from '../components/BursaConciergeHomeCard';
 import { BursaMaterialHomeCard } from '../components/BursaMaterialHomeCard';
@@ -39,12 +39,17 @@ import {
   TRUST_HOME_TITLE_JA,
 } from '../constants/trustDisplay';
 import { MARKET_LABEL } from '../constants/rakutenTrade';
+import { BeginnerTodayAdviceCard } from '../components/beginner/BeginnerTodayAdviceCard';
 import { useApp } from '../context/AppContext';
+import { useAppUxMode } from '../context/AppUxModeContext';
+import { useBursaMaterialOptional } from '../context/BursaMaterialContext';
+import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import {
-  isBeginnerDisplayMode,
   isSimplifiedInvestmentDisplayMode,
   isTrustDisplayMode,
 } from '../services/beginnerDisplayMapper';
+import { buildBeginnerTodayAdvice } from '../services/beginner/beginnerTodayAdviceBuilder';
+import { portfolioMarketValueMYR } from '../services/portfolio';
 import { buildTrustPlanPresentation } from '../services/trustRecommendationSummary';
 import { recordTrustOperationStartIfNeeded } from '../services/trustOperatingPerformanceStorage';
 import { loadTrustPlanSnapshot } from '../services/trustPlanPreviewStorage';
@@ -64,8 +69,10 @@ export function HomeScreen() {
     applyAllocationPractice,
     addAllocationToManualOrderList,
   } = useApp();
+  const { isBeginnerMode } = useAppUxMode();
+  const materialCtx = useBursaMaterialOptional();
+  const proactive = useProactiveConciergeOptional();
   const trustMode = isTrustDisplayMode(aiPreferences);
-  const beginnerMode = isBeginnerDisplayMode(aiPreferences);
   const simplifiedMode = isSimplifiedInvestmentDisplayMode(aiPreferences);
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList, 'Home'>>();
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -199,20 +206,69 @@ export function HomeScreen() {
     );
   }
 
-  if (beginnerMode) {
+  const beginnerAdvice = useMemo(
+    () =>
+      buildBeginnerTodayAdvice({
+        holdings: isPractice ? state.practice.portfolio : state.portfolio,
+        materialReport: materialCtx?.report ?? null,
+        strategyBundle: proactive?.strategyBundle ?? null,
+        loading: materialCtx?.loading === true && !materialCtx?.report,
+      }),
+    [
+      isPractice,
+      state.portfolio,
+      state.practice.portfolio,
+      materialCtx?.report,
+      materialCtx?.loading,
+      proactive?.strategyBundle,
+    ],
+  );
+
+  const beginnerPortfolioSummary = useMemo(() => {
+    const holdings = (isPractice ? state.practice.portfolio : state.portfolio).filter(
+      (p) => p.shares > 0,
+    );
+    const holdingsMYR = isPractice
+      ? practiceStats.portfolioValueMYR
+      : portfolioMarketValueMYR(state) + Math.max(0, buyingPower.buyingPowerMYR);
+    return `${holdings.length} 銘柄 · 総資産 RM ${holdingsMYR.toLocaleString('ja-JP', {
+      maximumFractionDigits: 0,
+    })}`;
+  }, [isPractice, state, state.practice.portfolio, practiceStats.portfolioValueMYR, buyingPower.buyingPowerMYR]);
+
+  if (isBeginnerMode) {
     return (
       <Screen
         ref={scrollRef}
-        title="今日のおすすめ"
-        subtitle="お金の額を入れると、買うべきか教えてくれます"
+        title="今日のポートフォリオ"
+        subtitle="今日の方針をやさしく整理します"
       >
         {isPractice ? <PracticeModeBadge /> : null}
-        <Card>
-          <Text style={styles.beginnerLead}>
-            投資の知識がなくても大丈夫です。入金したい金額を入力すると、買う・様子見・買わないをやさしい言葉でお伝えします。
-          </Text>
-        </Card>
-        <Button label="おすすめを見る" onPress={() => tabNav.navigate('AllocationPlan')} />
+        <BeginnerTodayAdviceCard
+          data={beginnerAdvice}
+          onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
+        />
+        <Text style={styles.portfolioSummary}>{beginnerPortfolioSummary}</Text>
+        <View style={styles.ctaRow}>
+          <Button label="保有を確認" onPress={() => tabNav.navigate('Portfolio')} />
+          <Button
+            label="AIに相談する"
+            onPress={() => tabNav.navigate('ConciergeConsult')}
+            variant="ghost"
+          />
+        </View>
+        <View style={styles.ctaRow}>
+          <Button
+            label="おすすめ配分を見る"
+            onPress={() => tabNav.navigate('AllocationPlan')}
+            variant="ghost"
+          />
+          <Button
+            label="はじめての使い方"
+            onPress={() => tabNav.navigate('BeginnerGuide')}
+            variant="ghost"
+          />
+        </View>
       </Screen>
     );
   }
@@ -278,10 +334,16 @@ const styles = StyleSheet.create({
     padding: theme.spacing.xs,
   },
   gearBtnPressed: { opacity: 0.7 },
-  beginnerLead: {
-    color: theme.colors.text,
+  portfolioSummary: {
+    color: theme.colors.textMuted,
     fontSize: theme.fontSize.md,
-    lineHeight: 24,
+    textAlign: 'center',
+    marginVertical: theme.spacing.sm,
+  },
+  ctaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
   },
   trustHint: {
     color: theme.colors.textMuted,

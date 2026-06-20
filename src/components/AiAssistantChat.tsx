@@ -83,6 +83,8 @@ import { activateAnalysisMode, detectAnalysisRequestJa } from '../services/layer
 import { useAppForeground } from '../hooks/useAppForeground';
 import { isUnhandledProactiveStatus } from '../types/proactiveSuggestion';
 import { ProactiveSuggestionCard } from './proactive/ProactiveSuggestionCard';
+import { BeginnerConciergeQuickActions } from './beginner/BeginnerConciergeQuickActions';
+import { useAppUxMode } from '../context/AppUxModeContext';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { SelectableText } from './ui/SelectableText';
@@ -339,6 +341,7 @@ export function AiAssistantChat({
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
   const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state } = useApp();
+  const { isBeginnerMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
   const unifiedCognitiveBundle = useUnifiedCognitiveDashboardBundle();
@@ -1100,7 +1103,8 @@ export function AiAssistantChat({
     });
   }
 
-  const conciergeUxDashboardBlock = proactive ? (
+  const conciergeUxDashboardBlock =
+    proactive && !(isConcierge && isBeginnerMode) ? (
     <View testID={CONCIERGE_SECTION_TEST_ID.status_card}>
       {AI_ACTION_CENTER_LITE_MODE ? (
         <ConciergeProactiveDashboardPanelsLite proactive={proactive} />
@@ -1138,6 +1142,11 @@ export function AiAssistantChat({
       ) : null}
     </View>
   ) : null;
+
+  const beginnerQuickActionsBlock =
+    isConcierge && isBeginnerMode ? (
+      <BeginnerConciergeQuickActions onAction={onSample} disabled={isLoading} />
+    ) : null;
 
   const quickActionsBlock =
     !isConcierge ? (
@@ -1457,8 +1466,9 @@ export function AiAssistantChat({
         showsVerticalScrollIndicator
         nestedScrollEnabled
       >
+        {beginnerQuickActionsBlock}
         {conciergeUxDashboardBlock}
-        {analysisModeBlock}
+        {isBeginnerMode ? null : analysisModeBlock}
         {proactiveConciergeBlock}
         {threadBlock}
         {aiPreferences.aiConciergeDebugMode ? <ConciergePromptDebugPanel /> : null}
