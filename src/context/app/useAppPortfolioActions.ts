@@ -11,6 +11,7 @@ import { recordTradeOutcomeForBehavior } from '../../services/behavioralRiskStor
 import { toMYR } from '../../services/fx';
 import {
   appendExecutionJournalEntry,
+  loadExecutionJournal,
 } from '../../services/executionJournalStorage';
 import {
   createDefaultExecutionHandlers,
@@ -55,6 +56,18 @@ import {
   executePracticeSellAllHoldings,
   MANUAL_SELL_ORDER_METHOD,
 } from '../../services/sellAllHoldings';
+import { buildManualImportCandidate } from '../../services/rakutenImport/buildManualImportCandidate';
+import { commitImportCandidateInState } from '../../services/rakutenImport/commitImportCandidate';
+import {
+  appendRakutenImportAuditEntry,
+  createAuditEntry,
+} from '../../services/rakutenImport/rakutenImportAuditStorage';
+import {
+  findImportCandidate,
+  pruneConfirmedBatches,
+  saveImportBatch,
+  upsertImportCandidate,
+} from '../../services/rakutenImport/rakutenImportStagingStorage';
 import { getPersonalKillSwitchesSnapshot } from '../../services/personalKillSwitches';
 import { loadAppStateTrusted } from '../../services/storage';
 import { saveAppState } from '../../services/storage';
@@ -62,6 +75,7 @@ import { restorePortfolioFromBackup } from '../../services/portfolioBackup';
 import { validateTradeIntent } from '../../services/tradeExecutionGate';
 import type { AiLearningState } from '../../services/analysis/aiLearning';
 import type { ExecutionLedgerMode } from '../../types/execution';
+import type { RakutenImportManualFormInput } from '../../types/rakutenImport';
 import type { MarketRegimeResult } from '../../types/marketRegime';
 import type {
   AllocationPlan,
@@ -698,6 +712,90 @@ export function useAppPortfolioActions({
     return { ok: true };
   }, [setState, stateRef]);
 
+  const stageRakutenImportManual = useCallback(
+    async (input: RakutenImportManualFormInput) => {
+      const blocked = tradeBlockedReason();
+      if (blocked) return { ok: false as const, error: blocked };
+
+      const journal = await loadExecutionJournal();
+      const { batch, candidate } = buildManualImportCandidate(input, {
+        state: stateRef.current,
+        journalEntries: journal.entries,
+      });
+      await saveImportBatch(batch);
+      await appendRakutenImportAuditEntry(
+        createAuditEntry({
+          event: 'candidate_created',
+          batchId: batch.id,
+          candidateId: candidate.id,
+          candidateType: candidate.type,
+          detailJa: candidate.rawInputText,
+        }),
+      );
+      return { ok: true as const, candidateId: candidate.id };
+    },
+    [tradeBlockedReason, stateRef],
+  );
+
+  const commitRakutenImportCandidate = useCallback(
+    async (candidateId: string) => {
+      const blocked = tradeBlockedReason();
+      if (blocked) return { ok: false as const, error: blocked };
+
+      const found = await findImportCandidate(candidateId);
+      if (!found) {
+        return { ok: false as const, error: '候補が見つかりません。' };
+      }
+
+      const mutation = commitImportCandidateInState(stateRef.current, found.candidate);
+      if (!mutation.ok) return { ok: false as const, error: mutation.error };
+
+      await appendExecutionJournalEntry(mutation.journalEntry);
+      const persist = await persistPortfolioStateNow(mutation.state);
+      if (!persist.ok) {
+        return { ok: false as const, error: persist.error ?? HOLDING_ERRORS.saveFailed };
+      }
+      setState(mutation.state);
+      stateRef.current = mutation.state;
+      setPortfolioRevision((v) => v + 1);
+
+      await upsertImportCandidate(found.batch.id, mutation.candidate);
+      await appendRakutenImportAuditEntry(
+        createAuditEntry({
+          event: 'candidate_confirmed',
+          batchId: found.batch.id,
+          candidateId: mutation.candidate.id,
+          candidateType: mutation.candidate.type,
+          mappedRecordIds: mutation.candidate.mappedRecordIds,
+          detailJa: 'ユーザー確認後に保存',
+        }),
+      );
+      await pruneConfirmedBatches();
+      return { ok: true as const };
+    },
+    [tradeBlockedReason, stateRef, setState, persistPortfolioStateNow],
+  );
+
+  const rejectRakutenImportCandidate = useCallback(async (candidateId: string) => {
+    const found = await findImportCandidate(candidateId);
+    if (!found) return;
+    const rejected = {
+      ...found.candidate,
+      status: 'rejected' as const,
+      rejectedAt: new Date().toISOString(),
+    };
+    await upsertImportCandidate(found.batch.id, rejected);
+    await appendRakutenImportAuditEntry(
+      createAuditEntry({
+        event: 'candidate_rejected',
+        batchId: found.batch.id,
+        candidateId,
+        candidateType: found.candidate.type,
+      }),
+    );
+    await pruneConfirmedBatches();
+  }, []);
+
   return {
     tradeBlockedReason,
     persistPortfolioStateNow,
@@ -730,5 +828,8 @@ export function useAppPortfolioActions({
     updateHoldingCurrentPrice,
     updateHoldingSymbol,
     updateHoldingMarket,
+    stageRakutenImportManual,
+    commitRakutenImportCandidate,
+    rejectRakutenImportCandidate,
   };
 }

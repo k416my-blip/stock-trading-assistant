@@ -47,6 +47,8 @@ import { AllocationCommitteeDetailScreen } from '../screens/AllocationCommitteeD
 import { StockDetailScreen } from '../screens/StockDetailScreen';
 import { StockReportScreen } from '../screens/StockReportScreen';
 import { BursaDiscoveryScreen } from '../screens/BursaDiscoveryScreen';
+import { RakutenImportConfirmScreen } from '../screens/RakutenImportConfirmScreen';
+import { RakutenImportManualEntryScreen } from '../screens/RakutenImportManualEntryScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
 
@@ -217,6 +219,16 @@ export function RootNavigator() {
           name="ExecutionReconciliation"
           component={ExecutionReconciliationScreen}
           options={{ title: '執行照合' }}
+        />
+        <Stack.Screen
+          name="RakutenImportManualEntry"
+          component={RakutenImportManualEntryScreen}
+          options={{ title: 'Rakuten取引記録' }}
+        />
+        <Stack.Screen
+          name="RakutenImportConfirm"
+          component={RakutenImportConfirmScreen}
+          options={{ title: '取引記録の確認' }}
         />
         <Stack.Screen
           name="SecuritySettings"

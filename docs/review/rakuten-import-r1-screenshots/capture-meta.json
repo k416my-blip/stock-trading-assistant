@@ -1,0 +1,13 @@
+{
+  "apk": "artifacts/preview-v23-rakuten-import-r1.apk",
+  "device": "23090RA98G",
+  "capturedAt": "2026-06-20T14:09:26.466Z",
+  "screenshots": [
+    "01-deposit-entry.png",
+    "02-deposit-confirm.png",
+    "03-buy-entry.png",
+    "04-buy-confirm.png",
+    "05-sell-entry.png",
+    "06-sell-confirm.png"
+  ]
+}

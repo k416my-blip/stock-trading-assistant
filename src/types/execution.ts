@@ -31,7 +31,15 @@ export interface ExecutionJournalEntry {
   errorReason?: string;
   tradeRecordId?: string;
   /** manual_record = direct add; rakuten_trade_manual = confirmed from manual order list */
-  recordSource?: 'execution' | 'manual_record' | 'practice' | 'rakuten_trade_manual';
+  recordSource?:
+    | 'execution'
+    | 'manual_record'
+    | 'practice'
+    | 'rakuten_trade_manual'
+    | 'rakuten_import_manual';
+  brokerReferenceNumber?: string;
+  importBatchId?: string;
+  importCandidateId?: string;
   /** User confirmed execution in broker app (not app-executed) */
   userConfirmationStatus?: 'confirmed_by_user';
 }

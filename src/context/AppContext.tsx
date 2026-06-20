@@ -133,6 +133,7 @@ import type { MarketRegimeResult } from '../types/marketRegime';
 import type { ConciergeSessionMemory } from '../types/aiConciergeSession';
 import type { AiPreferences, AiRequestStatus, AiStrategyChatResult } from '../types/aiStrategy';
 import type { ManualHoldingInput } from '../services/portfolioHoldings';
+import type { RakutenImportManualFormInput } from '../types/rakutenImport';
 import type {
   AllocationPlan,
   AppMode,
@@ -235,6 +236,13 @@ interface AppContextValue {
   updateHoldingCurrentPrice: (positionId: string, currentPrice: number) => { ok: boolean; error?: string };
   updateHoldingSymbol: (positionId: string, symbol: string) => { ok: boolean; error?: string };
   updateHoldingMarket: (positionId: string, market: Market) => { ok: boolean; error?: string };
+  stageRakutenImportManual: (
+    input: RakutenImportManualFormInput,
+  ) => Promise<{ ok: true; candidateId: string } | { ok: false; error: string }>;
+  commitRakutenImportCandidate: (
+    candidateId: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
+  rejectRakutenImportCandidate: (candidateId: string) => Promise<void>;
   twelveDataApiKey: string;
   analysisApiKeys: AnalysisApiKeys;
   aiLearningState: AiLearningState;
@@ -484,6 +492,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updateHoldingMarket,
     removeHolding,
     undoLastHoldingRemoval,
+    stageRakutenImportManual,
+    commitRakutenImportCandidate,
+    rejectRakutenImportCandidate,
   } = portfolioActions;
 
   const saveAiPreferences = useCallback(async (partial: Partial<AiPreferences>) => {
@@ -726,6 +737,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateHoldingCurrentPrice,
       updateHoldingSymbol,
       updateHoldingMarket,
+      stageRakutenImportManual,
+      commitRakutenImportCandidate,
+      rejectRakutenImportCandidate,
       twelveDataApiKey,
       analysisApiKeys,
       aiLearningState,
@@ -808,6 +822,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateHoldingCurrentPrice,
       updateHoldingSymbol,
       updateHoldingMarket,
+      stageRakutenImportManual,
+      commitRakutenImportCandidate,
+      rejectRakutenImportCandidate,
       twelveDataApiKey,
       analysisApiKeys,
       aiLearningState,

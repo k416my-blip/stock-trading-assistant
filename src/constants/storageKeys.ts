@@ -93,4 +93,6 @@ export const STORAGE_KEYS = {
   bursaConciergeNotifications: '@sta/bursa_concierge_notifications_v1',
   bursaConciergeSound: '@sta/bursa_concierge_sound_v1',
   twelveHourTestMonitor: '@sta/twelve_hour_test_monitor_v1',
+  rakutenImportBatches: '@sta/rakuten_import_batches_v1',
+  rakutenImportAudit: '@sta/rakuten_import_audit_v1',
 } as const;

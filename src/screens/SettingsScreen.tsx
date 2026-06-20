@@ -876,6 +876,12 @@ export function SettingsScreen() {
           onPress={() => stackNav.navigate('ExecutionReconciliation')}
         />
         <SettingsMenuRow
+          icon="wallet-outline"
+          title="Rakuten取引記録"
+          subtitle="入金・買付・売却の手動記録（確認後に保存）"
+          onPress={() => stackNav.navigate('RakutenImportManualEntry')}
+        />
+        <SettingsMenuRow
           icon="lock-closed-outline"
           title="セキュリティ"
           subtitle="ローカル保存 · 整合性 · 機密データの削除"

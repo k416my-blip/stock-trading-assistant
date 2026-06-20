@@ -1,0 +1,258 @@
+import { useMemo, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MarketPicker } from '../components/MarketPicker';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Screen } from '../components/ui/Screen';
+import { BROKER_NAME } from '../constants/rakutenTrade';
+import { useApp } from '../context/AppContext';
+import type { RootStackParamList } from '../navigation/types';
+import type { Currency, Market } from '../types';
+import type { RakutenImportManualFormInput } from '../types/rakutenImport';
+import { theme } from '../theme';
+
+type ImportKind = RakutenImportManualFormInput['type'];
+
+function currencyForMarket(market: Market): Currency {
+  if (market === 'us') return 'USD';
+  if (market === 'hk') return 'HKD';
+  return 'MYR';
+}
+
+export function RakutenImportManualEntryScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { state, stageRakutenImportManual, readOnlyBlockedMessage } = useApp();
+
+  const [kind, setKind] = useState<ImportKind>('deposit');
+  const [amount, setAmount] = useState('500');
+  const [symbol, setSymbol] = useState('');
+  const [market, setMarket] = useState<Market>(state.settings.selectedMarket);
+  const [quantity, setQuantity] = useState('100');
+  const [price, setPrice] = useState('');
+  const [fee, setFee] = useState('0');
+  const [executedDate, setExecutedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [referenceNumber, setReferenceNumber] = useState('');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const guidance = useMemo(() => {
+    switch (kind) {
+      case 'deposit':
+        return 'Rakuten Trade で入金が反映された後、金額を記録します。';
+      case 'buy':
+        return '証券会社で約定した買付を記録します。発注は行いません。';
+      case 'sell':
+        return '証券会社で約定した売却を記録します。発注は行いません。';
+    }
+  }, [kind]);
+
+  const buildInput = (): RakutenImportManualFormInput | null => {
+    const executedAt = `${executedDate}T12:00:00.000Z`;
+    if (kind === 'deposit') {
+      const amountMYR = Number(amount);
+      if (!Number.isFinite(amountMYR) || amountMYR <= 0) return null;
+      return {
+        type: 'deposit',
+        amountMYR,
+        executedAt,
+        referenceNumber: referenceNumber.trim() || undefined,
+        note: note.trim() || undefined,
+      };
+    }
+    const qty = Number(quantity);
+    const px = Number(price);
+    if (!symbol.trim() || !Number.isFinite(qty) || qty <= 0 || !Number.isFinite(px) || px <= 0) {
+      return null;
+    }
+    const base = {
+      symbol: symbol.trim(),
+      market,
+      currency: currencyForMarket(market),
+      quantity: qty,
+      price: px,
+      fee: Number(fee) || 0,
+      executedAt,
+      referenceNumber: referenceNumber.trim() || undefined,
+      note: note.trim() || undefined,
+    };
+    return kind === 'buy' ? { type: 'buy', ...base } : { type: 'sell', ...base };
+  };
+
+  const onContinue = async () => {
+    const input = buildInput();
+    if (!input) {
+      Alert.alert('入力不足', '必須項目を確認してください。');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await stageRakutenImportManual(input);
+      if (!result.ok) {
+        Alert.alert('エラー', result.error);
+        return;
+      }
+      navigation.navigate('RakutenImportConfirm', { candidateId: result.candidateId });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Screen
+      title="Rakuten取引記録"
+      subtitle={`${BROKER_NAME} — 手動入力 · 確認後に保存`}
+    >
+      <Text style={styles.guidance}>{guidance}</Text>
+      {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
+
+      <View style={styles.kindRow}>
+        {(['deposit', 'buy', 'sell'] as const).map((k) => (
+          <Pressable
+            key={k}
+            onPress={() => setKind(k)}
+            style={[styles.kindChip, kind === k && styles.kindChipActive]}
+          >
+            <Text style={[styles.kindChipText, kind === k && styles.kindChipTextActive]}>
+              {k === 'deposit' ? '入金' : k === 'buy' ? '買付' : '売却'}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Card>
+        <Text style={styles.label}>約定日 / 入金日</Text>
+        <TextInput
+          style={styles.input}
+          value={executedDate}
+          onChangeText={setExecutedDate}
+          placeholder="YYYY-MM-DD"
+          placeholderTextColor={theme.colors.textMuted}
+        />
+
+        {kind === 'deposit' ? (
+          <>
+            <Text style={styles.label}>入金額 (MYR)</Text>
+            <TextInput
+              style={styles.input}
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              placeholderTextColor={theme.colors.textMuted}
+            />
+          </>
+        ) : (
+          <>
+            <MarketPicker selected={market} onSelect={setMarket} />
+            <Text style={styles.label}>銘柄コード</Text>
+            <TextInput
+              style={styles.input}
+              value={symbol}
+              onChangeText={setSymbol}
+              autoCapitalize="characters"
+              placeholder="1155 / AAPL"
+              placeholderTextColor={theme.colors.textMuted}
+            />
+            <Text style={styles.label}>数量</Text>
+            <TextInput
+              style={styles.input}
+              value={quantity}
+              onChangeText={setQuantity}
+              keyboardType="decimal-pad"
+              placeholderTextColor={theme.colors.textMuted}
+            />
+            <Text style={styles.label}>約定単価</Text>
+            <TextInput
+              style={styles.input}
+              value={price}
+              onChangeText={setPrice}
+              keyboardType="decimal-pad"
+              placeholderTextColor={theme.colors.textMuted}
+            />
+            <Text style={styles.label}>手数料（任意）</Text>
+            <TextInput
+              style={styles.input}
+              value={fee}
+              onChangeText={setFee}
+              keyboardType="decimal-pad"
+              placeholderTextColor={theme.colors.textMuted}
+            />
+          </>
+        )}
+
+        <Text style={styles.label}>参照番号（任意）</Text>
+        <TextInput
+          style={styles.input}
+          value={referenceNumber}
+          onChangeText={setReferenceNumber}
+          placeholderTextColor={theme.colors.textMuted}
+        />
+        <Text style={styles.label}>メモ（任意）</Text>
+        <TextInput
+          style={styles.input}
+          value={note}
+          onChangeText={setNote}
+          placeholderTextColor={theme.colors.textMuted}
+        />
+      </Card>
+
+      <Button
+        label={busy ? '処理中…' : '確認画面へ'}
+        onPress={() => void onContinue()}
+        disabled={busy || !!readOnlyBlockedMessage}
+      />
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  guidance: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 20,
+    marginBottom: theme.spacing.md,
+  },
+  warn: {
+    color: theme.colors.warning,
+    marginBottom: theme.spacing.sm,
+  },
+  kindRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  kindChip: {
+    flex: 1,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  kindChipActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: `${theme.colors.primary}22`,
+  },
+  kindChipText: {
+    color: theme.colors.textMuted,
+    fontWeight: '600',
+  },
+  kindChipTextActive: {
+    color: theme.colors.primary,
+  },
+  label: {
+    color: theme.colors.text,
+    fontWeight: '600',
+    marginTop: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.sm,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
+  },
+});

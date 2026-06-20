@@ -49,6 +49,8 @@ export type RootStackParamList = {
   ProactiveSuggestions: undefined;
   XApiUsage: undefined;
   AllocationCommitteeDetail: { candidate: AllocationCandidate };
+  RakutenImportManualEntry: undefined;
+  RakutenImportConfirm: { candidateId: string };
 };
 
 export type MainTabParamList = {
