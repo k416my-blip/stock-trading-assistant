@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BeginnerStockSummaryCard } from '../components/beginner/BeginnerStockSummaryCard';
 import { BeginnerTodayAdviceCard } from '../components/beginner/BeginnerTodayAdviceCard';
 import { Screen } from '../components/ui/Screen';
 import { useApp } from '../context/AppContext';
@@ -10,6 +11,8 @@ import { useBursaMaterial } from '../context/BursaMaterialContext';
 import { useProactiveConciergeOptional } from '../context/ProactiveConciergeContext';
 import type { RootStackParamList } from '../navigation/types';
 import { buildBeginnerTodayAdvice } from '../services/beginner/beginnerTodayAdviceBuilder';
+import { buildBeginnerStockSummary } from '../services/beginner/beginnerMaterialSummaryBuilder';
+import { resolvePortfolioAiEvaluation } from '../services/portfolioAiEvaluationFromStrategyBundle';
 import {
   MATERIAL_ANALYSIS_MISSING_JA,
   type ApiConnectionRow,
@@ -704,6 +707,39 @@ export function MaterialAnalysisScreen() {
     [isPractice, state.portfolio, state.practice.portfolio, report, loading, proactive?.strategyBundle],
   );
 
+  const heldSymbols = useMemo(() => {
+    const set = new Set<string>();
+    const holdings = isPractice ? state.practice.portfolio : state.portfolio;
+    for (const h of holdings) {
+      if (h.shares > 0) set.add(h.symbol.trim().toUpperCase());
+    }
+    return set;
+  }, [isPractice, state.portfolio, state.practice.portfolio]);
+
+  const portfolioEval = useMemo(() => {
+    const bundle = proactive?.strategyBundle;
+    if (!bundle) return null;
+    return resolvePortfolioAiEvaluation(bundle);
+  }, [proactive?.strategyBundle]);
+
+  const beginnerStockSummaries = useMemo(() => {
+    if (!report || !isBeginnerMode) return [];
+    return report.stocks.map((row) => {
+      const sym = row.stockCode.trim().toUpperCase();
+      const evalRow =
+        portfolioEval?.rankedHoldings.find(
+          (e) => e.symbol.trim().toUpperCase() === sym,
+        ) ?? null;
+      return buildBeginnerStockSummary({
+        materialRow: row,
+        isHeld: heldSymbols.has(sym),
+        fusedAction: evalRow?.action ?? 'hold',
+        finalScore: evalRow?.finalScore,
+        confidencePct: evalRow?.confidence,
+      });
+    });
+  }, [report, isBeginnerMode, heldSymbols, portfolioEval]);
+
   const onRefresh = useCallback(() => {
     void refresh();
   }, [refresh]);
@@ -731,6 +767,8 @@ export function MaterialAnalysisScreen() {
         {isBeginnerMode ? (
           <BeginnerTodayAdviceCard data={beginnerAdvice} />
         ) : null}
+        {!isBeginnerMode ? (
+          <>
         <Text style={styles.liveTag}>{report.dataSourceLabel}</Text>
         <Pressable onPress={onRefresh}>
           <Text style={styles.refresh}>再取得</Text>
@@ -758,20 +796,35 @@ export function MaterialAnalysisScreen() {
             ))
           )}
         </Section>
+          </>
+        ) : (
+          <Pressable onPress={onRefresh} style={styles.beginnerRefresh}>
+            <Text style={styles.refresh}>更新</Text>
+          </Pressable>
+        )}
 
+        {isBeginnerMode ? (
+          <Section title="【銘柄チェック】">
+            {beginnerStockSummaries.map((summary) => (
+              <BeginnerStockSummaryCard key={summary.symbol} summary={summary} />
+            ))}
+          </Section>
+        ) : (
         <Section title="【銘柄別材料分析】">
           {report.stocks.map((row) => (
             <StockMaterialCard
               key={row.stockCode}
               row={row}
-              hidePhaseSections={isBeginnerMode}
+              hidePhaseSections={false}
               onPress={() =>
                 navigation.navigate('StockReport', { symbol: row.stockCode, market: 'bursa' })
               }
             />
           ))}
         </Section>
+        )}
 
+        {!isBeginnerMode ? (
         <Section title="【Phase11.5 API統合監査】">
           {auditReport ? (
             <>
@@ -785,6 +838,7 @@ export function MaterialAnalysisScreen() {
             <Text style={styles.empty}>{MATERIAL_ANALYSIS_MISSING_JA}</Text>
           )}
         </Section>
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -795,6 +849,7 @@ const styles = StyleSheet.create({
   pageTitle: { fontSize: 22, fontWeight: '800', color: theme.colors.text, marginBottom: 4 },
   liveTag: { fontSize: theme.fontSize.sm, color: theme.colors.textMuted, marginBottom: 8 },
   refresh: { color: theme.colors.primary, fontWeight: '600', marginBottom: 12 },
+  beginnerRefresh: { alignSelf: 'flex-end', marginBottom: 8 },
   loading: { color: theme.colors.textMuted, padding: 16 },
   error: { color: theme.colors.danger, padding: 16 },
   section: { marginBottom: 20 },

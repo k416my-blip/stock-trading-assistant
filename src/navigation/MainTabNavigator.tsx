@@ -1,9 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { PlatformPressable } from '@react-navigation/elements';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { lazy, Suspense, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BeginnerOnboardingModal } from '../components/beginner/BeginnerOnboardingModal';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { wrapBursaScreen } from '../components/BursaDataErrorBoundary';
 import { useAppUxMode } from '../context/AppUxModeContext';
@@ -20,6 +21,10 @@ import {
   isTabVisibleForAppUxMode,
   tabTitleForAppUxMode,
 } from './beginnerTabNavigatorConfig';
+import {
+  loadBeginnerOnboardingSeen,
+  markBeginnerOnboardingSeen,
+} from '../services/beginner/beginnerOnboardingStorage';
 import { TabBarIcon } from './tabIcons';
 import type { MainTabParamList } from './types';
 
@@ -149,9 +154,31 @@ const ALL_TABS: TabDefinition[] = [
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = 56 + insets.bottom;
-  const { appUxMode } = useAppUxMode();
+  const { appUxMode, ready, isBeginnerMode } = useAppUxMode();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!ready || !isBeginnerMode) {
+      setShowOnboarding(false);
+      return;
+    }
+    let mounted = true;
+    void (async () => {
+      const seen = await loadBeginnerOnboardingSeen();
+      if (mounted && !seen) setShowOnboarding(true);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [ready, isBeginnerMode]);
+
+  const completeOnboarding = () => {
+    setShowOnboarding(false);
+    void markBeginnerOnboardingSeen();
+  };
 
   return (
+    <>
     <Tab.Navigator
       screenOptions={({ route }) => {
         const visible = isTabVisibleForAppUxMode(appUxMode, route.name);
@@ -194,6 +221,8 @@ export function MainTabNavigator() {
         <Tab.Screen key={name} name={name} component={component} />
       ))}
     </Tab.Navigator>
+    <BeginnerOnboardingModal visible={showOnboarding} onComplete={completeOnboarding} />
+    </>
   );
 }
 
