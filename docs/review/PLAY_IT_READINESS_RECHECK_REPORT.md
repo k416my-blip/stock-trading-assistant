@@ -187,8 +187,8 @@ npx eas-cli build -p android --profile production --non-interactive
 | 項目 | 値 |
 |------|-----|
 | ベース | `f861826`（M1 fix report） |
-| 本レポートコミット | *(push 後に追記)* |
-| push | *(push 後に追記)* |
+| 本レポートコミット | `16c32dd` |
+| push | **Success** → `origin/cursor/top3-maxdd-capital-audit` |
 
 ### 本再評価でコミットする変更
 
