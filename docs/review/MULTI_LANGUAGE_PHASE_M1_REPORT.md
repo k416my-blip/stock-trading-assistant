@@ -88,7 +88,7 @@ Capture script: `node scripts/capture-i18n-m1-screenshots.mjs`
 
 | Field | Value |
 |-------|-------|
-| **Commit** | _pending — see post-commit update_ |
+| **Commit** | `d3c1fb1` |
 | **Push** | _pending_ |
 
 ---
