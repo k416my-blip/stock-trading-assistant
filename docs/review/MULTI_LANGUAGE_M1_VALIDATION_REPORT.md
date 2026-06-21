@@ -189,8 +189,8 @@
 | 項目 | 値 |
 |------|-----|
 | 検証ベース | `077d607` |
-| 本レポートコミット | （下記 `git commit` 後に記載） |
-| push | （下記 `git push` 後に記載） |
+| 本レポートコミット | `3a946e4` |
+| push | **Success** → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
