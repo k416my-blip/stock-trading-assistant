@@ -492,6 +492,9 @@ export function SettingsScreen() {
             key={language}
             onPress={() => void setAppLanguage(language as AppLanguage)}
             testID={`settings-language-${language}`}
+            accessibilityRole="button"
+            accessibilityLabel={`settings-language-${language}`}
+            accessibilityState={{ selected: appLanguage === language }}
             style={({ pressed }) => [
               styles.uxModeRow,
               index < LANGUAGE_PICKER_OPTIONS.length - 1 && styles.uxModeRowBorder,

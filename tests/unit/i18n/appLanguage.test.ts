@@ -55,3 +55,16 @@ describe('i18n config', () => {
     expect(DEFAULT_APP_LANGUAGE).toBe('ja');
   });
 });
+
+describe('changeAppLanguage', () => {
+  it('updates i18n language and sync getter for en and zh-Hans', async () => {
+    const { changeAppLanguage, getCurrentAppLanguage, initI18n } = await import('../../../src/i18n');
+    await initI18n('ja');
+    await changeAppLanguage('en');
+    expect(getCurrentAppLanguage()).toBe('en');
+    await changeAppLanguage('zh-Hans');
+    expect(getCurrentAppLanguage()).toBe('zh-Hans');
+    await changeAppLanguage('ja');
+    expect(getCurrentAppLanguage()).toBe('ja');
+  });
+});

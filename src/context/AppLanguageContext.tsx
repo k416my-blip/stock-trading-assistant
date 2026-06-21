@@ -22,6 +22,8 @@ import {
 
 type AppLanguageContextValue = {
   appLanguage: AppLanguage;
+  /** Bumped on every successful language switch to force navigation/UI remounts. */
+  languageRevision: number;
   ready: boolean;
   languageChosen: boolean;
   needsLanguagePicker: boolean;
@@ -42,6 +44,7 @@ function deviceLocaleSuggestion(): AppLanguage {
 
 export function AppLanguageProvider({ children }: { children: ReactNode }) {
   const [appLanguage, setAppLanguageState] = useState<AppLanguage>(DEFAULT_APP_LANGUAGE);
+  const [languageRevision, setLanguageRevision] = useState(0);
   const [ready, setReady] = useState(false);
   const [languageChosen, setLanguageChosen] = useState(false);
 
@@ -62,11 +65,13 @@ export function AppLanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setAppLanguage = useCallback(async (language: AppLanguage) => {
+    if (language === appLanguage) return;
     await changeAppLanguage(language);
-    setAppLanguageState(language);
     await saveAppLanguage(language);
+    setAppLanguageState(language);
+    setLanguageRevision((revision) => revision + 1);
     setLanguageChosen(true);
-  }, []);
+  }, [appLanguage]);
 
   const confirmInitialLanguage = useCallback(
     async (language: AppLanguage) => {
@@ -78,13 +83,14 @@ export function AppLanguageProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     (): AppLanguageContextValue => ({
       appLanguage,
+      languageRevision,
       ready,
       languageChosen,
       needsLanguagePicker: ready && !languageChosen,
       setAppLanguage,
       confirmInitialLanguage,
     }),
-    [appLanguage, ready, languageChosen, setAppLanguage, confirmInitialLanguage],
+    [appLanguage, languageRevision, ready, languageChosen, setAppLanguage, confirmInitialLanguage],
   );
 
   return <AppLanguageContext.Provider value={value}>{children}</AppLanguageContext.Provider>;

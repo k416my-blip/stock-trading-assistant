@@ -29,6 +29,8 @@ export async function initI18n(language: AppLanguage = DEFAULT_APP_LANGUAGE): Pr
     lng: language,
     fallbackLng: DEFAULT_APP_LANGUAGE,
     supportedLngs: [...SUPPORTED_APP_LANGUAGES],
+    nonExplicitSupportedLngs: true,
+    load: 'currentOnly',
     ns: [...I18N_NAMESPACES],
     defaultNS: 'common',
     interpolation: { escapeValue: false },

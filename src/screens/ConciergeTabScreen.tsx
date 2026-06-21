@@ -3,17 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { AiAssistantChat } from '../components/AiAssistantChat';
 import { AiConciergeErrorBoundary } from '../components/concierge/AiConciergeErrorBoundary';
 import { Screen } from '../components/ui/Screen';
+import { useAppLanguage } from '../context/AppLanguageContext';
 import { theme } from '../theme';
 
 /** Beginner/Standard dedicated AI相談 tab — inline concierge chat (FAB hidden in beginner). */
 export function ConciergeTabScreen() {
   const { t } = useTranslation('concierge');
+  const { appLanguage, languageRevision } = useAppLanguage();
 
   return (
     <Screen title={t('screenTitle')} subtitle={t('screenSubtitle')}>
       <View style={styles.chatHost} testID="concierge-tab-screen">
         <AiConciergeErrorBoundary>
-          <AiAssistantChat variant="concierge" />
+          <AiAssistantChat
+            key={`concierge-chat-${appLanguage}-${languageRevision}`}
+            variant="concierge"
+          />
         </AiConciergeErrorBoundary>
       </View>
     </Screen>

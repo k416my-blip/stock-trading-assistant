@@ -52,6 +52,7 @@ import { RakutenImportManualEntryScreen } from '../screens/RakutenImportManualEn
 import { RakutenImportOcrReviewScreen } from '../screens/RakutenImportOcrReviewScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import type { RootStackParamList } from './types';
+import { useAppLanguage } from '../context/AppLanguageContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,8 +69,11 @@ const navTheme = {
 };
 
 export function RootNavigator() {
+  const { appLanguage, languageRevision } = useAppLanguage();
+  const navigationKey = `${appLanguage}-${languageRevision}`;
+
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer key={navigationKey} theme={navTheme}>
       <Stack.Navigator
         screenOptions={{
           contentStyle: { backgroundColor: theme.colors.background },
