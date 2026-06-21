@@ -160,7 +160,7 @@
     "expo-haptics": "~15.0.8",
     "expo-image-picker": "~17.0.11",
     "expo-keep-awake": "~15.0.8",
-    "expo-localization": "^56.0.6",
+    "expo-localization": "17.0.9",
     "expo-notifications": "~0.32.17",
     "expo-secure-store": "~15.0.8",
     "expo-speech": "~14.0.8",
