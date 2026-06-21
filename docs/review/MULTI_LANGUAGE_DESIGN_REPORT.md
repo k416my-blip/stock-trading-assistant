@@ -460,9 +460,9 @@ const RESPONSE_LANGUAGE_RULE = {
 
 | 項目 | 値 |
 |------|-----|
-| **Commit** | *(push 後に更新)* |
+| **Commit** | `1c280dc` — Add multi-language i18n design audit report. |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
-| **Push** | *(push 後に更新)* |
+| **Push** | **success** — `6e4b1ed..1c280dc` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
