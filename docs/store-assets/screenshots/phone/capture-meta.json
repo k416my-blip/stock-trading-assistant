@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-06-21T00:43:24.284Z",
+  "device": "FYRWXSNNAIOR9DCM",
+  "mode": "standard",
+  "versionCode": 26,
+  "shots": [
+    {
+      "id": "01-home",
+      "tab": "ホーム",
+      "file": "docs\\store-assets\\screenshots\\phone\\01-home.png"
+    },
+    {
+      "id": "02-ai-consult",
+      "tab": "AI相談",
+      "file": "docs\\store-assets\\screenshots\\phone\\02-ai-consult.png"
+    },
+    {
+      "id": "03-portfolio",
+      "tab": "保有銘柄",
+      "file": "docs\\store-assets\\screenshots\\phone\\03-portfolio.png"
+    },
+    {
+      "id": "04-stock-check",
+      "tab": "銘柄チェック",
+      "file": "docs\\store-assets\\screenshots\\phone\\04-stock-check.png"
+    },
+    {
+      "id": "05-settings",
+      "tab": "設定",
+      "file": "docs\\store-assets\\screenshots\\phone\\05-settings.png"
+    }
+  ]
+}
