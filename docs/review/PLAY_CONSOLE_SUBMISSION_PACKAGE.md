@@ -485,10 +485,11 @@ k416my@gmail.com
 
 | 項目 | 値 |
 |------|-----|
-| **Commit** | `db4a097` — Add Play Console submission package for Internal Testing. |
+| **Commit（本体）** | `db4a097` — Add Play Console submission package for Internal Testing. |
+| **Commit（HEAD）** | `736ca14` — Record commit hash in Play Console submission package. |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
 | **Remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
-| **Push** | **success** — `fa98c09..db4a097` → `origin/cursor/top3-maxdd-capital-audit` |
+| **Push** | **success** — `fa98c09..736ca14` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
