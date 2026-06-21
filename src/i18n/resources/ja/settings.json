@@ -1,0 +1,15 @@
+{
+  "title": "設定",
+  "subtitle": {
+    "beginner": "通知・市場など",
+    "standard": "API・通知・市場など"
+  },
+  "language": {
+    "sectionTitle": "言語",
+    "sectionHint": "画面表示とAIの応答言語を切り替えます。変更はすぐに反映されます。"
+  },
+  "displayMode": {
+    "sectionTitle": "表示モード",
+    "sectionHint": "初心者は4タブのやさしい表示。標準は主要タブ。プロは全機能とPhase詳細を表示します。"
+  }
+}

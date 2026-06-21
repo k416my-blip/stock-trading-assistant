@@ -18,6 +18,7 @@ import type { ImportFieldKey } from '../types/rakutenImport';
 import type { RootStackParamList } from '../navigation/types';
 import type { BrokerTransactionCandidate } from '../types/rakutenImport';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 const FIELD_LABEL_JA: Record<ImportFieldKey, string> = {
   executedAt: '日付',
@@ -86,6 +87,7 @@ export function RakutenImportConfirmScreen() {
     rejectRakutenImportCandidate,
     readOnlyBlockedMessage,
   } = useApp();
+  const { t } = useTranslation('rakutenImport');
 
   const [candidate, setCandidate] = useState<BrokerTransactionCandidate | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,7 +147,7 @@ export function RakutenImportConfirmScreen() {
 
   if (loading) {
     return (
-      <Screen title="記録内容の確認" subtitle="読み込み中…">
+      <Screen title={t('confirm.title')} subtitle={t('confirm.subtitleLoading')}>
         <Text style={styles.muted}>候補を読み込んでいます…</Text>
       </Screen>
     );
@@ -153,9 +155,9 @@ export function RakutenImportConfirmScreen() {
 
   if (!candidate) {
     return (
-      <Screen title="記録内容の確認" subtitle="候補が見つかりません">
+      <Screen title={t('confirm.title')} subtitle={t('confirm.subtitleNotFound')}>
         <Text style={styles.muted}>ステージングの有効期限が切れたか、既に処理済みです。</Text>
-        <Button label="入力に戻る" onPress={() => navigation.navigate('RakutenImportManualEntry')} />
+        <Button label={t('confirm.backToEntry')} onPress={() => navigation.navigate('RakutenImportManualEntry')} />
       </Screen>
     );
   }
@@ -169,9 +171,9 @@ export function RakutenImportConfirmScreen() {
         : styles.confidenceBlocked;
 
   return (
-    <Screen title="記録内容の確認" subtitle="保存前に必ず内容を確認してください">
+    <Screen title={t('confirm.title')} subtitle={t('confirm.subtitleReview')}>
       <Card testID="rakuten-import-confirm-card">
-        <Text style={styles.typeBadge}>{typeLabel(candidate.type)}</Text>
+        <Text style={styles.typeBadge}>{t(`type.${candidate.type}`)}</Text>
         <Text style={styles.summary}>{formatSummary(candidate)}</Text>
         <Text style={styles.meta}>
           日付: {candidate.executedAt?.slice(0, 10) ?? '—'}
@@ -180,19 +182,21 @@ export function RakutenImportConfirmScreen() {
           <Text style={styles.meta}>参照番号: {candidate.referenceNumber}</Text>
         ) : null}
         {candidate.userNote ? <Text style={styles.meta}>メモ: {candidate.userNote}</Text> : null}
-        <Text style={styles.meta}>入力経路: {sourceLabel(candidate.source)}</Text>
+        <Text style={styles.meta}>入力経路: {t(`source.${candidate.source}`)}</Text>
         <Text style={[styles.confidence, confidenceStyle]}>
-          信頼度: {confidenceLabelJa(candidate.overallConfidence)} (
-          {Math.round(candidate.overallConfidence * 100)}%)
+          {t('card.confidence', {
+            label: confidenceLabelJa(candidate.overallConfidence),
+            pct: Math.round(candidate.overallConfidence * 100),
+          })}
         </Text>
       </Card>
 
       {candidate.lowConfidenceFields.length > 0 ? (
         <Card style={styles.warnCard}>
-          <Text style={styles.warnTitle}>要確認フィールド</Text>
+          <Text style={styles.warnTitle}>{t('card.fieldsToReview')}</Text>
           {candidate.lowConfidenceFields.map((field) => (
             <Text key={field} style={styles.warnBody}>
-              ⚠ {FIELD_LABEL_JA[field] ?? field}
+              ⚠ {t(`field.${field}`)}
             </Text>
           ))}
         </Card>
@@ -234,17 +238,17 @@ export function RakutenImportConfirmScreen() {
 
       <View style={styles.actions}>
         <Button
-          label={busy ? '保存中…' : '記録する'}
+          label={busy ? t('confirm.saving') : t('confirm.save')}
           onPress={() => void onCommit()}
           disabled={busy || duplicateBlocked || !saveAllowed || !!readOnlyBlockedMessage}
         />
         <Button
-          label="修正する"
+          label={t('confirm.edit')}
           variant="ghost"
           onPress={() => navigation.navigate('RakutenImportManualEntry')}
           disabled={busy}
         />
-        <Button label="キャンセル" variant="ghost" onPress={() => void onReject()} disabled={busy} />
+        <Button label={t('confirm.cancel')} variant="ghost" onPress={() => void onReject()} disabled={busy} />
       </View>
 
       <Text style={styles.footerNote}>

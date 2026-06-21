@@ -1,0 +1,19 @@
+{
+  "tab": {
+    "home": "首页",
+    "allocationPlan": "推荐配置",
+    "screener": "选股",
+    "portfolio": "持仓",
+    "assetManagement": "AI资产管理",
+    "todayTrading": "今日交易",
+    "marketMonitoring": "市场监控",
+    "aiNotifications": "AI通知",
+    "materialAnalysis": "材料分析",
+    "stockCheck": "股票检查",
+    "conciergeConsult": "AI咨询",
+    "history": "交易历史",
+    "beginnerGuide": "新手指南",
+    "settings": "设置",
+    "notifications": "通知"
+  }
+}

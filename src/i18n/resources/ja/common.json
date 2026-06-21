@@ -1,0 +1,8 @@
+{
+  "languagePicker": {
+    "title": "言語を選択",
+    "subtitle": "表示言語とAIの応答言語に使います",
+    "confirm": "この言語で始める"
+  },
+  "loading": "読み込み中…"
+}

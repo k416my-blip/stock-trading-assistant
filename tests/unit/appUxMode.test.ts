@@ -78,11 +78,15 @@ describe('beginnerTabNavigatorConfig', () => {
   });
 
   it('renames AiNotifications tab for standard', async () => {
+    const { initI18n } = await import('../../src/i18n');
+    await initI18n('ja');
     const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
     expect(tabTitleForAppUxMode('standard', 'AiNotifications')).toBe('通知');
   });
 
   it('renames MaterialAnalysis tab for beginner', async () => {
+    const { initI18n } = await import('../../src/i18n');
+    await initI18n('ja');
     const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
     expect(tabTitleForAppUxMode('beginner', 'MaterialAnalysis')).toBe('銘柄チェック');
   });

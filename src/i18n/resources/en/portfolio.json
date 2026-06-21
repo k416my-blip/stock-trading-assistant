@@ -1,0 +1,13 @@
+{
+  "title": "Portfolio",
+  "subtitle": {
+    "beginner": "Your holdings: {{count}} stocks",
+    "practice": "Practice mode virtual positions",
+    "live": "Live analysis — positions recorded after broker execution"
+  },
+  "empty": {
+    "title": "No holdings yet",
+    "addButton": "Add stock"
+  },
+  "dividendHistory": "Dividend history"
+}

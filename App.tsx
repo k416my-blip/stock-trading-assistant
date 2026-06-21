@@ -10,7 +10,9 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppErrorBoundary } from './src/components/AppErrorBoundary';
 import { AppProvider, useApp } from './src/context/AppContext';
+import { AppLanguageProvider, useAppLanguage } from './src/context/AppLanguageContext';
 import { AppUxModeProvider } from './src/context/AppUxModeContext';
+import { LanguagePickerModal } from './src/components/LanguagePickerModal';
 import { PerformanceCostProvider } from './src/context/PerformanceCostContext';
 import { ProductionStabilityProvider } from './src/context/ProductionStabilityContext';
 import { AiTradeQueueProvider } from './src/context/AiTradeQueueContext';
@@ -132,9 +134,12 @@ function StartupHomeShell({ showRecoveryActions = false }: { showRecoveryActions
 
 function AppShell() {
   const { loading } = useApp();
+  const { needsLanguagePicker, ready: languageReady } = useAppLanguage();
   const [interactiveReady, setInteractiveReady] = useState(false);
   const [slowBoot, setSlowBoot] = useState(false);
-  useNotificationMonitor(interactiveReady && !loading && areNotificationsSupported());
+  useNotificationMonitor(
+    languageReady && !needsLanguagePicker && interactiveReady && !loading && areNotificationsSupported(),
+  );
 
   useEffect(() => {
     // loading が長引いても操作不能 UI に固定されないよう、一定時間後は interactive を許可
@@ -157,6 +162,19 @@ function AppShell() {
   }, [loading]);
 
   // 起動直後だけ skeleton を表示。slowBoot 後は本体 UI を出して操作可能にする。
+  if (!languageReady) {
+    return <StartupHomeShell />;
+  }
+
+  if (needsLanguagePicker) {
+    return (
+      <>
+        <StartupHomeShell />
+        <LanguagePickerModal visible />
+      </>
+    );
+  }
+
   if (!interactiveReady || (loading && !slowBoot)) {
     return <StartupHomeShell showRecoveryActions={slowBoot} />;
   }
@@ -199,17 +217,19 @@ export default function App() {
     <AppErrorBoundary fallbackTitle="起動復旧モード">
       <SafeAreaProvider>
         <AppProvider>
-          <AppUxModeProvider>
-            <AiTradeQueueProvider>
-              <PerformanceCostProvider>
-                <ProductionStabilityProvider>
-                  <UrgencySignalProvider>
-                    <AppWithBoundary />
-                  </UrgencySignalProvider>
-                </ProductionStabilityProvider>
-              </PerformanceCostProvider>
-            </AiTradeQueueProvider>
-          </AppUxModeProvider>
+          <AppLanguageProvider>
+            <AppUxModeProvider>
+              <AiTradeQueueProvider>
+                <PerformanceCostProvider>
+                  <ProductionStabilityProvider>
+                    <UrgencySignalProvider>
+                      <AppWithBoundary />
+                    </UrgencySignalProvider>
+                  </ProductionStabilityProvider>
+                </PerformanceCostProvider>
+              </AiTradeQueueProvider>
+            </AppUxModeProvider>
+          </AppLanguageProvider>
         </AppProvider>
       </SafeAreaProvider>
     </AppErrorBoundary>

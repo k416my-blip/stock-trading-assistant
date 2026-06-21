@@ -1,0 +1,79 @@
+{
+  "confirm": {
+    "title": "記録内容の確認",
+    "subtitleLoading": "読み込み中…",
+    "subtitleNotFound": "候補が見つかりません",
+    "subtitleReview": "保存前に必ず内容を確認してください",
+    "save": "記録する",
+    "edit": "修正する",
+    "cancel": "キャンセル",
+    "saving": "保存中…",
+    "backToEntry": "入力に戻る"
+  },
+  "manual": {
+    "title": "Rakuten取引記録",
+    "subtitle": "{{broker}} — 手動入力 · 確認後に保存",
+    "guidanceDeposit": "Rakuten Trade で入金が反映された後、金額を記録します。",
+    "guidanceBuy": "証券会社で約定した買付を記録します。発注は行いません。",
+    "guidanceSell": "証券会社で約定した売却を記録します。発注は行いません。",
+    "kindDeposit": "入金",
+    "kindBuy": "買付",
+    "kindSell": "売却",
+    "executedDateLabel": "約定日 / 入金日",
+    "continue": "確認画面へ",
+    "processing": "処理中…"
+  },
+  "ocr": {
+    "title": "スクショ読み取り結果",
+    "subtitleLoading": "読み込み中…",
+    "subtitleEmpty": "候補がありません",
+    "subtitleCount": "{{count}}件の候補",
+    "save": "記録する",
+    "edit": "修正する",
+    "skip": "スキップ"
+  },
+  "type": {
+    "deposit": "入金",
+    "withdrawal": "出金",
+    "buy": "買付",
+    "sell": "売却",
+    "dividend": "配当",
+    "fee": "手数料"
+  },
+  "field": {
+    "executedAt": "日付",
+    "symbol": "銘柄",
+    "companyName": "会社名",
+    "type": "種別",
+    "quantity": "数量",
+    "price": "単価",
+    "fee": "手数料",
+    "total": "金額",
+    "currency": "通貨",
+    "referenceNumber": "参照番号"
+  },
+  "card": {
+    "loading": "取引候補を読み込み中…",
+    "recordBadge": "{{type}}の記録",
+    "dateLabel": "日付: {{date}}",
+    "confidence": "信頼度: {{label}} ({{pct}}%)",
+    "fieldsToReview": "要確認フィールド",
+    "blockedNote": "信頼度が低いか必須項目が不足しているため、ここからは保存できません。修正するを押して入力してください。",
+    "record": "記録する",
+    "edit": "修正する",
+    "cancel": "キャンセル",
+    "unknownSymbol": "銘柄未特定",
+    "priceMissing": "単価未入力",
+    "sharesUnit": "株"
+  },
+  "source": {
+    "naturalLanguage": "自然文入力",
+    "manualForm": "手動入力",
+    "ocrScreenshot": "スクショ読み取り"
+  },
+  "confidence": {
+    "high": "高",
+    "needsConfirmation": "要確認",
+    "blocked": "保存不可"
+  }
+}

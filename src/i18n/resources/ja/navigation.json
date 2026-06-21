@@ -1,0 +1,19 @@
+{
+  "tab": {
+    "home": "ホーム",
+    "allocationPlan": "おすすめ配分",
+    "screener": "銘柄検索",
+    "portfolio": "保有銘柄",
+    "assetManagement": "AI資産運用",
+    "todayTrading": "今日の売買",
+    "marketMonitoring": "市場監視",
+    "aiNotifications": "AI通知",
+    "materialAnalysis": "材料分析",
+    "stockCheck": "銘柄チェック",
+    "conciergeConsult": "AI相談",
+    "history": "売買履歴",
+    "beginnerGuide": "初心者ガイド",
+    "settings": "設定",
+    "notifications": "通知"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "confirm": {
+    "title": "Confirm record",
+    "subtitleLoading": "Loading…",
+    "subtitleNotFound": "Candidate not found",
+    "subtitleReview": "Review details before saving",
+    "save": "Save record",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "backToEntry": "Back to entry"
+  },
+  "manual": {
+    "title": "Rakuten trade record",
+    "subtitle": "{{broker}} — manual entry · save after review",
+    "guidanceDeposit": "Record the deposit after it appears in Rakuten Trade.",
+    "guidanceBuy": "Record a buy executed at your broker. No orders are placed here.",
+    "guidanceSell": "Record a sell executed at your broker. No orders are placed here.",
+    "kindDeposit": "Deposit",
+    "kindBuy": "Buy",
+    "kindSell": "Sell",
+    "executedDateLabel": "Trade / deposit date",
+    "continue": "Continue to review",
+    "processing": "Processing…"
+  },
+  "ocr": {
+    "title": "Screenshot OCR results",
+    "subtitleLoading": "Loading…",
+    "subtitleEmpty": "No candidates",
+    "subtitleCount": "{{count}} candidates",
+    "save": "Save record",
+    "edit": "Edit",
+    "skip": "Skip"
+  },
+  "type": {
+    "deposit": "Deposit",
+    "withdrawal": "Withdrawal",
+    "buy": "Buy",
+    "sell": "Sell",
+    "dividend": "Dividend",
+    "fee": "Fee"
+  },
+  "field": {
+    "executedAt": "Date",
+    "symbol": "Symbol",
+    "companyName": "Company",
+    "type": "Type",
+    "quantity": "Quantity",
+    "price": "Price",
+    "fee": "Fee",
+    "total": "Amount",
+    "currency": "Currency",
+    "referenceNumber": "Reference"
+  },
+  "card": {
+    "loading": "Loading trade candidate…",
+    "recordBadge": "{{type}} record",
+    "dateLabel": "Date: {{date}}",
+    "confidence": "Confidence: {{label}} ({{pct}}%)",
+    "fieldsToReview": "Fields to review",
+    "blockedNote": "Confidence is too low or required fields are missing. Tap Edit to fix.",
+    "record": "Save record",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "unknownSymbol": "Symbol unknown",
+    "priceMissing": "Price missing",
+    "sharesUnit": "shares"
+  },
+  "source": {
+    "naturalLanguage": "Natural language",
+    "manualForm": "Manual form",
+    "ocrScreenshot": "Screenshot OCR"
+  },
+  "confidence": {
+    "high": "High",
+    "needsConfirmation": "Needs review",
+    "blocked": "Cannot save"
+  }
+}

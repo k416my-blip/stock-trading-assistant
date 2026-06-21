@@ -16,6 +16,7 @@ import { findImportBatch } from '../services/rakutenImport/rakutenImportStagingS
 import type { RootStackParamList } from '../navigation/types';
 import type { BrokerTransactionCandidate } from '../types/rakutenImport';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 function typeLabel(type: BrokerTransactionCandidate['type']): string {
   switch (type) {
@@ -66,6 +67,7 @@ function CandidateRow({
   onSkip: () => void;
   busy: boolean;
 }) {
+  const { t } = useTranslation('rakutenImport');
   const saveAllowed =
     canSaveImportCandidate(candidate) && candidate.status !== 'duplicate_blocked';
   const colorKey = confidenceColorKey(candidate.overallConfidence);
@@ -78,12 +80,14 @@ function CandidateRow({
 
   return (
     <Card style={styles.rowCard} testID={`ocr-candidate-${candidate.id}`}>
-      <Text style={styles.typeBadge}>{typeLabel(candidate.type)}</Text>
+      <Text style={styles.typeBadge}>{t(`type.${candidate.type}`)}</Text>
       <Text style={styles.summary}>{formatSummary(candidate)}</Text>
       <Text style={styles.meta}>日付: {candidate.executedAt?.slice(0, 10) ?? '—'}</Text>
       <Text style={[styles.confidence, confidenceStyle]}>
-        信頼度: {confidenceLabelJa(candidate.overallConfidence)} (
-        {Math.round(candidate.overallConfidence * 100)}%)
+        {t('card.confidence', {
+          label: confidenceLabelJa(candidate.overallConfidence),
+          pct: Math.round(candidate.overallConfidence * 100),
+        })}
       </Text>
       {candidate.duplicateHint ? (
         <Text style={styles.dupBadge}>
@@ -94,18 +98,19 @@ function CandidateRow({
       ) : null}
       <View style={styles.rowActions}>
         <Button
-          label="保存"
+          label={t('ocr.save')}
           onPress={onSave}
           disabled={busy || !saveAllowed}
         />
-        <Button label="修正" variant="ghost" onPress={onEdit} disabled={busy} />
-        <Button label="スキップ" variant="ghost" onPress={onSkip} disabled={busy} />
+        <Button label={t('ocr.edit')} variant="ghost" onPress={onEdit} disabled={busy} />
+        <Button label={t('ocr.skip')} variant="ghost" onPress={onSkip} disabled={busy} />
       </View>
     </Card>
   );
 }
 
 export function RakutenImportOcrReviewScreen() {
+  const { t } = useTranslation('rakutenImport');
   const { params } = useRoute<RouteProp<RootStackParamList, 'RakutenImportOcrReview'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { rejectRakutenImportCandidate, readOnlyBlockedMessage } = useApp();
@@ -152,7 +157,7 @@ export function RakutenImportOcrReviewScreen() {
 
   if (loading) {
     return (
-      <Screen title="スクショ読み取り結果" subtitle="読み込み中…">
+      <Screen title={t('ocr.title')} subtitle={t('ocr.subtitleLoading')}>
         <Text style={styles.muted}>候補を読み込んでいます…</Text>
       </Screen>
     );
@@ -160,7 +165,7 @@ export function RakutenImportOcrReviewScreen() {
 
   if (candidates.length === 0) {
     return (
-      <Screen title="スクショ読み取り結果" subtitle="候補がありません">
+      <Screen title={t('ocr.title')} subtitle={t('ocr.subtitleEmpty')}>
         <Text style={styles.muted}>すべて処理済みか、バッチが見つかりません。</Text>
         <Button label="戻る" onPress={() => navigation.goBack()} />
       </Screen>
@@ -168,7 +173,7 @@ export function RakutenImportOcrReviewScreen() {
   }
 
   return (
-    <Screen title="スクショ読み取り結果" subtitle={`${candidates.length}件の候補`}>
+    <Screen title={t('ocr.title')} subtitle={t('ocr.subtitleCount', { count: candidates.length })}>
       <Card style={styles.noteCard}>
         <Text style={styles.noteTitle}>自動保存は行いません</Text>
         <Text style={styles.noteBody}>

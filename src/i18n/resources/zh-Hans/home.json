@@ -1,0 +1,23 @@
+{
+  "title": {
+    "todayPortfolio": "今日投资组合",
+    "trustHome": "资产运营顾问",
+    "platformPositioning": "AI投资操作系统",
+    "practice": "练习模式"
+  },
+  "subtitle": {
+    "todayAdvice": "温和整理今日方针",
+    "trustHome": "专属顾问为您建议本月配置",
+    "platformPositioning": "以马来西亚股票为中心，AI支持分析、记录与咨询",
+    "practice": "仅模拟 — 无真实资金或Rakuten Trade联动"
+  },
+  "cta": {
+    "askAi": "咨询AI",
+    "checkHoldings": "查看持仓",
+    "viewAllocation": "查看推荐配置",
+    "beginnerGuide": "使用方法",
+    "enterDeposit": "输入入金金额"
+  },
+  "trustNoPlanHint": "尚无本月配置计划。请输入入金金额以创建计划。",
+  "portfolioSummary": "{{count}} 只股票 · 总资产 RM {{amount}}"
+}

@@ -1,0 +1,79 @@
+{
+  "confirm": {
+    "title": "确认记录内容",
+    "subtitleLoading": "加载中…",
+    "subtitleNotFound": "未找到候选",
+    "subtitleReview": "保存前请确认内容",
+    "save": "保存记录",
+    "edit": "修改",
+    "cancel": "取消",
+    "saving": "保存中…",
+    "backToEntry": "返回输入"
+  },
+  "manual": {
+    "title": "Rakuten交易记录",
+    "subtitle": "{{broker}} — 手动输入 · 确认后保存",
+    "guidanceDeposit": "Rakuten Trade入金反映后记录金额。",
+    "guidanceBuy": "记录券商成交的买入。此处不下单。",
+    "guidanceSell": "记录券商成交的卖出。此处不下单。",
+    "kindDeposit": "入金",
+    "kindBuy": "买入",
+    "kindSell": "卖出",
+    "executedDateLabel": "成交日 / 入金日",
+    "continue": "前往确认",
+    "processing": "处理中…"
+  },
+  "ocr": {
+    "title": "截图识别结果",
+    "subtitleLoading": "加载中…",
+    "subtitleEmpty": "无候选",
+    "subtitleCount": "{{count}} 条候选",
+    "save": "保存记录",
+    "edit": "修改",
+    "skip": "跳过"
+  },
+  "type": {
+    "deposit": "入金",
+    "withdrawal": "出金",
+    "buy": "买入",
+    "sell": "卖出",
+    "dividend": "分红",
+    "fee": "手续费"
+  },
+  "field": {
+    "executedAt": "日期",
+    "symbol": "代码",
+    "companyName": "公司名",
+    "type": "类型",
+    "quantity": "数量",
+    "price": "单价",
+    "fee": "手续费",
+    "total": "金额",
+    "currency": "货币",
+    "referenceNumber": "参考号"
+  },
+  "card": {
+    "loading": "正在加载交易候选…",
+    "recordBadge": "{{type}}记录",
+    "dateLabel": "日期: {{date}}",
+    "confidence": "置信度: {{label}} ({{pct}}%)",
+    "fieldsToReview": "需确认字段",
+    "blockedNote": "置信度过低或缺少必填项，无法从此处保存。请点击修改。",
+    "record": "保存记录",
+    "edit": "修改",
+    "cancel": "取消",
+    "unknownSymbol": "代码未知",
+    "priceMissing": "单价未填",
+    "sharesUnit": "股"
+  },
+  "source": {
+    "naturalLanguage": "自然语言",
+    "manualForm": "手动输入",
+    "ocrScreenshot": "截图识别"
+  },
+  "confidence": {
+    "high": "高",
+    "needsConfirmation": "需确认",
+    "blocked": "不可保存"
+  }
+}

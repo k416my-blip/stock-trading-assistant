@@ -1,0 +1,23 @@
+{
+  "title": {
+    "todayPortfolio": "今日のポートフォリオ",
+    "trustHome": "資産運用コンシェルジュ",
+    "platformPositioning": "AI投資オペレーティングシステム",
+    "practice": "練習モード"
+  },
+  "subtitle": {
+    "todayAdvice": "今日の方針をやさしく整理します",
+    "trustHome": "専属MDが今月の配分をご提案します",
+    "platformPositioning": "マレーシア株を中心に、AIが分析・記録・相談をサポート",
+    "practice": "シミュレーション専用 — 実際の資金・Rakuten Trade連携はありません"
+  },
+  "cta": {
+    "askAi": "AIに相談する",
+    "checkHoldings": "保有を確認",
+    "viewAllocation": "おすすめ配分を見る",
+    "beginnerGuide": "はじめての使い方",
+    "enterDeposit": "入金額を入力する"
+  },
+  "trustNoPlanHint": "今月の配分プランはまだありません。入金額を入力してプランを作成してください。",
+  "portfolioSummary": "{{count}} 銘柄 · 総資産 RM {{amount}}"
+}

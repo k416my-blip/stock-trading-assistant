@@ -1,0 +1,19 @@
+{
+  "tab": {
+    "home": "Home",
+    "allocationPlan": "Allocation",
+    "screener": "Screener",
+    "portfolio": "Portfolio",
+    "assetManagement": "AI Assets",
+    "todayTrading": "Today's Trades",
+    "marketMonitoring": "Market Watch",
+    "aiNotifications": "AI Alerts",
+    "materialAnalysis": "Material Analysis",
+    "stockCheck": "Stock Check",
+    "conciergeConsult": "AI Chat",
+    "history": "Trade History",
+    "beginnerGuide": "Beginner Guide",
+    "settings": "Settings",
+    "notifications": "Alerts"
+  }
+}

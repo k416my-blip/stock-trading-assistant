@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { CURRENCY_SYMBOL } from '../../constants/rakutenTrade';
@@ -10,50 +11,21 @@ import type { RootStackParamList } from '../../navigation/types';
 import { findImportCandidate } from '../../services/rakutenImport/rakutenImportStagingStorage';
 import {
   canSaveImportCandidate,
-  confidenceLabelJa,
+  confidenceLabelLocalized,
   confidenceTier,
 } from '../../services/rakutenImport/rakutenImportConfidence';
 import type { BrokerTransactionCandidate, ImportFieldKey } from '../../types/rakutenImport';
 import { theme } from '../../theme';
 
-const FIELD_LABEL_JA: Record<ImportFieldKey, string> = {
-  executedAt: '日付',
-  symbol: '銘柄',
-  companyName: '会社名',
-  type: '種別',
-  quantity: '数量',
-  price: '単価',
-  fee: '手数料',
-  total: '金額',
-  currency: '通貨',
-  referenceNumber: '参照番号',
-};
-
-function typeLabel(type: BrokerTransactionCandidate['type']): string {
-  switch (type) {
-    case 'deposit':
-      return '入金';
-    case 'withdrawal':
-      return '出金';
-    case 'buy':
-      return '買付';
-    case 'sell':
-      return '売却';
-    case 'dividend':
-      return '配当';
-    case 'fee':
-      return '手数料';
-    default:
-      return type;
-  }
-}
-
-function formatSummary(c: BrokerTransactionCandidate): string {
+function formatSummary(
+  c: BrokerTransactionCandidate,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string {
   if (c.type === 'deposit' || c.type === 'withdrawal') {
     return `RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'}`;
   }
   if (c.type === 'dividend') {
-    return `${c.symbol ?? '銘柄未特定'} · RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'}`;
+    return `${c.symbol ?? t('rakutenImport:card.unknownSymbol')} · RM ${c.totalMYR?.toLocaleString('ja-JP') ?? '—'}`;
   }
   if (c.type === 'fee') {
     const sym = c.symbol ? `${c.symbol} · ` : '';
@@ -61,8 +33,8 @@ function formatSummary(c: BrokerTransactionCandidate): string {
   }
   const sym = c.companyName ?? c.symbol ?? '—';
   const px =
-    c.price != null ? `${CURRENCY_SYMBOL[c.currency]}${c.price}` : '単価未入力';
-  return `${sym} · ${c.quantity ?? '—'}株 @ ${px}`;
+    c.price != null ? `${CURRENCY_SYMBOL[c.currency]}${c.price}` : t('rakutenImport:card.priceMissing');
+  return `${sym} · ${c.quantity ?? '—'}${t('rakutenImport:card.sharesUnit')} @ ${px}`;
 }
 
 type Props = {
@@ -73,6 +45,7 @@ type Props = {
 export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { rejectRakutenImportCandidate, readOnlyBlockedMessage } = useApp();
+  const { t } = useTranslation('rakutenImport');
   const [candidate, setCandidate] = useState<BrokerTransactionCandidate | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -120,27 +93,33 @@ export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
   if (!candidate) {
     return (
       <Card style={styles.card}>
-        <Text style={styles.muted}>取引候補を読み込み中…</Text>
+        <Text style={styles.muted}>{t('card.loading')}</Text>
       </Card>
     );
   }
 
+  const typeLabel = t(`type.${candidate.type}`);
+
   return (
     <Card style={styles.card} testID="concierge-import-action-card">
-      <Text style={styles.badge}>{typeLabel(candidate.type)}の記録</Text>
-      <Text style={styles.summary}>{formatSummary(candidate)}</Text>
-      <Text style={styles.meta}>日付: {candidate.executedAt?.slice(0, 10) ?? '—'}</Text>
+      <Text style={styles.badge}>{t('card.recordBadge', { type: typeLabel })}</Text>
+      <Text style={styles.summary}>{formatSummary(candidate, t)}</Text>
+      <Text style={styles.meta}>
+        {t('card.dateLabel', { date: candidate.executedAt?.slice(0, 10) ?? '—' })}
+      </Text>
       <Text style={[styles.confidence, confidenceStyle]}>
-        信頼度: {confidenceLabelJa(candidate.overallConfidence)} (
-        {Math.round(candidate.overallConfidence * 100)}%)
+        {t('card.confidence', {
+          label: confidenceLabelLocalized(candidate.overallConfidence),
+          pct: Math.round(candidate.overallConfidence * 100),
+        })}
       </Text>
 
       {candidate.lowConfidenceFields.length > 0 ? (
         <View style={styles.warnBox}>
-          <Text style={styles.warnTitle}>要確認フィールド</Text>
+          <Text style={styles.warnTitle}>{t('card.fieldsToReview')}</Text>
           {candidate.lowConfidenceFields.map((field) => (
             <Text key={field} style={styles.warnLine}>
-              ⚠ {FIELD_LABEL_JA[field] ?? field}
+              ⚠ {t(`field.${field as ImportFieldKey}`)}
             </Text>
           ))}
         </View>
@@ -153,20 +132,14 @@ export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
       ) : null}
 
       {saveBlocked ? (
-        <Text style={styles.blockedNote}>
-          信頼度が低いか必須項目が不足しているため、ここからは保存できません。修正するを押して入力してください。
-        </Text>
+        <Text style={styles.blockedNote}>{t('card.blockedNote')}</Text>
       ) : null}
 
       <View style={styles.actions}>
+        <Button label={t('card.record')} onPress={onRecord} disabled={busy || saveBlocked} />
+        <Button label={t('card.edit')} variant="ghost" onPress={onEdit} disabled={busy} />
         <Button
-          label="記録する"
-          onPress={onRecord}
-          disabled={busy || saveBlocked}
-        />
-        <Button label="修正する" variant="ghost" onPress={onEdit} disabled={busy} />
-        <Button
-          label="キャンセル"
+          label={t('card.cancel')}
           variant="ghost"
           onPress={() => void onCancel()}
           disabled={busy}

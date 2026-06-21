@@ -8,6 +8,7 @@ import { BeginnerOnboardingModal } from '../components/beginner/BeginnerOnboardi
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
 import { wrapBursaScreen } from '../components/BursaDataErrorBoundary';
 import { useAppUxMode } from '../context/AppUxModeContext';
+import { useAppLanguage } from '../context/AppLanguageContext';
 import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
 import { MATERIAL_ANALYSIS_MISSING_JA } from '../services/bursa/bursaMaterialAnalysisService';
 import { MONITORING_MISSING_JA } from '../services/bursa/bursaMarketMonitoringService';
@@ -27,6 +28,7 @@ import {
 } from '../services/beginner/beginnerOnboardingStorage';
 import { TabBarIcon } from './tabIcons';
 import type { MainTabParamList } from './types';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -76,8 +78,10 @@ function TabScreenFallback({ title }: { title: string }) {
   );
 }
 
-function lazyScreen(Component: ComponentType, title: string) {
+function lazyScreen(Component: ComponentType, titleKey: string) {
   return function LazyTabScreen() {
+    const { t } = useTranslation();
+    const title = t(titleKey);
     return (
       <Suspense fallback={<TabScreenFallback title={title} />}>
         <Component />
@@ -88,51 +92,51 @@ function lazyScreen(Component: ComponentType, title: string) {
 
 function lazyBursaScreen(
   Component: ComponentType,
-  title: string,
+  titleKey: string,
   screen: Parameters<typeof wrapBursaScreen>[0],
   fallbackJa: string,
 ) {
   const Wrapped = wrapBursaScreen(screen, Component, fallbackJa);
-  return lazyScreen(Wrapped, title);
+  return lazyScreen(Wrapped, titleKey);
 }
 
-const HomeTabScreen = lazyScreen(LazyHomeScreen, 'ホーム');
+const HomeTabScreen = lazyScreen(LazyHomeScreen, 'navigation:tab.home');
 const AllocationPlanTabScreen = AllocationPlanScreen;
-const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, '銘柄検索');
+const ScreenerTabScreen = lazyScreen(LazyScreenerScreen, 'navigation:tab.screener');
 const PortfolioTabScreen = PortfolioScreen;
 const AssetManagementTabScreen = lazyBursaScreen(
   LazyAssetManagementScreen,
-  'AI資産運用',
+  'navigation:tab.assetManagement',
   'AssetManagement',
   ASSET_MGMT_MISSING_JA,
 );
 const TodayTradingTabScreen = lazyBursaScreen(
   LazyTodayTradingScreen,
-  '今日の売買',
+  'navigation:tab.todayTrading',
   'TodayTrading',
   TODAY_TRADING_MISSING_JA,
 );
 const MarketMonitoringTabScreen = lazyBursaScreen(
   LazyMarketMonitoringScreen,
-  '市場監視',
+  'navigation:tab.marketMonitoring',
   'MarketMonitoring',
   MONITORING_MISSING_JA,
 );
 const AiNotificationsTabScreen = lazyBursaScreen(
   LazyAiNotificationsScreen,
-  'AI通知',
+  'navigation:tab.aiNotifications',
   'AiNotifications',
   CONCIERGE_NOTIFY_MISSING_JA,
 );
 const MaterialAnalysisTabScreen = lazyBursaScreen(
   LazyMaterialAnalysisScreen,
-  '材料分析',
+  'navigation:tab.materialAnalysis',
   'MaterialAnalysis',
   MATERIAL_ANALYSIS_MISSING_JA,
 );
-const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, '売買履歴');
-const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, '初心者ガイド');
-const SettingsTabScreen = lazyScreen(LazySettingsScreen, '設定');
+const HistoryTabScreen = lazyScreen(LazyTradeHistoryScreen, 'navigation:tab.history');
+const BeginnerGuideTabScreen = lazyScreen(LazyBeginnerGuideScreen, 'navigation:tab.beginnerGuide');
+const SettingsTabScreen = lazyScreen(LazySettingsScreen, 'navigation:tab.settings');
 const ConciergeConsultTabScreen = ConciergeTabScreen;
 
 type TabDefinition = {
@@ -160,6 +164,7 @@ export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = 56 + insets.bottom;
   const { appUxMode, ready, isBeginnerMode } = useAppUxMode();
+  const { appLanguage } = useAppLanguage();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -185,6 +190,7 @@ export function MainTabNavigator() {
   return (
     <>
     <Tab.Navigator
+      key={appLanguage}
       screenOptions={({ route }) => {
         const visible = isTabVisibleForAppUxMode(appUxMode, route.name);
         const title = tabTitleForAppUxMode(appUxMode, route.name);

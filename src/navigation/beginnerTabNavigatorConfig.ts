@@ -1,20 +1,21 @@
 import type { AppUxMode } from '../types/appUxMode';
 import type { MainTabParamList } from './types';
+import { i18n } from '../i18n';
 
-export const DEFAULT_TAB_TITLES: Record<keyof MainTabParamList, string> = {
-  Home: 'ホーム',
-  AllocationPlan: 'おすすめ配分',
-  Screener: '銘柄検索',
-  Portfolio: '保有銘柄',
-  AssetManagement: 'AI資産運用',
-  TodayTrading: '今日の売買',
-  MarketMonitoring: '市場監視',
-  AiNotifications: 'AI通知',
-  MaterialAnalysis: '材料分析',
-  ConciergeConsult: 'AI相談',
-  History: '売買履歴',
-  BeginnerGuide: '初心者ガイド',
-  Settings: '設定',
+const TAB_TITLE_KEYS: Record<keyof MainTabParamList, string> = {
+  Home: 'navigation:tab.home',
+  AllocationPlan: 'navigation:tab.allocationPlan',
+  Screener: 'navigation:tab.screener',
+  Portfolio: 'navigation:tab.portfolio',
+  AssetManagement: 'navigation:tab.assetManagement',
+  TodayTrading: 'navigation:tab.todayTrading',
+  MarketMonitoring: 'navigation:tab.marketMonitoring',
+  AiNotifications: 'navigation:tab.aiNotifications',
+  MaterialAnalysis: 'navigation:tab.materialAnalysis',
+  ConciergeConsult: 'navigation:tab.conciergeConsult',
+  History: 'navigation:tab.history',
+  BeginnerGuide: 'navigation:tab.beginnerGuide',
+  Settings: 'navigation:tab.settings',
 };
 
 const BEGINNER_TABS: (keyof MainTabParamList)[] = [
@@ -64,13 +65,13 @@ export function isTabVisibleForAppUxMode(mode: AppUxMode, routeName: keyof MainT
 
 export function tabTitleForAppUxMode(mode: AppUxMode, routeName: keyof MainTabParamList): string {
   if (mode === 'beginner' && routeName === 'MaterialAnalysis') {
-    return '銘柄チェック';
+    return i18n.t('navigation:tab.stockCheck');
   }
   if (mode === 'standard' && routeName === 'MaterialAnalysis') {
-    return '銘柄チェック';
+    return i18n.t('navigation:tab.stockCheck');
   }
   if (mode === 'standard' && routeName === 'AiNotifications') {
-    return '通知';
+    return i18n.t('navigation:tab.notifications');
   }
-  return DEFAULT_TAB_TITLES[routeName];
+  return i18n.t(TAB_TITLE_KEYS[routeName]);
 }

@@ -55,6 +55,7 @@ import { loadTrustPlanSnapshot } from '../services/trustPlanPreviewStorage';
 import type { AllocationPlan } from '../types';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 export function HomeScreen() {
   const {
@@ -69,6 +70,7 @@ export function HomeScreen() {
     addAllocationToManualOrderList,
   } = useApp();
   const { isBeginnerMode, isStandardMode, isProMode } = useAppUxMode();
+  const { t } = useTranslation('home');
   const materialCtx = useBursaMaterialOptional();
   const proactive = useProactiveConciergeOptional();
   const trustMode = isTrustDisplayMode(aiPreferences);
@@ -200,16 +202,14 @@ export function HomeScreen() {
     return (
       <Screen
         ref={scrollRef}
-        title={isStandardMode ? '今日のポートフォリオ' : TRUST_HOME_TITLE_JA}
-        subtitle={
-          isStandardMode ? '今日の方針をやさしく整理します' : TRUST_HOME_SUBTITLE_JA
-        }
+        title={isStandardMode ? t('title.todayPortfolio') : t('title.trustHome')}
+        subtitle={isStandardMode ? t('subtitle.todayAdvice') : t('subtitle.trustHome')}
       >
         <BeginnerTodayAdviceCard
           data={beginnerAdvice}
           onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
         />
-        <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
+        <Button label={t('cta.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
         {!isStandardMode ? (
           <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
         ) : null}
@@ -239,8 +239,8 @@ export function HomeScreen() {
           />
         ) : (
           <Card>
-            <Text style={styles.trustHint}>{TRUST_HOME_NO_PLAN_HINT_JA}</Text>
-            <Button label="入金額を入力する" onPress={() => tabNav.navigate('AllocationPlan')} />
+            <Text style={styles.trustHint}>{t('trustNoPlanHint')}</Text>
+            <Button label={t('cta.enterDeposit')} onPress={() => tabNav.navigate('AllocationPlan')} />
           </Card>
         )}
 
@@ -257,8 +257,8 @@ export function HomeScreen() {
     return (
       <Screen
         ref={scrollRef}
-        title="今日のポートフォリオ"
-        subtitle="今日の方針をやさしく整理します"
+        title={t('title.todayPortfolio')}
+        subtitle={t('subtitle.todayAdvice')}
       >
         {isPractice ? <PracticeModeBadge /> : null}
         <BeginnerTodayAdviceCard
@@ -267,21 +267,21 @@ export function HomeScreen() {
         />
         <Text style={styles.portfolioSummary}>{beginnerPortfolioSummary}</Text>
         <View style={styles.ctaRow}>
-          <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
+          <Button label={t('cta.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
           <Button
-            label="保有を確認"
+            label={t('cta.checkHoldings')}
             onPress={() => tabNav.navigate('Portfolio')}
             variant="ghost"
           />
         </View>
         <View style={styles.ctaRow}>
           <Button
-            label="おすすめ配分を見る"
+            label={t('cta.viewAllocation')}
             onPress={() => tabNav.navigate('AllocationPlan')}
             variant="ghost"
           />
           <Button
-            label="はじめての使い方"
+            label={t('cta.beginnerGuide')}
             onPress={() => tabNav.navigate('BeginnerGuide')}
             variant="ghost"
           />
@@ -295,17 +295,17 @@ export function HomeScreen() {
       ref={scrollRef}
       title={
         conciergeFirstHome
-          ? '今日のポートフォリオ'
+          ? t('title.todayPortfolio')
           : isPractice
-            ? APP_MODE_PRACTICE_LABEL
-            : PLATFORM_POSITIONING_TITLE_JA
+            ? t('title.practice')
+            : t('title.platformPositioning')
       }
       subtitle={
         conciergeFirstHome
-          ? '今日の方針をやさしく整理します'
+          ? t('subtitle.todayAdvice')
           : isPractice
-            ? PRACTICE_SUBTITLE
-            : PLATFORM_POSITIONING_SUBTITLE_JA
+            ? t('subtitle.practice')
+            : t('subtitle.platformPositioning')
       }
     >
       <DegradedModeBanner />

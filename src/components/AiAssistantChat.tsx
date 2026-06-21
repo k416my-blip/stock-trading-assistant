@@ -23,7 +23,7 @@ import {
   createUserChatMessage,
   getInitialAiChatMessages,
 } from '../data/mockAiChat';
-import { AI_CONCIERGE_UI } from '../constants/aiConcierge';
+import { i18n } from '../i18n';
 import {
   AI_CHAT_TITLE,
   AI_PERSONAL_SAFETY_FOOTER,
@@ -98,6 +98,7 @@ import type { RootStackParamList } from '../navigation/types';
 import { buildConfirmPromptJa } from '../services/rakutenImport/naturalLanguageTransactionParser';
 import { canSaveImportCandidate } from '../services/rakutenImport/rakutenImportConfidence';
 import { ConciergeEvidencePanel } from './concierge/ConciergeEvidencePanel';
+import { ConciergeActionPanel } from './concierge/ConciergeActionPanel';
 import { MarketSituationCard } from './concierge/MarketSituationCard';
 import { ConciergeRiskControlPanel } from './concierge/ConciergeRiskControlPanel';
 import { PortfolioIntelligencePanel } from './concierge/PortfolioIntelligencePanel';
@@ -317,19 +318,19 @@ function composingLabelJa(status: AiRequestStatus, isConcierge: boolean): string
   if (!isConcierge) return AI_UI.sending;
   switch (status) {
     case 'thinking':
-      return AI_CONCIERGE_UI.statusThinking;
+      return i18n.t('concierge:statusThinking');
     case 'retrying':
-      return AI_CONCIERGE_UI.statusRetrying;
+      return i18n.t('concierge:statusRetrying');
     case 'reconnecting':
-      return AI_CONCIERGE_UI.statusReconnecting;
+      return i18n.t('concierge:statusReconnecting');
     case 'degraded':
-      return AI_CONCIERGE_UI.statusDegraded;
+      return i18n.t('concierge:statusDegraded');
     case 'streaming':
-      return AI_CONCIERGE_UI.statusStreaming;
+      return i18n.t('concierge:statusStreaming');
     case 'waiting_response':
-      return AI_CONCIERGE_UI.composingAnswer;
+      return i18n.t('concierge:composingAnswer');
     default:
-      return AI_CONCIERGE_UI.composingAnswer;
+      return i18n.t('concierge:composingAnswer');
   }
 }
 
@@ -475,7 +476,7 @@ export function AiAssistantChat({
       abortRef.current?.abort();
       setIsSending(false);
       setRequestStatus('timeout');
-      setStatusJa(AI_CONCIERGE_UI.statusTimeout);
+      setStatusJa(i18n.t('concierge:statusTimeout'));
       setErrorJa(AI_ERROR_TIMEOUT);
       setUsedMockFallback(false);
       setApiConnected(true);
@@ -605,10 +606,10 @@ export function AiAssistantChat({
 
   const confirmDeleteSelected = useCallback(() => {
     if (selectedIds.size === 0) return;
-    Alert.alert(AI_CONCIERGE_UI.chatDelete, AI_CONCIERGE_UI.chatDeleteConfirm, [
-      { text: AI_CONCIERGE_UI.chatCancelSelection, style: 'cancel' },
+    Alert.alert(i18n.t('concierge:chatDelete'), i18n.t('concierge:chatDeleteConfirm'), [
+      { text: i18n.t('concierge:chatCancelSelection'), style: 'cancel' },
       {
-        text: AI_CONCIERGE_UI.chatDelete,
+        text: i18n.t('concierge:chatDelete'),
         style: 'destructive',
         onPress: () => {
           const remaining = messages.filter((m) => !selectedIds.has(m.id));
@@ -656,11 +657,11 @@ export function AiAssistantChat({
       const result = await stageRakutenImportOcrScreenshot(uri);
       if (!result.ok) {
         Alert.alert('読み取りできません', result.error);
-        setStatusJa(AI_CONCIERGE_UI.statusInstant);
+        setStatusJa(i18n.t('concierge:statusInstant'));
         return;
       }
       navigation.navigate('RakutenImportOcrReview', { batchId: result.batchId });
-      setStatusJa(AI_CONCIERGE_UI.statusInstant);
+      setStatusJa(i18n.t('concierge:statusInstant'));
     } finally {
       setOcrBusy(false);
     }
@@ -858,7 +859,7 @@ export function AiAssistantChat({
           setUsedMockFallback(false);
           setApiConnected(true);
           setRequestStatus('idle');
-          setStatusJa(AI_CONCIERGE_UI.statusInstant);
+          setStatusJa(i18n.t('concierge:statusInstant'));
           return;
         }
 
@@ -868,7 +869,7 @@ export function AiAssistantChat({
           setUsedMockFallback(false);
           setApiConnected(false);
           setRequestStatus('idle');
-          setStatusJa(AI_CONCIERGE_UI.statusInstant);
+          setStatusJa(i18n.t('concierge:statusInstant'));
           return;
         }
 
@@ -892,7 +893,7 @@ export function AiAssistantChat({
             setUsedMockFallback(false);
             setApiConnected(false);
             setRequestStatus('idle');
-            setStatusJa(AI_CONCIERGE_UI.statusInstant);
+            setStatusJa(i18n.t('concierge:statusInstant'));
             return;
           }
         }
@@ -1085,7 +1086,7 @@ export function AiAssistantChat({
         <SelectableText style={styles.errorText}>{errorJa}</SelectableText>
       ) : null}
       {slowResponse && isSending ? (
-        <SelectableText style={styles.errorText}>{AI_CONCIERGE_UI.statusSlow}</SelectableText>
+        <SelectableText style={styles.errorText}>{i18n.t('concierge:statusSlow')}</SelectableText>
       ) : null}
       {retryPrompt ? (
         <View style={styles.retryRow}>
@@ -1132,7 +1133,7 @@ export function AiAssistantChat({
         <SelectableText style={styles.conciergeStatusLine}>{errorJa}</SelectableText>
       ) : null}
       {slowResponse && isSending ? (
-        <SelectableText style={styles.conciergeStatusWarn}>{AI_CONCIERGE_UI.statusSlow}</SelectableText>
+        <SelectableText style={styles.conciergeStatusWarn}>{i18n.t('concierge:statusSlow')}</SelectableText>
       ) : null}
       {staleWarning ? (
         <SelectableText style={styles.conciergeStatusWarn}>{AI_UI.staleDataWarning}</SelectableText>
@@ -1298,7 +1299,7 @@ export function AiAssistantChat({
               pressed && styles.voiceBtnPressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel={AI_CONCIERGE_UI.voiceInput}
+            accessibilityLabel={i18n.t('concierge:voiceInput')}
           >
             <Ionicons
               name={voiceStatus === 'listening' ? 'mic' : 'mic-outline'}
@@ -1326,7 +1327,7 @@ export function AiAssistantChat({
         />
       </View>
       {isConcierge && voiceStatus === 'listening' ? (
-        <SelectableText style={styles.voiceListening}>{AI_CONCIERGE_UI.voiceListening}</SelectableText>
+        <SelectableText style={styles.voiceListening}>{i18n.t('concierge:voiceListening')}</SelectableText>
       ) : null}
     </View>
   );
@@ -1334,7 +1335,7 @@ export function AiAssistantChat({
   const selectionToolbar = selectionMode ? (
     <View style={styles.selectionBar}>
       <Pressable onPress={selectAllMessages} style={styles.selectionAction}>
-        <Text style={styles.selectionActionText}>{AI_CONCIERGE_UI.chatSelectAll}</Text>
+        <Text style={styles.selectionActionText}>{i18n.t('concierge:chatSelectAll')}</Text>
       </Pressable>
       <Pressable
         onPress={confirmDeleteSelected}
@@ -1342,11 +1343,11 @@ export function AiAssistantChat({
         style={[styles.selectionAction, selectedIds.size === 0 && styles.selectionActionDisabled]}
       >
         <Text style={[styles.selectionActionText, styles.selectionDeleteText]}>
-          {AI_CONCIERGE_UI.chatDelete}
+          {i18n.t('concierge:chatDelete')}
         </Text>
       </Pressable>
       <Pressable onPress={cancelSelection} style={styles.selectionAction}>
-        <Text style={styles.selectionActionText}>{AI_CONCIERGE_UI.chatCancelSelection}</Text>
+        <Text style={styles.selectionActionText}>{i18n.t('concierge:chatCancelSelection')}</Text>
       </Pressable>
     </View>
   ) : null;
@@ -1502,8 +1503,8 @@ export function AiAssistantChat({
                 accessibilityRole="button"
                 accessibilityLabel={
                   speakingMessageId === msg.id
-                    ? AI_CONCIERGE_UI.chatStopSpeak
-                    : AI_CONCIERGE_UI.chatSpeak
+                    ? i18n.t('concierge:chatStopSpeak')
+                    : i18n.t('concierge:chatSpeak')
                 }
               >
                 <Ionicons

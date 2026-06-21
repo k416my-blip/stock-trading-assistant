@@ -20,8 +20,14 @@ import {
   APP_UX_MODE_LABELS_JA,
 } from '../constants/appUxMode';
 import { useAppUxMode } from '../context/AppUxModeContext';
+import {
+  LANGUAGE_PICKER_OPTIONS,
+  nativeLabelForAppLanguage,
+  useAppLanguage,
+} from '../context/AppLanguageContext';
 import { useApp } from '../context/AppContext';
 import type { AppUxMode } from '../types/appUxMode';
+import type { AppLanguage } from '../types/appLanguage';
 import { APP_UX_MODES } from '../types/appUxMode';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
@@ -54,6 +60,7 @@ import {
   type XApiSearchRecentTestResult,
 } from '../services/xApiSearchRecentTest';
 import { pickTransactionHistoryImageWithAlert } from '../services/rakutenImport/pickTransactionHistoryImage';
+import { useTranslation } from 'react-i18next';
 
 export function SettingsScreen() {
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -67,6 +74,8 @@ export function SettingsScreen() {
     stageRakutenImportOcrScreenshot,
   } = useApp();
   const { appUxMode, setAppUxMode, isBeginnerMode } = useAppUxMode();
+  const { appLanguage, setAppLanguage } = useAppLanguage();
+  const { t } = useTranslation('settings');
   const [resetting, setResetting] = useState(false);
   const [ocrBusy, setOcrBusy] = useState(false);
   const [apiKeyInputs, setApiKeyInputs] = useState(createEmptyApiKeyDrafts);
@@ -471,12 +480,47 @@ export function SettingsScreen() {
   };
 
   return (
-    <Screen title="設定" subtitle={isBeginnerMode ? '通知・市場など' : 'API・通知・市場など'}>
+    <Screen
+      title={t('title')}
+      subtitle={isBeginnerMode ? t('subtitle.beginner') : t('subtitle.standard')}
+    >
       <Card>
-        <Text style={styles.sectionTitle}>表示モード</Text>
-        <Text style={styles.sectionHint}>
-          初心者は4タブのやさしい表示。標準は主要タブ。プロは全機能とPhase詳細を表示します。
-        </Text>
+        <Text style={styles.sectionTitle}>{t('language.sectionTitle')}</Text>
+        <Text style={styles.sectionHint}>{t('language.sectionHint')}</Text>
+        {LANGUAGE_PICKER_OPTIONS.map((language, index) => (
+          <Pressable
+            key={language}
+            onPress={() => void setAppLanguage(language as AppLanguage)}
+            testID={`settings-language-${language}`}
+            style={({ pressed }) => [
+              styles.uxModeRow,
+              index < LANGUAGE_PICKER_OPTIONS.length - 1 && styles.uxModeRowBorder,
+              pressed && styles.uxModeRowPressed,
+              appLanguage === language && styles.uxModeRowSelected,
+            ]}
+          >
+            <View style={styles.uxModeBody}>
+              <Text
+                style={[
+                  styles.uxModeLabel,
+                  appLanguage === language && styles.uxModeLabelSelected,
+                ]}
+              >
+                {nativeLabelForAppLanguage(language)}
+              </Text>
+            </View>
+            {appLanguage === language ? (
+              <Text style={styles.uxModeCheck}>✓</Text>
+            ) : (
+              <View style={styles.uxModeRadioOff} />
+            )}
+          </Pressable>
+        ))}
+      </Card>
+
+      <Card>
+        <Text style={styles.sectionTitle}>{t('displayMode.sectionTitle')}</Text>
+        <Text style={styles.sectionHint}>{t('displayMode.sectionHint')}</Text>
         {APP_UX_MODES.map((mode, index) => (
           <Pressable
             key={mode}

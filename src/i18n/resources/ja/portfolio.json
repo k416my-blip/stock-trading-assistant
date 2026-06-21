@@ -1,0 +1,13 @@
+{
+  "title": "保有銘柄",
+  "subtitle": {
+    "beginner": "あなたの保有: {{count}} 銘柄",
+    "practice": "練習モードの仮想ポジション",
+    "live": "実運用分析 — 証券会社で約定後に記録したポジション"
+  },
+  "empty": {
+    "title": "保有銘柄がありません",
+    "addButton": "銘柄を追加"
+  },
+  "dividendHistory": "配当履歴"
+}

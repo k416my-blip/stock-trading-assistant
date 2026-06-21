@@ -3,6 +3,7 @@ import type {
   BrokerTransactionType,
   ImportFieldKey,
 } from '../../types/rakutenImport';
+import { i18n } from '../../i18n';
 
 export const CONFIDENCE_HIGH = 0.85;
 export const CONFIDENCE_MIN_SAVE = 0.6;
@@ -17,13 +18,17 @@ export function confidenceTier(overall: number): ConfidenceTier {
 }
 
 export function confidenceLabelJa(overall: number): string {
+  return confidenceLabelLocalized(overall);
+}
+
+export function confidenceLabelLocalized(overall: number): string {
   switch (confidenceTier(overall)) {
     case 'high':
-      return '高';
+      return i18n.t('rakutenImport:confidence.high');
     case 'needs_confirmation':
-      return '要確認';
+      return i18n.t('rakutenImport:confidence.needsConfirmation');
     case 'blocked':
-      return '保存不可';
+      return i18n.t('rakutenImport:confidence.blocked');
   }
 }
 

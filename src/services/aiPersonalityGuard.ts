@@ -62,6 +62,14 @@ import { buildAnalysisModeInstructions, normalizeAiAnalysisMode } from './aiAnal
 import type { AiStrategyContextPayload } from '../types/aiStrategy';
 import type { ParsedAiApiJson } from './aiResponseSanitizer';
 import { buildExplanationLevelInstructions, normalizeAiExplanationLevel } from './aiExplanationLevel';
+import { getCurrentAppLanguage } from '../i18n';
+import type { AppLanguage } from '../types/appLanguage';
+
+const RESPONSE_LANGUAGE_RULE: Record<AppLanguage, string> = {
+  ja: 'すべての回答は日本語で記述すること。UI言語は日本語。',
+  en: 'Write all responses in English. UI language is English.',
+  'zh-Hans': '所有回答必须使用简体中文。UI语言为简体中文。',
+};
 
 export function buildFixedPersonalityGuardrailsBlock(): {
   philosophyVersion: string;
@@ -91,9 +99,11 @@ export function buildConciergeChatInstructions(
 ): string {
   const level = normalizeAiExplanationLevel(explanationLevel);
   const mode = normalizeAiAnalysisMode(analysisMode);
+  const locale = getCurrentAppLanguage();
   return [
     AI_CONCIERGE_CHAT_SYSTEM_PROMPT,
     buildAnalysisModeInstructions(mode),
+    RESPONSE_LANGUAGE_RULE[locale],
     AI_SPECIFICITY_PROMPT_BLOCK_JA,
     AI_NO_USER_LEARNING_POLICY,
     buildExplanationLevelInstructions(level),

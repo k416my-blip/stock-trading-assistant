@@ -1,0 +1,13 @@
+{
+  "title": "持仓",
+  "subtitle": {
+    "beginner": "您的持仓: {{count}} 只",
+    "practice": "练习模式虚拟持仓",
+    "live": "实盘分析 — 券商成交后记录的持仓"
+  },
+  "empty": {
+    "title": "暂无持仓",
+    "addButton": "添加股票"
+  },
+  "dividendHistory": "分红历史"
+}

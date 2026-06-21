@@ -1,0 +1,23 @@
+{
+  "title": {
+    "todayPortfolio": "Today's Portfolio",
+    "trustHome": "Investment Concierge",
+    "platformPositioning": "AI Investment OS",
+    "practice": "Practice Mode"
+  },
+  "subtitle": {
+    "todayAdvice": "A gentle summary of today's plan",
+    "trustHome": "Your dedicated advisor suggests this month's allocation",
+    "platformPositioning": "AI support for Malaysia stocks — analysis, records, and advice",
+    "practice": "Simulation only — no real funds or Rakuten Trade linkage"
+  },
+  "cta": {
+    "askAi": "Ask AI",
+    "checkHoldings": "View holdings",
+    "viewAllocation": "View allocation",
+    "beginnerGuide": "How to use",
+    "enterDeposit": "Enter deposit amount"
+  },
+  "trustNoPlanHint": "No allocation plan yet. Enter a deposit amount to create one.",
+  "portfolioSummary": "{{count}} stocks · Total RM {{amount}}"
+}

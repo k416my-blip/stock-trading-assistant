@@ -1,0 +1,10 @@
+{
+  "title": {
+    "stockCheck": "股票检查",
+    "materialAnalysis": "材料分析"
+  },
+  "loading": "正在获取材料分析…",
+  "section": {
+    "stockCheck": "【股票检查】"
+  }
+}

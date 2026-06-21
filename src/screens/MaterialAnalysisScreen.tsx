@@ -20,6 +20,7 @@ import {
 } from '../services/bursa/bursaMaterialAnalysisService';
 import type { MaterialApiAuditRow } from '../services/bursa/bursaMaterialApiAudit';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -692,6 +693,7 @@ function StockMaterialCard({
 export function MaterialAnalysisScreen() {
   const { report, auditReport, loading, error, refresh } = useBursaMaterial();
   const { isBeginnerMode } = useAppUxMode();
+  const { t } = useTranslation('stockCheck');
   const { state, isPractice } = useApp();
   const proactive = useProactiveConciergeOptional();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -747,7 +749,7 @@ export function MaterialAnalysisScreen() {
   if (loading && !report) {
     return (
       <Screen>
-        <Text style={styles.loading}>材料分析を取得中…</Text>
+        <Text style={styles.loading}>{t('loading')}</Text>
       </Screen>
     );
   }
@@ -763,7 +765,9 @@ export function MaterialAnalysisScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} testID="material-analysis-screen">
-        <Text style={styles.pageTitle}>{isBeginnerMode ? '銘柄チェック' : '材料分析'}</Text>
+        <Text style={styles.pageTitle}>
+          {isBeginnerMode ? t('title.stockCheck') : t('title.materialAnalysis')}
+        </Text>
         {isBeginnerMode ? (
           <BeginnerTodayAdviceCard data={beginnerAdvice} />
         ) : null}
@@ -804,7 +808,7 @@ export function MaterialAnalysisScreen() {
         )}
 
         {isBeginnerMode ? (
-          <Section title="【銘柄チェック】">
+          <Section title={t('section.stockCheck')}>
             {beginnerStockSummaries.map((summary) => (
               <BeginnerStockSummaryCard key={summary.symbol} summary={summary} />
             ))}

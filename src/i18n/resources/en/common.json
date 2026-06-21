@@ -1,0 +1,8 @@
+{
+  "languagePicker": {
+    "title": "Choose language",
+    "subtitle": "Used for UI and AI responses",
+    "confirm": "Continue with this language"
+  },
+  "loading": "Loading…"
+}

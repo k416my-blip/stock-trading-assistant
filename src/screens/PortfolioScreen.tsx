@@ -59,6 +59,7 @@ import type { PortfolioPosition, SellAllLineItem } from '../types';
 import { positionDisplayPrice } from '../utils/positionPrice';
 import { safeNumber } from '../utils/safeNumeric';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 type ResolvedSell = { position: PortfolioPosition; name: string; sellPrice: number };
 
@@ -86,6 +87,7 @@ export function PortfolioScreen() {
     killSwitches,
   } = useApp();
   const { isBeginnerMode } = useAppUxMode();
+  const { t } = useTranslation('portfolio');
   const materialCtx = useBursaMaterialOptional();
   const proactive = useProactiveConciergeOptional();
   const { reloadTwelveDataApiKeyFromStorage, syncPriceSyncForEmptyHoldings, refreshPortfolioPrices } =
@@ -488,7 +490,7 @@ export function PortfolioScreen() {
     if (isPractice || state.dividends.length === 0) return null;
     return (
       <View style={styles.listFooter}>
-        <Text style={styles.section}>配当履歴</Text>
+        <Text style={styles.section}>{t('dividendHistory')}</Text>
         {state.dividends.map((d, index) => (
           <Card key={`dividend-${d.id}-${index}`}>
             <Text style={styles.symbol}>{d.symbol}</Text>
@@ -505,8 +507,8 @@ export function PortfolioScreen() {
     return (
       <Screen
         scrollable={false}
-        title="保有銘柄"
-        subtitle={`あなたの保有: ${holdings.length} 銘柄`}
+        title={t('title')}
+        subtitle={t('subtitle.beginner', { count: holdings.length })}
       >
         <ScrollView
           style={styles.list}
@@ -517,9 +519,9 @@ export function PortfolioScreen() {
           {isPractice ? <PracticeModeBadge /> : null}
           {holdings.length === 0 ? (
             <Card style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>保有銘柄がありません</Text>
+              <Text style={styles.emptyTitle}>{t('empty.title')}</Text>
               <Button
-                label="銘柄を追加"
+                label={t('empty.addButton')}
                 onPress={() => navigation.navigate('ManualAddHolding')}
               />
             </Card>
@@ -560,7 +562,7 @@ export function PortfolioScreen() {
             })
           )}
           <Button
-            label="銘柄を追加"
+            label={t('empty.addButton')}
             onPress={() => navigation.navigate('ManualAddHolding')}
             variant="ghost"
           />
@@ -573,10 +575,8 @@ export function PortfolioScreen() {
     <>
       <Screen
         scrollable={false}
-        title="保有銘柄"
-        subtitle={
-          isPractice ? '練習モードの仮想ポジション' : '実運用分析 — 証券会社で約定後に記録したポジション'
-        }
+        title={t('title')}
+        subtitle={isPractice ? t('subtitle.practice') : t('subtitle.live')}
       >
         <ScrollView
           style={styles.list}

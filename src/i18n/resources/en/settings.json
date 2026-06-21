@@ -1,0 +1,15 @@
+{
+  "title": "Settings",
+  "subtitle": {
+    "beginner": "Notifications, market, etc.",
+    "standard": "API, notifications, market, etc."
+  },
+  "language": {
+    "sectionTitle": "Language",
+    "sectionHint": "Switch UI and AI response language. Changes apply immediately."
+  },
+  "displayMode": {
+    "sectionTitle": "Display mode",
+    "sectionHint": "Beginner: 4 simple tabs. Standard: main tabs. Pro: all features and phase details."
+  }
+}

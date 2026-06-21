@@ -12,6 +12,7 @@ import type { RootStackParamList } from '../navigation/types';
 import type { Currency, Market } from '../types';
 import type { RakutenImportManualFormInput } from '../types/rakutenImport';
 import { theme } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 type ImportKind = RakutenImportManualFormInput['type'];
 
@@ -24,6 +25,7 @@ function currencyForMarket(market: Market): Currency {
 export function RakutenImportManualEntryScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, stageRakutenImportManual, readOnlyBlockedMessage } = useApp();
+  const { t } = useTranslation('rakutenImport');
 
   const [kind, setKind] = useState<ImportKind>('deposit');
   const [amount, setAmount] = useState('500');
@@ -40,13 +42,13 @@ export function RakutenImportManualEntryScreen() {
   const guidance = useMemo(() => {
     switch (kind) {
       case 'deposit':
-        return 'Rakuten Trade で入金が反映された後、金額を記録します。';
+        return t('manual.guidanceDeposit');
       case 'buy':
-        return '証券会社で約定した買付を記録します。発注は行いません。';
+        return t('manual.guidanceBuy');
       case 'sell':
-        return '証券会社で約定した売却を記録します。発注は行いません。';
+        return t('manual.guidanceSell');
     }
-  }, [kind]);
+  }, [kind, t]);
 
   const buildInput = (): RakutenImportManualFormInput | null => {
     const executedAt = `${executedDate}T12:00:00.000Z`;
@@ -101,8 +103,8 @@ export function RakutenImportManualEntryScreen() {
 
   return (
     <Screen
-      title="Rakuten取引記録"
-      subtitle={`${BROKER_NAME} — 手動入力 · 確認後に保存`}
+      title={t('manual.title')}
+      subtitle={t('manual.subtitle', { broker: BROKER_NAME })}
     >
       <Text style={styles.guidance}>{guidance}</Text>
       {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
@@ -115,14 +117,14 @@ export function RakutenImportManualEntryScreen() {
             style={[styles.kindChip, kind === k && styles.kindChipActive]}
           >
             <Text style={[styles.kindChipText, kind === k && styles.kindChipTextActive]}>
-              {k === 'deposit' ? '入金' : k === 'buy' ? '買付' : '売却'}
+              {k === 'deposit' ? t('manual.kindDeposit') : k === 'buy' ? t('manual.kindBuy') : t('manual.kindSell')}
             </Text>
           </Pressable>
         ))}
       </View>
 
       <Card>
-        <Text style={styles.label}>約定日 / 入金日</Text>
+        <Text style={styles.label}>{t('manual.executedDateLabel')}</Text>
         <TextInput
           style={styles.input}
           value={executedDate}
@@ -198,7 +200,7 @@ export function RakutenImportManualEntryScreen() {
       </Card>
 
       <Button
-        label={busy ? '処理中…' : '確認画面へ'}
+        label={busy ? t('manual.processing') : t('manual.continue')}
         onPress={() => void onContinue()}
         disabled={busy || !!readOnlyBlockedMessage}
       />

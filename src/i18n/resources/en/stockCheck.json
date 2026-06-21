@@ -1,0 +1,10 @@
+{
+  "title": {
+    "stockCheck": "Stock Check",
+    "materialAnalysis": "Material Analysis"
+  },
+  "loading": "Loading material analysis…",
+  "section": {
+    "stockCheck": "[Stock Check]"
+  }
+}
