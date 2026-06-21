@@ -284,13 +284,19 @@ Initial internal test release.
 
 ## 5. GitHub commit hash
 
-（コミット後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Commit（本体）** | `211901d` — docs: add Play IT owner console waiting checklist until EAS quota reset |
+| **Branch** | `cursor/top3-maxdd-capital-audit` |
+| **Remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
 
 ---
 
 ## 6. Push 結果
 
-（コミット後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Push** | **success** — `f32e7a9..211901d` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
