@@ -287,7 +287,7 @@ Initial internal test release.
 | 項目 | 値 |
 |------|-----|
 | **Commit（本体）** | `211901d` — docs: add Play IT owner console waiting checklist until EAS quota reset |
-| **Commit（HEAD）** | `669410d` — docs: update Play IT checklist HEAD commit reference |
+| **Commit（HEAD）** | `e9b3a66` — docs: finalize Play IT checklist push metadata |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
 | **Remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
 
@@ -297,7 +297,7 @@ Initial internal test release.
 
 | 項目 | 値 |
 |------|-----|
-| **Push** | **success** — `f32e7a9..211901d`（本体） · `211901d..9feca69`（hash 追記） · `9feca69..669410d`（HEAD 更新） → `origin/cursor/top3-maxdd-capital-audit` |
+| **Push** | **success** — `f32e7a9..211901d`（本体） · `211901d..9feca69`（hash 追記） · `9feca69..669410d`（HEAD 更新） · `669410d..e9b3a66`（push metadata 確定） → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
