@@ -88,8 +88,8 @@ Capture script: `node scripts/capture-i18n-m1-screenshots.mjs`
 
 | Field | Value |
 |-------|-------|
-| **Commit** | `d3c1fb1` |
-| **Push** | _pending_ |
+| **Commit** | `d3c1fb1` (implementation) · `c78c419` (report hash) |
+| **Push** | **Success** → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
