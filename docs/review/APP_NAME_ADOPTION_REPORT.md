@@ -186,10 +186,10 @@ Malaysia Stock AI Concierge is an independent analysis and decision-support tool
 
 | 項目 | 値 |
 |------|-----|
-| **本レポート commit** | *(push 後に更新)* |
+| **本レポート commit** | `c074def` — Add Play Store app name adoption plan for Malaysia Stock AI Concierge. |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
 | **Remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
-| **Push** | *(push 後に更新)* |
+| **Push** | **success** — `2087fa6..c074def` → `origin/cursor/top3-maxdd-capital-audit` |
 
 **本コミット対象:** `docs/review/APP_NAME_ADOPTION_REPORT.md`（新規）
 
