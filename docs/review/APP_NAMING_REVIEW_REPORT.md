@@ -181,8 +181,8 @@
 | 実装 · 修正 | **未実施**（本レポートのみ） |
 | `git add` | `docs/review/APP_NAMING_REVIEW_REPORT.md` |
 | `git commit` | `Add Play Store app naming trademark risk audit report.` |
-| **コミットハッシュ** | `COMMIT_HASH_PENDING` |
-| `git push origin cursor/top3-maxdd-capital-audit` | `PUSH_RESULT_PENDING` |
+| **コミットハッシュ** | `e4d3d805241927e9d051b5b520a415b363e35e46` |
+| `git push origin cursor/top3-maxdd-capital-audit` | **成功** — `c49e294..e4d3d80` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
