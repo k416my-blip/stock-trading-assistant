@@ -173,18 +173,12 @@ package:com.assistant.stocktrading
 
 | 項目 | 値 |
 |------|-----|
-| **Commit** | *(push 後に更新)* |
+| **Commit（本体）** | `8fab0ed` — Prepare Play release: rename app, privacy policy, store assets. |
+| **Commit（スクショ）** | `eae26c3` — Add Play Store phone screenshots for release preparation. |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
-| **Push** | *(push 後に更新)* |
+| **Push** | **success** — `0345aba..eae26c3` → `origin/cursor/top3-maxdd-capital-audit` |
 
-**コミット対象（予定）:**
-
-- `app.json`
-- `docs/legal/privacy-policy.html`
-- `docs/store-assets/feature-graphic-1024x500.png`
-- `docs/store-assets/screenshots/phone/*`
-- `scripts/capture-play-store-screenshots.mjs`
-- `docs/review/PLAY_RELEASE_PREPARATION_REPORT.md`
+> スクショは `.gitignore` の `screenshots/` ルール対象のため `git add -f` で追跡。
 
 ---
 
