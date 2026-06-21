@@ -130,8 +130,8 @@ zh-Hans の 5 画面 PNG は自動化タイムアウトのため未同梱。en/j
 
 | 項目 | 値 |
 |------|-----|
-| コミット | *(push 後に追記)* |
-| push | *(push 後に追記)* |
+| コミット | `dafc223` |
+| push | **Success** → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
