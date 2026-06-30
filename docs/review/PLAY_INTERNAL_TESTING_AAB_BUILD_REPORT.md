@@ -157,8 +157,8 @@ npx eas-cli build:download --build-id <FINISHED_BUILD_ID>
 | versionCode (committed / expected in next AAB) | **27** committed → **28** on next successful production build |
 | AAB path | **N/A** |
 | Smoke summary | **BLOCKED** (no device + no AAB) |
-| Report commit hash | *(filled after commit)* |
-| Push result | *(filled after push)* |
+| Report commit hash | `a57a99152b436f1858ad5aba87ff7db54a4af99e` |
+| Push result | **Success** — `279440c..a57a991` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
@@ -170,3 +170,4 @@ If `whoami` fails in future sessions:
 npx eas-cli login
 npx eas-cli whoami
 ```
+
