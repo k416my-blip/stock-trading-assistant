@@ -24,6 +24,7 @@ export const I18N_NAMESPACES = [
   'rakutenImport',
   'errors',
   'alerts',
+  'glossary',
 ] as const;
 
 export type I18nNamespace = (typeof I18N_NAMESPACES)[number];

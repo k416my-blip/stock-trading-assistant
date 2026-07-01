@@ -33,5 +33,57 @@
     "lineMonitor": "{{name}} — Watch",
     "lineBuyCandidate": "{{name}} — Buy candidate",
     "linePass": "{{name}} — Pass"
+  },
+  "trust": {
+    "confirmTitle": "Proceed with this plan?",
+    "cancel": "Cancel",
+    "proceed": "Proceed",
+    "cannotProceedTitle": "Cannot proceed",
+    "processFailed": "Something went wrong.",
+    "approvedTitle": "Approved",
+    "approvedPractice": "Applied to practice portfolio.",
+    "cannotAddTitle": "Cannot add",
+    "approvedManual": "Added to manual order list. Confirm in your broker app.",
+    "viewList": "View list",
+    "ok": "OK",
+    "settingsAccessibility": "Settings",
+    "disclaimer": "This is your advisor's monthly proposal. You execute trades in your broker app."
+  },
+  "proButtons": {
+    "askAi": "Ask AI",
+    "allocationPlan": "Allocation plan",
+    "virtualTrade": "Virtual buy / sell",
+    "virtualCapital": "Virtual capital / deposit",
+    "stockSearch": "Stock search",
+    "performance": "View performance",
+    "capitalPlan": "Investment & deposit plan",
+    "manualOrderList": "Manual order list",
+    "recordTrade": "Record trade",
+    "notSet": "Not set",
+    "marketMeta": "Market: {{market}} · lump sum cash"
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome",
+    "welcomeBody1": "This app helps you buy, hold, and review stocks with gentle AI guidance.",
+    "welcomeBody2": "No need to rush trades.",
+    "skip": "Skip",
+    "next": "Next",
+    "tabsTitle": "Four screens",
+    "tabHome": "Home",
+    "tabHomeDesc": "Today's plan",
+    "tabPortfolio": "Portfolio",
+    "tabPortfolioDesc": "Keep holding?",
+    "tabStockCheck": "Stock Check",
+    "tabStockCheckDesc": "Why this view?",
+    "tabConcierge": "AI Chat",
+    "tabConciergeDesc": "Ask anything",
+    "previewTitle": "Today's AI advice (preview)",
+    "startOnHome": "Start on Home"
+  },
+  "proactive": {
+    "readAloud": "Read aloud",
+    "skip": "Skip",
+    "close": "Close",
+    "viewAll": "View all"
   }
 }

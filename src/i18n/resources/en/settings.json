@@ -25,5 +25,92 @@
         "hint": "All tabs · Phase 13–24 · audit · detailed concierge"
       }
     }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "ok": "OK",
+    "continue": "Continue",
+    "processing": "Processing…",
+    "success": "Success",
+    "failure": "Failed",
+    "notTested": "Not tested",
+    "notConfigured": "Not set"
+  },
+  "nav": {
+    "apiKeySettings": "API key settings",
+    "apiKeySettingsSubtitle": "Twelve Data · auto price fetch",
+    "priceRefresh": "Update frequency",
+    "priceRefreshSubtitle": "Portfolio prices · {{label}}",
+    "notifications": "Notifications",
+    "notificationsSubtitle": "Buy, sell, stop-loss alerts, etc.",
+    "marketSettings": "Market settings",
+    "security": "Security",
+    "securitySubtitle": "Local storage · integrity · sensitive data deletion"
+  },
+  "apiKeys": {
+    "sectionTitle": "API key management",
+    "sectionHint": "All keys stored in device SecureStore. The app works without every API registered.",
+    "savedState": "Saved",
+    "connectionState": "Connection",
+    "placeholderSuffix": "(blank = keep existing key)",
+    "connectionTest": "Test connection",
+    "deleteKeyTitle": "Delete API key",
+    "deleteKeyMessage": "Delete {{provider}} API key?",
+    "deletedTitle": "Deleted",
+    "deletedMessage": "API key removed.",
+    "saveRejectedTitle": "Not saved",
+    "saveRejectedMessage": "Invalid input — kept existing key (reason: {{reason}}). Blank, masked, or under 10 chars are not saved.",
+    "savedTitle": "Saved",
+    "savedMessage": "API key stored securely.",
+    "testSuccessTitle": "Connection test passed",
+    "testFailureTitle": "Connection test failed",
+    "testFailureFallback": "Live API connection failed",
+    "deleteAllTitle": "Delete all API keys",
+    "deleteAllIntro": "Deletes all API keys stored on device (OpenAI, Twelve Data, News, X, Reddit, etc.).\nApp data (holdings, history) is kept.",
+    "deleteAllDoneTitle": "API keys deleted",
+    "deleteAllContinueTitle": "Final confirmation",
+    "deleteAllContinueMessage": "Delete all API keys. Are you sure?",
+    "deleteAllAction": "Delete",
+    "deleteAllDonePartial": "Could not delete {{count}} key(s)",
+    "deleteAllDone": "All API keys deleted.",
+    "openAiRequiredTitle": "OpenAI API key not set",
+    "openAiRequiredBody": "Reading transaction screenshots requires an OpenAI API key. Use manual or natural-language entry instead.",
+    "ocrCannotReadTitle": "Cannot read image"
+  },
+  "reset": {
+    "title": "Reset all",
+    "hint": "Deletes virtual capital, holdings, trade history, manual orders, alerts, learning history, app settings, and cache. API keys are kept.",
+    "action": "Reset all data",
+    "deleteAllKeys": "Delete all API keys",
+    "confirmTitle": "Reset all",
+    "confirmMessage": "Reset everything?\nAPI keys are kept (use \"Delete all API keys\" separately).\nThis cannot be undone.",
+    "finalTitle": "Final confirmation",
+    "finalMessage": "All data will be deleted.",
+    "finalAction": "Delete everything",
+    "doneTitle": "Reset complete",
+    "donePartial": "Could not delete keys: {{keys}}"
+  },
+  "priceRefresh": {
+    "sectionDescription": "How often to auto-refresh stock prices",
+    "beginnerWarning": "Shorter intervals increase API usage",
+    "apiLimitWarning": "You may hit API rate limits",
+    "options": {
+      "1": "1 min (advanced)",
+      "5": "5 min (active trading)",
+      "10": "10 min",
+      "15": "15 min (recommended)",
+      "30": "30 min",
+      "60": "1 hour (battery saver)"
+    }
+  },
+  "rakutenRow": {
+    "title": "Rakuten trade records",
+    "subtitle": "Manual deposit/buy/sell records (saved after confirmation)",
+    "ocrTitle": "Read transaction screenshot",
+    "ocrBusy": "Reading…",
+    "ocrReady": "Transaction History image → review list (save after confirm)",
+    "ocrNoKey": "OpenAI API key not set — use manual or text entry"
   }
 }

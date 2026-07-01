@@ -1,0 +1,235 @@
+{
+  "stock": {
+    "label": "銘柄",
+    "description": "会社の株の名前"
+  },
+  "stockPrice": {
+    "label": "株価",
+    "description": "株1つの値段"
+  },
+  "buy": {
+    "label": "買付",
+    "description": "株を買うこと"
+  },
+  "sell": {
+    "label": "売却",
+    "description": "株を売ること"
+  },
+  "portfolioHoldings": {
+    "label": "保有銘柄",
+    "description": "今持っている株"
+  },
+  "investmentAmount": {
+    "label": "投資金額",
+    "description": "株に使うお金"
+  },
+  "virtualCapital": {
+    "label": "仮想資金",
+    "description": "練習用のお金"
+  },
+  "unrealizedPnL": {
+    "label": "含み損益",
+    "description": "まだ売っていない株の損益"
+  },
+  "realizedPnL": {
+    "label": "実現損益",
+    "description": "売却して確定した利益または損失"
+  },
+  "takeProfit": {
+    "label": "利確",
+    "description": "利益が出ているうちに売ること"
+  },
+  "stopLoss": {
+    "label": "損切り",
+    "description": "損が大きくなる前に売ること"
+  },
+  "dividend": {
+    "label": "配当",
+    "description": "会社からもらえる利益の一部"
+  },
+  "dividendYield": {
+    "label": "配当利回り",
+    "description": "株価に対して配当がどれくらいあるか"
+  },
+  "per": {
+    "label": "PER",
+    "description": "株価が利益に対して高いか安いかを見る目安"
+  },
+  "marketCap": {
+    "label": "時価総額",
+    "description": "会社全体の市場での価値"
+  },
+  "volume": {
+    "label": "出来高",
+    "description": "売買された株の量"
+  },
+  "rsi": {
+    "label": "RSI",
+    "description": "買われすぎ・売られすぎを見る目安"
+  },
+  "movingAverage": {
+    "label": "移動平均線",
+    "description": "株価の平均の流れを見る線"
+  },
+  "buySignal": {
+    "label": "買いシグナル",
+    "description": "買う候補になるサイン"
+  },
+  "sellSignal": {
+    "label": "売りシグナル",
+    "description": "売る候補になるサイン"
+  },
+  "portfolio": {
+    "label": "ポートフォリオ",
+    "description": "持っている資産の一覧"
+  },
+  "returnPct": {
+    "label": "リターン",
+    "description": "投資で増えた（または減った）割合"
+  },
+  "risk": {
+    "label": "リスクとは？",
+    "description": "損をする可能性のこと。高いほど、大きく下がることもあります。"
+  },
+  "brokerageFee": {
+    "label": "手数料",
+    "description": "取引するときにかかる費用"
+  },
+  "cashBalance": {
+    "label": "現金残高",
+    "description": "まだ株を買っていない、手元のお金"
+  },
+  "holdingsValue": {
+    "label": "保有評価額",
+    "description": "今持っている株を、いまの株価で計算した値段"
+  },
+  "winRate": {
+    "label": "勝率",
+    "description": "売った取引のうち、利益が出た割合"
+  },
+  "buyingPower": {
+    "label": "買付余力",
+    "description": "これから株を買えるお金の目安"
+  },
+  "practiceMode": {
+    "label": "練習モード",
+    "description": "本当のお金を使わずに練習するモード"
+  },
+  "entry": {
+    "label": "エントリー",
+    "description": "株を買い始める（入る）価格の目安"
+  },
+  "cashReserve": {
+    "label": "現金余力",
+    "description": "すぐに使わず残しておくお金"
+  },
+  "allocationPct": {
+    "label": "配分割合",
+    "description": "投資資金をどの銘柄に何％使うか"
+  },
+  "estimatedShares": {
+    "label": "目安購入株数",
+    "description": "その金額で買えるおおよその株数"
+  },
+  "diversification": {
+    "label": "分散投資",
+    "description": "1つの銘柄だけに集中せず、複数に分けること"
+  },
+  "allocationPlan": {
+    "label": "おすすめ配分プラン",
+    "description": "入金額を複数の購入候補に分ける参考案"
+  },
+  "fractionalShares": {
+    "label": "端株（小数株）",
+    "description": "1株未満の単位で買える取引（証券会社・銘柄により可否が異なります）"
+  },
+  "sharesHeld": {
+    "label": "保有株数",
+    "description": "今あなたが持っている株の数"
+  },
+  "holdingAllocationPct": {
+    "label": "配分割合",
+    "description": "ポートフォリオ全体のうち、この銘柄が占める割合（%）"
+  },
+  "purchaseAmount": {
+    "label": "購入時金額",
+    "description": "買ったときの単価×株数（かかったお金の合計）"
+  },
+  "currentValuation": {
+    "label": "現在評価額",
+    "description": "今売ったらいくらくらいになるか"
+  },
+  "currentStockPrice": {
+    "label": "現在株価",
+    "description": "今の株の値段"
+  },
+  "sellAll": {
+    "label": "すべて売却",
+    "description": "持っている株を全部売ること"
+  },
+  "newsScore": {
+    "label": "ニュース評価",
+    "description": "最近のニュースが株価に良い影響か悪い影響かを見る目安"
+  },
+  "earningsScore": {
+    "label": "決算評価",
+    "description": "会社の業績が良くなっているかを見る目安"
+  },
+  "snsScore": {
+    "label": "SNS評価",
+    "description": "SNS上の話題や雰囲気の目安（短期で変わりやすい）"
+  },
+  "historicalScore": {
+    "label": "過去データ",
+    "description": "過去の値動きから見た参考スコア（将来を保証しません）"
+  },
+  "pbr": {
+    "label": "PBR",
+    "description": "株価が純資産の何倍か"
+  },
+  "roe": {
+    "label": "ROE",
+    "description": "自己資本に対する利益の割合"
+  },
+  "debtRatio": {
+    "label": "負債比率",
+    "description": "借金がどれくらいあるかの目安"
+  },
+  "recommendationScore": {
+    "label": "総合おすすめ度",
+    "description": "複数の分析を組み合わせた参考スコア（100点満点）"
+  },
+  "longTermInvesting": {
+    "label": "長期運用とは？",
+    "description": "数か月〜数年、株を持ち続ける考え方です。大きな値動きに慌てにくいことが多いです。"
+  },
+  "shortTermTrading": {
+    "label": "短期売買とは？",
+    "description": "数日〜数週間で売買する考え方です。値動きが大きく、経験が必要なことがあります。"
+  },
+  "investmentStyle": {
+    "label": "運用スタイル",
+    "description": "どれくらいのリスクと期間で投資するかの目安です。"
+  },
+  "suggestedStopLossTotal": {
+    "label": "推奨損切金額",
+    "description": "損切り単価×株数の目安。ここまで下がったら売る検討、という参考額"
+  },
+  "suggestedTakeProfitTotal": {
+    "label": "推奨利確金額",
+    "description": "利確単価×株数の目安。ここまで上がったら売る検討、という参考額"
+  },
+  "avgBuyPrice": {
+    "label": "平均購入単価",
+    "description": "何回か買った場合の、1株あたりの平均の買値"
+  },
+  "stopLossUnitPrice": {
+    "label": "損切り単価",
+    "description": "1株あたりの損切り目安価格（参考）"
+  },
+  "takeProfitUnitPrice": {
+    "label": "利確単価",
+    "description": "1株あたりの利確目安価格（参考）"
+  },
+  "explainTitle": "{{term}}の説明"
+}

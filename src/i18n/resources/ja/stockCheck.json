@@ -6,5 +6,17 @@
   "loading": "材料分析を取得中…",
   "section": {
     "stockCheck": "【銘柄チェック】"
-  }
+  },
+  "sections": {
+    "dataQuality": "【データ品質】",
+    "apiStatus": "【API接続状況】",
+    "marketWatch": "【市場監視 — 材料通知】",
+    "perStockAnalysis": "【銘柄別材料分析】",
+    "scoreBreakdown": "材料スコア内訳（ソース別）"
+  },
+  "connected": "接続済み",
+  "disconnected": "未接続",
+  "footerNote": "材料分析は参考情報です。投資判断はご自身の責任で行ってください。",
+  "refresh": "再取得",
+  "refreshBeginner": "更新"
 }

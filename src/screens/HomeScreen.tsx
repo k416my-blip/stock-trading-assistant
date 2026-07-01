@@ -31,12 +31,6 @@ import {
   PLATFORM_POSITIONING_SUBTITLE_JA,
   PLATFORM_POSITIONING_TITLE_JA,
 } from '../constants/platformClarification';
-import { INVESTMENT_TRUST_DISCLAIMER_JA } from '../constants/investmentDisplay';
-import {
-  TRUST_HOME_NO_PLAN_HINT_JA,
-  TRUST_HOME_SUBTITLE_JA,
-  TRUST_HOME_TITLE_JA,
-} from '../constants/trustDisplay';
 import { MARKET_LABEL } from '../constants/rakutenTrade';
 import { BeginnerTodayAdviceCard } from '../components/beginner/BeginnerTodayAdviceCard';
 import { useApp } from '../context/AppContext';
@@ -104,10 +98,10 @@ export function HomeScreen() {
       tabNav.navigate('AllocationPlan');
       return;
     }
-    Alert.alert('この提案で進めますか？', INVESTMENT_TRUST_DISCLAIMER_JA, [
-      { text: 'キャンセル', style: 'cancel' },
+    Alert.alert(t('trust.confirmTitle'), t('trust.disclaimer'), [
+      { text: t('trust.cancel'), style: 'cancel' },
       {
-        text: '進める',
+        text: t('trust.proceed'),
         onPress: () => {
           void (async () => {
             setTrustProceeding(true);
@@ -115,23 +109,23 @@ export function HomeScreen() {
               if (isPractice) {
                 const result = await applyAllocationPractice(trustPlan);
                 if (!result.ok) {
-                  Alert.alert('進められません', result.error ?? '処理に失敗しました');
+                  Alert.alert(t('trust.cannotProceedTitle'), result.error ?? t('trust.processFailed'));
                   return;
                 }
                 await recordTrustOperationStartIfNeeded();
-                Alert.alert('承認しました', '仮想ポートフォリオに反映しました。');
+                Alert.alert(t('trust.approvedTitle'), t('trust.approvedPractice'));
                 return;
               }
               const result = addAllocationToManualOrderList(trustPlan);
               if (!result.ok) {
-                Alert.alert('追加できません', result.error ?? '処理に失敗しました');
+                Alert.alert(t('trust.cannotAddTitle'), result.error ?? t('trust.processFailed'));
                 return;
               }
               await recordTrustOperationStartIfNeeded();
               Alert.alert(
-                '承認しました',
-                '手動注文リストに追加しました。証券会社アプリでご確認ください。',
-                [{ text: 'リストを見る', onPress: () => stackNav.navigate('ManualOrderList') }, { text: 'OK' }],
+                t('trust.approvedTitle'),
+                t('trust.approvedManual'),
+                [{ text: t('trust.viewList'), onPress: () => stackNav.navigate('ManualOrderList') }, { text: t('trust.ok') }],
               );
             } finally {
               setTrustProceeding(false);
@@ -153,7 +147,7 @@ export function HomeScreen() {
               onPress={() => stackNav.navigate('Settings')}
               hitSlop={12}
               accessibilityRole="button"
-              accessibilityLabel="設定"
+              accessibilityLabel={t('trust.settingsAccessibility')}
               style={({ pressed }) => [styles.gearBtn, pressed && styles.gearBtnPressed]}
             >
               <Ionicons name="settings-outline" size={24} color={theme.colors.text} />
@@ -189,9 +183,10 @@ export function HomeScreen() {
     const holdingsMYR = isPractice
       ? practiceStats.portfolioValueMYR
       : portfolioMarketValueMYR(state) + Math.max(0, buyingPower.buyingPowerMYR);
-    return `${holdings.length} 銘柄 · 総資産 RM ${holdingsMYR.toLocaleString('ja-JP', {
-      maximumFractionDigits: 0,
-    })}`;
+    return t('portfolioSummary', {
+      count: holdings.length,
+      amount: holdingsMYR.toLocaleString('ja-JP', { maximumFractionDigits: 0 }),
+    });
   }, [isPractice, state, state.practice.portfolio, practiceStats.portfolioValueMYR, buyingPower.buyingPowerMYR]);
 
   if (trustMode) {
@@ -246,7 +241,7 @@ export function HomeScreen() {
 
         {!isStandardMode ? (
           <Card>
-            <Text style={styles.disclaimer}>{INVESTMENT_TRUST_DISCLAIMER_JA}</Text>
+            <Text style={styles.disclaimer}>{t('trust.disclaimer')}</Text>
           </Card>
         ) : null}
       </Screen>
@@ -313,7 +308,7 @@ export function HomeScreen() {
         data={beginnerAdvice}
         onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
       />
-      <Button label="AIに相談する" onPress={() => tabNav.navigate('ConciergeConsult')} />
+      <Button label={t('proButtons.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
       {!conciergeFirstHome ? (
         <>
           <BursaConciergeHomeCard />
@@ -326,11 +321,11 @@ export function HomeScreen() {
         <>
           <PracticeModeBadge />
           <PracticeSummaryCard stats={practiceStats} />
-          <Button label="おすすめ配分プラン" onPress={() => tabNav.navigate('AllocationPlan')} />
-          <Button label="仮想買付・仮想売却" onPress={() => stackNav.navigate('AddTrade')} variant="ghost" />
-          <Button label="仮想資金・仮想入金" onPress={() => stackNav.navigate('Capital')} variant="ghost" />
-          <Button label="銘柄検索" onPress={() => tabNav.navigate('Screener')} variant="ghost" />
-          <Button label="成績を見る" onPress={() => stackNav.navigate('Performance')} variant="ghost" />
+          <Button label={t('proButtons.allocationPlan')} onPress={() => tabNav.navigate('AllocationPlan')} />
+          <Button label={t('proButtons.virtualTrade')} onPress={() => stackNav.navigate('AddTrade')} variant="ghost" />
+          <Button label={t('proButtons.virtualCapital')} onPress={() => stackNav.navigate('Capital')} variant="ghost" />
+          <Button label={t('proButtons.stockSearch')} onPress={() => tabNav.navigate('Screener')} variant="ghost" />
+          <Button label={t('proButtons.performance')} onPress={() => stackNav.navigate('Performance')} variant="ghost" />
         </>
       ) : (
         <>
@@ -339,18 +334,18 @@ export function HomeScreen() {
             <Text style={styles.value}>
               {state.settings.totalCapitalMYR > 0
                 ? `RM${state.settings.totalCapitalMYR.toLocaleString('ja-JP')}`
-                : '未設定'}
+                : t('proButtons.notSet')}
             </Text>
             <Text style={styles.meta}>
-              市場: {MARKET_LABEL[state.settings.selectedMarket]} · 現金一括
+              {t('proButtons.marketMeta', { market: MARKET_LABEL[state.settings.selectedMarket] })}
             </Text>
           </Card>
-          <Button label="おすすめ配分プラン" onPress={() => tabNav.navigate('AllocationPlan')} />
-          <Button label="投資金額・入金計画" onPress={() => stackNav.navigate('Capital')} />
-          <Button label="手動注文リスト" onPress={() => stackNav.navigate('ManualOrderList')} variant="ghost" />
-          <Button label="銘柄検索" onPress={() => tabNav.navigate('Screener')} variant="ghost" />
-          <Button label="売買を記録" onPress={() => stackNav.navigate('AddTrade')} variant="ghost" />
-          <Button label="成績を見る" onPress={() => stackNav.navigate('Performance')} variant="ghost" />
+          <Button label={t('proButtons.allocationPlan')} onPress={() => tabNav.navigate('AllocationPlan')} />
+          <Button label={t('proButtons.capitalPlan')} onPress={() => stackNav.navigate('Capital')} />
+          <Button label={t('proButtons.manualOrderList')} onPress={() => stackNav.navigate('ManualOrderList')} variant="ghost" />
+          <Button label={t('proButtons.stockSearch')} onPress={() => tabNav.navigate('Screener')} variant="ghost" />
+          <Button label={t('proButtons.recordTrade')} onPress={() => stackNav.navigate('AddTrade')} variant="ghost" />
+          <Button label={t('proButtons.performance')} onPress={() => stackNav.navigate('Performance')} variant="ghost" />
         </>
       )}
       <MarketSessionPanel mode="all" />

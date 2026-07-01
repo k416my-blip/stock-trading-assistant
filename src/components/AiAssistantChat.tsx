@@ -358,7 +358,7 @@ export function AiAssistantChat({
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
   const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime, stageRakutenImportNaturalLanguage, stageRakutenImportOcrScreenshot } = useApp();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isBeginnerMode } = useAppUxMode();
+  const { isBeginnerMode, isProMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
   const unifiedCognitiveBundle = useUnifiedCognitiveDashboardBundle();
@@ -652,8 +652,8 @@ export function AiAssistantChat({
   const onPressOcrScreenshot = useCallback(async () => {
     if (!hasOpenAiKey) {
       Alert.alert(
-        'OpenAI APIキー未設定',
-        '履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。',
+        i18n.t('concierge:alerts.openAiKeyMissingTitle'),
+        i18n.t('concierge:alerts.openAiKeyMissingBody'),
       );
       return;
     }
@@ -661,11 +661,11 @@ export function AiAssistantChat({
     const uri = await pickTransactionHistoryImageWithAlert();
     if (!uri) return;
     setOcrBusy(true);
-    setStatusJa('履歴スクショを読み取り中…');
+    setStatusJa(i18n.t('concierge:alerts.ocrReadingStatus'));
     try {
       const result = await stageRakutenImportOcrScreenshot(uri);
       if (!result.ok) {
-        Alert.alert('読み取りできません', result.error);
+        Alert.alert(i18n.t('concierge:alerts.ocrCannotReadTitle'), result.error);
         setStatusJa(i18n.t('concierge:statusInstant'));
         return;
       }
@@ -936,10 +936,10 @@ export function AiAssistantChat({
         setRequestStatus('error');
         const failureKindJa =
           e instanceof Error && e.message.includes('429')
-            ? 'レート制限'
+            ? t('alerts.failureKindRateLimit')
             : e instanceof Error && e.name === 'AbortError'
-              ? 'タイムアウト'
-              : 'ネットワーク/API';
+              ? t('alerts.failureKindTimeout')
+              : t('alerts.failureKindNetwork');
         setErrorJa(PROACTIVE_UI.retryPrompt);
         setRetryPrompt(trimmed);
         setStatusJa(statusJaForRequestStatus('error'));
@@ -1194,7 +1194,7 @@ export function AiAssistantChat({
   }
 
   const conciergeUxDashboardBlock =
-    proactive && !(isConcierge && isBeginnerMode) ? (
+    proactive && isProMode && !(isConcierge && isBeginnerMode) ? (
     <View testID={CONCIERGE_SECTION_TEST_ID.status_card}>
       {AI_ACTION_CENTER_LITE_MODE ? (
         <ConciergeProactiveDashboardPanelsLite proactive={proactive} />

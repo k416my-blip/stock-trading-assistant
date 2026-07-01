@@ -9,7 +9,7 @@ import { SettingsAdvancedDisclosureSection } from '../components/SettingsAdvance
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
-import { PRICE_REFRESH_OPTIONS } from '../constants/marketData';
+import { getPriceRefreshLabelI18n } from '../utils/marketDataI18n';
 import {
   APP_MODE_LIVE_ANALYSIS_LABEL,
   APP_MODE_PRACTICE_LABEL,
@@ -69,7 +69,7 @@ export function SettingsScreen() {
     aiApiKey,
     stageRakutenImportOcrScreenshot,
   } = useApp();
-  const { appUxMode, setAppUxMode, isBeginnerMode } = useAppUxMode();
+  const { appUxMode, setAppUxMode, isBeginnerMode, isProMode } = useAppUxMode();
   const { appLanguage, setAppLanguage } = useAppLanguage();
   const { t } = useTranslation('settings');
   const [resetting, setResetting] = useState(false);
@@ -149,7 +149,7 @@ export function SettingsScreen() {
       setApiConnectionMessages((prev) => {
         const next = { ...prev };
         API_PROVIDERS.forEach((provider) => {
-          next[provider.id] = statuses[provider.id].configured ? '未テスト' : '未テスト';
+          next[provider.id] = t('common.notTested');
         });
         return next;
       });
@@ -159,17 +159,15 @@ export function SettingsScreen() {
     };
   }, []);
 
-  const refreshLabel =
-    PRICE_REFRESH_OPTIONS.find((o) => o.minutes === state.settings.priceRefreshMinutes)?.label ??
-    '15分（おすすめ）';
+  const refreshLabel = getPriceRefreshLabelI18n(t, state.settings.priceRefreshMinutes);
 
   const hasOpenAiKey = Boolean(aiApiKey.trim());
 
   const onPickOcrScreenshot = async () => {
     if (!hasOpenAiKey) {
       Alert.alert(
-        'OpenAI APIキー未設定',
-        '履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。',
+        t('apiKeys.openAiRequiredTitle'),
+        t('apiKeys.openAiRequiredBody'),
       );
       return;
     }
@@ -179,7 +177,7 @@ export function SettingsScreen() {
     try {
       const result = await stageRakutenImportOcrScreenshot(uri);
       if (!result.ok) {
-        Alert.alert('読み取りできません', result.error);
+        Alert.alert(t('apiKeys.ocrCannotReadTitle'), result.error);
         return;
       }
       stackNav.navigate('RakutenImportOcrReview', { batchId: result.batchId });
@@ -209,9 +207,9 @@ export function SettingsScreen() {
         }),
       );
       if (result.failedKeys.length > 0) {
-        Alert.alert('リセットが完了しました', `削除できなかったキー: ${result.failedKeys.join(', ')}`);
+        Alert.alert(t('reset.doneTitle'), t('reset.donePartial', { keys: result.failedKeys.join(', ') }));
       } else {
-        Alert.alert('リセットが完了しました');
+        Alert.alert(t('reset.doneTitle'));
       }
     } finally {
       setResetting(false);
@@ -220,21 +218,21 @@ export function SettingsScreen() {
 
   const onResetPress = () => {
     Alert.alert(
-      'すべてリセット',
-      '本当にすべてリセットしますか？\nAPIキーは保持されます（別途「すべてのAPIキーを削除」から削除可能）。\nこの操作は元に戻せません。',
+      t('reset.confirmTitle'),
+      t('reset.confirmMessage'),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '続ける',
+          text: t('common.continue'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              '最終確認',
-              'すべてのデータが削除されます。',
+              t('reset.finalTitle'),
+              t('reset.finalMessage'),
               [
-                { text: 'キャンセル', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: '本当に削除します',
+                  text: t('reset.finalAction'),
                   style: 'destructive',
                   onPress: () => void runReset(),
                 },
@@ -256,8 +254,8 @@ export function SettingsScreen() {
       const saveResult = await saveApiKey(providerId, apiKeyInputs[providerId]);
       if (!saveResult.saved) {
         Alert.alert(
-          '保存しませんでした',
-          `無効な入力のため既存キーを保持しました（reason: ${saveResult.reason}）。空欄・マスク表示・10文字未満は保存されません。`,
+          t('apiKeys.saveRejectedTitle'),
+          t('apiKeys.saveRejectedMessage', { reason: saveResult.reason }),
         );
         return;
       }
@@ -270,7 +268,7 @@ export function SettingsScreen() {
       setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
       await reloadStoredApiKeys();
       await refreshApiKeyStatuses();
-      Alert.alert('保存しました', 'APIキーを安全に保存しました。');
+      Alert.alert(t('apiKeys.savedTitle'), t('apiKeys.savedMessage'));
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
     }
@@ -279,12 +277,12 @@ export function SettingsScreen() {
   const onDeleteApiKey = (providerId: SupportedApiProviderId) => {
     const provider = API_PROVIDERS.find((p) => p.id === providerId);
     Alert.alert(
-      'APIキー削除',
-      `本当に${provider?.label ?? providerId}のAPIキーを削除しますか？`,
+      t('apiKeys.deleteKeyTitle'),
+      t('apiKeys.deleteKeyMessage', { provider: provider?.label ?? providerId }),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '削除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => void (async () => {
             setApiBusy((prev) => ({ ...prev, [providerId]: true }));
@@ -293,8 +291,8 @@ export function SettingsScreen() {
               setApiKeyInputs((prev) => ({ ...prev, [providerId]: '' }));
               await refreshApiKeyStatuses();
               setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
-              setApiConnectionMessages((prev) => ({ ...prev, [providerId]: '未テスト' }));
-              Alert.alert('削除しました', 'APIキーを削除しました。');
+              setApiConnectionMessages((prev) => ({ ...prev, [providerId]: t('common.notTested') }));
+              Alert.alert(t('apiKeys.deletedTitle'), t('apiKeys.deletedMessage'));
             } finally {
               setApiBusy((prev) => ({ ...prev, [providerId]: false }));
             }
@@ -310,11 +308,11 @@ export function SettingsScreen() {
     try {
       const testResult = await testApiConnection(providerId, apiKeyInputs[providerId]);
       setApiConnectionStates((prev) => ({ ...prev, [providerId]: testResult.ok ? 'ok' : 'error' }));
-      const connLabel = testResult.ok ? '成功' : '失敗';
+      const connLabel = testResult.ok ? t('common.success') : t('common.failure');
       setApiConnectionMessages((prev) => ({ ...prev, [providerId]: connLabel }));
       Alert.alert(
-        testResult.ok ? '接続テスト成功' : '接続テスト失敗',
-        testResult.ok ? testResult.message : testResult.message || '実API接続失敗',
+        testResult.ok ? t('apiKeys.testSuccessTitle') : t('apiKeys.testFailureTitle'),
+        testResult.ok ? testResult.message : testResult.message || t('apiKeys.testFailureFallback'),
       );
     } finally {
       setApiBusy((prev) => ({ ...prev, [providerId]: false }));
@@ -438,21 +436,21 @@ export function SettingsScreen() {
 
   const onDeleteAllApiKeysPress = () => {
     Alert.alert(
-      'すべてのAPIキーを削除',
-      'OpenAI / Twelve Data / News / X / Reddit など、端末に保存されたすべてのAPIキーを削除します。\nアプリデータ（保有・履歴）は保持されます。',
+      t('apiKeys.deleteAllTitle'),
+      t('apiKeys.deleteAllIntro'),
       [
-        { text: 'キャンセル', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '続ける',
+          text: t('common.continue'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              '最終確認',
-              'すべてのAPIキーを削除します。よろしいですか？',
+              t('apiKeys.deleteAllContinueTitle'),
+              t('apiKeys.deleteAllContinueMessage'),
               [
-                { text: 'キャンセル', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: '削除する',
+                  text: t('apiKeys.deleteAllAction'),
                   style: 'destructive',
                   onPress: () => void (async () => {
                     const result = await deleteAllApiKeysUserConfirmed(true);
@@ -460,10 +458,10 @@ export function SettingsScreen() {
                     await reloadStoredApiKeys();
                     await refreshApiKeyStatuses();
                     Alert.alert(
-                      'APIキーを削除しました',
+                      t('apiKeys.deleteAllDoneTitle'),
                       result.failedKeys.length > 0
-                        ? `削除できなかったキー: ${result.failedKeys.length}件`
-                        : 'すべてのAPIキーを削除しました。',
+                        ? t('apiKeys.deleteAllDonePartial', { count: result.failedKeys.length })
+                        : t('apiKeys.deleteAllDone'),
                     );
                   })(),
                 },
@@ -555,30 +553,28 @@ export function SettingsScreen() {
         <Card>
           <SettingsMenuRow
             icon="notifications"
-            title="通知設定"
-            subtitle="買付・売却・損切りなどのアラート"
+            title={t('nav.notifications')}
+            subtitle={t('nav.notificationsSubtitle')}
             onPress={() => stackNav.navigate('NotificationSettings')}
           />
           <SettingsMenuRow
             icon="globe-outline"
-            title="市場設定"
+            title={t('nav.marketSettings')}
             subtitle={MARKET_LABEL[state.settings.selectedMarket]}
             onPress={() => stackNav.navigate('MarketSettings')}
           />
           <SettingsMenuRow
             icon="lock-closed-outline"
-            title="セキュリティ"
-            subtitle="ローカル保存 · 整合性 · 機密データの削除"
+            title={t('nav.security')}
+            subtitle={t('nav.securitySubtitle')}
             onPress={() => stackNav.navigate('SecuritySettings')}
           />
         </Card>
       ) : (
         <>
       <Card>
-        <Text style={styles.sectionTitle}>APIキー管理（設定に集約）</Text>
-        <Text style={styles.sectionHint}>
-          すべて端末内の SecureStore に保存します。未登録APIがあってもアプリは動作します。
-        </Text>
+        <Text style={styles.sectionTitle}>{t('apiKeys.sectionTitle')}</Text>
+        <Text style={styles.sectionHint}>{t('apiKeys.sectionHint')}</Text>
         {API_PROVIDERS.map((provider) => {
           const status = apiKeyStatus[provider.id];
           const saved = status.configured;
@@ -597,30 +593,30 @@ export function SettingsScreen() {
             <View key={provider.id} style={styles.apiProviderBlock}>
               <Text style={styles.apiProviderTitle}>{provider.label}</Text>
               <Text style={styles.apiHelpText}>{provider.helpText}</Text>
-              <Text style={styles.apiMaskText}>保存状態: {masked}</Text>
+              <Text style={styles.apiMaskText}>{t('apiKeys.savedState')}: {masked}</Text>
               <Text style={[styles.apiStatusText, { color: stateColor }]}>
-                接続状態: {saved ? apiConnectionMessages[provider.id] : '未テスト'}
+                {t('apiKeys.connectionState')}: {saved ? apiConnectionMessages[provider.id] : t('common.notTested')}
               </Text>
               <TextInput
                 style={styles.input}
                 value={apiKeyInputs[provider.id]}
                 onChangeText={(value) => updateKeyInput(provider.id, value)}
-                placeholder={`${provider.placeholder}（空欄保存=既存キー保持）`}
+                placeholder={`${provider.placeholder}${t('apiKeys.placeholderSuffix')}`}
                 placeholderTextColor={theme.colors.textMuted}
                 autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry
               />
               <View style={styles.apiActionsRow}>
-                <Button label={busy ? '処理中…' : '保存'} onPress={() => void onSaveApiKey(provider.id)} disabled={busy} />
+                <Button label={busy ? t('common.processing') : t('common.save')} onPress={() => void onSaveApiKey(provider.id)} disabled={busy} />
                 <Button
-                  label={busy ? '処理中…' : '削除'}
+                  label={busy ? t('common.processing') : t('common.delete')}
                   onPress={() => onDeleteApiKey(provider.id)}
                   disabled={busy}
                   variant="ghost"
                 />
                 <Button
-                  label={busy ? '処理中…' : '接続テスト'}
+                  label={busy ? t('common.processing') : t('apiKeys.connectionTest')}
                   onPress={() => void onTestApiConnection(provider.id)}
                   disabled={busy}
                   variant="ghost"
@@ -883,8 +879,8 @@ export function SettingsScreen() {
 
         <SettingsMenuRow
           icon="key"
-          title="APIキー設定"
-          subtitle="Twelve Data · 株価の自動取得"
+          title={t('nav.apiKeySettings')}
+          subtitle={t('nav.apiKeySettingsSubtitle')}
           onPress={() => stackNav.navigate('ApiKeySettings')}
         />
         <SettingsMenuRow
@@ -913,8 +909,8 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="notifications"
-          title="通知設定"
-          subtitle="買付・売却・損切りなどのアラート"
+          title={t('nav.notifications')}
+          subtitle={t('nav.notificationsSubtitle')}
           onPress={() => stackNav.navigate('NotificationSettings')}
         />
         <SettingsMenuRow
@@ -937,8 +933,8 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="refresh-outline"
-          title="更新頻度設定"
-          subtitle={`保有銘柄の株価 · ${refreshLabel}`}
+          title={t('nav.priceRefresh')}
+          subtitle={t('nav.priceRefreshSubtitle', { label: refreshLabel })}
           onPress={() => stackNav.navigate('UpdateFrequencySettings')}
         />
         <SettingsMenuRow
@@ -955,19 +951,19 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="wallet-outline"
-          title="Rakuten取引記録"
-          subtitle="入金・買付・売却の手動記録（確認後に保存）"
+          title={t('rakutenRow.title')}
+          subtitle={t('rakutenRow.subtitle')}
           onPress={() => stackNav.navigate('RakutenImportManualEntry')}
         />
         <SettingsMenuRow
           icon="camera-outline"
-          title="履歴スクショを読み取る"
+          title={t('rakutenRow.ocrTitle')}
           subtitle={
             hasOpenAiKey
               ? ocrBusy
-                ? '読み取り中…'
-                : 'Transaction History 画像 → 候補一覧（確認後に保存）'
-              : 'OpenAI APIキー未設定 — 手動/自然文入力をご利用ください'
+                ? t('rakutenRow.ocrBusy')
+                : t('rakutenRow.ocrReady')
+              : t('rakutenRow.ocrNoKey')
           }
           onPress={() => void onPickOcrScreenshot()}
         />
@@ -995,6 +991,8 @@ export function SettingsScreen() {
           subtitle="API · memory · queue · AI負荷 · 本番準備チェックリスト"
           onPress={() => stackNav.navigate('ProductionDashboard')}
         />
+        {isProMode ? (
+        <>
         <SettingsMenuRow
           icon="trending-up-outline"
           title="リアルタイム前向き検証"
@@ -1091,6 +1089,8 @@ export function SettingsScreen() {
           subtitle="戦略間資本 · 相関 · 危機保全 · シャドー"
           onPress={() => stackNav.navigate('MetaCapital')}
         />
+        </>
+        ) : null}
       </Card>
 
       <Card>
@@ -1106,20 +1106,17 @@ export function SettingsScreen() {
       )}
 
       <Card style={styles.resetCard}>
-        <Text style={styles.resetTitle}>すべてリセット</Text>
-        <Text style={styles.resetHint}>
-          仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定・キャッシュを削除します。
-          APIキーは保持されます。
-        </Text>
+        <Text style={styles.resetTitle}>{t('reset.title')}</Text>
+        <Text style={styles.resetHint}>{t('reset.hint')}</Text>
         <Button
-          label="すべてのデータをリセット"
+          label={t('reset.action')}
           onPress={onResetPress}
           variant="ghost"
           disabled={resetting}
         />
         {!isBeginnerMode ? (
           <Button
-            label="すべてのAPIキーを削除"
+            label={t('reset.deleteAllKeys')}
             onPress={onDeleteAllApiKeysPress}
             variant="ghost"
             disabled={resetting}

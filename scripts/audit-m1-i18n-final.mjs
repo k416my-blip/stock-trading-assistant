@@ -47,7 +47,7 @@ const M1_SCREENS = {
   'Stock Check': {
     files: [
       'src/screens/MaterialAnalysisScreen.tsx',
-      'src/components/beginner/BeginnerMaterialSummaryCard.tsx',
+      'src/components/beginner/BeginnerStockSummaryCard.tsx',
     ],
     deviceTab: 'stockCheck',
   },
@@ -86,7 +86,7 @@ const M1_CONSTANTS = [
 
 const I18N_NS = [
   'common', 'navigation', 'home', 'portfolio', 'stockCheck',
-  'concierge', 'settings', 'rakutenImport', 'errors', 'alerts',
+  'concierge', 'settings', 'rakutenImport', 'errors', 'alerts', 'glossary',
 ];
 
 const SKIP_LINE = [

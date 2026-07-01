@@ -1,11 +1,7 @@
 import { Alert, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import { GLOSSARY, type GlossaryTerm } from '../constants/glossary';
+import { useTranslation } from 'react-i18next';
+import type { GlossaryTerm } from '../constants/glossary';
 import { theme } from '../theme';
-
-function showTerm(term: GlossaryTerm) {
-  const item = GLOSSARY[term];
-  Alert.alert(item.label, item.description);
-}
 
 type TermHintProps = {
   term: GlossaryTerm;
@@ -16,16 +12,27 @@ type TermHintProps = {
 
 /** 用語ラベル ＋ ？ ＋（任意）やさしい説明 */
 export function TermHint({ term, showDescription = true, style }: TermHintProps) {
-  const item = GLOSSARY[term];
+  const { t } = useTranslation('glossary');
+  const label = t(`${term}.label`);
+  const description = t(`${term}.description`);
+
+  const showTerm = () => {
+    Alert.alert(label, description);
+  };
+
   return (
     <View style={[styles.wrap, style]}>
       <View style={styles.labelRow}>
-        <Text style={styles.label}>{item.label}</Text>
-        <Pressable onPress={() => showTerm(term)} hitSlop={10} accessibilityLabel={`${item.label}の説明`}>
+        <Text style={styles.label}>{label}</Text>
+        <Pressable
+          onPress={showTerm}
+          hitSlop={10}
+          accessibilityLabel={t('explainTitle', { term: label })}
+        >
           <Text style={styles.icon}>？</Text>
         </Pressable>
       </View>
-      {showDescription ? <Text style={styles.desc}>{item.description}</Text> : null}
+      {showDescription ? <Text style={styles.desc}>{description}</Text> : null}
     </View>
   );
 }
@@ -38,25 +45,40 @@ type LabeledValueProps = {
 
 /** 用語 ＋ ？ ＋ 値 ＋ 短い説明（カード内の1行向け） */
 export function LabeledValue({ term, value, valueStyle }: LabeledValueProps) {
-  const item = GLOSSARY[term];
+  const { t } = useTranslation('glossary');
+  const label = t(`${term}.label`);
+  const description = t(`${term}.description`);
+
+  const showTerm = () => {
+    Alert.alert(label, description);
+  };
+
   return (
     <View style={styles.valueWrap}>
       <View style={styles.valueRow}>
-        <Text style={styles.valueLabel}>{item.label}</Text>
-        <Pressable onPress={() => showTerm(term)} hitSlop={10}>
+        <Text style={styles.valueLabel}>{label}</Text>
+        <Pressable onPress={showTerm} hitSlop={10}>
           <Text style={styles.icon}>？</Text>
         </Pressable>
         <Text style={[styles.valueText, valueStyle]}>{value}</Text>
       </View>
-      <Text style={styles.desc}>{item.description}</Text>
+      <Text style={styles.desc}>{description}</Text>
     </View>
   );
 }
 
 /** インラインの？のみ（既にラベルがある行用） */
 export function TermHintIcon({ term }: { term: GlossaryTerm }) {
+  const { t } = useTranslation('glossary');
+  const label = t(`${term}.label`);
+  const description = t(`${term}.description`);
+
+  const showTerm = () => {
+    Alert.alert(label, description);
+  };
+
   return (
-    <Pressable onPress={() => showTerm(term)} hitSlop={10} style={styles.iconOnly}>
+    <Pressable onPress={showTerm} hitSlop={10} style={styles.iconOnly}>
       <Text style={styles.icon}>？</Text>
     </Pressable>
   );

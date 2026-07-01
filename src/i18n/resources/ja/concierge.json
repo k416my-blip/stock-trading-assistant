@@ -99,5 +99,16 @@
     "monitor": "監視",
     "buyCandidate": "買い候補",
     "pass": "見送り"
+  },
+  "alerts": {
+    "openAiKeyMissingTitle": "OpenAI APIキー未設定",
+    "openAiKeyMissingBody": "履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。",
+    "ocrCannotReadTitle": "読み取りできません",
+    "ocrReadingStatus": "履歴スクショを読み取り中…",
+    "failureKindTimeout": "タイムアウト",
+    "failureKindNetwork": "ネットワーク",
+    "failureKindRateLimit": "レート制限",
+    "failureKindApiError": "APIエラー",
+    "failureKindUnknown": "不明"
   }
 }

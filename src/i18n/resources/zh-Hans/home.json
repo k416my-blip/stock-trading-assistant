@@ -33,5 +33,57 @@
     "lineMonitor": "{{name}} — 观察",
     "lineBuyCandidate": "{{name}} — 买入候选",
     "linePass": "{{name}} — 观望"
+  },
+  "trust": {
+    "confirmTitle": "按此建议继续？",
+    "cancel": "取消",
+    "proceed": "继续",
+    "cannotProceedTitle": "无法继续",
+    "processFailed": "处理失败。",
+    "approvedTitle": "已批准",
+    "approvedPractice": "已反映到模拟投资组合。",
+    "cannotAddTitle": "无法添加",
+    "approvedManual": "已添加到手动订单列表。请在券商应用中确认。",
+    "viewList": "查看列表",
+    "ok": "确定",
+    "settingsAccessibility": "设置",
+    "disclaimer": "显示内容为顾问本月建议。最终购买操作请在券商应用中自行完成。"
+  },
+  "proButtons": {
+    "askAi": "咨询AI",
+    "allocationPlan": "推荐配置计划",
+    "virtualTrade": "模拟买入/卖出",
+    "virtualCapital": "虚拟资金/入金",
+    "stockSearch": "股票搜索",
+    "performance": "查看成绩",
+    "capitalPlan": "投资金额与入金计划",
+    "manualOrderList": "手动订单列表",
+    "recordTrade": "记录买卖",
+    "notSet": "未设置",
+    "marketMeta": "市场：{{market}} · 现金一次性"
+  },
+  "onboarding": {
+    "welcomeTitle": "欢迎",
+    "welcomeBody1": "本应用用 AI 温和整理股票的「买、持、看」。",
+    "welcomeBody2": "无需急于买卖。",
+    "skip": "跳过",
+    "next": "下一步",
+    "tabsTitle": "四个界面",
+    "tabHome": "首页",
+    "tabHomeDesc": "今日方针",
+    "tabPortfolio": "持仓",
+    "tabPortfolioDesc": "继续持有？",
+    "tabStockCheck": "股票检查",
+    "tabStockCheckDesc": "为什么？",
+    "tabConcierge": "AI咨询",
+    "tabConciergeDesc": "有疑问就问",
+    "previewTitle": "今日AI建议（预览）",
+    "startOnHome": "从首页开始"
+  },
+  "proactive": {
+    "readAloud": "朗读",
+    "skip": "跳过",
+    "close": "关闭",
+    "viewAll": "查看全部"
   }
 }

@@ -99,5 +99,16 @@
     "monitor": "Monitor",
     "buyCandidate": "Buy candidate",
     "pass": "Pass"
+  },
+  "alerts": {
+    "openAiKeyMissingTitle": "OpenAI API key not set",
+    "openAiKeyMissingBody": "Reading transaction screenshots requires an OpenAI API key. Use manual or natural-language entry instead.",
+    "ocrCannotReadTitle": "Cannot read image",
+    "ocrReadingStatus": "Reading transaction screenshot…",
+    "failureKindTimeout": "Timeout",
+    "failureKindNetwork": "Network",
+    "failureKindRateLimit": "Rate limit",
+    "failureKindApiError": "API error",
+    "failureKindUnknown": "Unknown"
   }
 }

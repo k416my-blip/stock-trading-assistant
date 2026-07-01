@@ -99,5 +99,16 @@
     "monitor": "监控",
     "buyCandidate": "买入候选",
     "pass": "观望"
+  },
+  "alerts": {
+    "openAiKeyMissingTitle": "未设置 OpenAI API 密钥",
+    "openAiKeyMissingBody": "读取交易截图需要 OpenAI API 密钥。请使用手动或自然语言输入。",
+    "ocrCannotReadTitle": "无法读取",
+    "ocrReadingStatus": "正在读取交易截图…",
+    "failureKindTimeout": "超时",
+    "failureKindNetwork": "网络",
+    "failureKindRateLimit": "速率限制",
+    "failureKindApiError": "API 错误",
+    "failureKindUnknown": "未知"
   }
 }

@@ -8,6 +8,7 @@ import jaSettings from './ja/settings.json';
 import jaRakutenImport from './ja/rakutenImport.json';
 import jaErrors from './ja/errors.json';
 import jaAlerts from './ja/alerts.json';
+import jaGlossary from './ja/glossary.json';
 
 import enCommon from './en/common.json';
 import enNavigation from './en/navigation.json';
@@ -19,6 +20,7 @@ import enSettings from './en/settings.json';
 import enRakutenImport from './en/rakutenImport.json';
 import enErrors from './en/errors.json';
 import enAlerts from './en/alerts.json';
+import enGlossary from './en/glossary.json';
 
 import zhCommon from './zh-Hans/common.json';
 import zhNavigation from './zh-Hans/navigation.json';
@@ -30,6 +32,7 @@ import zhSettings from './zh-Hans/settings.json';
 import zhRakutenImport from './zh-Hans/rakutenImport.json';
 import zhErrors from './zh-Hans/errors.json';
 import zhAlerts from './zh-Hans/alerts.json';
+import zhGlossary from './zh-Hans/glossary.json';
 
 const jaBundle = {
   common: jaCommon,
@@ -42,6 +45,7 @@ const jaBundle = {
   rakutenImport: jaRakutenImport,
   errors: jaErrors,
   alerts: jaAlerts,
+  glossary: jaGlossary,
 } as const;
 
 const enBundle = {
@@ -55,6 +59,7 @@ const enBundle = {
   rakutenImport: enRakutenImport,
   errors: enErrors,
   alerts: enAlerts,
+  glossary: enGlossary,
 } as const;
 
 const zhHansBundle = {
@@ -68,6 +73,7 @@ const zhHansBundle = {
   rakutenImport: zhRakutenImport,
   errors: zhErrors,
   alerts: zhAlerts,
+  glossary: zhGlossary,
 } as const;
 
 /** zh / zh-CN aliases share zh-Hans bundles so i18next resolves any Chinese tag. */

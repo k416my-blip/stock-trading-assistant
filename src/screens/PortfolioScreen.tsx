@@ -47,9 +47,6 @@ import {
   filterSellablePositions,
   isPositionPriceAvailable,
   positionDisplayName,
-  SELL_ALL_CONFIRM_MESSAGE,
-  SELL_ALL_CONFIRM_TITLE,
-  SELL_ALL_NO_HOLDINGS,
   type SellAllPriceInput,
 } from '../services/sellAllHoldings';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
@@ -180,15 +177,15 @@ export function PortfolioScreen() {
   );
 
   const sellPractice = (position: PortfolioPosition, name: string, currentPrice: number) => {
-    Alert.alert('仮想売却', `${name}を${position.shares}株、仮想売却しますか？`, [
-      { text: 'キャンセル', style: 'cancel' },
+    Alert.alert(t('sell.practiceSellTitle'), t('sell.practiceSellMessage', { name, shares: position.shares }), [
+      { text: t('sell.cancel'), style: 'cancel' },
       {
-        text: '仮想売却',
+        text: t('sell.practiceSellAction'),
         style: 'destructive',
         onPress: () => {
           const result = practiceSellAll(position, name, currentPrice);
-          if (!result.ok) Alert.alert('売却できません', result.error);
-          else Alert.alert('完了', '仮想売却を記録しました。');
+          if (!result.ok) Alert.alert(t('sell.cannotSellTitle'), result.error);
+          else Alert.alert(t('sell.doneTitle'), t('sell.doneMessage'));
         },
       },
     ]);
@@ -196,27 +193,27 @@ export function PortfolioScreen() {
 
   const addSellChecklist = (position: PortfolioPosition, name: string, currentPrice: number) => {
     addManualSellFromHolding(position, name, currentPrice);
-    Alert.alert('追加しました', '売却候補を手動注文リストに追加しました。', [
-      { text: 'リストを見る', onPress: () => navigation.navigate('ManualOrderList') },
-      { text: '了解' },
+    Alert.alert(t('sell.addedToListTitle'), t('sell.addedToListMessage'), [
+      { text: t('sell.viewList'), onPress: () => navigation.navigate('ManualOrderList') },
+      { text: t('sell.ok') },
     ]);
   };
 
   const finishSellAll = useCallback(
     async (resolved: ResolvedSell[], skipped: SellAllLineItem[]) => {
       if (resolved.length === 0 && skipped.length === sellablePositions.length) {
-        Alert.alert('売却できません', '売却対象の銘柄がありませんでした。');
+        Alert.alert(t('sell.cannotSellTitle'), t('sell.noTargets'));
         return;
       }
 
       if (isPractice) {
         if (resolved.length === 0) {
-          Alert.alert('売却できません', '価格が入力された銘柄がありません。');
+          Alert.alert(t('sell.cannotSellTitle'), t('sell.noPricedTargets'));
           return;
         }
         const exec = practiceSellAllHoldings(resolved);
         if (!exec.ok || !exec.result) {
-          Alert.alert('売却できません', exec.error ?? '仮想売却に失敗しました。');
+          Alert.alert(t('sell.cannotSellTitle'), exec.error ?? t('sell.sellFailed'));
           return;
         }
         const result = {
@@ -245,6 +242,7 @@ export function PortfolioScreen() {
       navigation,
       practiceSellAllHoldings,
       sellablePositions.length,
+      t,
     ],
   );
 
@@ -298,14 +296,14 @@ export function PortfolioScreen() {
 
   const onSellAll = () => {
     if (sellablePositions.length === 0) {
-      Alert.alert('すべて売却', SELL_ALL_NO_HOLDINGS);
+      Alert.alert(t('sell.sellAllTitle'), t('sell.noHoldings'));
       return;
     }
 
-    Alert.alert(SELL_ALL_CONFIRM_TITLE, SELL_ALL_CONFIRM_MESSAGE, [
-      { text: 'キャンセル', style: 'cancel' },
+    Alert.alert(t('sell.sellAllConfirmTitle'), t('sell.sellAllConfirmMessage'), [
+      { text: t('sell.cancel'), style: 'cancel' },
       {
-        text: 'すべて売却',
+        text: t('sell.sellAllAction'),
         style: 'destructive',
         onPress: () => startSellAllPriceFlow(sellablePositions),
       },
@@ -317,7 +315,7 @@ export function PortfolioScreen() {
     if (!holding) return;
     const price = Number(priceInput.replace(/,/g, ''));
     if (!Number.isFinite(price) || price <= 0) {
-      Alert.alert('価格を確認してください', '0より大きい数値を入力してください。');
+      Alert.alert(t('sell.invalidPriceTitle'), t('sell.invalidPriceMessage'));
       return;
     }
 
@@ -338,7 +336,7 @@ export function PortfolioScreen() {
       const position = sellablePositions.find((p) => p.id === holding.positionId);
       if (position) {
         skippedItemsRef.current.push(
-          buildSellAllLineItem(position, holding.name, 0, undefined, true, '現在株価が未取得のためスキップ'),
+          buildSellAllLineItem(position, holding.name, 0, undefined, true, t('sell.skippedNoPrice')),
         );
       }
     }
@@ -443,18 +441,18 @@ export function PortfolioScreen() {
         ) : null}
 
         {sellablePositions.length > 0 ? (
-          <Button label="すべて売却" onPress={onSellAll} variant="ghost" />
+          <Button label={t('sell.sellAllAction')} onPress={onSellAll} variant="ghost" />
         ) : null}
 
         {!isPractice ? (
           <>
             <Button
-              label="手動で保有銘柄に追加"
+              label={t('sell.manualAddHolding')}
               onPress={() => navigation.navigate('ManualAddHolding')}
             />
-            <Button label="配当を記録" onPress={() => navigation.navigate('AddDividend')} variant="ghost" />
+            <Button label={t('sell.recordDividend')} onPress={() => navigation.navigate('AddDividend')} variant="ghost" />
             <Button
-              label="手動注文リスト"
+              label={t('sell.manualOrderList')}
               onPress={() => navigation.navigate('ManualOrderList')}
               variant="ghost"
             />
@@ -483,6 +481,7 @@ export function PortfolioScreen() {
       totalPortfolioValueMYR,
       unrealizedMYR,
       sellablePositions.length,
+      t,
     ],
   );
 

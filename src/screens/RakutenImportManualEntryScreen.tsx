@@ -85,14 +85,14 @@ export function RakutenImportManualEntryScreen() {
   const onContinue = async () => {
     const input = buildInput();
     if (!input) {
-      Alert.alert('入力不足', '必須項目を確認してください。');
+      Alert.alert(t('alerts.inputMissingTitle'), t('alerts.inputMissingMessage'));
       return;
     }
     setBusy(true);
     try {
       const result = await stageRakutenImportManual(input);
       if (!result.ok) {
-        Alert.alert('エラー', result.error);
+        Alert.alert(t('alerts.errorTitle'), result.error);
         return;
       }
       navigation.navigate('RakutenImportConfirm', { candidateId: result.candidateId });

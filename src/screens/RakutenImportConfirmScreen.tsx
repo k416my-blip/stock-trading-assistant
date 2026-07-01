@@ -118,16 +118,16 @@ export function RakutenImportConfirmScreen() {
     try {
       const result = await commitRakutenImportCandidate(candidate.id);
       if (!result.ok) {
-        Alert.alert('保存できません', result.error);
+        Alert.alert(t('alerts.saveBlockedTitle'), result.error);
         await load();
         return;
       }
-      Alert.alert('記録しました', 'Rakuten Trade の取引を保存しました。', [
+      Alert.alert(t('alerts.savedTitle'), t('alerts.savedMessage'), [
         {
-          text: '保有銘柄を見る',
+          text: t('alerts.viewPortfolio'),
           onPress: () => navigation.navigate('MainTabs', { screen: 'Portfolio' }),
         },
-        { text: 'OK', onPress: () => navigation.navigate('RakutenImportManualEntry') },
+        { text: t('alerts.ok'), onPress: () => navigation.navigate('RakutenImportManualEntry') },
       ]);
     } finally {
       setBusy(false);

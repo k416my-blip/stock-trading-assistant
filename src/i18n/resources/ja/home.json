@@ -33,5 +33,57 @@
     "lineMonitor": "{{name}}  監視",
     "lineBuyCandidate": "{{name}}  買い候補（検討）",
     "linePass": "{{name}}  見送り"
+  },
+  "trust": {
+    "confirmTitle": "この提案で進めますか？",
+    "cancel": "キャンセル",
+    "proceed": "進める",
+    "cannotProceedTitle": "進められません",
+    "processFailed": "処理に失敗しました",
+    "approvedTitle": "承認しました",
+    "approvedPractice": "仮想ポートフォリオに反映しました。",
+    "cannotAddTitle": "追加できません",
+    "approvedManual": "手動注文リストに追加しました。証券会社アプリでご確認ください。",
+    "viewList": "リストを見る",
+    "ok": "OK",
+    "settingsAccessibility": "設定",
+    "disclaimer": "表示内容は専属MDによる今月の提案です。最終的な購入操作はユーザー自身が証券会社アプリで行います。"
+  },
+  "proButtons": {
+    "askAi": "AIに相談する",
+    "allocationPlan": "おすすめ配分プラン",
+    "virtualTrade": "仮想買付・仮想売却",
+    "virtualCapital": "仮想資金・仮想入金",
+    "stockSearch": "銘柄検索",
+    "performance": "成績を見る",
+    "capitalPlan": "投資金額・入金計画",
+    "manualOrderList": "手動注文リスト",
+    "recordTrade": "売買を記録",
+    "notSet": "未設定",
+    "marketMeta": "市場: {{market}} · 現金一括"
+  },
+  "onboarding": {
+    "welcomeTitle": "ようこそ",
+    "welcomeBody1": "このアプリは、株の「買う・持つ・見る」を AI がやさしく整理してくれます。",
+    "welcomeBody2": "急いで売買する必要はありません。",
+    "skip": "スキップ",
+    "next": "次へ",
+    "tabsTitle": "4つの画面",
+    "tabHome": "ホーム",
+    "tabHomeDesc": "今日の方針",
+    "tabPortfolio": "保有銘柄",
+    "tabPortfolioDesc": "このまま持つ？",
+    "tabStockCheck": "銘柄チェック",
+    "tabStockCheckDesc": "なぜそう？",
+    "tabConcierge": "AI相談",
+    "tabConciergeDesc": "わからないことは聞く",
+    "previewTitle": "今日のAIアドバイス（プレビュー）",
+    "startOnHome": "ホームではじめる"
+  },
+  "proactive": {
+    "readAloud": "読み上げる",
+    "skip": "スキップ",
+    "close": "閉じる",
+    "viewAll": "一覧を見る"
   }
 }

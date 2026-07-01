@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { buildBeginnerOnboardingAdvicePreview } from '../../services/beginner/beginnerMaterialSummaryBuilder';
 import { theme } from '../../theme';
@@ -9,13 +10,6 @@ type Props = {
   onComplete: () => void;
 };
 
-const TAB_INTRO = [
-  { icon: '🏠', label: 'ホーム', desc: '今日の方針' },
-  { icon: '📋', label: '保有銘柄', desc: 'このまま持つ？' },
-  { icon: '✓', label: '銘柄チェック', desc: 'なぜそう？' },
-  { icon: '💬', label: 'AI相談', desc: 'わからないことは聞く' },
-] as const;
-
 function bulletChar(bullet: 'filled' | 'open' | 'dash'): string {
   if (bullet === 'filled') return '●';
   if (bullet === 'open') return '○';
@@ -23,8 +17,16 @@ function bulletChar(bullet: 'filled' | 'open' | 'dash'): string {
 }
 
 export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
+  const { t } = useTranslation('home');
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const preview = buildBeginnerOnboardingAdvicePreview();
+
+  const tabIntro = [
+    { icon: '🏠', label: t('onboarding.tabHome'), desc: t('onboarding.tabHomeDesc') },
+    { icon: '📋', label: t('onboarding.tabPortfolio'), desc: t('onboarding.tabPortfolioDesc') },
+    { icon: '✓', label: t('onboarding.tabStockCheck'), desc: t('onboarding.tabStockCheckDesc') },
+    { icon: '💬', label: t('onboarding.tabConcierge'), desc: t('onboarding.tabConciergeDesc') },
+  ] as const;
 
   const handleSkip = () => {
     setStep(1);
@@ -52,17 +54,15 @@ export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
           {step === 1 ? (
             <>
               <Text style={styles.title} testID="onboarding-step-1">
-                ようこそ
+                {t('onboarding.welcomeTitle')}
               </Text>
-              <Text style={styles.body}>
-                このアプリは、株の「買う・持つ・見る」を AI がやさしく整理してくれます。
-              </Text>
-              <Text style={styles.body}>急いで売買する必要はありません。</Text>
+              <Text style={styles.body}>{t('onboarding.welcomeBody1')}</Text>
+              <Text style={styles.body}>{t('onboarding.welcomeBody2')}</Text>
               <View style={styles.actions}>
                 <Pressable onPress={handleSkip} testID="onboarding-skip">
-                  <Text style={styles.skip}>スキップ</Text>
+                  <Text style={styles.skip}>{t('onboarding.skip')}</Text>
                 </Pressable>
-                <Button label="次へ" onPress={handleNext} />
+                <Button label={t('onboarding.next')} onPress={handleNext} />
               </View>
             </>
           ) : null}
@@ -70,9 +70,9 @@ export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
           {step === 2 ? (
             <>
               <Text style={styles.title} testID="onboarding-step-2">
-                4つの画面
+                {t('onboarding.tabsTitle')}
               </Text>
-              {TAB_INTRO.map((tab) => (
+              {tabIntro.map((tab) => (
                 <View key={tab.label} style={styles.tabRow}>
                   <Text style={styles.tabIcon}>{tab.icon}</Text>
                   <Text style={styles.tabLabel}>
@@ -81,7 +81,7 @@ export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
                 </View>
               ))}
               <View style={styles.actionsSingle}>
-                <Button label="次へ" onPress={handleNext} />
+                <Button label={t('onboarding.next')} onPress={handleNext} />
               </View>
             </>
           ) : null}
@@ -89,7 +89,7 @@ export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
           {step === 3 ? (
             <>
               <Text style={styles.title} testID="onboarding-step-3">
-                今日のAIアドバイス（プレビュー）
+                {t('onboarding.previewTitle')}
               </Text>
               {preview.lines.map((line) => (
                 <Text key={line.text} style={styles.previewLine}>
@@ -99,7 +99,7 @@ export function BeginnerOnboardingModal({ visible, onComplete }: Props) {
               <Text style={styles.previewLine}>— {preview.newPurchaseSummaryJa}</Text>
               <Text style={styles.footer}>{preview.footerJa}</Text>
               <View style={styles.actionsSingle}>
-                <Button label="ホームではじめる" onPress={handleNext} />
+                <Button label={t('onboarding.startOnHome')} onPress={handleNext} />
               </View>
             </>
           ) : null}

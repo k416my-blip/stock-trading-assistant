@@ -11,6 +11,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ProactiveSuggestionCard } from './ProactiveSuggestionCard';
 import { theme } from '../../theme';
+import { useTranslation } from 'react-i18next';
 
 export function ProactiveSuggestionsHomeCard() {
   if (DISABLE_AI_CONCIERGE_FOR_TOUCH_TEST) return null;
@@ -18,6 +19,7 @@ export function ProactiveSuggestionsHomeCard() {
 }
 
 function ProactiveSuggestionsHomeCardContent() {
+  const { t } = useTranslation('home');
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {
     suggestions,
@@ -52,8 +54,8 @@ function ProactiveSuggestionsHomeCardContent() {
       {voiceResumePromptVisible ? (
         <View style={styles.resumeBlock}>
           <Text style={styles.resumeTitle}>{PROACTIVE_UI.voiceResumePrompt}</Text>
-          <Button label="読み上げる" onPress={acceptVoiceResume} />
-          <Button label="スキップ" onPress={dismissVoiceResume} variant="ghost" />
+          <Button label={t('proactive.readAloud')} onPress={acceptVoiceResume} />
+          <Button label={t('proactive.skip')} onPress={dismissVoiceResume} variant="ghost" />
         </View>
       ) : null}
 
@@ -61,7 +63,7 @@ function ProactiveSuggestionsHomeCardContent() {
         <View style={styles.resumeBlock}>
           <Text style={styles.resumeTitle}>{PROACTIVE_UI.resumeBannerTitle}</Text>
           <Text style={styles.resumeBody}>{resumeSummaryJa}</Text>
-          <Button label="閉じる" onPress={dismissResumeBanner} variant="ghost" />
+          <Button label={t('proactive.close')} onPress={dismissResumeBanner} variant="ghost" />
         </View>
       ) : null}
 
@@ -78,7 +80,7 @@ function ProactiveSuggestionsHomeCardContent() {
       ) : null}
 
       <Button
-        label="一覧を見る"
+        label={t('proactive.viewAll')}
         onPress={() => navigation.navigate('ProactiveSuggestions')}
         variant="ghost"
       />

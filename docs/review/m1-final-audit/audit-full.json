@@ -1,526 +1,13 @@
 {
-  "generatedAt": "2026-07-01T09:00:00.838Z",
+  "generatedAt": "2026-07-01T09:48:06.211Z",
   "branch": "cursor/top3-maxdd-capital-audit",
-  "commit": "954ebea15c79c96770de9522cda571e29d21f427",
+  "commit": "81ac74b1db4976a810a394a18347e7527053c355",
   "staticFindings": [
     {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 108,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 110,
-      "text": "進める",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 132,
-      "text": "承認しました",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 133,
-      "text": "手動注文リストに追加しました。証券会社アプリでご確認ください。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 134,
-      "text": "リストを見る",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 156,
-      "text": "設定",
-      "detect": "phrase:設定",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 316,
-      "text": "AIに相談する",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 329,
-      "text": "おすすめ配分プラン",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 330,
-      "text": "仮想買付・仮想売却",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 331,
-      "text": "仮想資金・仮想入金",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 332,
-      "text": "銘柄検索",
-      "detect": "phrase:銘柄",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 333,
-      "text": "成績を見る",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 342,
-      "text": "未設定",
-      "detect": "phrase:設定",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 348,
-      "text": "おすすめ配分プラン",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 349,
-      "text": "投資金額・入金計画",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 350,
-      "text": "手動注文リスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 351,
-      "text": "銘柄検索",
-      "detect": "phrase:銘柄",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 352,
-      "text": "売買を記録",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/screens/HomeScreen.tsx",
-      "line": 353,
-      "text": "成績を見る",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 13,
-      "text": "ホーム",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 13,
-      "text": "今日の方針",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 14,
-      "text": "保有銘柄",
-      "detect": "phrase:銘柄",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 14,
-      "text": "このまま持つ？",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 15,
-      "text": "銘柄チェック",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 15,
-      "text": "なぜそう？",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 16,
-      "text": "わからないことは聞く",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 65,
-      "text": "次へ",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 84,
-      "text": "次へ",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Home",
-      "file": "src/components/beginner/BeginnerOnboardingModal.tsx",
-      "line": 102,
-      "text": "ホームではじめる",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 184,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 200,
-      "text": "リストを見る",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 306,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 308,
-      "text": "すべて売却",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 341,
-      "text": "現在株価が未取得のためスキップ",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 446,
-      "text": "すべて売却",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 452,
-      "text": "手動で保有銘柄に追加",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 455,
-      "text": "配当を記録",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/screens/PortfolioScreen.tsx",
-      "line": 457,
-      "text": "手動注文リスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 144,
-      "text": "市場を選択してください",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 155,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 220,
-      "text": "価格の取得から時間が経過しています。更新するか手動で確認してください。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 221,
-      "text": "最新の自動取得に失敗しましたが、保存済み価格を表示しています。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 292,
-      "text": "再取得中…",
-      "detect": "phrase:取得中",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 292,
-      "text": "この銘柄だけ再取得",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 337,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 357,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 376,
-      "text": "売却候補に追加",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Portfolio",
-      "file": "src/components/HoldingCard.tsx",
-      "line": 379,
-      "text": "保有を削除",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
       "screen": "Stock Check",
       "file": "src/screens/MaterialAnalysisScreen.tsx",
-      "line": 570,
+      "line": 573,
       "text": "データ未取得",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Stock Check",
-      "file": "src/screens/MaterialAnalysisScreen.tsx",
-      "line": 782,
-      "text": "【データ品質】",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Stock Check",
-      "file": "src/screens/MaterialAnalysisScreen.tsx",
-      "line": 792,
-      "text": "【市場監視 — 材料通知】",
-      "detect": "phrase:通知",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Stock Check",
-      "file": "src/screens/MaterialAnalysisScreen.tsx",
-      "line": 817,
-      "text": "【銘柄別材料分析】",
-      "detect": "phrase:銘柄",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 655,
-      "text": "OpenAI APIキー未設定",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 656,
-      "text": "履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 664,
-      "text": "履歴スクショを読み取り中…",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 939,
-      "text": "レート制限",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 941,
-      "text": "タイムアウト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "AI Chat",
-      "file": "src/components/AiAssistantChat.tsx",
-      "line": 942,
-      "text": "ネットワーク/API",
       "detect": "kana",
       "method": "static-tsx",
       "category": "A"
@@ -546,7 +33,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 152,
+      "line": 266,
       "text": "未テスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -555,349 +42,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 152,
-      "text": "未テスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 164,
-      "text": "15分（おすすめ）",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 171,
-      "text": "OpenAI APIキー未設定",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 172,
-      "text": "履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 223,
-      "text": "すべてリセット",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 224,
-      "text": "本当にすべてリセットしますか？\\nAPIキーは保持されます（別途「すべてのAPIキーを削除」から削除可能）。\\nこの操作は元に戻せません。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 226,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 228,
-      "text": "続ける",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 233,
-      "text": "すべてのデータが削除されます。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 235,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 237,
-      "text": "本当に削除します",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 259,
-      "text": "保存しませんでした",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 260,
-      "text": "無効な入力のため既存キーを保持しました（reason: ${saveResult.reason}）。空欄・マスク表示・10文字未満は保存されません。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 268,
-      "text": "未テスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 282,
-      "text": "APIキー削除",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 283,
-      "text": "本当に${provider?.label ?? providerId}のAPIキーを削除しますか？",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 285,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 296,
-      "text": "未テスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 316,
-      "text": "接続テスト成功",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 316,
-      "text": "接続テスト失敗",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 441,
-      "text": "すべてのAPIキーを削除",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 442,
-      "text": "OpenAI / Twelve Data / News / X / Reddit など、端末に保存されたすべてのAPIキーを削除します。\\nアプリデータ（保有・履歴）は保持されます。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 444,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 446,
-      "text": "続ける",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 451,
-      "text": "すべてのAPIキーを削除します。よろしいですか？",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 453,
-      "text": "キャンセル",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 455,
-      "text": "削除する",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 463,
-      "text": "APIキーを削除しました",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 465,
-      "text": "削除できなかったキー: ${result.failedKeys.length}件",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 466,
-      "text": "すべてのAPIキーを削除しました。",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 558,
-      "text": "通知設定",
-      "detect": "phrase:通知",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 559,
-      "text": "買付・売却・損切りなどのアラート",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 564,
-      "text": "市場設定",
-      "detect": "phrase:設定",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 570,
-      "text": "セキュリティ",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 571,
-      "text": "ローカル保存 · 整合性 · 機密データの削除",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 602,
-      "text": "未テスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 608,
-      "text": "${provider.placeholder}（空欄保存=既存キー保持）",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 623,
-      "text": "接続テスト",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 636,
+      "line": 632,
       "text": "テスト中…",
       "detect": "kana",
       "method": "static-tsx",
@@ -906,7 +51,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 636,
+      "line": 632,
       "text": "X API テスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -915,7 +60,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 700,
+      "line": 696,
       "text": "テスト中…",
       "detect": "kana",
       "method": "static-tsx",
@@ -924,7 +69,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 700,
+      "line": 696,
       "text": "News API テスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -933,7 +78,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 813,
+      "line": 809,
       "text": "テスト実行中…",
       "detect": "kana",
       "method": "static-tsx",
@@ -942,7 +87,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 813,
+      "line": 809,
       "text": "実運用テスト実行",
       "detect": "kana",
       "method": "static-tsx",
@@ -951,7 +96,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 818,
+      "line": 814,
       "text": "実機監査（6銘柄）",
       "detect": "phrase:銘柄",
       "method": "static-tsx",
@@ -960,25 +105,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 886,
-      "text": "APIキー設定",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 887,
-      "text": "Twelve Data · 株価の自動取得",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 892,
+      "line": 888,
       "text": "API設定ウィザード",
       "detect": "kana",
       "method": "static-tsx",
@@ -987,7 +114,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 899,
+      "line": 895,
       "text": "全APIの実接続状態 · モック理由 · 一括テスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -996,7 +123,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 905,
+      "line": 901,
       "text": "節約モード · 本日の使用量 · クレジット予測",
       "detect": "kana",
       "method": "static-tsx",
@@ -1005,7 +132,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 910,
+      "line": 906,
       "text": "AI戦略アシスタント設定",
       "detect": "kana",
       "method": "static-tsx",
@@ -1014,7 +141,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 911,
+      "line": 907,
       "text": "OpenAI互換API · モック切替 · 会話履歴",
       "detect": "kana",
       "method": "static-tsx",
@@ -1023,25 +150,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 916,
-      "text": "通知設定",
-      "detect": "phrase:通知",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 917,
-      "text": "買付・売却・損切りなどのアラート",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 922,
+      "line": 918,
       "text": "市場設定",
       "detect": "phrase:設定",
       "method": "static-tsx",
@@ -1050,7 +159,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 928,
+      "line": 924,
       "text": "通貨設定",
       "detect": "phrase:設定",
       "method": "static-tsx",
@@ -1059,7 +168,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 929,
+      "line": 925,
       "text": "表示は MYR · 各市場の取引通貨",
       "detect": "kana",
       "method": "static-tsx",
@@ -1068,7 +177,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 934,
+      "line": 930,
       "text": "練習モード設定",
       "detect": "kana",
       "method": "static-tsx",
@@ -1077,25 +186,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 940,
-      "text": "更新頻度設定",
-      "detect": "phrase:設定",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 941,
-      "text": "保有銘柄の株価 · ${refreshLabel}",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 946,
+      "line": 942,
       "text": "市場データ診断",
       "detect": "kana",
       "method": "static-tsx",
@@ -1104,7 +195,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 947,
+      "line": 943,
       "text": "株価更新・API呼び出しの統計（開発確認用）",
       "detect": "kana",
       "method": "static-tsx",
@@ -1113,7 +204,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 953,
+      "line": 949,
       "text": "ジャーナルと保有の不一致 · 未確定注文",
       "detect": "kana",
       "method": "static-tsx",
@@ -1122,52 +213,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 959,
-      "text": "入金・買付・売却の手動記録（確認後に保存）",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 964,
-      "text": "履歴スクショを読み取る",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 968,
-      "text": "読み取り中…",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 969,
-      "text": "Transaction History 画像 → 候補一覧（確認後に保存）",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 970,
-      "text": "OpenAI APIキー未設定 — 手動/自然文入力をご利用ください",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 976,
+      "line": 972,
       "text": "セキュリティ",
       "detect": "kana",
       "method": "static-tsx",
@@ -1176,7 +222,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 977,
+      "line": 973,
       "text": "ローカル保存 · 整合性 · 機密データの削除",
       "detect": "kana",
       "method": "static-tsx",
@@ -1185,7 +231,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 983,
+      "line": 979,
       "text": "構造化ログ · 環境検証 · リリース準備",
       "detect": "kana",
       "method": "static-tsx",
@@ -1194,7 +240,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 989,
+      "line": 985,
       "text": "バックアップ · ヘルスチェック · 緊急停止 · 実機テスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -1203,7 +249,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 995,
+      "line": 991,
       "text": "API · memory · queue · AI負荷 · 本番準備チェックリスト",
       "detect": "kana",
       "method": "static-tsx",
@@ -1212,7 +258,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1000,
+      "line": 998,
       "text": "リアルタイム前向き検証",
       "detect": "kana",
       "method": "static-tsx",
@@ -1221,7 +267,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1001,
+      "line": 999,
       "text": "4ETF日次シグナル · 仮想PF · バックテスト比較 · 30Tレポート",
       "detect": "kana",
       "method": "static-tsx",
@@ -1230,7 +276,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1006,
+      "line": 1004,
       "text": "歴史シミュレーション検証",
       "detect": "kana",
       "method": "static-tsx",
@@ -1239,7 +285,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1007,
+      "line": 1005,
       "text": "ウォークフォワード・ストレステスト・Sharpe/Calmar",
       "detect": "kana",
       "method": "static-tsx",
@@ -1248,7 +294,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1012,
+      "line": 1010,
       "text": "実市場データ・クオンツ検証",
       "detect": "kana",
       "method": "static-tsx",
@@ -1257,7 +303,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1013,
+      "line": 1011,
       "text": "OHLCV · モンテカルロ · テール · ギャップ · 心理ストレス",
       "detect": "kana",
       "method": "static-tsx",
@@ -1266,7 +312,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1018,
+      "line": 1016,
       "text": "機関ポートフォリオ最適化",
       "detect": "kana",
       "method": "static-tsx",
@@ -1275,7 +321,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1019,
+      "line": 1017,
       "text": "共分散 · リスクパリティ · CVaR · Kelly · 頑健性スコア",
       "detect": "kana",
       "method": "static-tsx",
@@ -1284,7 +330,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1024,
+      "line": 1022,
       "text": "ベイズ動的配分",
       "detect": "kana",
       "method": "static-tsx",
@@ -1293,7 +339,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1025,
+      "line": 1023,
       "text": "Black-Litterman · EWMA · 感度 · 信頼区間 · 頑健性ランキング",
       "detect": "kana",
       "method": "static-tsx",
@@ -1302,7 +348,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1030,
+      "line": 1028,
       "text": "メタ配分・アンサンブル",
       "detect": "kana",
       "method": "static-tsx",
@@ -1311,7 +357,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1031,
+      "line": 1029,
       "text": "5エンジン · BMA · 不一致 · フェイルセーフ",
       "detect": "kana",
       "method": "static-tsx",
@@ -1320,7 +366,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1036,
+      "line": 1034,
       "text": "ガバナンス・説明・監査",
       "detect": "kana",
       "method": "static-tsx",
@@ -1329,7 +375,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1037,
+      "line": 1035,
       "text": "配分理由 · ヒステリシス · 取引停止 · 監査ログ",
       "detect": "kana",
       "method": "static-tsx",
@@ -1338,7 +384,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1042,
+      "line": 1040,
       "text": "シャドー取引・現実校正",
       "detect": "kana",
       "method": "static-tsx",
@@ -1347,7 +393,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1043,
+      "line": 1041,
       "text": "端末内シミュレーション · 実ブローカー注文なし",
       "detect": "kana",
       "method": "static-tsx",
@@ -1356,7 +402,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1048,
+      "line": 1046,
       "text": "可視化・モニタリング",
       "detect": "kana",
       "method": "static-tsx",
@@ -1365,7 +411,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1049,
+      "line": 1047,
       "text": "エクイティ · ドローダウン · レジーム · OMSリプレイ · ヘルス",
       "detect": "kana",
       "method": "static-tsx",
@@ -1374,7 +420,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1054,
+      "line": 1052,
       "text": "適応執行・アルファ",
       "detect": "kana",
       "method": "static-tsx",
@@ -1383,7 +429,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1055,
+      "line": 1053,
       "text": "ボラターゲット · スライス · シグナル品質 · シャドー学習",
       "detect": "kana",
       "method": "static-tsx",
@@ -1392,7 +438,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1060,
+      "line": 1058,
       "text": "マーケット・インテリジェンス",
       "detect": "kana",
       "method": "static-tsx",
@@ -1401,7 +447,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1061,
+      "line": 1059,
       "text": "インターマーケット · 相関 · フロー · パニック検出",
       "detect": "kana",
       "method": "static-tsx",
@@ -1410,7 +456,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1066,
+      "line": 1064,
       "text": "データ整合性・市場信頼性",
       "detect": "kana",
       "method": "static-tsx",
@@ -1419,7 +465,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1067,
+      "line": 1065,
       "text": "OHLCV修復 · ステール検出 · バイアス · 不良ティック",
       "detect": "kana",
       "method": "static-tsx",
@@ -1428,7 +474,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1072,
+      "line": 1070,
       "text": "ストレス・テールリスク",
       "detect": "kana",
       "method": "static-tsx",
@@ -1437,7 +483,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1073,
+      "line": 1071,
       "text": "相関ショック · VaR/ES · デレバレッジ · 執行ゲート",
       "detect": "kana",
       "method": "static-tsx",
@@ -1446,7 +492,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1078,
+      "line": 1076,
       "text": "行動・オペレーターリスク",
       "detect": "kana",
       "method": "static-tsx",
@@ -1455,7 +501,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1079,
+      "line": 1077,
       "text": "リベンジ · 過剰取引 · 連敗クーリング · 規律スコア",
       "detect": "kana",
       "method": "static-tsx",
@@ -1464,7 +510,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1084,
+      "line": 1082,
       "text": "モデル安定性・自己適応制御",
       "detect": "kana",
       "method": "static-tsx",
@@ -1473,7 +519,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1085,
+      "line": 1083,
       "text": "ドリフト · 学習率 · 隔離 · ロールバック",
       "detect": "kana",
       "method": "static-tsx",
@@ -1482,7 +528,7 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1090,
+      "line": 1088,
       "text": "メタ資本配分",
       "detect": "kana",
       "method": "static-tsx",
@@ -1491,26 +537,8 @@
     {
       "screen": "Settings",
       "file": "src/screens/SettingsScreen.tsx",
-      "line": 1091,
+      "line": 1089,
       "text": "戦略間資本 · 相関 · 危機保全 · シャドー",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 1115,
-      "text": "すべてのデータをリセット",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Settings",
-      "file": "src/screens/SettingsScreen.tsx",
-      "line": 1122,
-      "text": "すべてのAPIキーを削除",
       "detect": "kana",
       "method": "static-tsx",
       "category": "A"
@@ -1565,15 +593,6 @@
       "file": "src/screens/RakutenImportConfirmScreen.tsx",
       "line": 77,
       "text": "スクショ読み取り",
-      "detect": "kana",
-      "method": "static-tsx",
-      "category": "A"
-    },
-    {
-      "screen": "Rakuten Import",
-      "file": "src/screens/RakutenImportConfirmScreen.tsx",
-      "line": 127,
-      "text": "保有銘柄を見る",
       "detect": "kana",
       "method": "static-tsx",
       "category": "A"
@@ -2338,6 +1357,16 @@
       "method": "i18n-resource",
       "category": "A",
       "locale": "en"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/en/rakutenImport.json",
+      "line": "alerts.savedMessage",
+      "text": "Rakuten Trade transaction saved.",
+      "detect": "phrase:Rakuten Trade",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "en"
     }
   ],
   "zhI18nLeaks": [
@@ -2543,6 +1572,56 @@
     },
     {
       "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/portfolio.json",
+      "line": "holding.updateBlockedTitle",
+      "text": "无法更新",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/portfolio.json",
+      "line": "holding.stalePriceHint",
+      "text": "价格获取已有一段时间。请更新或手动确认。",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/portfolio.json",
+      "line": "holding.lastUpdatedLabel",
+      "text": "最后更新",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/stockCheck.json",
+      "line": "sections.marketWatch",
+      "text": "【市场监控 — 材料通知】",
+      "detect": "phrase:通知",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/stockCheck.json",
+      "line": "refreshBeginner",
+      "text": "更新",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
       "file": "src/i18n/resources/zh-Hans/concierge.json",
       "line": "staleDataWarning",
       "text": "部分股价数据已过期。决策前请确认价格更新。",
@@ -2633,9 +1712,69 @@
     },
     {
       "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/settings.json",
+      "line": "nav.priceRefresh",
+      "text": "更新频率设置",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/settings.json",
+      "line": "nav.notifications",
+      "text": "通知设置",
+      "detect": "phrase:通知",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/settings.json",
+      "line": "reset.hint",
+      "text": "删除虚拟资金、持仓、交易历史、手动订单、通知历史、学习历史、应用设置和缓存。保留 API 密钥。",
+      "detect": "phrase:通知",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/settings.json",
+      "line": "priceRefresh.sectionDescription",
+      "text": "设置股价自动更新频率",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/settings.json",
+      "line": "priceRefresh.beginnerWarning",
+      "text": "更新间隔越短，API 通信量越大",
+      "detect": "phrase:更新",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
       "file": "src/i18n/resources/zh-Hans/rakutenImport.json",
       "line": "manual.guidanceDeposit",
       "text": "Rakuten Trade入金反映后记录金额。",
+      "detect": "phrase:Rakuten Trade",
+      "method": "i18n-resource",
+      "category": "A",
+      "locale": "zh-Hans"
+    },
+    {
+      "screen": "i18n",
+      "file": "src/i18n/resources/zh-Hans/rakutenImport.json",
+      "line": "alerts.savedMessage",
+      "text": "Rakuten Trade 交易已保存。",
       "detect": "phrase:Rakuten Trade",
       "method": "i18n-resource",
       "category": "A",
@@ -2713,1484 +1852,13 @@
     }
   ],
   "deviceEn": {
-    "findings": [
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "今持っている株",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "すべて売却",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "持っている株を全部売ること",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "保有評価額",
-        "detect": "phrase:保有",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "今持っている株を、いまの株価で計算した値段",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "含み損益",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "まだ売っていない株の損益",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "会社からもらえる利益の一部",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "手動で保有銘柄に追加",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "配当を記録",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "手動注文リスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "Bursa · News API · RSS · X · Reddit（実データのみ）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "【データ品質】",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "接続済み",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "【市場監視 — 材料通知】",
-        "detect": "phrase:通知",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "MALAYAN BANKING BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "RHB BANK BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "PETRONAS CHEMICALS GROUP BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "【銘柄別材料分析】",
-        "detect": "phrase:銘柄",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "材料スコア内訳（ソース別）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "最近の成功率",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "データ不足",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "平均リターン",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "検証待ち",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "0 件",
-        "detect": "phrase:件",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "ストレス / Monte Carlo",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "分散はおおむね許容 — 暴落時も現金バッファを維持",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "20営業日・80パス: 中央値 +0.4% / 下位5% -1.2%（参考シミュレーション）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "ベンチマーク比較: KLCI · S&P500 · Nasdaq · セクターETF（半導体など）（地合い指数の当日変動を参考）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "データ信頼性はルールベース検証。不確実時は判断保留・原因特定不能を優先します。",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "データ信頼度",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "データ信頼度: 低（38/100）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "AI Input Gate 閉鎖 — 判断保留・断定禁止 — 判断保留 — データ不確実または原因特定不能。再取得後に分析してください。",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "IOI — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "IOIの純利益が22.3%減少（30 Jun, 2025 QFY → 30 Jun, 2026 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "KUALA — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "KUALAの純利益が17.2%減少（30 Sep, 2025 QFY → 30 Sep, 2026 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "SAPURA — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "SAPURAの純利益が87.2%減少（31 Jan, 2026 Q4 → 31 Jan, 2027 Q1）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "TELEKOM — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "TELEKOMの純利益が15.1%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "AXIS — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "AXISの純利益が60.3%減少（31 Dec, 2025 Q4 → 31 Dec, 2026 Q1）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "PETRONAS — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "PETRONASの純利益が282.3%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "HONG — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "接続テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "News API 接続テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&lang",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "E",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "News API テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "users/me で疎通確認します",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "保存状態: 設定済み（****6gWA）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "接続状態: 未テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "Bearer Token（空欄保存=既存キー保持）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "X API search/recent テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "en",
-        "text": "X API テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "en"
-      }
-    ],
-    "dumps": {
-      "en:home": [
-        "Home",
-        "Today's Portfolio",
-        "A gentle summary of today's plan",
-        "Today's AI advice",
-        "2026-07-01",
-        "○ HONG LEONG BANK BERHAD — Watch",
-        "○ MALAYAN BANKING BERHAD — Watch",
-        "○ PETRONAS CHEMICALS GROUP BERHAD — Watch",
-        "○ RHB BANK BERHAD — Watch",
-        "— No new purchases",
-        "No need to rush trades",
-        "View details in Stock Check →",
-        "Ask AI",
-        "No allocation plan yet. Enter a deposit amount to create one.",
-        "Enter deposit amount",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "en:portfolio": [
-        "Portfolio",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "Live analysis — positions recorded after broker execution",
-        "今持っている株",
-        "すべて売却",
-        "持っている株を全部売ること",
-        "保有評価額",
-        "RM0.00",
-        "今持っている株を、いまの株価で計算した値段",
-        "含み損益",
-        "+RM0.00",
-        "まだ売っていない株の損益",
-        "配当",
-        "会社からもらえる利益の一部",
-        "Holdings",
-        "No holdings yet",
-        "Add from stock search or record a Buy from candidates.",
-        "Go to stock search",
-        "手動で保有銘柄に追加",
-        "配当を記録",
-        "手動注文リスト",
-        "Home",
-        "Alerts",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "en:stockCheck": [
-        "Stock Check",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "Material Analysis",
-        "Bursa · News API · RSS · X · Reddit（実データのみ）",
-        "再取得",
-        "【データ品質】",
-        "★★★★★",
-        "Bursa+RSS+News+X+Reddit",
-        "【API接続状況】",
-        "News API",
-        "接続済み",
-        "X API",
-        "Reddit API",
-        "Reddit RSS接続",
-        "【市場監視 — 材料通知】",
-        "MALAYAN BANKING BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "RHB BANK BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "PETRONAS CHEMICALS GROUP BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "【銘柄別材料分析】",
-        "1155",
-        "MALAYAN BANKING BERHAD",
-        "+100",
-        "材料スコア内訳（ソース別）",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "AI Chat",
-        "Settings"
-      ],
-      "en:concierge": [
-        "AI Chat",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "AI-organized trade candidates and rationale",
-        "AI Performance Center",
-        "AI Trust Score",
-        "50",
-        "/ 100",
-        "AI勝率",
-        "最近の成功率",
-        "データ不足",
-        "仮想損益",
-        "+0 MYR (+0%)",
-        "平均リターン",
-        "最大DD",
-        "0%",
-        "検証待ち",
-        "0 件",
-        "時間軸精度 — 1日 —% · 1週 —% · 1月 —%",
-        "ストレス / Monte Carlo",
-        "暴落 15% 想定損失 ≈ 4,500 MYR (3.8%)",
-        "分散はおおむね許容 — 暴落時も現金バッファを維持",
-        "20営業日・80パス: 中央値 +0.4% / 下位5% -1.2%（参考シミュレーション）",
-        "ベンチマーク比較: KLCI · S&P500 · Nasdaq · セクターETF（半導体など）（地合い指数の当日変動を参考）",
-        "Data Reliability & Integrity",
-        "データ信頼性はルールベース検証。不確実時は判断保留・原因特定不能を優先します。",
-        "データ信頼度",
-        "データ信頼度: 低（38/100）",
-        "AI Input Gate 閉鎖 — 判断保留・断定禁止 — 判断保留 — データ不確実または原因特定不能。再取得後に分析してください。",
-        "総合 Data Quality: 38/100",
-        "AI Input Gate: 閉鎖（判断保留）",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "Settings"
-      ],
-      "en:alerts": [
-        "Alerts",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "★★★★★",
-        "IOI — 利益急減",
-        "IOIの純利益が22.3%減少（30 Jun, 2025 QFY → 30 Jun, 2026 QFY）",
-        "KUALA — 利益急減",
-        "KUALAの純利益が17.2%減少（30 Sep, 2025 QFY → 30 Sep, 2026 QFY）",
-        "SAPURA — 利益急減",
-        "SAPURAの純利益が87.2%減少（31 Jan, 2026 Q4 → 31 Jan, 2027 Q1）",
-        "TELEKOM — 利益急減",
-        "TELEKOMの純利益が15.1%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "AXIS — 利益急減",
-        "AXISの純利益が60.3%減少（31 Dec, 2025 Q4 → 31 Dec, 2026 Q1）",
-        "PETRONAS — 利益急減",
-        "PETRONASの純利益が282.3%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "Material quality ★★★★★ Bursa+RSS+News+X+Reddit",
-        "HONG — 利益急減",
-        "Home",
-        "Portfolio",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "en:settings": [
-        "Settings",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "削除",
-        "接続テスト",
-        "News API 接続テスト",
-        "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&language=en\nAuth: X-Api-Key / Bearer / ?apiKey= · 失敗時 RSS フォールバック",
-        "News API テスト",
-        "X API",
-        "users/me で疎通確認します",
-        "保存状態: 設定済み（****6gWA）",
-        "接続状態: 未テスト",
-        "Bearer Token（空欄保存=既存キー保持）",
-        "保存",
-        "X API search/recent テスト",
-        "GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token",
-        "X API テスト",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "AI Chat"
-      ]
-    },
+    "findings": [],
+    "dumps": {},
     "error": null
   },
   "deviceZh": {
-    "findings": [
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "今持っている株",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "すべて売却",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "持っている株を全部売ること",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "保有評価額",
-        "detect": "phrase:保有",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "今持っている株を、いまの株価で計算した値段",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "含み損益",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "まだ売っていない株の損益",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "会社からもらえる利益の一部",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "手動で保有銘柄に追加",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "配当を記録",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Portfolio",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "手動注文リスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "Bursa · News API · RSS · X · Reddit（実データのみ）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "【データ品質】",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "接続済み",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "【市場監視 — 材料通知】",
-        "detect": "phrase:通知",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "MALAYAN BANKING BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "RHB BANK BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "PETRONAS CHEMICALS GROUP BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "【銘柄別材料分析】",
-        "detect": "phrase:銘柄",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Stock Check",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "材料スコア内訳（ソース別）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "執行レイテンシ",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "リバランス: 株式増 85% 目安（現金 100%）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "データ信頼性はルールベース検証。不確実時は判断保留・原因特定不能を優先します。",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "データ信頼度",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "データ信頼度: 低（38/100）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "AI Input Gate 閉鎖 — 判断保留・断定禁止 — 判断保留 — データ不確実または原因特定不能。再取得後に分析してください。",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "データ系譜",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "· openai: 成功率~0% · 未設定 — 未設定",
-        "detect": "phrase:設定",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "· news: 成功率~0% · 未設定 — 未設定",
-        "detect": "phrase:設定",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "· earnings: 成功率~0% · 未設定 — 未設定",
-        "detect": "phrase:設定",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "· reddit: 成功率~0% · 未設定 — 未設定",
-        "detect": "phrase:設定",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "全タイムスタンプは UTC 基準で比較（US/JP/MY ローカルは市場時間ルールで補正）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "ポートフォリオ全体スコア",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "AI Chat",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "/ 100 · 保有 0 銘柄（未取得）",
-        "detect": "phrase:銘柄",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "IOI — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "IOIの純利益が22.3%減少（30 Jun, 2025 QFY → 30 Jun, 2026 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "KUALA — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "KUALAの純利益が17.2%減少（30 Sep, 2025 QFY → 30 Sep, 2026 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "SAPURA — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "SAPURAの純利益が87.2%減少（31 Jan, 2026 Q4 → 31 Jan, 2027 Q1）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "TELEKOM — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "TELEKOMの純利益が15.1%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "AXIS — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "AXISの純利益が60.3%減少（31 Dec, 2025 Q4 → 31 Dec, 2026 Q1）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "PETRONAS — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "PETRONASの純利益が282.3%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Alerts",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "HONG — 利益急減",
-        "detect": "phrase:利益急減",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "接続テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "News API 接続テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&lang",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "E",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "News API テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "users/me で疎通確認します",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "保存状態: 設定済み（****6gWA）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "接続状態: 未テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "Bearer Token（空欄保存=既存キー保持）",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "X API search/recent テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      },
-      {
-        "screen": "Settings",
-        "file": "device:uiautomator",
-        "line": "zh-Hans",
-        "text": "X API テスト",
-        "detect": "kana",
-        "method": "device-ui",
-        "category": "A",
-        "locale": "zh-Hans"
-      }
-    ],
-    "dumps": {
-      "zh-Hans:home": [
-        "Home",
-        "Today's Portfolio",
-        "A gentle summary of today's plan",
-        "Today's AI advice",
-        "2026-07-01",
-        "○ HONG LEONG BANK BERHAD — Watch",
-        "○ MALAYAN BANKING BERHAD — Watch",
-        "○ PETRONAS CHEMICALS GROUP BERHAD — Watch",
-        "○ RHB BANK BERHAD — Watch",
-        "— No new purchases",
-        "No need to rush trades",
-        "View details in Stock Check →",
-        "Ask AI",
-        "No allocation plan yet. Enter a deposit amount to create one.",
-        "Enter deposit amount",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "zh-Hans:portfolio": [
-        "Portfolio",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "Live analysis — positions recorded after broker execution",
-        "今持っている株",
-        "すべて売却",
-        "持っている株を全部売ること",
-        "保有評価額",
-        "RM0.00",
-        "今持っている株を、いまの株価で計算した値段",
-        "含み損益",
-        "+RM0.00",
-        "まだ売っていない株の損益",
-        "配当",
-        "会社からもらえる利益の一部",
-        "Holdings",
-        "No holdings yet",
-        "Add from stock search or record a Buy from candidates.",
-        "Go to stock search",
-        "手動で保有銘柄に追加",
-        "配当を記録",
-        "手動注文リスト",
-        "Home",
-        "Alerts",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "zh-Hans:stockCheck": [
-        "Stock Check",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "Material Analysis",
-        "Bursa · News API · RSS · X · Reddit（実データのみ）",
-        "再取得",
-        "【データ品質】",
-        "★★★★★",
-        "Bursa+RSS+News+X+Reddit",
-        "【API接続状況】",
-        "News API",
-        "接続済み",
-        "X API",
-        "Reddit API",
-        "Reddit RSS接続",
-        "【市場監視 — 材料通知】",
-        "MALAYAN BANKING BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "RHB BANK BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "PETRONAS CHEMICALS GROUP BERHAD: 好材料スコア +100 — 増配 (+25)",
-        "【銘柄別材料分析】",
-        "1155",
-        "MALAYAN BANKING BERHAD",
-        "+100",
-        "材料スコア内訳（ソース別）",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "AI Chat",
-        "Settings"
-      ],
-      "zh-Hans:concierge": [
-        "AI Chat",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "執行レイテンシ",
-        "0 ms",
-        "Trust Score",
-        "50",
-        "現金",
-        "100,000 MYR",
-        "リバランス: 株式増 85% 目安（現金 100%）",
-        "realTradingEnabled=false · broker=mock · simulation-first · DD 0.0%",
-        "Data Reliability & Integrity",
-        "データ信頼性はルールベース検証。不確実時は判断保留・原因特定不能を優先します。",
-        "データ信頼度",
-        "データ信頼度: 低（38/100）",
-        "AI Input Gate 閉鎖 — 判断保留・断定禁止 — 判断保留 — データ不確実または原因特定不能。再取得後に分析してください。",
-        "総合 Data Quality: 38/100",
-        "AI Input Gate: 閉鎖（判断保留）",
-        "データ系譜",
-        "API Health",
-        "· openai: 成功率~0% · 未設定 — 未設定",
-        "· news: 成功率~0% · 未設定 — 未設定",
-        "· earnings: 成功率~0% · 未設定 — 未設定",
-        "· reddit: 成功率~0% · 未設定 — 未設定",
-        "全タイムスタンプは UTC 基準で比較（US/JP/MY ローカルは市場時間ルールで補正）",
-        "⚠ MOCK DATA",
-        "AI Action Center",
-        "ポートフォリオ全体スコア",
-        "Portfolio Score",
-        "/ 100 · 保有 0 銘柄（未取得）",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "Settings"
-      ],
-      "zh-Hans:alerts": [
-        "Alerts",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "★★★★★",
-        "IOI — 利益急減",
-        "IOIの純利益が22.3%減少（30 Jun, 2025 QFY → 30 Jun, 2026 QFY）",
-        "KUALA — 利益急減",
-        "KUALAの純利益が17.2%減少（30 Sep, 2025 QFY → 30 Sep, 2026 QFY）",
-        "SAPURA — 利益急減",
-        "SAPURAの純利益が87.2%減少（31 Jan, 2026 Q4 → 31 Jan, 2027 Q1）",
-        "TELEKOM — 利益急減",
-        "TELEKOMの純利益が15.1%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "AXIS — 利益急減",
-        "AXISの純利益が60.3%減少（31 Dec, 2025 Q4 → 31 Dec, 2026 Q1）",
-        "PETRONAS — 利益急減",
-        "PETRONASの純利益が282.3%減少（31 Dec, 2024 QFY → 31 Dec, 2025 QFY）",
-        "Material quality ★★★★★ Bursa+RSS+News+X+Reddit",
-        "HONG — 利益急減",
-        "Home",
-        "Portfolio",
-        "Stock Check",
-        "AI Chat",
-        "Settings"
-      ],
-      "zh-Hans:settings": [
-        "Settings",
-        "Today's AI comment",
-        "Portfolio score 50/100 · 0 holdings",
-        "削除",
-        "接続テスト",
-        "News API 接続テスト",
-        "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&language=en\nAuth: X-Api-Key / Bearer / ?apiKey= · 失敗時 RSS フォールバック",
-        "News API テスト",
-        "X API",
-        "users/me で疎通確認します",
-        "保存状態: 設定済み（****6gWA）",
-        "接続状態: 未テスト",
-        "Bearer Token（空欄保存=既存キー保持）",
-        "保存",
-        "X API search/recent テスト",
-        "GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token",
-        "X API テスト",
-        "Home",
-        "Portfolio",
-        "Alerts",
-        "Stock Check",
-        "AI Chat"
-      ]
-    },
+    "findings": [],
+    "dumps": {},
     "error": null
   }
 }

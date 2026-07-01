@@ -1,0 +1,12 @@
+{
+  "buildId": "e7280400-8949-4bf7-b710-c0f7ced47212",
+  "buildUrl": "https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/e7280400-8949-4bf7-b710-c0f7ced47212",
+  "artifactUrl": "https://expo.dev/artifacts/eas/KQyeu6Vt2Ik8osnsNxMaXlNNUHhBDkLa9sOazHwhqvU.aab",
+  "versionCode": 33,
+  "appVersion": "1.0.0",
+  "package": "com.assistant.stocktrading",
+  "gitCommitHash": "81ac74b",
+  "easUploadedGitCommitHash": "81ac74b1db4976a810a394a18347e7527053c355",
+  "aabFileName": "malaysia-stock-ai-concierge-v33-production.aab",
+  "aabBytes": 54636891
+}

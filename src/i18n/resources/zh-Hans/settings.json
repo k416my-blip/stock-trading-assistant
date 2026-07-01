@@ -25,5 +25,92 @@
         "hint": "全部标签 · Phase 13–24 · 审计 · 详细 concierge"
       }
     }
+  },
+  "common": {
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "ok": "确定",
+    "continue": "继续",
+    "processing": "处理中…",
+    "success": "成功",
+    "failure": "失败",
+    "notTested": "未测试",
+    "notConfigured": "未设置"
+  },
+  "nav": {
+    "apiKeySettings": "API 密钥设置",
+    "apiKeySettingsSubtitle": "Twelve Data · 自动获取股价",
+    "priceRefresh": "更新频率设置",
+    "priceRefreshSubtitle": "持仓股价 · {{label}}",
+    "notifications": "通知设置",
+    "notificationsSubtitle": "买入、卖出、止损等提醒",
+    "marketSettings": "市场设置",
+    "security": "安全",
+    "securitySubtitle": "本地存储 · 完整性 · 敏感数据删除"
+  },
+  "apiKeys": {
+    "sectionTitle": "API 密钥管理",
+    "sectionHint": "全部保存在设备 SecureStore 中。未注册 API 也可使用应用。",
+    "savedState": "保存状态",
+    "connectionState": "连接状态",
+    "placeholderSuffix": "（留空=保留现有密钥）",
+    "connectionTest": "连接测试",
+    "deleteKeyTitle": "删除 API 密钥",
+    "deleteKeyMessage": "确定删除 {{provider}} 的 API 密钥？",
+    "deletedTitle": "已删除",
+    "deletedMessage": "API 密钥已删除。",
+    "saveRejectedTitle": "未保存",
+    "saveRejectedMessage": "输入无效，已保留现有密钥（原因：{{reason}}）。留空、掩码或少于 10 字符不会保存。",
+    "savedTitle": "已保存",
+    "savedMessage": "API 密钥已安全保存。",
+    "testSuccessTitle": "连接测试成功",
+    "testFailureTitle": "连接测试失败",
+    "testFailureFallback": "实际 API 连接失败",
+    "deleteAllTitle": "删除所有 API 密钥",
+    "deleteAllIntro": "将删除设备上保存的所有 API 密钥（OpenAI、Twelve Data、News、X、Reddit 等）。\n应用数据（持仓、历史）将保留。",
+    "deleteAllDoneTitle": "API 密钥已删除",
+    "deleteAllContinueTitle": "最终确认",
+    "deleteAllContinueMessage": "将删除所有 API 密钥。确定吗？",
+    "deleteAllAction": "删除",
+    "deleteAllDonePartial": "无法删除 {{count}} 个密钥",
+    "deleteAllDone": "已删除所有 API 密钥。",
+    "openAiRequiredTitle": "未设置 OpenAI API 密钥",
+    "openAiRequiredBody": "读取交易截图需要 OpenAI API 密钥。请使用手动或自然语言输入。",
+    "ocrCannotReadTitle": "无法读取"
+  },
+  "reset": {
+    "title": "全部重置",
+    "hint": "删除虚拟资金、持仓、交易历史、手动订单、通知历史、学习历史、应用设置和缓存。保留 API 密钥。",
+    "action": "重置所有数据",
+    "deleteAllKeys": "删除所有 API 密钥",
+    "confirmTitle": "全部重置",
+    "confirmMessage": "确定全部重置？\nAPI 密钥将保留（请单独使用「删除所有 API 密钥」）。\n此操作不可撤销。",
+    "finalTitle": "最终确认",
+    "finalMessage": "所有数据将被删除。",
+    "finalAction": "确认删除",
+    "doneTitle": "重置完成",
+    "donePartial": "无法删除的密钥：{{keys}}"
+  },
+  "priceRefresh": {
+    "sectionDescription": "设置股价自动更新频率",
+    "beginnerWarning": "更新间隔越短，API 通信量越大",
+    "apiLimitWarning": "可能达到 API 限制",
+    "options": {
+      "1": "1 分钟（高级）",
+      "5": "5 分钟（短线）",
+      "10": "10 分钟",
+      "15": "15 分钟（推荐）",
+      "30": "30 分钟",
+      "60": "1 小时（省电）"
+    }
+  },
+  "rakutenRow": {
+    "title": "Rakuten 交易记录",
+    "subtitle": "手动记录入金/买入/卖出（确认后保存）",
+    "ocrTitle": "读取交易截图",
+    "ocrBusy": "读取中…",
+    "ocrReady": "Transaction History 图片 → 候选列表（确认后保存）",
+    "ocrNoKey": "未设置 OpenAI API 密钥 — 请使用手动/文本输入"
   }
 }

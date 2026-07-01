@@ -32,6 +32,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 function ApiConnectionList({ rows }: { rows: ApiConnectionRow[] }) {
+  const { t } = useTranslation('stockCheck');
   return (
     <>
       {rows.map((r) => (
@@ -43,7 +44,7 @@ function ApiConnectionList({ rows }: { rows: ApiConnectionRow[] }) {
               r.connectionJa === '未接続' ? styles.disconnected : styles.connected,
             ]}
           >
-            {r.connectionJa}
+            {r.connectionJa === '未接続' ? t('disconnected') : t('connected')}
           </Text>
         </View>
       ))}
@@ -52,6 +53,7 @@ function ApiConnectionList({ rows }: { rows: ApiConnectionRow[] }) {
 }
 
 function AuditRow({ row }: { row: MaterialApiAuditRow }) {
+  const { t } = useTranslation('stockCheck');
   return (
     <View style={styles.auditCard}>
       <View style={styles.apiRow}>
@@ -62,7 +64,7 @@ function AuditRow({ row }: { row: MaterialApiAuditRow }) {
             row.connectionJa === '接続済み' ? styles.connected : styles.disconnected,
           ]}
         >
-          {row.connectionJa}
+          {row.connectionJa === '接続済み' ? t('connected') : t('disconnected')}
         </Text>
       </View>
       <Text style={styles.meta}>取得件数: {row.fetchCount}</Text>
@@ -82,6 +84,7 @@ function StockMaterialCard({
   onPress: () => void;
   hidePhaseSections?: boolean;
 }) {
+  const { t } = useTranslation('stockCheck');
   const scoreColor =
     row.scoreSign === 'positive'
       ? theme.colors.success
@@ -100,7 +103,7 @@ function StockMaterialCard({
       <Text style={styles.qualityStars}>{row.dataQuality.stars}</Text>
       <Text style={styles.qualityLabel}>{row.dataQuality.labelJa}</Text>
 
-      <Text style={styles.subLabel}>材料スコア内訳（ソース別）</Text>
+      <Text style={styles.subLabel}>{t('sections.scoreBreakdown')}</Text>
       {row.sourceScoreBreakdown.map((b) => (
         <Text key={`src-bd-${b.sourceJa}`} style={styles.item}>
           {b.sourceJa} {b.scoreJa}
@@ -692,7 +695,7 @@ function StockMaterialCard({
 
 export function MaterialAnalysisScreen() {
   const { report, auditReport, loading, error, refresh } = useBursaMaterial();
-  const { isBeginnerMode } = useAppUxMode();
+  const { isBeginnerMode, isProMode } = useAppUxMode();
   const { t } = useTranslation('stockCheck');
   const { state, isPractice } = useApp();
   const proactive = useProactiveConciergeOptional();
@@ -775,21 +778,21 @@ export function MaterialAnalysisScreen() {
           <>
         <Text style={styles.liveTag}>{report.dataSourceLabel}</Text>
         <Pressable onPress={onRefresh}>
-          <Text style={styles.refresh}>再取得</Text>
+          <Text style={styles.refresh}>{t('refresh')}</Text>
         </Pressable>
 
         {report.reportDataQuality ? (
-          <Section title="【データ品質】">
+          <Section title={t('sections.dataQuality')}>
             <Text style={styles.qualityStars}>{report.reportDataQuality.stars}</Text>
             <Text style={styles.qualityLabel}>{report.reportDataQuality.labelJa}</Text>
           </Section>
         ) : null}
 
-        <Section title="【API接続状況】">
+        <Section title={t('sections.apiStatus')}>
           <ApiConnectionList rows={report.apiConnections} />
         </Section>
 
-        <Section title="【市場監視 — 材料通知】">
+        <Section title={t('sections.marketWatch')}>
           {report.monitoringNotifications.length === 0 ? (
             <Text style={styles.empty}>材料アラートなし</Text>
           ) : (
@@ -803,7 +806,7 @@ export function MaterialAnalysisScreen() {
           </>
         ) : (
           <Pressable onPress={onRefresh} style={styles.beginnerRefresh}>
-            <Text style={styles.refresh}>更新</Text>
+            <Text style={styles.refresh}>{t('refreshBeginner')}</Text>
           </Pressable>
         )}
 
@@ -814,7 +817,7 @@ export function MaterialAnalysisScreen() {
             ))}
           </Section>
         ) : (
-        <Section title="【銘柄別材料分析】">
+        <Section title={t('sections.perStockAnalysis')}>
           {report.stocks.map((row) => (
             <StockMaterialCard
               key={row.stockCode}
@@ -828,7 +831,7 @@ export function MaterialAnalysisScreen() {
         </Section>
         )}
 
-        {!isBeginnerMode ? (
+        {isProMode && !isBeginnerMode ? (
         <Section title="【Phase11.5 API統合監査】">
           {auditReport ? (
             <>

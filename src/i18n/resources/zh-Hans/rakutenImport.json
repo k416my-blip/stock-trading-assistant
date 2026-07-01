@@ -75,5 +75,15 @@
     "high": "高",
     "needsConfirmation": "需确认",
     "blocked": "不可保存"
+  },
+  "alerts": {
+    "inputMissingTitle": "输入不完整",
+    "inputMissingMessage": "请检查必填项。",
+    "errorTitle": "错误",
+    "saveBlockedTitle": "无法保存",
+    "savedTitle": "已记录",
+    "savedMessage": "Rakuten Trade 交易已保存。",
+    "viewPortfolio": "查看持仓",
+    "ok": "确定"
   }
 }

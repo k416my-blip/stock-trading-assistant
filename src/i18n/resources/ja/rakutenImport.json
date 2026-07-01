@@ -75,5 +75,15 @@
     "high": "高",
     "needsConfirmation": "要確認",
     "blocked": "保存不可"
+  },
+  "alerts": {
+    "inputMissingTitle": "入力不足",
+    "inputMissingMessage": "必須項目を確認してください。",
+    "errorTitle": "エラー",
+    "saveBlockedTitle": "保存できません",
+    "savedTitle": "記録しました",
+    "savedMessage": "Rakuten Trade の取引を保存しました。",
+    "viewPortfolio": "保有銘柄を見る",
+    "ok": "OK"
   }
 }

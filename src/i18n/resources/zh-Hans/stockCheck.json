@@ -6,5 +6,17 @@
   "loading": "正在获取材料分析…",
   "section": {
     "stockCheck": "【股票检查】"
-  }
+  },
+  "sections": {
+    "dataQuality": "【数据质量】",
+    "apiStatus": "【API 连接状态】",
+    "marketWatch": "【市场监控 — 材料通知】",
+    "perStockAnalysis": "【逐股材料分析】",
+    "scoreBreakdown": "材料评分分解（按来源）"
+  },
+  "connected": "已连接",
+  "disconnected": "未连接",
+  "footerNote": "材料分析仅供参考。投资判断请自行负责。",
+  "refresh": "重新获取",
+  "refreshBeginner": "更新"
 }

@@ -1,0 +1,235 @@
+{
+  "stock": {
+    "label": "Stock",
+    "description": "A company share name"
+  },
+  "stockPrice": {
+    "label": "Stock price",
+    "description": "Price per share"
+  },
+  "buy": {
+    "label": "Buy",
+    "description": "Purchasing shares"
+  },
+  "sell": {
+    "label": "Sell",
+    "description": "Selling shares"
+  },
+  "portfolioHoldings": {
+    "label": "Holdings",
+    "description": "Stocks you currently own"
+  },
+  "investmentAmount": {
+    "label": "Investment amount",
+    "description": "Money used for stocks"
+  },
+  "virtualCapital": {
+    "label": "Virtual capital",
+    "description": "Practice money"
+  },
+  "unrealizedPnL": {
+    "label": "Unrealized P/L",
+    "description": "Gain/loss on shares not yet sold"
+  },
+  "realizedPnL": {
+    "label": "Realized P/L",
+    "description": "Profit or loss from completed sales"
+  },
+  "takeProfit": {
+    "label": "Take profit",
+    "description": "Selling while in profit"
+  },
+  "stopLoss": {
+    "label": "Stop loss",
+    "description": "Selling before losses grow"
+  },
+  "dividend": {
+    "label": "Dividend",
+    "description": "Part of company profits paid to shareholders"
+  },
+  "dividendYield": {
+    "label": "Dividend yield",
+    "description": "Dividend relative to stock price"
+  },
+  "per": {
+    "label": "P/E ratio",
+    "description": "How expensive the stock is vs earnings"
+  },
+  "marketCap": {
+    "label": "Market cap",
+    "description": "Total market value of the company"
+  },
+  "volume": {
+    "label": "Volume",
+    "description": "Amount of shares traded"
+  },
+  "rsi": {
+    "label": "RSI",
+    "description": "Overbought/oversold indicator"
+  },
+  "movingAverage": {
+    "label": "Moving average",
+    "description": "Average price trend line"
+  },
+  "buySignal": {
+    "label": "Buy signal",
+    "description": "Sign suggesting a buy"
+  },
+  "sellSignal": {
+    "label": "Sell signal",
+    "description": "Sign suggesting a sell"
+  },
+  "portfolio": {
+    "label": "Portfolio",
+    "description": "List of your assets"
+  },
+  "returnPct": {
+    "label": "Return",
+    "description": "Percentage gain or loss"
+  },
+  "risk": {
+    "label": "What is risk?",
+    "description": "Chance of loss. Higher risk can mean bigger swings."
+  },
+  "brokerageFee": {
+    "label": "Brokerage fee",
+    "description": "Cost of each trade"
+  },
+  "cashBalance": {
+    "label": "Cash balance",
+    "description": "Money not yet invested"
+  },
+  "holdingsValue": {
+    "label": "Holdings value",
+    "description": "Current value of your stocks at market price"
+  },
+  "winRate": {
+    "label": "Win rate",
+    "description": "Share of profitable trades"
+  },
+  "buyingPower": {
+    "label": "Buying power",
+    "description": "Estimated money available to buy stocks"
+  },
+  "practiceMode": {
+    "label": "Practice mode",
+    "description": "Practice without real money"
+  },
+  "entry": {
+    "label": "Entry",
+    "description": "Reference buy-in price"
+  },
+  "cashReserve": {
+    "label": "Cash reserve",
+    "description": "Money kept uninvested"
+  },
+  "allocationPct": {
+    "label": "Allocation %",
+    "description": "Percent of funds per stock"
+  },
+  "estimatedShares": {
+    "label": "Est. shares",
+    "description": "Approximate shares for the amount"
+  },
+  "diversification": {
+    "label": "Diversification",
+    "description": "Spreading across multiple stocks"
+  },
+  "allocationPlan": {
+    "label": "Allocation plan",
+    "description": "Suggested split across buy candidates"
+  },
+  "fractionalShares": {
+    "label": "Fractional shares",
+    "description": "Buying less than one share (broker-dependent)"
+  },
+  "sharesHeld": {
+    "label": "Shares held",
+    "description": "Number of shares you own"
+  },
+  "holdingAllocationPct": {
+    "label": "Allocation %",
+    "description": "This stock as % of portfolio"
+  },
+  "purchaseAmount": {
+    "label": "Purchase amount",
+    "description": "Total cost at buy (price × shares)"
+  },
+  "currentValuation": {
+    "label": "Current value",
+    "description": "Estimated value if sold now"
+  },
+  "currentStockPrice": {
+    "label": "Current price",
+    "description": "Latest stock price"
+  },
+  "sellAll": {
+    "label": "Sell all",
+    "description": "Sell every holding"
+  },
+  "newsScore": {
+    "label": "News score",
+    "description": "Whether recent news is positive or negative"
+  },
+  "earningsScore": {
+    "label": "Earnings score",
+    "description": "Whether company performance is improving"
+  },
+  "snsScore": {
+    "label": "Social score",
+    "description": "Social media sentiment (can change quickly)"
+  },
+  "historicalScore": {
+    "label": "Historical data",
+    "description": "Reference score from past price action"
+  },
+  "pbr": {
+    "label": "P/B ratio",
+    "description": "Stock price vs book value"
+  },
+  "roe": {
+    "label": "ROE",
+    "description": "Return on equity"
+  },
+  "debtRatio": {
+    "label": "Debt ratio",
+    "description": "How much debt the company has"
+  },
+  "recommendationScore": {
+    "label": "Overall score",
+    "description": "Combined reference score (out of 100)"
+  },
+  "longTermInvesting": {
+    "label": "Long-term investing?",
+    "description": "Holding for months to years"
+  },
+  "shortTermTrading": {
+    "label": "Short-term trading?",
+    "description": "Trading over days to weeks"
+  },
+  "investmentStyle": {
+    "label": "Investment style",
+    "description": "Risk and time horizon preference"
+  },
+  "suggestedStopLossTotal": {
+    "label": "Suggested stop-loss",
+    "description": "Stop price × shares reference"
+  },
+  "suggestedTakeProfitTotal": {
+    "label": "Suggested take-profit",
+    "description": "Target price × shares reference"
+  },
+  "avgBuyPrice": {
+    "label": "Avg buy price",
+    "description": "Average cost per share across buys"
+  },
+  "stopLossUnitPrice": {
+    "label": "Stop-loss price",
+    "description": "Per-share stop reference"
+  },
+  "takeProfitUnitPrice": {
+    "label": "Take-profit price",
+    "description": "Per-share target reference"
+  },
+  "explainTitle": "About {{term}}"
+}

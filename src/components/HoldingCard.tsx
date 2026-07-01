@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { MARKET_DATA_MESSAGES } from '../constants/marketData';
+import { useTranslation } from 'react-i18next';
 import { SYMBOL_EXPLORING_MESSAGE } from '../constants/yahooFinance';
 import { CURRENCY_SYMBOL, MARKET_LABEL } from '../constants/rakutenTrade';
 import type { HoldingDetail, Market, PortfolioPosition } from '../types';
@@ -13,11 +13,11 @@ import {
   resolveDisplayCurrentPrice,
   resolveHoldingPrice,
 } from '../services/holdingPriceCore';
-import { GLOSSARY } from '../constants/glossary';
 import { LabeledValue, TermHintIcon } from './TermHint';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { formatFixed } from '../utils/safeNumeric';
+import { priceFailureStatusLabel } from '../utils/marketDataI18n';
 import { theme } from '../theme';
 
 type Props = {
@@ -49,30 +49,6 @@ function formatMYR(amount: number): string {
   return `RM${amount.toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-function priceFailureStatusLabel(failure: PriceSyncFailure | undefined): string | null {
-  switch (failure?.priceStatus) {
-    case 'PLAN_UNSUPPORTED':
-      return MARKET_DATA_MESSAGES.planUnsupported;
-    case 'INVALID_SYMBOL':
-      return MARKET_DATA_MESSAGES.invalidSymbol;
-    case 'NETWORK_ERROR':
-      return MARKET_DATA_MESSAGES.networkError;
-    case 'TEMPORARY_FAILURE':
-      return MARKET_DATA_MESSAGES.temporaryPriceFailure;
-    default:
-      if (failure?.timedOut || failure?.errorKind === 'network_timeout') {
-        return MARKET_DATA_MESSAGES.networkError;
-      }
-      if (failure?.errorKind === 'symbol_invalid' || failure?.errorKind === 'unsupported_exchange') {
-        return MARKET_DATA_MESSAGES.invalidSymbol;
-      }
-      if (failure?.errorKind === 'plan_unsupported') {
-        return MARKET_DATA_MESSAGES.planUnsupported;
-      }
-      return failure ? MARKET_DATA_MESSAGES.temporaryPriceFailure : null;
-  }
-}
-
 export function HoldingCard({
   holding,
   position,
@@ -90,6 +66,8 @@ export function HoldingCard({
   onRetryPrice,
   priceRetrying,
 }: Props) {
+  const { t } = useTranslation('portfolio');
+  const { t: tg } = useTranslation('glossary');
   const sym = CURRENCY_SYMBOL[holding.currency];
   const pnlColor = holding.unrealizedProfitLoss >= 0 ? styles.profit : styles.loss;
   const [editingPrice, setEditingPrice] = useState(false);
@@ -107,7 +85,7 @@ export function HoldingCard({
   const quoteProviderLabel = holding.lastQuoteProviderLabel ?? priceMeta.quoteProviderLabel;
   const yahooSymbolLabel = holding.normalizedYahooSymbol ?? priceMeta.normalizedYahooSymbol;
   const showStaleBadge = resolved.showStaleBadge && !priceExploring;
-  const priceFailureStatus = priceFailureStatusLabel(priceFailure);
+  const priceFailureStatus = priceFailureStatusLabel(t, priceFailure);
 
   const startEditPrice = () => {
     setPriceInput(String(displayCurrentPrice));
@@ -118,7 +96,7 @@ export function HoldingCard({
     const next = Number(priceInput.replace(/,/g, ''));
     const result = onUpdateCurrentPrice(next);
     if (!result.ok) {
-      Alert.alert('更新できません', result.error ?? '価格を確認してください。');
+      Alert.alert(t('holding.updateBlockedTitle'), result.error ?? t('holding.confirmPrice'));
       return;
     }
     setEditingPrice(false);
@@ -132,29 +110,25 @@ export function HoldingCard({
   const saveSymbol = () => {
     const result = onUpdateSymbol(symbolInput);
     if (!result.ok) {
-      Alert.alert('更新できません', result.error ?? '銘柄コードを確認してください。');
+      Alert.alert(t('holding.updateBlockedTitle'), result.error ?? t('holding.confirmSymbol'));
       return;
     }
     setEditingSymbol(false);
   };
 
   const pickMarket = () => {
-    Alert.alert(
-      MARKET_DATA_MESSAGES.fixMarketButton,
-      '市場を選択してください',
-      [
-        ...MARKET_OPTIONS.map((m) => ({
-          text: MARKET_LABEL[m],
-          onPress: () => {
-            const result = onUpdateMarket(m);
-            if (!result.ok) {
-              Alert.alert('更新できません', result.error ?? '市場を確認してください。');
-            }
-          },
-        })),
-        { text: 'キャンセル', style: 'cancel' },
-      ],
-    );
+    Alert.alert(t('priceSync.fixMarketButton'), t('holding.selectMarketTitle'), [
+      ...MARKET_OPTIONS.map((m) => ({
+        text: MARKET_LABEL[m],
+        onPress: () => {
+          const result = onUpdateMarket(m);
+          if (!result.ok) {
+            Alert.alert(t('holding.updateBlockedTitle'), result.error ?? t('holding.confirmMarket'));
+          }
+        },
+      })),
+      { text: t('holding.cancel'), style: 'cancel' as const },
+    ]);
   };
 
   const currentPriceDisplayText = priceExploring
@@ -168,7 +142,7 @@ export function HoldingCard({
         {holding.symbol} · {MARKET_LABEL[holding.market]}
       </Text>
 
-      <LabeledValue term="sharesHeld" value={`${holding.shares}株`} />
+      <LabeledValue term="sharesHeld" value={t('holding.sharesUnit', { count: holding.shares })} />
       <LabeledValue
         term="holdingAllocationPct"
         value={`${formatFixed(holding.allocationPct, 1, '0.0')}%`}
@@ -183,55 +157,61 @@ export function HoldingCard({
         value={`${formatLocal(holding.currentValue, sym)}（${formatMYR(holding.currentValueMYR)}）`}
       />
 
-      <Text style={styles.subheading}>1株あたりの価格</Text>
+      <Text style={styles.subheading}>{t('holding.pricePerShare')}</Text>
       <LabeledValue term="avgBuyPrice" value={formatLocal(holding.averageBuyPrice, sym)} />
       <View style={styles.currentPriceSection}>
         <View style={styles.currentPriceMain}>
           <View style={styles.currentPriceLabelRow}>
-            <Text style={styles.currentPriceLabel}>{GLOSSARY.currentStockPrice.label}</Text>
+            <Text style={styles.currentPriceLabel}>{tg('currentStockPrice.label')}</Text>
             <TermHintIcon term="currentStockPrice" />
           </View>
-          <Text style={styles.currentPriceValue} accessibilityLabel="現在株価">
+          <Text style={styles.currentPriceValue} accessibilityLabel={t('holding.currentPriceLabel')}>
             {currentPriceDisplayText}
           </Text>
-          <Text style={styles.currentPriceDesc}>{GLOSSARY.currentStockPrice.description}</Text>
+          <Text style={styles.currentPriceDesc}>{tg('currentStockPrice.description')}</Text>
         </View>
         {showStaleBadge ? (
           <View style={styles.staleBadge}>
-            <Text style={styles.staleBadgeText}>{MARKET_DATA_MESSAGES.priceLabelStaleBadge}</Text>
+            <Text style={styles.staleBadgeText}>{t('priceSync.priceLabelStaleBadge')}</Text>
           </View>
         ) : null}
       </View>
       {priceExploring ? (
         <Text style={styles.priceExploring}>
           {resolvedYahooSymbol
-            ? `正式symbol: ${resolvedYahooSymbol}`
+            ? t('holding.formalSymbol', { symbol: resolvedYahooSymbol })
             : SYMBOL_EXPLORING_MESSAGE}
         </Text>
       ) : null}
       {resolved.priceFromCache && displayCurrentPrice > 0 ? (
         <Text style={styles.priceHint}>
-          {MARKET_DATA_MESSAGES.priceLabelCached} — API障害時の最終取得価格を表示しています。
+          {t('priceSync.cached')} — {t('priceSync.priceLabelCachedSuffix')}
         </Text>
       ) : null}
       {resolved.priceStaleWarning && displayCurrentPrice > 0 ? (
         <Text style={styles.priceHint}>
           {resolved.priceStaleByAge
-            ? '価格の取得から時間が経過しています。更新するか手動で確認してください。'
-            : '最新の自動取得に失敗しましたが、保存済み価格を表示しています。'}
+            ? t('holding.stalePriceHint')
+            : t('holding.savedPriceFallbackHint')}
         </Text>
       ) : null}
 
       {displayCurrentPrice > 0 ? (
         <View style={styles.priceMetaBlock}>
           {quoteProviderLabel ? (
-            <Text style={styles.priceMetaText}>価格取得元: {quoteProviderLabel}</Text>
+            <Text style={styles.priceMetaText}>
+              {t('holding.priceSourceLabel')}: {quoteProviderLabel}
+            </Text>
           ) : null}
           {lastUpdatedDisplay ? (
-            <Text style={styles.priceMetaText}>最終更新: {lastUpdatedDisplay}</Text>
+            <Text style={styles.priceMetaText}>
+              {t('holding.lastUpdatedLabel')}: {lastUpdatedDisplay}
+            </Text>
           ) : null}
           {sourceLabel ? (
-            <Text style={styles.priceMetaText}>価格種別: {sourceLabel}</Text>
+            <Text style={styles.priceMetaText}>
+              {t('holding.priceTypeLabel')}: {sourceLabel}
+            </Text>
           ) : null}
           {yahooSymbolLabel ? (
             <Text style={styles.priceMetaMuted}>Yahoo symbol: {yahooSymbolLabel}</Text>
@@ -249,26 +229,35 @@ export function HoldingCard({
             accessibilityRole="button"
           >
             <Text style={styles.failureTitle}>
-              価格取得失敗の詳細 {failureExpanded ? '▼' : '▶'}
+              {t('holding.failureDetailsTitle')} {failureExpanded ? '▼' : '▶'}
             </Text>
           </Pressable>
           {failureExpanded ? (
             <View style={styles.failureBody}>
-              <Text style={styles.failureMeta}>元symbol: {priceFailure.originalSymbol ?? priceFailure.symbol}</Text>
+              <Text style={styles.failureMeta}>
+                {t('priceSync.originalSymbol', {
+                  symbol: priceFailure.originalSymbol ?? priceFailure.symbol,
+                  market: holding.market,
+                })}
+              </Text>
               {priceFailure.normalizedYahooSymbol ? (
                 <Text style={styles.failureMeta}>
-                  normalize後symbol: {priceFailure.normalizedYahooSymbol}
+                  {t('priceSync.normalizedSymbol', { symbol: priceFailure.normalizedYahooSymbol })}
                 </Text>
               ) : priceFailure.sentSymbol ? (
-                <Text style={styles.failureMeta}>normalize後symbol: {priceFailure.sentSymbol}</Text>
+                <Text style={styles.failureMeta}>
+                  {t('priceSync.normalizedSymbol', { symbol: priceFailure.sentSymbol })}
+                </Text>
               ) : null}
               {priceFailure.provider ? (
                 <Text style={styles.failureMeta}>
-                  価格取得元: {QUOTE_PROVIDER_LABELS[priceFailure.provider]}
+                  {t('holding.priceSourceLabel')}: {QUOTE_PROVIDER_LABELS[priceFailure.provider]}
                 </Text>
               ) : null}
-              <Text style={styles.failureReason}>状態: {priceFailureStatus ?? priceFailure.reason}</Text>
-              <Text style={styles.failureMeta}>詳細: {priceFailure.reason}</Text>
+              <Text style={styles.failureReason}>
+                {priceFailureStatus ?? priceFailure.reason}
+              </Text>
+              <Text style={styles.failureMeta}>{priceFailure.reason}</Text>
               {priceFailure.providerAttempts?.length ? (
                 <View style={styles.providerAttempts}>
                   {priceFailure.providerAttempts.map((a) => (
@@ -280,16 +269,20 @@ export function HoldingCard({
               ) : null}
               {priceFailure.lastSavedPrice != null && priceFailure.lastSavedPrice > 0 ? (
                 <Text style={styles.failureMeta}>
-                  最後に保存された価格: {formatQuotePriceDisplay(priceFailure.lastSavedPrice)}
+                  {t('priceSync.lastSavedPrice', {
+                    price: formatQuotePriceDisplay(priceFailure.lastSavedPrice),
+                  })}
                 </Text>
               ) : holding.lastSavedPrice != null && holding.lastSavedPrice > 0 ? (
                 <Text style={styles.failureMeta}>
-                  最後に保存された価格: {formatQuotePriceDisplay(holding.lastSavedPrice)}
+                  {t('priceSync.lastSavedPrice', {
+                    price: formatQuotePriceDisplay(holding.lastSavedPrice),
+                  })}
                 </Text>
               ) : null}
               {onRetryPrice ? (
                 <Button
-                  label={priceRetrying ? '再取得中…' : 'この銘柄だけ再取得'}
+                  label={priceRetrying ? t('holding.retrying') : t('holding.retryOne')}
                   onPress={onRetryPrice}
                   disabled={priceRetrying}
                   variant="ghost"
@@ -315,53 +308,53 @@ export function HoldingCard({
       />
 
       {holding.isNearStopLoss ? (
-        <Text style={styles.alertLoss}>損切ラインに接近しています</Text>
+        <Text style={styles.alertLoss}>{t('holding.nearStopLoss')}</Text>
       ) : null}
       {holding.isNearTakeProfit ? (
-        <Text style={styles.alertProfit}>利確ラインに接近しています</Text>
+        <Text style={styles.alertProfit}>{t('holding.nearTakeProfit')}</Text>
       ) : null}
 
       {editingPrice ? (
         <View style={styles.editBox}>
-          <Text style={styles.editLabel}>現在株価</Text>
+          <Text style={styles.editLabel}>{t('holding.currentPriceLabel')}</Text>
           <TextInput
             style={styles.input}
             value={priceInput}
             onChangeText={setPriceInput}
             keyboardType="decimal-pad"
-            placeholder="例: 12.50"
+            placeholder={t('holding.pricePlaceholder')}
             placeholderTextColor={theme.colors.textMuted}
           />
           <View style={styles.editActions}>
-            <Button label="保存" onPress={savePrice} />
-            <Button label="キャンセル" onPress={() => setEditingPrice(false)} variant="ghost" />
+            <Button label={t('holding.save')} onPress={savePrice} />
+            <Button label={t('holding.cancel')} onPress={() => setEditingPrice(false)} variant="ghost" />
           </View>
         </View>
       ) : (
-        <Button label={MARKET_DATA_MESSAGES.manualPriceButton} onPress={startEditPrice} variant="ghost" />
+        <Button label={t('priceSync.manualPriceButton')} onPress={startEditPrice} variant="ghost" />
       )}
 
       {editingSymbol ? (
         <View style={styles.editBox}>
-          <Text style={styles.editLabel}>銘柄コード</Text>
+          <Text style={styles.editLabel}>{t('holding.symbolCodeLabel')}</Text>
           <TextInput
             style={styles.input}
             value={symbolInput}
             onChangeText={setSymbolInput}
             autoCapitalize="characters"
-            placeholder="例: 4707"
+            placeholder={t('holding.symbolPlaceholder')}
             placeholderTextColor={theme.colors.textMuted}
           />
           <View style={styles.editActions}>
-            <Button label="保存" onPress={saveSymbol} />
-            <Button label="キャンセル" onPress={() => setEditingSymbol(false)} variant="ghost" />
+            <Button label={t('holding.save')} onPress={saveSymbol} />
+            <Button label={t('holding.cancel')} onPress={() => setEditingSymbol(false)} variant="ghost" />
           </View>
         </View>
       ) : (
-        <Button label={MARKET_DATA_MESSAGES.fixSymbolButton} onPress={startEditSymbol} variant="ghost" />
+        <Button label={t('priceSync.fixSymbolButton')} onPress={startEditSymbol} variant="ghost" />
       )}
 
-      <Button label={MARKET_DATA_MESSAGES.fixMarketButton} onPress={pickMarket} variant="ghost" />
+      <Button label={t('priceSync.fixMarketButton')} onPress={pickMarket} variant="ghost" />
 
       <LabeledValue
         term="unrealizedPnL"
@@ -371,12 +364,12 @@ export function HoldingCard({
 
       <View style={styles.actions}>
         {isPractice ? (
-          <Button label="仮想売却" onPress={onPracticeSell} variant="ghost" disabled={readOnly} />
+          <Button label={t('holding.practiceSell')} onPress={onPracticeSell} variant="ghost" disabled={readOnly} />
         ) : (
-          <Button label="売却候補に追加" onPress={onManualSellChecklist} variant="ghost" disabled={readOnly} />
+          <Button label={t('holding.addSellCandidate')} onPress={onManualSellChecklist} variant="ghost" disabled={readOnly} />
         )}
         {onDeleteHolding ? (
-          <Button label="保有を削除" onPress={onDeleteHolding} variant="ghost" disabled={readOnly} />
+          <Button label={t('holding.deleteHolding')} onPress={onDeleteHolding} variant="ghost" disabled={readOnly} />
         ) : null}
       </View>
     </Card>

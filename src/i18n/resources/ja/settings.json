@@ -25,5 +25,92 @@
         "hint": "全タブ · Phase13–24 · 監査 · 詳細コンシェルジュ"
       }
     }
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "ok": "OK",
+    "continue": "続ける",
+    "processing": "処理中…",
+    "success": "成功",
+    "failure": "失敗",
+    "notTested": "未テスト",
+    "notConfigured": "未設定"
+  },
+  "nav": {
+    "apiKeySettings": "APIキー設定",
+    "apiKeySettingsSubtitle": "Twelve Data · 株価の自動取得",
+    "priceRefresh": "更新頻度設定",
+    "priceRefreshSubtitle": "保有銘柄の株価 · {{label}}",
+    "notifications": "通知設定",
+    "notificationsSubtitle": "買付・売却・損切りなどのアラート",
+    "marketSettings": "市場設定",
+    "security": "セキュリティ",
+    "securitySubtitle": "ローカル保存 · 整合性 · 機密データの削除"
+  },
+  "apiKeys": {
+    "sectionTitle": "APIキー管理（設定に集約）",
+    "sectionHint": "すべて端末内の SecureStore に保存します。未登録APIがあってもアプリは動作します。",
+    "savedState": "保存状態",
+    "connectionState": "接続状態",
+    "placeholderSuffix": "（空欄保存=既存キー保持）",
+    "connectionTest": "接続テスト",
+    "deleteKeyTitle": "APIキー削除",
+    "deleteKeyMessage": "本当に{{provider}}のAPIキーを削除しますか？",
+    "deletedTitle": "削除しました",
+    "deletedMessage": "APIキーを削除しました。",
+    "saveRejectedTitle": "保存しませんでした",
+    "saveRejectedMessage": "無効な入力のため既存キーを保持しました（reason: {{reason}}）。空欄・マスク表示・10文字未満は保存されません。",
+    "savedTitle": "保存しました",
+    "savedMessage": "APIキーを安全に保存しました。",
+    "testSuccessTitle": "接続テスト成功",
+    "testFailureTitle": "接続テスト失敗",
+    "testFailureFallback": "実API接続失敗",
+    "deleteAllTitle": "すべてのAPIキーを削除",
+    "deleteAllIntro": "OpenAI / Twelve Data / News / X / Reddit など、端末に保存されたすべてのAPIキーを削除します。\nアプリデータ（保有・履歴）は保持されます。",
+    "deleteAllDoneTitle": "APIキーを削除しました",
+    "deleteAllContinueTitle": "最終確認",
+    "deleteAllContinueMessage": "すべてのAPIキーを削除します。よろしいですか？",
+    "deleteAllAction": "削除する",
+    "deleteAllDonePartial": "削除できなかったキー: {{count}}件",
+    "deleteAllDone": "すべてのAPIキーを削除しました。",
+    "openAiRequiredTitle": "OpenAI APIキー未設定",
+    "openAiRequiredBody": "履歴スクショの読み取りには OpenAI APIキーが必要です。手動入力または自然文入力をご利用ください。",
+    "ocrCannotReadTitle": "読み取りできません"
+  },
+  "reset": {
+    "title": "すべてリセット",
+    "hint": "仮想資金・保有・売買履歴・手動注文・通知履歴・学習履歴・アプリ設定・キャッシュを削除します。APIキーは保持されます。",
+    "action": "すべてのデータをリセット",
+    "deleteAllKeys": "すべてのAPIキーを削除",
+    "confirmTitle": "すべてリセット",
+    "confirmMessage": "本当にすべてリセットしますか？\nAPIキーは保持されます（別途「すべてのAPIキーを削除」から削除可能）。\nこの操作は元に戻せません。",
+    "finalTitle": "最終確認",
+    "finalMessage": "すべてのデータが削除されます。",
+    "finalAction": "本当に削除します",
+    "doneTitle": "リセットが完了しました",
+    "donePartial": "削除できなかったキー: {{keys}}"
+  },
+  "priceRefresh": {
+    "sectionDescription": "株価をどれくらいの頻度で自動更新するか設定します",
+    "beginnerWarning": "更新頻度を短くするとAPI通信量が増えます",
+    "apiLimitWarning": "API制限に達する可能性があります",
+    "options": {
+      "1": "1分（上級者向け）",
+      "5": "5分（短期売買向け）",
+      "10": "10分",
+      "15": "15分（おすすめ）",
+      "30": "30分",
+      "60": "1時間（省電力）"
+    }
+  },
+  "rakutenRow": {
+    "title": "Rakuten取引記録",
+    "subtitle": "入金・買付・売却の手動記録（確認後に保存）",
+    "ocrTitle": "履歴スクショを読み取る",
+    "ocrBusy": "読み取り中…",
+    "ocrReady": "Transaction History 画像 → 候補一覧（確認後に保存）",
+    "ocrNoKey": "OpenAI APIキー未設定 — 手動/自然文入力をご利用ください"
   }
 }

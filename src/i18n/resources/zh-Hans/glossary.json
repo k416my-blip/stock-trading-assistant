@@ -1,0 +1,235 @@
+{
+  "stock": {
+    "label": "股票",
+    "description": "公司名称"
+  },
+  "stockPrice": {
+    "label": "股价",
+    "description": "每股价格"
+  },
+  "buy": {
+    "label": "买入",
+    "description": "购买股票"
+  },
+  "sell": {
+    "label": "卖出",
+    "description": "出售股票"
+  },
+  "portfolioHoldings": {
+    "label": "持仓",
+    "description": "您目前持有的股票"
+  },
+  "investmentAmount": {
+    "label": "投资金额",
+    "description": "用于股票的资金"
+  },
+  "virtualCapital": {
+    "label": "虚拟资金",
+    "description": "练习用资金"
+  },
+  "unrealizedPnL": {
+    "label": "浮动盈亏",
+    "description": "尚未卖出股票的盈亏"
+  },
+  "realizedPnL": {
+    "label": "已实现盈亏",
+    "description": "卖出后确定的盈亏"
+  },
+  "takeProfit": {
+    "label": "止盈",
+    "description": "有盈利时卖出"
+  },
+  "stopLoss": {
+    "label": "止损",
+    "description": "在亏损扩大前卖出"
+  },
+  "dividend": {
+    "label": "股息",
+    "description": "公司分给股东的部分利润"
+  },
+  "dividendYield": {
+    "label": "股息率",
+    "description": "股息相对股价的比例"
+  },
+  "per": {
+    "label": "市盈率",
+    "description": "股价相对盈利的指标"
+  },
+  "marketCap": {
+    "label": "市值",
+    "description": "公司市场总价值"
+  },
+  "volume": {
+    "label": "成交量",
+    "description": "交易的股票数量"
+  },
+  "rsi": {
+    "label": "RSI",
+    "description": "超买/超卖指标"
+  },
+  "movingAverage": {
+    "label": "移动平均线",
+    "description": "股价平均趋势线"
+  },
+  "buySignal": {
+    "label": "买入信号",
+    "description": "建议买入的信号"
+  },
+  "sellSignal": {
+    "label": "卖出信号",
+    "description": "建议卖出的信号"
+  },
+  "portfolio": {
+    "label": "投资组合",
+    "description": "您持有的资产列表"
+  },
+  "returnPct": {
+    "label": "回报率",
+    "description": "投资增减的百分比"
+  },
+  "risk": {
+    "label": "什么是风险？",
+    "description": "亏损的可能性。风险越高波动可能越大。"
+  },
+  "brokerageFee": {
+    "label": "手续费",
+    "description": "每笔交易的费用"
+  },
+  "cashBalance": {
+    "label": "现金余额",
+    "description": "尚未买入股票的现金"
+  },
+  "holdingsValue": {
+    "label": "持仓市值",
+    "description": "按当前股价计算的持仓价值"
+  },
+  "winRate": {
+    "label": "胜率",
+    "description": "盈利交易的比例"
+  },
+  "buyingPower": {
+    "label": "购买力",
+    "description": "可用于买入股票的估计金额"
+  },
+  "practiceMode": {
+    "label": "练习模式",
+    "description": "不使用真实资金的练习"
+  },
+  "entry": {
+    "label": "入场价",
+    "description": "买入参考价格"
+  },
+  "cashReserve": {
+    "label": "现金储备",
+    "description": "保留不立即使用的资金"
+  },
+  "allocationPct": {
+    "label": "配置比例",
+    "description": "每只股票的资金占比"
+  },
+  "estimatedShares": {
+    "label": "预估股数",
+    "description": "该金额大约可买的股数"
+  },
+  "diversification": {
+    "label": "分散投资",
+    "description": "不集中于一只股票"
+  },
+  "allocationPlan": {
+    "label": "推荐配置",
+    "description": "将资金分配到多个买入候选的参考方案"
+  },
+  "fractionalShares": {
+    "label": "碎股",
+    "description": "不足一股的交易（取决于券商）"
+  },
+  "sharesHeld": {
+    "label": "持有股数",
+    "description": "您持有的股票数量"
+  },
+  "holdingAllocationPct": {
+    "label": "配置比例",
+    "description": "该股票占投资组合的百分比"
+  },
+  "purchaseAmount": {
+    "label": "买入金额",
+    "description": "买入时的单价×股数"
+  },
+  "currentValuation": {
+    "label": "当前估值",
+    "description": "现在卖出的估计价值"
+  },
+  "currentStockPrice": {
+    "label": "当前股价",
+    "description": "最新股价"
+  },
+  "sellAll": {
+    "label": "全部卖出",
+    "description": "卖出所有持仓"
+  },
+  "newsScore": {
+    "label": "新闻评分",
+    "description": "近期新闻对股价的影响"
+  },
+  "earningsScore": {
+    "label": "财报评分",
+    "description": "公司业绩是否改善"
+  },
+  "snsScore": {
+    "label": "社交评分",
+    "description": "社交媒体情绪（变化较快）"
+  },
+  "historicalScore": {
+    "label": "历史数据",
+    "description": "基于过去走势的参考评分"
+  },
+  "pbr": {
+    "label": "市净率",
+    "description": "股价相对净资产"
+  },
+  "roe": {
+    "label": "净资产收益率",
+    "description": "股本回报率"
+  },
+  "debtRatio": {
+    "label": "负债率",
+    "description": "公司负债程度"
+  },
+  "recommendationScore": {
+    "label": "综合推荐度",
+    "description": "多项分析的综合参考分（满分100）"
+  },
+  "longTermInvesting": {
+    "label": "什么是长期投资？",
+    "description": "持有数月到数年"
+  },
+  "shortTermTrading": {
+    "label": "什么是短期交易？",
+    "description": "数日到数周的交易"
+  },
+  "investmentStyle": {
+    "label": "投资风格",
+    "description": "风险和时间范围的偏好"
+  },
+  "suggestedStopLossTotal": {
+    "label": "建议止损金额",
+    "description": "止损价×股数的参考"
+  },
+  "suggestedTakeProfitTotal": {
+    "label": "建议止盈金额",
+    "description": "目标价×股数的参考"
+  },
+  "avgBuyPrice": {
+    "label": "平均买入价",
+    "description": "多次买入的每股平均成本"
+  },
+  "stopLossUnitPrice": {
+    "label": "止损单价",
+    "description": "每股止损参考价"
+  },
+  "takeProfitUnitPrice": {
+    "label": "止盈单价",
+    "description": "每股目标参考价"
+  },
+  "explainTitle": "关于{{term}}"
+}

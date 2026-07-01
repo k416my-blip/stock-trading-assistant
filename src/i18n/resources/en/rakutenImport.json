@@ -75,5 +75,15 @@
     "high": "High",
     "needsConfirmation": "Needs review",
     "blocked": "Cannot save"
+  },
+  "alerts": {
+    "inputMissingTitle": "Missing input",
+    "inputMissingMessage": "Please check required fields.",
+    "errorTitle": "Error",
+    "saveBlockedTitle": "Cannot save",
+    "savedTitle": "Recorded",
+    "savedMessage": "Rakuten Trade transaction saved.",
+    "viewPortfolio": "View portfolio",
+    "ok": "OK"
   }
 }
