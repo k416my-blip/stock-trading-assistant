@@ -199,7 +199,7 @@ M1 bulk i18n hotfix: Portfolio, Home, Stock Check headers, AI Chat chrome, Setti
 
 | 項目 | 値 |
 |------|-----|
-| **Hotfix commit** | （push 後に記録） |
+| **Hotfix commit** | `3c903d0` — Fix M1 bulk i18n leaks across Portfolio, Home, Settings, and glossary (v33). |
 | **Branch** | `cursor/top3-maxdd-capital-audit` |
 
 ---
