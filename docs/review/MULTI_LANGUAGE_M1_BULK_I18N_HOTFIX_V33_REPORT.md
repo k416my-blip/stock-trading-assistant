@@ -208,7 +208,9 @@ M1 bulk i18n hotfix: Portfolio, Home, Stock Check headers, AI Chat chrome, Setti
 
 | 項目 | 値 |
 |------|-----|
-| **Push** | （push 後に記録） |
+| **Push** | **success** — `81ac74b..9cc3688` → `origin/cursor/top3-maxdd-capital-audit` |
+| **Hotfix commit** | `3c903d0` |
+| **Report commit** | `9cc3688` |
 
 ---
 
