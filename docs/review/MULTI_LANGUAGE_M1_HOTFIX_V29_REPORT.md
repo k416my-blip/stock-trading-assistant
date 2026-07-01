@@ -171,13 +171,13 @@ Download: `curl -L -o malaysia-stock-ai-concierge-v29-production.aab "https://ex
 
 ## 15. GitHub commit hash
 
-*(filled after commit — see push step)*
+`15a2cb5`
 
 ---
 
 ## 16. Push result
 
-*(filled after push)*
+**Success** — `origin/cursor/top3-maxdd-capital-audit` (`780461b..15a2cb5`)
 
 ---
 
