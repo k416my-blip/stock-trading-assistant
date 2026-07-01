@@ -10,6 +10,20 @@
   },
   "displayMode": {
     "sectionTitle": "显示模式",
-    "sectionHint": "新手：4个简易标签。标准：主要标签。专业：全部功能与阶段详情。"
+    "sectionHint": "新手：4个简易标签。标准：主要标签。专业：全部功能与阶段详情。",
+    "modes": {
+      "beginner": {
+        "label": "新手",
+        "hint": "4个标签 · 简易界面 · 隐藏阶段详情 · AI咨询标签"
+      },
+      "standard": {
+        "label": "标准",
+        "hint": "主要标签 + 股票检查 · 中等信息量"
+      },
+      "pro": {
+        "label": "专业",
+        "hint": "全部标签 · Phase 13–24 · 审计 · 详细 concierge"
+      }
+    }
   }
 }

@@ -1,39 +1,54 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { PriceSyncResultPanel } from '../PriceSyncResultPanel';
 import { ToastBanner } from '../ui/ToastBanner';
-import { MARKET_DATA_MESSAGES } from '../../constants/marketData';
-import { EMPTY_HOLDINGS_PRICE_SYNC_DETAIL } from '../../services/priceSyncEmptyHoldings';
 import { useApp } from '../../context/AppContext';
 import { usePriceSyncState, usePriceSyncActions } from '../../context/PriceSyncContext';
 import {
-  formatPartialPriceRefreshBanner,
-  formatPriceRefreshErrorDialogMessage,
   shouldShowPriceRefreshErrorDialog,
   shouldShowPriceRefreshPartialBanner,
-  totalFailureAlertTitle,
 } from '../../services/holdingPriceCore';
-import {
-  formatApiKeyVerifiedToast,
-  formatPriceRefreshCompleteToast,
-} from '../../services/priceSyncNotifications';
+import { derivePriceSyncUxCounts } from '../../services/priceSyncNotifications';
 import { isPortfolioRefreshInFlight } from '../../services/portfolioRefreshCoordinator';
 import type { RootStackParamList } from '../../navigation/types';
-import type { PriceSyncFailure } from '../../types/marketData';
+import type { PriceSyncFailure, PriceSyncResult } from '../../types/marketData';
 import { formatIsoDateTimeJa } from '../../utils/formatDateTimeJa';
 import { theme } from '../../theme';
 import { useRenderTrace } from '../../utils/renderDiagnostics';
 import { QUOTE_PROVIDER_LABELS } from '../../constants/quoteProviders';
 import { shouldBlockPriceRefreshForMissingApiKey } from '../../services/phase125StabilityTestMode';
+import type { TFunction } from 'i18next';
 
 type Props = {
   holdingsCount: number;
   displayLastUpdatedAt?: string;
 };
+
+function formatRefreshCompleteToast(
+  t: TFunction<'portfolio'>,
+  result: PriceSyncResult,
+  holdingsCount: number,
+): string {
+  if (holdingsCount === 0) {
+    return `${t('priceSync.noHoldingsUpdateBlocked')} — ${t('priceSync.noHoldingsFetchSkipped')}`;
+  }
+  const { successCount, failedCount, partialFailure, totalFailure } = derivePriceSyncUxCounts(result);
+  if (totalFailure && failedCount > 0) {
+    return result.error ?? t('priceSync.fetchFailed');
+  }
+  if (partialFailure) {
+    return t('priceSync.updateSuccessPartial', { success: successCount, failed: failedCount });
+  }
+  if (successCount === 0) {
+    return t('priceSync.refreshCompleteZero');
+  }
+  return t('priceSync.refreshCompleteCount', { count: successCount });
+}
 
 function PortfolioPriceSyncCardInner({
   holdingsCount,
@@ -41,6 +56,7 @@ function PortfolioPriceSyncCardInner({
 }: Props) {
   useRenderTrace('PortfolioPriceSyncCard', ['priceSync']);
 
+  const { t } = useTranslation('portfolio');
   const { twelveDataApiKey } = useApp();
   const { priceSync } = usePriceSyncState();
   const { refreshPortfolioPrices } = usePriceSyncActions();
@@ -97,41 +113,44 @@ function PortfolioPriceSyncCardInner({
 
   const onAutoRefresh = useCallback(async () => {
     if (shouldBlockPriceRefreshForMissingApiKey(Boolean(twelveDataApiKey.trim()))) {
-      Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey, [
-        { text: 'APIキー設定', onPress: () => navigation.navigate('ApiKeySettings') },
-        { text: '了解' },
+      Alert.alert(t('priceSync.noApiKeyTitle'), t('priceSync.noApiKey'), [
+        {
+          text: t('priceSync.noApiKeyAction'),
+          onPress: () => navigation.navigate('ApiKeySettings'),
+        },
+        { text: t('priceSync.understood') },
       ]);
       return;
     }
     if (isEmptyHoldings) {
       showToast(
-        `${MARKET_DATA_MESSAGES.noHoldingsUpdateBlocked} — ${MARKET_DATA_MESSAGES.noHoldingsFetchSkipped}`,
+        `${t('priceSync.noHoldingsUpdateBlocked')} — ${t('priceSync.noHoldingsFetchSkipped')}`,
         'warning',
       );
       return;
     }
     if (isPortfolioRefreshInFlight()) {
-      showToast(MARKET_DATA_MESSAGES.refreshInProgress, 'default');
+      showToast(t('priceSync.refreshInProgress'), 'default');
       return;
     }
     const result = await refreshPortfolioPrices({ silent: false, trigger: 'manual' });
     if (shouldShowPriceRefreshErrorDialog(result)) {
-      Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
+      Alert.alert(t('priceSync.totalFailureTitle'), t('priceSync.totalFailureBody'));
       return;
     }
     if (result.updatedCount === 0 && result.failures.length === 0 && !result.error) {
-      showToast('更新受付済みです。少し待って再試行してください。', 'default');
+      showToast(t('priceSync.refreshAcceptedWait'), 'default');
       return;
     }
-    showToast(formatPriceRefreshCompleteToast(result, holdingsCount), 'success');
-  }, [holdingsCount, isEmptyHoldings, navigation, refreshPortfolioPrices, showToast, twelveDataApiKey]);
+    showToast(formatRefreshCompleteToast(t, result, holdingsCount), 'success');
+  }, [holdingsCount, isEmptyHoldings, navigation, refreshPortfolioPrices, showToast, t, twelveDataApiKey]);
 
   const onRetryFailedPrices = useCallback(
     async (targets?: PriceSyncFailure[]) => {
       const failures = targets ?? priceSync.lastResult?.failures ?? [];
       if (failures.length === 0) return;
       if (shouldBlockPriceRefreshForMissingApiKey(Boolean(twelveDataApiKey.trim()))) {
-        Alert.alert('APIキー未設定', MARKET_DATA_MESSAGES.noApiKey);
+        Alert.alert(t('priceSync.noApiKeyTitle'), t('priceSync.noApiKey'));
         return;
       }
       if (isPortfolioRefreshInFlight()) return;
@@ -141,16 +160,17 @@ function PortfolioPriceSyncCardInner({
         symbolsOnly: failures.map((f) => ({ market: f.market, symbol: f.symbol })),
       });
       if (shouldShowPriceRefreshErrorDialog(result)) {
-        Alert.alert(totalFailureAlertTitle(), formatPriceRefreshErrorDialogMessage(result));
+        Alert.alert(t('priceSync.totalFailureTitle'), t('priceSync.totalFailureBody'));
         return;
       }
-      showToast(formatPriceRefreshCompleteToast(result, holdingsCount), 'success');
+      showToast(formatRefreshCompleteToast(t, result, holdingsCount), 'success');
     },
     [
       holdingsCount,
       priceSync.lastResult?.failures,
       refreshPortfolioPrices,
       showToast,
+      t,
       twelveDataApiKey,
     ],
   );
@@ -158,9 +178,9 @@ function PortfolioPriceSyncCardInner({
   const partialFailureBanner = useMemo(
     () =>
       priceSync.lastResult && shouldShowPriceRefreshPartialBanner(priceSync.lastResult)
-        ? formatPartialPriceRefreshBanner()
+        ? [t('priceSync.partialFailureBanner'), t('priceSync.partialFailureSavedHint')]
         : null,
-    [priceSync.lastResult],
+    [priceSync.lastResult, t],
   );
 
   const onRetryFailed = useMemo(
@@ -172,8 +192,8 @@ function PortfolioPriceSyncCardInner({
   );
 
   const refreshButtonLabel = priceSync.loading
-    ? MARKET_DATA_MESSAGES.refreshInProgress
-    : '株価を自動更新';
+    ? t('priceSync.refreshInProgress')
+    : t('priceSync.refreshAll');
 
   const progressState = useMemo(() => {
     const total = priceSync.refreshingSymbols?.length ?? 0;
@@ -192,12 +212,12 @@ function PortfolioPriceSyncCardInner({
     const at = Date.parse(displayLastUpdatedAt);
     if (Number.isNaN(at)) return null;
     const sec = Math.max(0, Math.floor((nowMs - at) / 1000));
-    if (sec < 60) return `${sec}秒前`;
+    if (sec < 60) return t('priceSync.lastUpdatedAgoSeconds', { count: sec });
     const min = Math.floor(sec / 60);
-    if (min < 60) return `${min}分前`;
+    if (min < 60) return t('priceSync.lastUpdatedAgoMinutes', { count: min });
     const hour = Math.floor(min / 60);
-    return `${hour}時間前`;
-  }, [displayLastUpdatedAt, nowMs]);
+    return t('priceSync.lastUpdatedAgoHours', { count: hour });
+  }, [displayLastUpdatedAt, nowMs, t]);
 
   const failureProviderSummary = useMemo(() => {
     const failures = priceSync.lastResult?.failures ?? [];
@@ -209,9 +229,9 @@ function PortfolioPriceSyncCardInner({
           .filter((v): v is string => Boolean(v)),
       ),
     );
-    if (names.length === 0) return '接続失敗';
-    return `接続失敗（${names.join(' / ')}）`;
-  }, [priceSync.lastResult]);
+    if (names.length === 0) return t('priceSync.connectionFailed');
+    return t('priceSync.connectionFailedProviders', { providers: names.join(' / ') });
+  }, [priceSync.lastResult, t]);
 
   const panelProps = useMemo(
     () => ({
@@ -221,9 +241,7 @@ function PortfolioPriceSyncCardInner({
       loading: priceSync.loading,
       displayStatus: isEmptyHoldings ? ('idle' as const) : priceSync.displayStatus,
       connectionPhase: isEmptyHoldings ? undefined : priceSync.connectionPhase,
-      connectionDetail: isEmptyHoldings
-        ? EMPTY_HOLDINGS_PRICE_SYNC_DETAIL
-        : priceSync.connectionDetail,
+      connectionDetail: isEmptyHoldings ? undefined : priceSync.connectionDetail,
       currentSymbol: priceSync.currentSymbol,
       activeProvider: priceSync.activeProvider,
       lastPriceProvider: priceSync.lastPriceProvider,
@@ -252,24 +270,28 @@ function PortfolioPriceSyncCardInner({
     ],
   );
 
+  const savedLastUpdatedLabel = displayLastUpdatedAt
+    ? formatIsoDateTimeJa(displayLastUpdatedAt) ?? displayLastUpdatedAt
+    : null;
+
   return (
     <Card>
       <ToastBanner message={toastMessage} onDismiss={clearToast} tone={toastTone} />
       {isEmptyHoldings ? (
         <View style={styles.emptyHoldingsBox}>
-          <Text style={styles.emptyHoldingsTitle}>{MARKET_DATA_MESSAGES.noHoldingsTitle}</Text>
-          <Text style={styles.emptyHoldingsHint}>{MARKET_DATA_MESSAGES.noHoldingsHint}</Text>
-          <Text style={styles.emptyHoldingsMeta}>{MARKET_DATA_MESSAGES.noFetchTargets}</Text>
+          <Text style={styles.emptyHoldingsTitle}>{t('priceSync.noHoldingsTitle')}</Text>
+          <Text style={styles.emptyHoldingsHint}>{t('priceSync.noHoldingsHint')}</Text>
+          <Text style={styles.emptyHoldingsMeta}>{t('priceSync.noFetchTargets')}</Text>
         </View>
       ) : null}
-      <Text style={styles.note}>{MARKET_DATA_MESSAGES.autoPriceNote}</Text>
+      <Text style={styles.note}>{t('priceSync.autoPriceNote')}</Text>
       {priceSync.loading ? (
         <View style={styles.loadingRow}>
           <ActivityIndicator color={theme.colors.primary} />
           <Text style={styles.loadingText}>
             {priceSync.displayStatus === 'fetching'
-              ? MARKET_DATA_MESSAGES.loading
-              : MARKET_DATA_MESSAGES.refreshInProgress}
+              ? t('priceSync.loading')
+              : t('priceSync.refreshInProgress')}
           </Text>
         </View>
       ) : null}
@@ -279,18 +301,21 @@ function PortfolioPriceSyncCardInner({
             <View style={[styles.progressFill, { width: `${Math.round(progressState.ratio * 100)}%` }]} />
           </View>
           <Text style={styles.progressText}>
-            進行中 {progressState.done}/{progressState.total}
+            {t('priceSync.progressInProgress', {
+              done: progressState.done,
+              total: progressState.total,
+            })}
             {priceSync.currentSymbol ? ` · ${priceSync.currentSymbol}` : ''}
           </Text>
         </View>
       ) : null}
-      {displayLastUpdatedAt && !priceSync.lastResult && !isEmptyHoldings ? (
+      {savedLastUpdatedLabel && !priceSync.lastResult && !isEmptyHoldings ? (
         <Text style={styles.metaText}>
-          保存済み価格の最終更新: {formatIsoDateTimeJa(displayLastUpdatedAt) ?? displayLastUpdatedAt}
+          {t('priceSync.savedPriceLastUpdated', { value: savedLastUpdatedLabel })}
         </Text>
       ) : null}
       {lastUpdatedAgo && !priceSync.loading ? (
-        <Text style={styles.metaText}>最終更新: {lastUpdatedAgo}</Text>
+        <Text style={styles.metaText}>{t('priceSync.lastUpdated', { value: lastUpdatedAgo })}</Text>
       ) : null}
       {priceSync.lastResult && !priceSync.loading ? (
         <View style={styles.finishRow}>
@@ -309,22 +334,24 @@ function PortfolioPriceSyncCardInner({
           >
             <Text style={styles.successBadgeText}>
               {priceSync.lastResult.totalFailure
-                ? '接続失敗'
-                : `${priceSync.lastResult.successCount}件更新完了`}
+                ? t('priceSync.connectionFailed')
+                : t('priceSync.updatesComplete', {
+                    count: priceSync.lastResult.successCount,
+                  })}
             </Text>
           </Animated.View>
           {failureProviderSummary ? <Text style={styles.failSummaryText}>{failureProviderSummary}</Text> : null}
         </View>
       ) : null}
       {partialFailureBanner
-        ? partialFailureBanner.split('\n').map((line) => (
+        ? partialFailureBanner.map((line) => (
             <Text key={line} style={styles.warnText}>
               {line}
             </Text>
           ))
         : null}
       {priceSync.marketClosedHint ? (
-        <Text style={styles.warnText}>{MARKET_DATA_MESSAGES.marketClosed}</Text>
+        <Text style={styles.warnText}>{t('priceSync.marketClosed')}</Text>
       ) : null}
       <PriceSyncResultPanel {...panelProps} />
       <Button
@@ -333,11 +360,11 @@ function PortfolioPriceSyncCardInner({
         disabled={refreshDisabled}
       />
       <Button
-        label="APIキー設定"
+        label={t('priceSync.apiKeySettings')}
         onPress={() => {
           navigation.navigate('ApiKeySettings');
           if (twelveDataApiKey.trim()) {
-            showToast(formatApiKeyVerifiedToast(), 'success');
+            showToast(t('priceSync.apiConnectionOk'), 'success');
           }
         }}
         variant="ghost"

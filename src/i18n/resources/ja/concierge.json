@@ -79,5 +79,25 @@
   "statusReconnecting": "再接続中…",
   "statusDegraded": "制限モードで応答中…",
   "statusStreaming": "回答を表示中…",
-  "statusInstant": "即時回答"
+  "statusInstant": "即時回答",
+  "dailyCommentTitle": "本日のAIコメント",
+  "todayProposalsEmpty": "現在、優先提案はありません",
+  "notificationDigestTitle": "通知ダイジェスト",
+  "unreadAlerts": "未確認の通知があります",
+  "noNewAlerts": "新しい通知はありません",
+  "digestSubtitle": "重要そうな通知を3件だけ表示します",
+  "viewAllAlerts": "通知一覧へ",
+  "dailyComment": {
+    "title": "本日のAIコメント",
+    "topProfit": "利益上位",
+    "caution": "注意銘柄",
+    "recommendedActions": "推奨行動",
+    "portfolioScoreLine": "ポートフォリオスコア {{score}}/100 · 保有 {{count}} 銘柄"
+  },
+  "proposalLabels": {
+    "holdContinue": "保有継続",
+    "monitor": "監視",
+    "buyCandidate": "買い候補",
+    "pass": "見送り"
+  }
 }

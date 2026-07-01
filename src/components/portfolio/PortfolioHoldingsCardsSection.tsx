@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { theme } from '../../theme';
 import {
   usePortfolioHoldingsListModel,
@@ -31,6 +32,7 @@ export function PortfolioHoldingsCardsSection({
   actionsRef,
   onNavigateScreener,
 }: Props) {
+  const { t } = useTranslation('portfolio');
   const { renderItem } = usePortfolioHoldingsListModel({
     holdings,
     portfolioById,
@@ -48,27 +50,29 @@ export function PortfolioHoldingsCardsSection({
     console.warn('[PortfolioHoldings]', JSON.stringify(payload));
   }, [holdings.length, portfolio.length, portfolioStateLength]);
 
+  const listTitle = t('holdingsList.title');
+
   if (holdings.length === 0) {
     return (
       <Card style={styles.emptyCard}>
-        <Text style={styles.sectionTitle}>保有銘柄一覧</Text>
-        <Text style={styles.emptyTitle}>現在保有銘柄はありません</Text>
+        <Text style={styles.sectionTitle}>{listTitle}</Text>
+        <Text style={styles.emptyTitle}>{t('holdingsList.emptyTitle')}</Text>
         <Text style={styles.muted}>
           {isPractice
-            ? '「おすすめ配分」または「仮想買付」から取引してください。'
-            : '銘柄検索から追加するか、候補銘柄から「購入」で記録してください。'}
+            ? t('holdingsList.emptyHintPractice')
+            : t('holdingsList.emptyHintLive')}
         </Text>
         {!isPractice && onNavigateScreener ? (
-          <Button label="銘柄検索へ" onPress={onNavigateScreener} />
+          <Button label={t('holdingsList.searchButton')} onPress={onNavigateScreener} />
         ) : null}
       </Card>
     );
   }
 
   return (
-    <View style={styles.section} accessibilityLabel="保有銘柄一覧">
-      <Text style={styles.sectionTitle} accessibilityRole="header" accessibilityLabel="保有銘柄一覧">
-        保有銘柄一覧（{holdings.length}件）
+    <View style={styles.section} accessibilityLabel={listTitle}>
+      <Text style={styles.sectionTitle} accessibilityRole="header" accessibilityLabel={listTitle}>
+        {t('holdingsList.titleWithCount', { count: holdings.length })}
       </Text>
       {holdings.map((h, index) => (
         <View key={h.positionId} style={styles.cardWrap}>

@@ -10,6 +10,20 @@
   },
   "displayMode": {
     "sectionTitle": "表示モード",
-    "sectionHint": "初心者は4タブのやさしい表示。標準は主要タブ。プロは全機能とPhase詳細を表示します。"
+    "sectionHint": "初心者は4タブのやさしい表示。標準は主要タブ。プロは全機能とPhase詳細を表示します。",
+    "modes": {
+      "beginner": {
+        "label": "初心者",
+        "hint": "4タブ · やさしい表示 · Phase詳細非表示 · AI相談タブ"
+      },
+      "standard": {
+        "label": "標準",
+        "hint": "主要タブ + 銘柄チェック · 中間の情報量"
+      },
+      "pro": {
+        "label": "プロ",
+        "hint": "全タブ · Phase13–24 · 監査 · 詳細コンシェルジュ"
+      }
+    }
   }
 }

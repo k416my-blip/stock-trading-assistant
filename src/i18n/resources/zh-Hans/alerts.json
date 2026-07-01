@@ -1,0 +1,39 @@
+{
+  "title": "AI通知",
+  "loading": "正在生成AI通知…",
+  "errorMissing": "数据不可用",
+  "soundLabel": "通知声音",
+  "sections": {
+    "todayAction": "【今日应做事项】",
+    "holdings": "【持仓通知】{{count}}条",
+    "other": "【其他通知】{{count}}条",
+    "history": "【通知历史】"
+  },
+  "holdingsEmpty": "暂无持仓相关通知",
+  "reasonPrefix": "原因:",
+  "markAllRead": "全部标记为已读（{{count}}条未读）",
+  "read": "已读",
+  "unread": "未读",
+  "recalculate": "重新计算（Phase 6–9）",
+  "materialQuality": "材料质量",
+  "triggers": {
+    "strongBuy": "强烈买入",
+    "buy": "买入",
+    "caution": "注意",
+    "sellCandidate": "卖出候选",
+    "dividendIncrease": "增派股息",
+    "dividendDecrease": "削减股息",
+    "profitSurge": "利润急增",
+    "profitDrop": "利润急减",
+    "rankSurge": "排名急升",
+    "rankDrop": "排名急降"
+  },
+  "categories": {
+    "buy": "买入",
+    "sell": "卖出",
+    "dividend": "股息",
+    "earnings": "财报",
+    "watch": "监控",
+    "market": "整体市场"
+  }
+}

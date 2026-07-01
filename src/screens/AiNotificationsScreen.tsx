@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Screen } from '../components/ui/Screen';
@@ -9,6 +10,10 @@ import type { RootStackParamList } from '../navigation/types';
 import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
 import { materialQualityForStockCode } from '../services/bursa/bursaMaterialAnalysisService';
 import type { MaterialAnalysisReport } from '../services/bursa/bursaMaterialAnalysisService';
+import {
+  translateAlertCategory,
+  translateAlertTrigger,
+} from '../utils/alertsI18nHelpers';
 import { theme } from '../theme';
 
 function NotificationQualityBlock({
@@ -18,12 +23,13 @@ function NotificationQualityBlock({
   stockCode: string;
   materialReport: MaterialAnalysisReport | null;
 }) {
+  const { t } = useTranslation('alerts');
   const quality = materialQualityForStockCode(materialReport, stockCode);
   if (!quality) return null;
   return (
     <View style={styles.qualityBlock}>
       <Text style={styles.qualityLine}>
-        材料品質 {quality.stars} {quality.labelJa}
+        {t('materialQuality')} {quality.stars} {quality.labelJa}
       </Text>
     </View>
   );
@@ -39,6 +45,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function AiNotificationsScreen() {
+  const { t } = useTranslation('alerts');
   const { report, loading, error, markRead, markAllRead, setSoundEnabled, refresh } =
     useBursaConcierge();
   const { report: materialReport } = useBursaMaterial();
@@ -47,7 +54,7 @@ export function AiNotificationsScreen() {
   if (loading && !report) {
     return (
       <Screen>
-        <Text style={styles.loading}>AI通知を生成中…</Text>
+        <Text style={styles.loading}>{t('loading')}</Text>
       </Screen>
     );
   }
@@ -55,7 +62,7 @@ export function AiNotificationsScreen() {
   if (error || !report) {
     return (
       <Screen>
-        <Text style={styles.error}>{error ?? CONCIERGE_NOTIFY_MISSING_JA}</Text>
+        <Text style={styles.error}>{error ?? t('errorMissing')}</Text>
       </Screen>
     );
   }
@@ -66,11 +73,11 @@ export function AiNotificationsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll} testID="ai-notifications-screen">
-        <Text style={styles.pageTitle}>AI通知</Text>
+        <Text style={styles.pageTitle}>{t('title')}</Text>
         <Text style={styles.liveTag}>{report.dataSourceLabel}</Text>
 
         <View style={styles.soundRow}>
-          <Text style={styles.soundLabel}>通知音</Text>
+          <Text style={styles.soundLabel}>{t('soundLabel')}</Text>
           <Switch
             value={report.soundEnabled}
             onValueChange={(v) => void setSoundEnabled(v)}
@@ -78,18 +85,18 @@ export function AiNotificationsScreen() {
           />
         </View>
 
-        <Section title="【今日やるべきこと】">
+        <Section title={t('sections.todayAction')}>
           <Text style={styles.todayAction}>{report.todayActionJa}</Text>
           {report.todayReasonsJa.map((r, i) => (
             <Text key={`reason-${i}`} style={styles.reason}>
-              理由: {r}
+              {t('reasonPrefix')} {r}
             </Text>
           ))}
         </Section>
 
-        <Section title={`【保有銘柄通知】${holdings.length}件`}>
+        <Section title={t('sections.holdings', { count: holdings.length })}>
           {holdings.length === 0 ? (
-            <Text style={styles.empty}>保有銘柄の通知なし</Text>
+            <Text style={styles.empty}>{t('holdingsEmpty')}</Text>
           ) : (
             holdings.map((n) => (
               <Pressable
@@ -107,7 +114,7 @@ export function AiNotificationsScreen() {
               >
                 <View style={styles.cardHeader}>
                   <Text style={styles.importance}>{n.importanceJa}</Text>
-                  <Text style={styles.category}>{n.categoryJa}</Text>
+                  <Text style={styles.category}>{translateAlertCategory(t, n.categoryJa)}</Text>
                 </View>
                 <Text style={styles.title}>{n.titleJa}</Text>
                 <Text style={styles.message}>{n.messageJa}</Text>
@@ -123,7 +130,7 @@ export function AiNotificationsScreen() {
           )}
         </Section>
 
-        <Section title={`【その他の通知】${others.length}件`}>
+        <Section title={t('sections.other', { count: others.length })}>
           {others.map((n) => (
             <Pressable
               key={n.id}
@@ -143,22 +150,24 @@ export function AiNotificationsScreen() {
           ))}
         </Section>
 
-        <Section title="【通知履歴】">
+        <Section title={t('sections.history')}>
           <Pressable onPress={() => void markAllRead()}>
-            <Text style={styles.markAll}>すべて既読にする（{report.unreadCount}件未読）</Text>
+            <Text style={styles.markAll}>
+              {t('markAllRead', { count: report.unreadCount })}
+            </Text>
           </Pressable>
           {report.notifications.slice(0, 40).map((n) => (
             <View key={`hist-${n.id}`} style={styles.histRow}>
               <SelectableText style={styles.histText}>
-                {n.createdAtJa} · {n.stockCodeJa} · {n.triggerKindJa} ·{' '}
-                {n.isRead ? '既読' : '未読'}
+                {n.createdAtJa} · {n.stockCodeJa} · {translateAlertTrigger(t, n.triggerKindJa)} ·{' '}
+                {n.isRead ? t('read') : t('unread')}
               </SelectableText>
             </View>
           ))}
         </Section>
 
         <Pressable style={styles.refreshBtn} onPress={() => void refresh()}>
-          <Text style={styles.refreshText}>再計算（Phase6–9）</Text>
+          <Text style={styles.refreshText}>{t('recalculate')}</Text>
         </Pressable>
       </ScrollView>
     </Screen>

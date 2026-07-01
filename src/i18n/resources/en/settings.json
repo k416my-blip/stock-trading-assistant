@@ -10,6 +10,20 @@
   },
   "displayMode": {
     "sectionTitle": "Display mode",
-    "sectionHint": "Beginner: 4 simple tabs. Standard: main tabs. Pro: all features and phase details."
+    "sectionHint": "Beginner: 4 simple tabs. Standard: main tabs. Pro: all features and phase details.",
+    "modes": {
+      "beginner": {
+        "label": "Beginner",
+        "hint": "4 tabs · simplified UI · phase details hidden · AI chat tab"
+      },
+      "standard": {
+        "label": "Standard",
+        "hint": "Main tabs + stock check · moderate detail"
+      },
+      "pro": {
+        "label": "Pro",
+        "hint": "All tabs · Phase 13–24 · audit · detailed concierge"
+      }
+    }
   }
 }

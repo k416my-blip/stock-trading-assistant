@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MARKET_DATA_MESSAGES } from '../constants/marketData';
+import { useTranslation } from 'react-i18next';
 import { MARKET_LABEL } from '../constants/rakutenTrade';
 import type {
   ApiConnectionPhase,
@@ -9,8 +9,6 @@ import type {
   PriceSyncResult,
 } from '../types/marketData';
 import { QUOTE_PROVIDER_LABELS } from '../constants/quoteProviders';
-import { SYMBOL_EXPLORING_MESSAGE } from '../constants/yahooFinance';
-import { apiConnectionPhaseLabel, priceSyncStatusLabel } from '../services/priceSyncDisplay';
 import { formatQuotePriceDisplay } from '../utils/formatQuotePrice';
 import { sanitizeErrorForUi } from '../utils/sanitizeUiError';
 import type { QuoteFetchDebugInfo } from '../types/quoteFetchDebug';
@@ -20,6 +18,7 @@ import { formatIsoDateTimeJa } from '../utils/formatDateTimeJa';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { theme } from '../theme';
+import type { TFunction } from 'i18next';
 
 type Props = {
   result: PriceSyncResult | undefined;
@@ -44,12 +43,63 @@ function providerLabel(id: QuoteProviderId | undefined): string | null {
   return QUOTE_PROVIDER_LABELS[id];
 }
 
-function failureDetailLine(f: PriceSyncFailure): string | null {
+function priceSyncStatusLabel(
+  t: TFunction<'portfolio'>,
+  status: PriceSyncDisplayStatus,
+): string {
+  switch (status) {
+    case 'fetching':
+      return t('priceSync.loading');
+    case 'partial_failure':
+      return t('priceSync.partialFailure');
+    case 'cached':
+      return t('priceSync.showingCache');
+    case 'mock':
+      return t('priceSync.usingMock');
+    case 'connection_failed':
+      return '';
+    case 'complete':
+      return t('priceSync.refreshComplete');
+    default:
+      return '';
+  }
+}
+
+function apiConnectionPhaseLabel(
+  t: TFunction<'portfolio'>,
+  phase: ApiConnectionPhase | undefined,
+): string {
+  switch (phase) {
+    case 'connecting':
+      return t('priceSync.apiConnecting');
+    case 'symbol_exploring':
+      return t('priceSync.symbolExploring');
+    case 'retrying':
+      return t('priceSync.apiRetrying');
+    case 'success':
+      return t('priceSync.apiSuccess');
+    case 'timeout':
+      return t('priceSync.apiTimeout');
+    case 'rate_limit':
+      return t('priceSync.apiRateLimit');
+    case 'cached':
+      return t('priceSync.showingCache');
+    case 'error':
+      return t('priceSync.connectionFailedShort');
+    default:
+      return '';
+  }
+}
+
+function failureDetailLine(
+  t: TFunction<'portfolio'>,
+  f: PriceSyncFailure,
+): string | null {
   const parts: string[] = [];
   if (f.provider) parts.push(`API: ${QUOTE_PROVIDER_LABELS[f.provider]}`);
   if (f.httpStatus != null) parts.push(`HTTP ${f.httpStatus}`);
-  if (f.rateLimited) parts.push('レート制限');
-  if (f.usedCache) parts.push('キャッシュ');
+  if (f.rateLimited) parts.push(t('priceSync.rateLimited'));
+  if (f.usedCache) parts.push(t('priceSync.cached'));
   return parts.length > 0 ? parts.join(' · ') : null;
 }
 
@@ -105,40 +155,40 @@ export function PriceSyncResultPanel({
   onRetryFailed,
   retryFailedLoading,
 }: Props) {
+  const { t } = useTranslation('portfolio');
   const [failuresExpanded, setFailuresExpanded] = useState(false);
   const showPanel = result || lastSuccessAt || lastError || onRetry;
   if (!showPanel) return null;
 
   const status: PriceSyncDisplayStatus =
     displayStatus ?? (loading ? 'fetching' : result?.displayStatus ?? 'idle');
-  const statusLabel = priceSyncStatusLabel(status);
-  const apiLabel = apiConnectionPhaseLabel(connectionPhase);
+  const statusLabel = priceSyncStatusLabel(t, status);
+  const apiLabel = apiConnectionPhaseLabel(t, connectionPhase);
 
   const lastUpdatedLabel = formatIsoDateTimeJa(lastSuccessAt);
   const successCount = result?.successCount ?? result?.updatedCount ?? 0;
   const failCount = result?.failedCount ?? result?.failures.length ?? 0;
   const isPartialSuccess = result?.partialFailure ?? (successCount > 0 && failCount > 0);
   const debugPrice = quoteFetchDebug?.price;
+  const providerName = providerLabel(lastPriceProvider ?? activeProvider);
 
   return (
     <Card style={styles.card}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>株価更新</Text>
+        <Text style={styles.title}>{t('priceSync.priceUpdateTitle')}</Text>
         {statusLabel ? (
           <Text style={[styles.badge, statusBadgeStyle(status)]}>{statusLabel}</Text>
         ) : null}
       </View>
 
       {lastUpdatedLabel ? (
-        <Text style={styles.row}>最終更新: {lastUpdatedLabel}</Text>
+        <Text style={styles.row}>{t('priceSync.lastUpdated', { value: lastUpdatedLabel })}</Text>
       ) : (
-        <Text style={styles.rowMuted}>最終更新: まだライブ取得成功なし</Text>
+        <Text style={styles.rowMuted}>{t('priceSync.lastUpdatedNone')}</Text>
       )}
 
-      {providerLabel(lastPriceProvider ?? activeProvider) ? (
-        <Text style={styles.row}>
-          価格取得元: {providerLabel(lastPriceProvider ?? activeProvider)}
-        </Text>
+      {providerName ? (
+        <Text style={styles.row}>{t('priceSync.priceSource', { provider: providerName })}</Text>
       ) : null}
 
       {apiLabel || connectionPhase === 'symbol_exploring' || connectionDetail ? (
@@ -147,13 +197,15 @@ export function PriceSyncResultPanel({
             <Text style={[styles.apiStatusLabel, apiStatusStyle(connectionPhase)]}>{apiLabel}</Text>
           ) : null}
           {connectionPhase === 'symbol_exploring' ? (
-            <Text style={styles.exploring}>{SYMBOL_EXPLORING_MESSAGE}</Text>
+            <Text style={styles.exploring}>{t('priceSync.symbolExploring')}</Text>
           ) : null}
           {resolvedSymbol ? (
-            <Text style={styles.formalSymbol}>正式symbol: {resolvedSymbol}</Text>
+            <Text style={styles.formalSymbol}>
+              {t('priceSync.formalSymbol', { symbol: resolvedSymbol })}
+            </Text>
           ) : null}
           {currentSymbol ? (
-            <Text style={styles.rowMuted}>銘柄: {currentSymbol}</Text>
+            <Text style={styles.rowMuted}>{t('priceSync.symbol', { symbol: currentSymbol })}</Text>
           ) : null}
           {connectionDetail ? (
             <Text style={styles.rowMuted}>{sanitizeErrorForUi(connectionDetail, connectionDetail)}</Text>
@@ -175,18 +227,22 @@ export function PriceSyncResultPanel({
         <>
           {successCount > 0 ? (
             <Text style={styles.rowSuccess}>
-              更新成功: {successCount}件
-              {isPartialSuccess ? ` / 失敗: ${failCount}件` : ''}
+              {isPartialSuccess
+                ? t('priceSync.updateSuccessPartial', {
+                    success: successCount,
+                    failed: failCount,
+                  })
+                : t('priceSync.updateSuccess', { success: successCount })}
             </Text>
           ) : null}
           {isPartialSuccess ? (
             <>
-              <Text style={styles.rowWarn}>{MARKET_DATA_MESSAGES.partialFailureBanner}</Text>
-              <Text style={styles.rowWarn}>{MARKET_DATA_MESSAGES.partialFailureSavedHint}</Text>
+              <Text style={styles.rowWarn}>{t('priceSync.partialFailureBanner')}</Text>
+              <Text style={styles.rowWarn}>{t('priceSync.partialFailureSavedHint')}</Text>
             </>
           ) : null}
           {successCount === 0 && failCount > 0 ? (
-            <Text style={styles.row}>価格未取得: {failCount}件</Text>
+            <Text style={styles.row}>{t('priceSync.priceNotFetched', { count: failCount })}</Text>
           ) : null}
 
           {failCount > 0 ? (
@@ -197,12 +253,13 @@ export function PriceSyncResultPanel({
                 accessibilityState={{ expanded: failuresExpanded }}
               >
                 <Text style={styles.failTitle}>
-                  失敗銘柄 ({failCount}件) {failuresExpanded ? '▼' : '▶'}
+                  {t('priceSync.failedSymbols', { count: failCount })}{' '}
+                  {failuresExpanded ? '▼' : '▶'}
                 </Text>
               </Pressable>
               {failuresExpanded
                 ? result.failures.map((f) => {
-                    const detail = failureDetailLine(f);
+                    const detail = failureDetailLine(t, f);
                     return (
                       <View
                         key={`${f.market}-${f.symbol}-${f.positionId}`}
@@ -210,20 +267,29 @@ export function PriceSyncResultPanel({
                       >
                         <Text style={styles.failName}>{f.name}</Text>
                         <Text style={styles.failMeta}>
-                          元symbol: {f.originalSymbol ?? f.symbol} · 市場: {MARKET_LABEL[f.market]}
+                          {t('priceSync.originalSymbol', {
+                            symbol: f.originalSymbol ?? f.symbol,
+                            market: MARKET_LABEL[f.market],
+                          })}
                         </Text>
                         {f.normalizedYahooSymbol || f.sentSymbol ? (
                           <Text style={styles.failMeta}>
-                            normalize後symbol: {f.normalizedYahooSymbol ?? f.sentSymbol}
+                            {t('priceSync.normalizedSymbol', {
+                              symbol: f.normalizedYahooSymbol ?? f.sentSymbol ?? '',
+                            })}
                           </Text>
                         ) : null}
                         {f.provider ? (
                           <Text style={styles.failMeta}>
-                            価格取得元: {QUOTE_PROVIDER_LABELS[f.provider]}
+                            {t('priceSync.priceSource', {
+                              provider: QUOTE_PROVIDER_LABELS[f.provider],
+                            })}
                           </Text>
                         ) : null}
                         <Text style={styles.failReason}>
-                          エラー: {sanitizeErrorForUi(f.reason, f.reason)}
+                          {t('priceSync.errorPrefix', {
+                            message: sanitizeErrorForUi(f.reason, f.reason),
+                          })}
                         </Text>
                         {f.providerAttempts?.length ? (
                           <View style={styles.providerAttempts}>
@@ -239,7 +305,9 @@ export function PriceSyncResultPanel({
                         ) : null}
                         {f.lastSavedPrice != null && f.lastSavedPrice > 0 ? (
                           <Text style={styles.failMeta}>
-                            最後に保存された価格: {formatQuotePriceDisplay(f.lastSavedPrice)}
+                            {t('priceSync.lastSavedPrice', {
+                              price: formatQuotePriceDisplay(f.lastSavedPrice),
+                            })}
                           </Text>
                         ) : null}
                         {detail ? <Text style={styles.failDetail}>{detail}</Text> : null}
@@ -256,7 +324,7 @@ export function PriceSyncResultPanel({
         <View style={styles.retryBtn}>
           {onRetry ? (
             <Button
-              label={loading ? '取得中…' : '全銘柄を再取得'}
+              label={loading ? t('priceSync.fetching') : t('priceSync.retryAll')}
               onPress={onRetry}
               disabled={loading}
               variant="ghost"
@@ -264,7 +332,11 @@ export function PriceSyncResultPanel({
           ) : null}
           {onRetryFailed && failCount > 0 ? (
             <Button
-              label={retryFailedLoading ? '失敗銘柄を取得中…' : `失敗銘柄のみ再取得（${failCount}件）`}
+              label={
+                retryFailedLoading
+                  ? t('priceSync.retryFailedInProgress')
+                  : t('priceSync.retryFailed', { count: failCount })
+              }
               onPress={onRetryFailed}
               disabled={loading || retryFailedLoading}
               variant="ghost"

@@ -1,0 +1,39 @@
+{
+  "title": "AI通知",
+  "loading": "AI通知を生成中…",
+  "errorMissing": "データ未取得",
+  "soundLabel": "通知音",
+  "sections": {
+    "todayAction": "【今日やるべきこと】",
+    "holdings": "【保有銘柄通知】{{count}}件",
+    "other": "【その他の通知】{{count}}件",
+    "history": "【通知履歴】"
+  },
+  "holdingsEmpty": "保有銘柄の通知なし",
+  "reasonPrefix": "理由:",
+  "markAllRead": "すべて既読にする（{{count}}件未読）",
+  "read": "既読",
+  "unread": "未読",
+  "recalculate": "再計算（Phase6–9）",
+  "materialQuality": "材料品質",
+  "triggers": {
+    "strongBuy": "強気買い",
+    "buy": "買い",
+    "caution": "注意",
+    "sellCandidate": "売却候補",
+    "dividendIncrease": "増配",
+    "dividendDecrease": "減配",
+    "profitSurge": "利益急増",
+    "profitDrop": "利益急減",
+    "rankSurge": "順位急上昇",
+    "rankDrop": "順位急落"
+  },
+  "categories": {
+    "buy": "買い",
+    "sell": "売り",
+    "dividend": "配当",
+    "earnings": "決算",
+    "watch": "監視",
+    "market": "市場全体"
+  }
+}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useBursaConcierge } from '../../context/BursaConciergeContext';
@@ -10,6 +11,7 @@ import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 
 export function ConciergeBursaNotificationDigestPanel() {
+  const { t } = useTranslation('concierge');
   const { report, loading } = useBursaConcierge();
   const { isBeginnerMode } = useAppUxMode();
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
@@ -27,13 +29,13 @@ export function ConciergeBursaNotificationDigestPanel() {
 
   return (
     <Card style={styles.card} testID="concierge-bursa-notification-digest">
-      <Text style={styles.title}>通知ダイジェスト</Text>
+      <Text style={styles.title}>{t('notificationDigestTitle')}</Text>
       <Text style={styles.statusLine} testID="concierge-bursa-unread-count">
-        {hasUnread ? '未確認の通知があります' : '新しい通知はありません'}
+        {hasUnread ? t('unreadAlerts') : t('noNewAlerts')}
       </Text>
-      <Text style={styles.subtitleLine}>重要そうな通知を3件だけ表示します</Text>
+      <Text style={styles.subtitleLine}>{t('digestSubtitle')}</Text>
       {latestThree.length === 0 ? (
-        <Text style={styles.empty}>新しい通知はありません</Text>
+        <Text style={styles.empty}>{t('noNewAlerts')}</Text>
       ) : (
         latestThree.map((n) => (
           <View key={n.id} style={styles.row} testID={`concierge-bursa-digest-${n.id}`}>
@@ -52,7 +54,7 @@ export function ConciergeBursaNotificationDigestPanel() {
           onPress={() => tabNav.navigate('AiNotifications')}
           accessibilityRole="button"
         >
-          <Text style={styles.link}>通知一覧へ</Text>
+          <Text style={styles.link}>{t('viewAllAlerts')}</Text>
         </Pressable>
       ) : null}
     </Card>

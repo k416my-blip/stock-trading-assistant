@@ -79,5 +79,25 @@
   "statusReconnecting": "重新连接中…",
   "statusDegraded": "限制模式下回复中…",
   "statusStreaming": "正在显示回答…",
-  "statusInstant": "即时回答"
+  "statusInstant": "即时回答",
+  "dailyCommentTitle": "今日AI评论",
+  "todayProposalsEmpty": "当前无优先建议",
+  "notificationDigestTitle": "通知摘要",
+  "unreadAlerts": "有未读通知",
+  "noNewAlerts": "暂无新通知",
+  "digestSubtitle": "仅显示最多3条重要通知",
+  "viewAllAlerts": "查看全部通知",
+  "dailyComment": {
+    "title": "今日AI评论",
+    "topProfit": "盈利前列",
+    "caution": "注意股票",
+    "recommendedActions": "建议行动",
+    "portfolioScoreLine": "组合评分 {{score}}/100 · 持仓 {{count}} 只"
+  },
+  "proposalLabels": {
+    "holdContinue": "继续持有",
+    "monitor": "监控",
+    "buyCandidate": "买入候选",
+    "pass": "观望"
+  }
 }

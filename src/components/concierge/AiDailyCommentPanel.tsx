@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { AiDailyCommentBundle } from '../../services/aiDailyCommentBuilder';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
@@ -9,12 +10,22 @@ type Props = {
 };
 
 export function AiDailyCommentPanel({ comment, compact = false }: Props) {
+  const { t, i18n } = useTranslation('concierge');
+
+  const compactBody =
+    i18n.language !== 'ja' && comment.portfolioScore != null
+      ? t('dailyComment.portfolioScoreLine', {
+          score: comment.portfolioScore,
+          count: comment.holdingCount ?? 0,
+        })
+      : comment.headlineJa;
+
   if (compact) {
     return (
       <View style={styles.compactWrap} testID="ai-daily-comment-compact">
-        <Text style={styles.compactTitle}>本日のAIコメント</Text>
+        <Text style={styles.compactTitle}>{t('dailyCommentTitle')}</Text>
         <SelectableText style={styles.compactBody} numberOfLines={3}>
-          {comment.headlineJa}
+          {compactBody}
         </SelectableText>
       </View>
     );
@@ -24,14 +35,14 @@ export function AiDailyCommentPanel({ comment, compact = false }: Props) {
     <View style={styles.wrap} testID="ai-daily-comment-panel">
       {comment.todaySummaryJa ? (
         <>
-          <Text style={styles.title}>本日のAIコメント</Text>
+          <Text style={styles.title}>{t('dailyComment.title')}</Text>
           <SelectableText style={styles.summary}>{comment.todaySummaryJa}</SelectableText>
         </>
       ) : null}
 
       {comment.topProfitLines.length > 0 ? (
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>利益上位</Text>
+          <Text style={styles.blockTitle}>{t('dailyComment.topProfit')}</Text>
           {comment.topProfitLines.map((line, i) => (
             <SelectableText key={`profit-${i}`} style={styles.line}>
               · {line}
@@ -42,7 +53,9 @@ export function AiDailyCommentPanel({ comment, compact = false }: Props) {
 
       {comment.cautionLines.length > 0 ? (
         <View style={styles.block}>
-          <Text style={[styles.blockTitle, { color: theme.colors.danger }]}>注意銘柄</Text>
+          <Text style={[styles.blockTitle, { color: theme.colors.danger }]}>
+            {t('dailyComment.caution')}
+          </Text>
           {comment.cautionLines.map((line, i) => (
             <SelectableText key={`caution-${i}`} style={styles.line}>
               · {line}
@@ -53,7 +66,7 @@ export function AiDailyCommentPanel({ comment, compact = false }: Props) {
 
       {comment.recommendedActions.length > 0 ? (
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>推奨行動</Text>
+          <Text style={styles.blockTitle}>{t('dailyComment.recommendedActions')}</Text>
           {comment.recommendedActions.map((line, i) => (
             <SelectableText key={`action-${i}`} style={styles.line}>
               · {line}

@@ -1,0 +1,39 @@
+{
+  "title": "AI alerts",
+  "loading": "Generating AI alerts…",
+  "errorMissing": "Data unavailable",
+  "soundLabel": "Notification sound",
+  "sections": {
+    "todayAction": "Today's action items",
+    "holdings": "Holdings alerts ({{count}})",
+    "other": "Other alerts ({{count}})",
+    "history": "Alert history"
+  },
+  "holdingsEmpty": "No alerts for your holdings",
+  "reasonPrefix": "Reason:",
+  "markAllRead": "Mark all as read ({{count}} unread)",
+  "read": "Read",
+  "unread": "Unread",
+  "recalculate": "Recalculate (Phase 6–9)",
+  "materialQuality": "Material quality",
+  "triggers": {
+    "strongBuy": "Strong buy",
+    "buy": "Buy",
+    "caution": "Caution",
+    "sellCandidate": "Sell candidate",
+    "dividendIncrease": "Dividend increase",
+    "dividendDecrease": "Dividend cut",
+    "profitSurge": "Profit surge",
+    "profitDrop": "Profit drop",
+    "rankSurge": "Rank surge",
+    "rankDrop": "Rank drop"
+  },
+  "categories": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "dividend": "Dividend",
+    "earnings": "Earnings",
+    "watch": "Watch",
+    "market": "Market"
+  }
+}

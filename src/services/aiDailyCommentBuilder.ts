@@ -26,6 +26,8 @@ export type AiDailyCommentSection = {
 
 export type AiDailyCommentBundle = {
   headlineJa: string;
+  portfolioScore?: number;
+  holdingCount?: number;
   todaySummaryJa: string;
   topProfitLines: string[];
   cautionLines: string[];
@@ -371,6 +373,8 @@ export function buildAiDailyComment(input: {
 
   return {
     headlineJa,
+    portfolioScore: score,
+    holdingCount: holdings.length,
     todaySummaryJa,
     topProfitLines,
     cautionLines: [...cautionFromCandidates, ...cautionFromPnl].slice(0, 4),

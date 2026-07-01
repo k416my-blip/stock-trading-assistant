@@ -15,10 +15,6 @@ import {
   APP_MODE_PRACTICE_LABEL,
 } from '../constants/platformClarification';
 import { MARKET_LABEL } from '../constants/rakutenTrade';
-import {
-  APP_UX_MODE_HINTS_JA,
-  APP_UX_MODE_LABELS_JA,
-} from '../constants/appUxMode';
 import { useAppUxMode } from '../context/AppUxModeContext';
 import {
   LANGUAGE_PICKER_OPTIONS,
@@ -542,9 +538,9 @@ export function SettingsScreen() {
                   appUxMode === mode && styles.uxModeLabelSelected,
                 ]}
               >
-                {APP_UX_MODE_LABELS_JA[mode]}
+                {t(`displayMode.modes.${mode}.label`)}
               </Text>
-              <Text style={styles.uxModeHint}>{APP_UX_MODE_HINTS_JA[mode]}</Text>
+              <Text style={styles.uxModeHint}>{t(`displayMode.modes.${mode}.hint`)}</Text>
             </View>
             {appUxMode === mode ? (
               <Text style={styles.uxModeCheck}>✓</Text>

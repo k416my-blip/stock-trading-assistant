@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useUrgencySignals } from '../../context/UrgencySignalContext';
-import { buildConciergeTodayProposals } from '../../services/concierge/conciergeTodayProposalsBuilder';
+import {
+  buildConciergeTodayProposals,
+  type ConciergeProposalKind,
+} from '../../services/concierge/conciergeTodayProposalsBuilder';
 import { Card } from '../ui/Card';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
@@ -13,7 +17,15 @@ const KIND_COLOR: Record<string, string> = {
   pass: theme.colors.textMuted,
 };
 
+const PROPOSAL_LABEL_KEYS: Record<ConciergeProposalKind, string> = {
+  hold_continue: 'proposalLabels.holdContinue',
+  monitor: 'proposalLabels.monitor',
+  buy_candidate: 'proposalLabels.buyCandidate',
+  pass: 'proposalLabels.pass',
+};
+
 export function ConciergeTodayProposalsPanel() {
+  const { t } = useTranslation('concierge');
   const { queueWithAck } = useUrgencySignals();
 
   const proposals = useMemo(
@@ -24,16 +36,16 @@ export function ConciergeTodayProposalsPanel() {
   if (proposals.length === 0) {
     return (
       <Card style={styles.card} testID="concierge-today-proposals-empty">
-        <Text style={styles.title}>今日のAI提案</Text>
-        <Text style={styles.empty}>現在、優先提案はありません</Text>
+        <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
+        <Text style={styles.empty}>{t('todayProposalsEmpty')}</Text>
       </Card>
     );
   }
 
   return (
     <Card style={styles.card} testID="concierge-today-proposals">
-      <Text style={styles.title}>今日のAI提案</Text>
-      <Text style={styles.subtitle}>AIコンシェルジュが整理した優先アクション（最大3件）</Text>
+      <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
+      <Text style={styles.subtitle}>{t('todayProposalsSubtitle')}</Text>
       {proposals.map((p) => (
         <View key={p.id} style={styles.row} testID={`concierge-proposal-${p.symbol}`}>
           <View style={styles.rowHead}>
@@ -41,7 +53,7 @@ export function ConciergeTodayProposalsPanel() {
               {p.symbol} {p.nameJa.length <= 24 ? p.nameJa : ''}
             </Text>
             <Text style={[styles.badge, { color: KIND_COLOR[p.kind] ?? theme.colors.text }]}>
-              {p.labelJa}
+              {t(PROPOSAL_LABEL_KEYS[p.kind])}
             </Text>
           </View>
           <SelectableText style={styles.summary} numberOfLines={2}>

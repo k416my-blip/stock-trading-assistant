@@ -79,5 +79,25 @@
   "statusReconnecting": "Reconnecting…",
   "statusDegraded": "Responding in limited mode…",
   "statusStreaming": "Showing answer…",
-  "statusInstant": "Instant answer"
+  "statusInstant": "Instant answer",
+  "dailyCommentTitle": "Today's AI comment",
+  "todayProposalsEmpty": "No priority proposals right now",
+  "notificationDigestTitle": "Notification digest",
+  "unreadAlerts": "You have unread alerts",
+  "noNewAlerts": "No new alerts",
+  "digestSubtitle": "Showing up to 3 important alerts",
+  "viewAllAlerts": "View all alerts",
+  "dailyComment": {
+    "title": "Today's AI comment",
+    "topProfit": "Top gainers",
+    "caution": "Watchlist",
+    "recommendedActions": "Recommended actions",
+    "portfolioScoreLine": "Portfolio score {{score}}/100 · {{count}} holdings"
+  },
+  "proposalLabels": {
+    "holdContinue": "Hold",
+    "monitor": "Monitor",
+    "buyCandidate": "Buy candidate",
+    "pass": "Pass"
+  }
 }
