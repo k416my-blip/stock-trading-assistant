@@ -100,6 +100,11 @@
     "buyCandidate": "买入候选",
     "pass": "观望"
   },
+  "viewDetails": "查看详情",
+  "closeDetails": "关闭",
+  "homeCardHeading": "AI 顾问 — 最重要通知",
+  "homeCardViewAlerts": "查看 AI 通知",
+  "homeCardUnreadCount": "（{{count}} 条未读）",
   "alerts": {
     "openAiKeyMissingTitle": "未设置 OpenAI API 密钥",
     "openAiKeyMissingBody": "读取交易截图需要 OpenAI API 密钥。请使用手动或自然语言输入。",
@@ -110,5 +115,31 @@
     "failureKindRateLimit": "速率限制",
     "failureKindApiError": "API 错误",
     "failureKindUnknown": "未知"
+  },
+  "shortAnswer": {
+    "conclusion": "结论",
+    "reasons": "判断理由",
+    "risk": "风险",
+    "watch": "下一步关注",
+    "action": "建议",
+    "fallbackConclusion": "已整理当前可用信息。",
+    "fallbackReason": "独立依据有限 — 请确认数据更新",
+    "fallbackAction": "请先确认仓位与止损规则，再行动（仅供参考）。"
+  },
+  "mockReply": {
+    "buyReasonDetailed": "买入建议通常结合支撑位回调与趋势维持。置信度往往中等或更低 — 建议小仓位验证。",
+    "buyReasonBrief": "模拟模式下，支撑位回调与趋势维持作为买入参考理由。",
+    "sellReason": "模拟模式下，价格高于公允区间或波动扩大时标记为卖出候选。可作为减仓参考。",
+    "urgency": "高紧迫性为监控标签 — 不提示交易。",
+    "risk": "请关注过期股价、API 未连接时的模拟精度，以及仓位过大。",
+    "hold1155": "1155（马来亚银行）在模拟模式下偏向持有。除非超重，目前卖出紧迫性较低。",
+    "buyCandidate": "存在小额买入候选，但置信度中等或更低。建议先用练习模式熟悉记录流程。",
+    "sellGuide": "卖出候选为参考标签 — 请自行确认仓位与新闻。",
+    "generic": "感谢提问。可输入代码（如 1155）或问「该关注什么？」「什么是 risk-off？」以便快速回答。"
+  },
+  "tradeQueue": {
+    "viewExplanation": "查看详情",
+    "closeDetails": "关闭",
+    "viewDetailsWithCount": "查看详情（{{count}} 条）"
   }
 }

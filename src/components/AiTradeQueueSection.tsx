@@ -7,6 +7,7 @@ import {
   type ScrollView as ScrollViewType,
   type View as ViewType,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { MarketRegimeResult } from '../types/marketRegime';
 import type { AiTradeQueueItem } from '../types/aiStrategyBriefing';
 import type { UrgencySignal } from '../types/urgencySignal';
@@ -39,6 +40,7 @@ export function AiTradeQueueSection({
   testID,
   defaultCollapsed = false,
 }: Props) {
+  const { t } = useTranslation('concierge');
   const { briefing: queueBriefing } = useAiTradeQueue();
   const briefing = useMemo(
     () => queueBriefing ?? buildMockAiStrategyBriefing(marketRegime),
@@ -167,7 +169,11 @@ export function AiTradeQueueSection({
             <Text style={styles.sectionSubtitle}>{queueSubtitle}</Text>
           </View>
           <Text style={styles.collapseToggle}>
-            {bodyExpanded ? '閉じる' : `詳細を見る${activeCount > 0 ? `（${activeCount}件）` : ''}`}
+            {bodyExpanded
+              ? t('tradeQueue.closeDetails')
+              : activeCount > 0
+                ? t('tradeQueue.viewDetailsWithCount', { count: activeCount })
+                : t('tradeQueue.viewExplanation')}
           </Text>
         </Pressable>
       ) : (

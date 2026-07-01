@@ -406,7 +406,8 @@ export function AiAssistantChat({
   );
   useEffect(() => {
     setMessages(getInitialAiChatMessages());
-  }, [appLanguage, languageRevision]);
+    setStatusJa(statusJaForRequestStatus(requestStatus));
+  }, [appLanguage, languageRevision, requestStatus]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -439,7 +440,7 @@ export function AiAssistantChat({
       .then((probe) => {
         if (!mountedRef.current || controller.signal.aborted) return;
         setRequestStatus(probe.requestStatus);
-        setStatusJa(probe.statusJa);
+        setStatusJa(statusJaForRequestStatus(probe.requestStatus));
         setErrorJa(probe.errorJa);
         setApiConnected(probe.apiConnected);
         setUsedMockFallback(false);
@@ -545,7 +546,7 @@ export function AiAssistantChat({
 
   const applyResult = useCallback((result: AiStrategyChatResult) => {
     setRequestStatus(result.requestStatus);
-    setStatusJa(result.statusJa);
+    setStatusJa(statusJaForRequestStatus(result.requestStatus));
     setApiConnected(result.apiConnected);
     setUsedMockFallback(result.usedMockFallback);
     setErrorJa(result.errorJa);

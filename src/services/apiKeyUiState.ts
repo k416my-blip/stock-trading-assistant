@@ -1,6 +1,4 @@
-/**
- * APIキー UI 状態 — 実キーを TextInput に載せず、設定済み/未設定 + マスクのみ表示
- */
+import type { TFunction } from 'i18next';
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
 import { maskSecret } from '../utils/secretMask';
 import { hasSavedKey } from './apiKeys';
@@ -43,4 +41,12 @@ export function createEmptyApiKeyDrafts(): Record<SupportedApiProviderId, string
 export function formatConfiguredStatusLine(status: ApiKeyConfiguredStatus): string {
   if (!status.configured) return '未設定';
   return `設定済み（${status.maskedHint}）`;
+}
+
+export function formatConfiguredStatusLineI18n(
+  status: ApiKeyConfiguredStatus,
+  t: TFunction<'settings'>,
+): string {
+  if (!status.configured) return t('common.notConfigured');
+  return t('configuredWithMask', { mask: status.maskedHint });
 }

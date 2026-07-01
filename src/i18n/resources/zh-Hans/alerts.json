@@ -35,5 +35,25 @@
     "earnings": "财报",
     "watch": "监控",
     "market": "整体市场"
+  },
+  "todayActionPrefix": "今日最重要行动：{{action}}",
+  "netProfitIncrease": "{{symbol}} 净利润增长 {{pct}}%（{{from}} → {{to}}）",
+  "netProfitDecrease": "{{symbol}} 净利润下降 {{pct}}%（{{from}} → {{to}}）",
+  "recommendedBuyShares": "建议买入：{{symbol}}，{{shares}} 股",
+  "undervaluedRank": "低估 {{pct}}% · 综合排名第 {{rank}}",
+  "rankPosition": "综合排名第 {{rank}}",
+  "dataUnavailable": "数据不可用",
+  "materialQualityLabels": {
+    "fullStack": "Bursa+RSS+News+X+Reddit",
+    "bursaRssNews": "Bursa+RSS+News",
+    "bursaRss": "Bursa+RSS",
+    "rssOnly": "仅 RSS",
+    "insufficient": "数据不足"
+  },
+  "fallbacks": {
+    "sellKindProfitTaking": "获利了结",
+    "sellKindStopLoss": "止损",
+    "addToPosition": "加仓",
+    "considerBuy": "考虑买入"
   }
 }

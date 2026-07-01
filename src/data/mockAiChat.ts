@@ -9,6 +9,7 @@ import {
 import { createDatetimeInstantMessage } from '../services/currentDateTime';
 import { getConciergeInstantAnswer } from '../services/aiConciergeInstantAnswers';
 import { i18n } from '../i18n';
+import { isJaAppLocale } from '../utils/localeScript';
 import { classifyConciergeResponseIntent } from '../services/aiConciergeResponseIntent';
 import {
   resolveConciergeConversationMode,
@@ -20,7 +21,7 @@ import type { AiConciergeConversationMode, AiConciergeResponseIntent } from '../
 const WELCOME: AiChatMessage = createChatMessage({
   id: 'welcome',
   role: 'assistant',
-  text: 'こんにちは。戦略コンシェルジュです。用語・銘柄・マクロ・保有の見方など、質問に直接答えます。',
+  text: '',
   responseIntent: 'general_education',
   conversationMode: 'conversation',
 });
@@ -30,6 +31,14 @@ function buildWelcomeMessage(): AiChatMessage {
     ...WELCOME,
     text: i18n.t('concierge:welcomeMessage'),
   };
+}
+
+function mockReply(key: string): string {
+  return i18n.t(`concierge:mockReply.${key}`);
+}
+
+function replyForLocale(ja: string, enKey: string): string {
+  return isJaAppLocale() ? ja : mockReply(enKey);
 }
 
 function finalizeMockReply(
@@ -93,8 +102,14 @@ function buildReply(
   if (/なぜ買い推奨|買い推奨の理由/.test(raw)) {
     return finalizeMockReply(
       detailed
-        ? '買い推奨の根拠は、支持帯付近の押し目とトレンド維持の組み合わせが多いです。信頼度は中程度以下のことが多く、小口で検証する前提です。'
-        : 'モックでは、支持帯付近の押し目やトレンド維持を「買い推奨」の参考理由としています。',
+        ? replyForLocale(
+            '買い推奨の根拠は、支持帯付近の押し目とトレンド維持の組み合わせが多いです。信頼度は中程度以下のことが多く、小口で検証する前提です。',
+            'buyReasonDetailed',
+          )
+        : replyForLocale(
+            'モックでは、支持帯付近の押し目やトレンド維持を「買い推奨」の参考理由としています。',
+            'buyReasonBrief',
+          ),
       undefined,
       'investment_analysis',
       raw,
@@ -103,7 +118,10 @@ function buildReply(
 
   if (/なぜ売却検討|売却検討の理由/.test(raw)) {
     return finalizeMockReply(
-      'モックでは、公平価値帯より高い、またはボラティリティ拡大時に「売却検討」を付与します。過剰保有の整理の目安です。',
+      replyForLocale(
+        'モックでは、公平価値帯より高い、またはボラティリティ拡大時に「売却検討」を付与します。過剰保有の整理の目安です。',
+        'sellReason',
+      ),
       undefined,
       'investment_analysis',
       raw,
@@ -112,7 +130,7 @@ function buildReply(
 
   if (/緊急性/.test(raw)) {
     return finalizeMockReply(
-      '緊急性「高」は監視を促すラベルで、取引を促すものではありません。',
+      replyForLocale('緊急性「高」は監視を促すラベルで、取引を促すものではありません。', 'urgency'),
       undefined,
       'investment_analysis',
       raw,
@@ -121,7 +139,10 @@ function buildReply(
 
   if (/今のリスク|リスクは/.test(raw)) {
     return finalizeMockReply(
-      'いま押さえるべきは、古い株価での判断、API未接続時のモック精度、ポジションサイズの過大の3点です。',
+      replyForLocale(
+        'いま押さえるべきは、古い株価での判断、API未接続時のモック精度、ポジションサイズの過大の3点です。',
+        'risk',
+      ),
       undefined,
       'general_education',
       raw,
@@ -135,7 +156,10 @@ function buildReply(
 
   if (has1155 && hasSell) {
     return finalizeMockReply(
-      '1155（マレー銀行）はモックでは「保有推奨」寄りです。過剰保有でなければ、いまは売却を急ぐ必要は薄いと見ています。',
+      replyForLocale(
+        '1155（マレー銀行）はモックでは「保有推奨」寄りです。過剰保有でなければ、いまは売却を急ぐ必要は薄いと見ています。',
+        'hold1155',
+      ),
       undefined,
       'investment_analysis',
       raw,
@@ -144,7 +168,10 @@ function buildReply(
 
   if (has1155 || hasBuy) {
     return finalizeMockReply(
-      '小口の「買い推奨」候補はありますが、信頼度は中以下です。まず練習モードで記録フローを確認するのが無難です。',
+      replyForLocale(
+        '小口の「買い推奨」候補はありますが、信頼度は中以下です。まず練習モードで記録フローを確認するのが無難です。',
+        'buyCandidate',
+      ),
       undefined,
       'investment_analysis',
       raw,
@@ -153,7 +180,7 @@ function buildReply(
 
   if (hasSell) {
     return finalizeMockReply(
-      '売却検討は、ポジションとニュースを自分で確認するための目安ラベルです。',
+      replyForLocale('売却検討は、ポジションとニュースを自分で確認するための目安ラベルです。', 'sellGuide'),
       undefined,
       'investment_analysis',
       raw,
@@ -161,7 +188,10 @@ function buildReply(
   }
 
   return finalizeMockReply(
-    'ご質問ありがとうございます。銘柄コード（例: 1155）や「注目銘柄は？」「リスクオフとは？」のように具体的に聞いてもらえると、すぐ答えられます。',
+    replyForLocale(
+      'ご質問ありがとうございます。銘柄コード（例: 1155）や「注目銘柄は？」「リスクオフとは？」のように具体的に聞いてもらえると、すぐ答えられます。',
+      'generic',
+    ),
     undefined,
     'general_education',
     raw,

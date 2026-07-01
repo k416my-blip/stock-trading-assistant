@@ -14,6 +14,13 @@ import {
   translateAlertCategory,
   translateAlertTrigger,
 } from '../utils/alertsI18nHelpers';
+import {
+  formatMaterialQualityLabelDisplay,
+  formatNotificationMessageDisplay,
+  formatNotificationTitleDisplay,
+  formatTodayActionDisplay,
+  formatTodayReasonDisplay,
+} from '../utils/bursaNotificationDisplay';
 import { theme } from '../theme';
 
 function NotificationQualityBlock({
@@ -29,7 +36,8 @@ function NotificationQualityBlock({
   return (
     <View style={styles.qualityBlock}>
       <Text style={styles.qualityLine}>
-        {t('materialQuality')} {quality.stars} {quality.labelJa}
+        {t('materialQuality')} {quality.stars}{' '}
+        {formatMaterialQualityLabelDisplay(quality.labelJa, t)}
       </Text>
     </View>
   );
@@ -86,10 +94,12 @@ export function AiNotificationsScreen() {
         </View>
 
         <Section title={t('sections.todayAction')}>
-          <Text style={styles.todayAction}>{report.todayActionJa}</Text>
+          <Text style={styles.todayAction}>
+            {formatTodayActionDisplay(report.todayActionJa, t)}
+          </Text>
           {report.todayReasonsJa.map((r, i) => (
             <Text key={`reason-${i}`} style={styles.reason}>
-              {t('reasonPrefix')} {r}
+              {t('reasonPrefix')} {formatTodayReasonDisplay(r, t)}
             </Text>
           ))}
         </Section>
@@ -116,8 +126,19 @@ export function AiNotificationsScreen() {
                   <Text style={styles.importance}>{n.importanceJa}</Text>
                   <Text style={styles.category}>{translateAlertCategory(t, n.categoryJa)}</Text>
                 </View>
-                <Text style={styles.title}>{n.titleJa}</Text>
-                <Text style={styles.message}>{n.messageJa}</Text>
+                <Text style={styles.title}>
+                  {formatNotificationTitleDisplay(
+                    {
+                      titleJa: n.titleJa,
+                      triggerKindJa: n.triggerKindJa,
+                      stockCodeJa: n.stockCodeJa,
+                    },
+                    t,
+                  )}
+                </Text>
+                <Text style={styles.message}>
+                  {formatNotificationMessageDisplay(n.messageJa, t, n.stockCodeJa)}
+                </Text>
                 {n.stockCodeJa !== CONCIERGE_NOTIFY_MISSING_JA ? (
                   <NotificationQualityBlock
                     stockCode={n.stockCodeJa}
@@ -138,8 +159,19 @@ export function AiNotificationsScreen() {
               onPress={() => void markRead(n.id)}
             >
               <Text style={styles.importance}>{n.importanceJa}</Text>
-              <Text style={styles.title}>{n.titleJa}</Text>
-              <Text style={styles.message}>{n.messageJa}</Text>
+              <Text style={styles.title}>
+                {formatNotificationTitleDisplay(
+                  {
+                    titleJa: n.titleJa,
+                    triggerKindJa: n.triggerKindJa,
+                    stockCodeJa: n.stockCodeJa,
+                  },
+                  t,
+                )}
+              </Text>
+              <Text style={styles.message}>
+                {formatNotificationMessageDisplay(n.messageJa, t, n.stockCodeJa)}
+              </Text>
               {n.stockCodeJa !== CONCIERGE_NOTIFY_MISSING_JA ? (
                 <NotificationQualityBlock
                   stockCode={n.stockCodeJa}

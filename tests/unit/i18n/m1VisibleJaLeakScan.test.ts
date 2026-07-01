@@ -34,6 +34,12 @@ const M1_COMPONENT_PATHS = [
   'src/components/concierge/AiDailyCommentPanel.tsx',
   'src/components/concierge/ConciergeTodayProposalsPanel.tsx',
   'src/components/concierge/ConciergeBursaNotificationDigestPanel.tsx',
+  'src/components/BursaConciergeHomeCard.tsx',
+  'src/components/concierge/ConciergeShortAnswerBlock.tsx',
+  'src/components/SettingsAdvancedDisclosureSection.tsx',
+  'src/components/AiTradeQueueSection.tsx',
+  'src/components/AiTradeQueueCard.tsx',
+  'src/utils/bursaNotificationDisplay.ts',
   'src/components/concierge/BeginnerConciergeQuickActions.tsx',
   'src/screens/SettingsScreen.tsx',
   'src/components/LanguagePickerModal.tsx',
@@ -262,6 +268,49 @@ describe('M1 visible JA leak — component scan', () => {
         violations.push(`${rel}:${idx + 1}: ${line.trim()}`);
       });
     }
+
+    expect(violations).toEqual([]);
+  });
+});
+
+describe('M1 visible JA leak — notification display wiring', () => {
+  const NOTIFICATION_CONSUMERS = [
+    'src/screens/AiNotificationsScreen.tsx',
+    'src/components/concierge/ConciergeBursaNotificationDigestPanel.tsx',
+    'src/components/BursaConciergeHomeCard.tsx',
+  ] as const;
+
+  it('M1 notification consumers avoid raw titleJa/messageJa in JSX', () => {
+    const violations: string[] = [];
+    const rawJaField = /\{(?:n|top|report)\.(?:titleJa|messageJa|todayActionJa)\}/;
+
+    for (const rel of NOTIFICATION_CONSUMERS) {
+      const content = readFileSync(join(REPO_ROOT, rel), 'utf8');
+      content.split('\n').forEach((line, idx) => {
+        if (!rawJaField.test(line)) return;
+        if (line.includes('formatNotification') || line.includes('formatTodayAction')) return;
+        violations.push(`${rel}:${idx + 1}: ${line.trim()}`);
+      });
+    }
+
+    expect(violations).toEqual([]);
+  });
+});
+
+describe('M1 visible JA leak — mockAiChat locale guard', () => {
+  it('mockAiChat hardcoded hiragana replies are behind isJaAppLocale', () => {
+    const content = readFileSync(join(REPO_ROOT, 'src/data/mockAiChat.ts'), 'utf8');
+    const hiraganaLine = /[\u3040-\u309F]/;
+    const violations: string[] = [];
+
+    content.split('\n').forEach((line, idx, lines) => {
+      if (!hiraganaLine.test(line)) return;
+      if (line.includes('//') || line.includes('*')) return;
+      const context = lines.slice(Math.max(0, idx - 2), idx + 2).join('\n');
+      if (context.includes('replyForLocale') || context.includes('const WELCOME')) return;
+      if (/if \(\//.test(line)) return;
+      violations.push(`src/data/mockAiChat.ts:${idx + 1}: ${line.trim()}`);
+    });
 
     expect(violations).toEqual([]);
   });

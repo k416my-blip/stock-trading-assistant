@@ -1,11 +1,8 @@
 import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  AI_CONCIERGE_BEGINNER_GUIDE_BODY_JA,
-  AI_CONCIERGE_BEGINNER_GUIDE_TITLE_JA,
-  SETTINGS_ADVANCED_DISCLOSURE_TEST_ID,
-} from '../constants/aiConciergeLayout';
+import { SETTINGS_ADVANCED_DISCLOSURE_TEST_ID } from '../constants/aiConciergeLayout';
 import type { RootStackParamList } from '../navigation/types';
 import { PlatformClarificationCard } from './PlatformClarificationCard';
 import { RiskNoticeOrangeBox } from './RiskNoticeOrangeBox';
@@ -14,17 +11,22 @@ import { Card } from './ui/Card';
 import { SelectableText } from './ui/SelectableText';
 import { theme } from '../theme';
 
-/** Settings → 詳細設定 — beginner guide, personal-use notice, risk disclosure */
+/** Settings → advanced disclosure — beginner guide, personal-use notice, risk disclosure */
 export function SettingsAdvancedDisclosureSection() {
+  const { t } = useTranslation('settings');
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.wrap}>
       <Card testID={SETTINGS_ADVANCED_DISCLOSURE_TEST_ID.beginner_guide} style={styles.beginnerCard}>
-        <SelectableText style={styles.beginnerTitle}>{AI_CONCIERGE_BEGINNER_GUIDE_TITLE_JA}</SelectableText>
-        <SelectableText style={styles.beginnerBody}>{AI_CONCIERGE_BEGINNER_GUIDE_BODY_JA}</SelectableText>
+        <SelectableText style={styles.beginnerTitle}>
+          {t('advancedDisclosure.beginnerGuideTitle')}
+        </SelectableText>
+        <SelectableText style={styles.beginnerBody}>
+          {t('advancedDisclosure.beginnerGuideBody')}
+        </SelectableText>
         <Button
-          label="初心者ガイドを開く"
+          label={t('advancedDisclosure.openBeginnerGuide')}
           onPress={() => stackNav.navigate('MainTabs', { screen: 'BeginnerGuide' })}
           variant="ghost"
         />
@@ -34,7 +36,7 @@ export function SettingsAdvancedDisclosureSection() {
       </View>
       <RiskNoticeOrangeBox testID={SETTINGS_ADVANCED_DISCLOSURE_TEST_ID.risk_notice} />
       <Button
-        label="リスク告知（全文）"
+        label={t('advancedDisclosure.riskNoticeFull')}
         onPress={() => stackNav.navigate('RiskWarning')}
         variant="ghost"
       />

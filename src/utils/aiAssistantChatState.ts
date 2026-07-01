@@ -1,7 +1,13 @@
 import { AI_ERROR_API_KEY_MISSING } from '../constants/aiStrategy';
+import { i18n } from '../i18n';
 import { statusLabelJa } from '../services/apiConnectionStatusMapper';
 import type { ApiConnectionStatus } from '../types/apiConnection';
 import type { AiRequestStatus } from '../types/aiStrategy';
+import { requestStatusLabelForLocale, resolveIdleStatusLabels } from './aiRequestStatusI18n';
+import { statusLabelForLocale } from './apiConnectionI18n';
+import { isJaAppLocale } from './localeScript';
+
+const tSettings = () => i18n.getFixedT(null, 'settings');
 
 const IN_FLIGHT: AiRequestStatus[] = [
   'checking_api_key',
@@ -23,6 +29,9 @@ export function shouldShowApiSpinner(status: AiRequestStatus, isLoading: boolean
 }
 
 export function statusJaForRequestStatus(status: AiRequestStatus): string {
+  if (!isJaAppLocale()) {
+    return requestStatusLabelForLocale(status, tSettings());
+  }
   switch (status) {
     case 'idle':
       return '待機中';
@@ -63,23 +72,32 @@ export function resolveIdleConnectionStatus(input: {
   hasApiKey: boolean;
   connectionStatus?: ApiConnectionStatus;
 }): { requestStatus: AiRequestStatus; statusJa: string; errorJa: string | null } {
+  const idleLabels = resolveIdleStatusLabels(tSettings());
   if (!input.aiEnabled) {
-    return { requestStatus: 'idle', statusJa: 'AI機能オフ — モック応答', errorJa: null };
+    return {
+      requestStatus: 'idle',
+      statusJa: isJaAppLocale() ? 'AI機能オフ — モック応答' : idleLabels.aiDisabled,
+      errorJa: null,
+    };
   }
   if (input.mockOnly) {
-    return { requestStatus: 'idle', statusJa: 'モックのみ — 外部API未使用', errorJa: null };
+    return {
+      requestStatus: 'idle',
+      statusJa: isJaAppLocale() ? 'モックのみ — 外部API未使用' : idleLabels.mockOnly,
+      errorJa: null,
+    };
   }
   if (!input.hasApiKey) {
     return {
       requestStatus: 'api_key_missing',
-      statusJa: 'APIキー未設定',
+      statusJa: isJaAppLocale() ? 'APIキー未設定' : idleLabels.apiKeyMissing,
       errorJa: AI_ERROR_API_KEY_MISSING,
     };
   }
   const status = input.connectionStatus ?? 'key_saved_unverified';
   return {
     requestStatus: status === 'connected' ? 'success' : 'idle',
-    statusJa: statusLabelJa(status),
+    statusJa: isJaAppLocale() ? statusLabelJa(status) : statusLabelForLocale(status, tSettings()),
     errorJa: null,
   };
 }

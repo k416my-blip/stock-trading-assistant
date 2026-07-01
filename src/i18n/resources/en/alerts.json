@@ -35,5 +35,25 @@
     "earnings": "Earnings",
     "watch": "Watch",
     "market": "Market"
+  },
+  "todayActionPrefix": "Today's top action: {{action}}",
+  "netProfitIncrease": "{{symbol}} net profit increased by {{pct}}% ({{from}} → {{to}})",
+  "netProfitDecrease": "{{symbol}} net profit decreased by {{pct}}% ({{from}} → {{to}})",
+  "recommendedBuyShares": "Recommended buy: {{symbol}}, {{shares}} shares",
+  "undervaluedRank": "Undervalued {{pct}}% · Overall rank {{rank}}",
+  "rankPosition": "Overall rank {{rank}}",
+  "dataUnavailable": "Data unavailable",
+  "materialQualityLabels": {
+    "fullStack": "Bursa+RSS+News+X+Reddit",
+    "bursaRssNews": "Bursa+RSS+News",
+    "bursaRss": "Bursa+RSS",
+    "rssOnly": "RSS only",
+    "insufficient": "Insufficient data"
+  },
+  "fallbacks": {
+    "sellKindProfitTaking": "Profit taking",
+    "sellKindStopLoss": "Stop loss",
+    "addToPosition": "add to position",
+    "considerBuy": "consider buying"
   }
 }

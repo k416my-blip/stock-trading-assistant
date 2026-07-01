@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import type { AiTradeQueueItem } from '../types/aiStrategyBriefing';
 import { colorForAiUrgency } from '../constants/urgencyColors';
@@ -60,6 +61,7 @@ export function AiTradeQueueCard({
   onPressDetails,
   onAcknowledge,
 }: Props) {
+  const { t } = useTranslation('concierge');
   const variant = variantFromStatus(ackStatus, variantProp);
   const isActive = variant === 'active';
   const isHistory = variant === 'history';
@@ -233,7 +235,7 @@ export function AiTradeQueueCard({
               accessibilityLabel={`${item.ticker}の詳細`}
             >
               <Text style={[styles.detailsLabel, isHistory && styles.textGrey]}>
-                {AI_UI.viewExplanation}
+                {t('tradeQueue.viewExplanation')}
               </Text>
               <Ionicons
                 name="chevron-down"

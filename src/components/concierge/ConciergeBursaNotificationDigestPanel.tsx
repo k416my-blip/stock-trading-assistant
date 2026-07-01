@@ -8,10 +8,16 @@ import { useAppUxMode } from '../../context/AppUxModeContext';
 import type { MainTabParamList } from '../../navigation/types';
 import { Card } from '../ui/Card';
 import { SelectableText } from '../ui/SelectableText';
+import {
+  formatNotificationMessageDisplay,
+  formatNotificationTitleDisplay,
+  formatTodayActionDisplay,
+} from '../../utils/bursaNotificationDisplay';
 import { theme } from '../../theme';
 
 export function ConciergeBursaNotificationDigestPanel() {
   const { t } = useTranslation('concierge');
+  const { t: tAlerts } = useTranslation('alerts');
   const { report, loading } = useBursaConcierge();
   const { isBeginnerMode } = useAppUxMode();
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
@@ -40,10 +46,17 @@ export function ConciergeBursaNotificationDigestPanel() {
         latestThree.map((n) => (
           <View key={n.id} style={styles.row} testID={`concierge-bursa-digest-${n.id}`}>
             <Text style={styles.rowTitle} numberOfLines={1}>
-              {n.titleJa}
+              {formatNotificationTitleDisplay(
+                {
+                  titleJa: n.titleJa,
+                  triggerKindJa: n.triggerKindJa,
+                  stockCodeJa: n.stockCodeJa,
+                },
+                tAlerts,
+              )}
             </Text>
             <SelectableText style={styles.rowSummary} numberOfLines={2}>
-              {n.messageJa}
+              {formatNotificationMessageDisplay(n.messageJa, tAlerts, n.stockCodeJa)}
             </SelectableText>
           </View>
         ))

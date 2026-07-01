@@ -36,10 +36,11 @@ import {
 } from '../services/apiKeys';
 import {
   createEmptyApiKeyDrafts,
-  formatConfiguredStatusLine,
+  formatConfiguredStatusLineI18n,
   loadAllApiKeyConfiguredStatuses,
   type ApiKeyConfiguredStatus,
 } from '../services/apiKeyUiState';
+import { getApiProviderHelpText } from '../utils/apiProviderHelpText';
 import { testApiConnection, type ApiConnectionState } from '../services/apiHealth';
 import {
   buildOperationalCoreApiRows,
@@ -578,7 +579,7 @@ export function SettingsScreen() {
         {API_PROVIDERS.map((provider) => {
           const status = apiKeyStatus[provider.id];
           const saved = status.configured;
-          const masked = formatConfiguredStatusLine(status);
+          const masked = formatConfiguredStatusLineI18n(status, t);
           const state = apiConnectionStates[provider.id];
           const stateColor =
             state === 'ok'
@@ -592,7 +593,7 @@ export function SettingsScreen() {
           return (
             <View key={provider.id} style={styles.apiProviderBlock}>
               <Text style={styles.apiProviderTitle}>{provider.label}</Text>
-              <Text style={styles.apiHelpText}>{provider.helpText}</Text>
+              <Text style={styles.apiHelpText}>{getApiProviderHelpText(provider.id, t)}</Text>
               <Text style={styles.apiMaskText}>{t('apiKeys.savedState')}: {masked}</Text>
               <Text style={[styles.apiStatusText, { color: stateColor }]}>
                 {t('apiKeys.connectionState')}: {saved ? apiConnectionMessages[provider.id] : t('common.notTested')}
@@ -800,18 +801,17 @@ export function SettingsScreen() {
           );
         })}
 
+        {isProMode ? (
         <View style={styles.operationalBlock}>
-          <Text style={styles.sectionTitle}>実運用テスト</Text>
-          <Text style={styles.sectionHint}>
-            SecureStore のキーで株価・ニュース・OpenAI・X を一括取得します。結果は Metro にも出力されます。
-          </Text>
+          <Text style={styles.sectionTitle}>{t('operationalTest.sectionTitle')}</Text>
+          <Text style={styles.sectionHint}>{t('operationalTest.sectionHint')}</Text>
           <Button
-            label={operationalRunning ? 'テスト実行中…' : '実運用テスト実行'}
+            label={operationalRunning ? t('operationalTest.runBusy') : t('operationalTest.runAction')}
             onPress={() => void onRunOperationalTest()}
             disabled={operationalRunning}
           />
           <Button
-            label={deviceAuditRunning ? '監査中…' : '実機監査（6銘柄）'}
+            label={deviceAuditRunning ? t('operationalTest.deviceAuditBusy') : t('operationalTest.deviceAuditAction')}
             onPress={() => void onRunDeviceLiveApiAudit()}
             disabled={deviceAuditRunning || operationalRunning}
             variant="ghost"
@@ -819,15 +819,18 @@ export function SettingsScreen() {
           {operationalReport ? (
             <View style={styles.operationalResults}>
               <Text style={styles.operationalSummary}>
-                {operationalReport.displayRows.filter((r) => r.ok).length}/{operationalReport.displayRows.length} 成功
+                {t('operationalTest.successCount', {
+                  ok: operationalReport.displayRows.filter((r) => r.ok).length,
+                  total: operationalReport.displayRows.length,
+                })}
                 {' · '}
-                {new Date(operationalReport.generatedAt).toLocaleString('ja-JP')}
+                {new Date(operationalReport.generatedAt).toLocaleString()}
               </Text>
-              <Text style={styles.sectionHint}>主要 API（OpenAI · Twelve Data · NewsAPI）</Text>
+              <Text style={styles.sectionHint}>{t('operationalTest.coreApis')}</Text>
               <View style={styles.operationalTableHeader}>
-                <Text style={[styles.operationalColApi, styles.operationalHeaderText]}>API名</Text>
-                <Text style={[styles.operationalColStatus, styles.operationalHeaderText]}>結果</Text>
-                <Text style={[styles.operationalColMs, styles.operationalHeaderText]}>応答(ms)</Text>
+                <Text style={[styles.operationalColApi, styles.operationalHeaderText]}>{t('operationalTest.colApi')}</Text>
+                <Text style={[styles.operationalColStatus, styles.operationalHeaderText]}>{t('operationalTest.colResult')}</Text>
+                <Text style={[styles.operationalColMs, styles.operationalHeaderText]}>{t('operationalTest.colMs')}</Text>
               </View>
               {buildOperationalCoreApiRows(operationalReport).map((row, index) => (
                 <View key={`core-${row.apiName}-${index}`} style={styles.operationalTableRow}>
@@ -840,12 +843,12 @@ export function SettingsScreen() {
                       { color: row.ok ? theme.colors.success : theme.colors.danger },
                     ]}
                   >
-                    {row.ok ? '成功' : '失敗'}
+                    {row.ok ? t('operationalTest.ok') : t('operationalTest.fail')}
                   </Text>
                   <Text style={styles.operationalColMs}>{row.elapsedMs}</Text>
                 </View>
               ))}
-              <Text style={[styles.sectionHint, { marginTop: 8 }]}>詳細（全プロバイダ）</Text>
+              <Text style={[styles.sectionHint, { marginTop: 8 }]}>{t('operationalTest.allProviders')}</Text>
               {operationalReport.displayRows.map((row, index) => (
                 <View key={`${row.apiName}-${index}`} style={styles.operationalTableRow}>
                   <Text style={styles.operationalColApi} numberOfLines={2}>
@@ -857,7 +860,7 @@ export function SettingsScreen() {
                       { color: row.ok ? theme.colors.success : theme.colors.danger },
                     ]}
                   >
-                    {row.ok ? '成功' : '失敗'}
+                    {row.ok ? t('operationalTest.ok') : t('operationalTest.fail')}
                   </Text>
                   <Text style={styles.operationalColMs}>{row.elapsedMs}</Text>
                 </View>
@@ -876,6 +879,7 @@ export function SettingsScreen() {
             </View>
           ) : null}
         </View>
+        ) : null}
 
         <SettingsMenuRow
           icon="key"
@@ -885,26 +889,26 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="link-outline"
-          title="API設定ウィザード"
-          subtitle="OpenAI · News · 決算 · Reddit · X · 接続確認"
+          title={t('nav.apiSetupWizard')}
+          subtitle={t('nav.apiSetupWizardSubtitle')}
           onPress={() => stackNav.navigate('ApiSetupWizard')}
         />
         <SettingsMenuRow
           icon="pulse-outline"
-          title="API接続診断"
-          subtitle="全APIの実接続状態 · モック理由 · 一括テスト"
+          title={t('nav.apiDiagnostics')}
+          subtitle={t('nav.apiDiagnosticsSubtitle')}
           onPress={() => stackNav.navigate('ApiConnectionDiagnostics')}
         />
         <SettingsMenuRow
           icon="logo-twitter"
-          title="X API 利用量"
-          subtitle="節約モード · 本日の使用量 · クレジット予測"
+          title={t('nav.xApiUsage')}
+          subtitle={t('nav.xApiUsageSubtitle')}
           onPress={() => stackNav.navigate('XApiUsage')}
         />
         <SettingsMenuRow
           icon="chatbubbles-outline"
-          title="AI戦略アシスタント設定"
-          subtitle="OpenAI互換API · モック切替 · 会話履歴"
+          title={t('nav.aiStrategySettings')}
+          subtitle={t('nav.aiStrategySettingsSubtitle')}
           onPress={() => stackNav.navigate('AiSettings')}
         />
         <SettingsMenuRow
@@ -915,19 +919,19 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="globe-outline"
-          title="市場設定"
+          title={t('nav.marketSettings')}
           subtitle={MARKET_LABEL[state.settings.selectedMarket]}
           onPress={() => stackNav.navigate('MarketSettings')}
         />
         <SettingsMenuRow
           icon="cash-outline"
-          title="通貨設定"
-          subtitle="表示は MYR · 各市場の取引通貨"
+          title={t('nav.currencySettings')}
+          subtitle={t('nav.currencySettingsSubtitle')}
           onPress={() => stackNav.navigate('CurrencySettings')}
         />
         <SettingsMenuRow
           icon="school-outline"
-          title="練習モード設定"
+          title={t('nav.practiceMode')}
           subtitle={isPractice ? APP_MODE_PRACTICE_LABEL : APP_MODE_LIVE_ANALYSIS_LABEL}
           onPress={() => stackNav.navigate('PracticeModeSettings')}
         />
@@ -937,18 +941,22 @@ export function SettingsScreen() {
           subtitle={t('nav.priceRefreshSubtitle', { label: refreshLabel })}
           onPress={() => stackNav.navigate('UpdateFrequencySettings')}
         />
+        {isProMode ? (
+        <>
         <SettingsMenuRow
           icon="pulse-outline"
-          title="市場データ診断"
-          subtitle="株価更新・API呼び出しの統計（開発確認用）"
+          title={t('nav.marketDataDiagnostics')}
+          subtitle={t('nav.marketDataDiagnosticsSubtitle')}
           onPress={() => stackNav.navigate('MarketDataDiagnostics')}
         />
         <SettingsMenuRow
           icon="document-text-outline"
-          title="執行照合"
-          subtitle="ジャーナルと保有の不一致 · 未確定注文"
+          title={t('nav.executionReconciliation')}
+          subtitle={t('nav.executionReconciliationSubtitle')}
           onPress={() => stackNav.navigate('ExecutionReconciliation')}
         />
+        </>
+        ) : null}
         <SettingsMenuRow
           icon="wallet-outline"
           title={t('rakutenRow.title')}
@@ -969,28 +977,32 @@ export function SettingsScreen() {
         />
         <SettingsMenuRow
           icon="lock-closed-outline"
-          title="セキュリティ"
-          subtitle="ローカル保存 · 整合性 · 機密データの削除"
+          title={t('nav.security')}
+          subtitle={t('nav.securitySubtitle')}
           onPress={() => stackNav.navigate('SecuritySettings')}
         />
+        {isProMode ? (
+        <>
         <SettingsMenuRow
           icon="medkit-outline"
-          title="起動診断"
-          subtitle="構造化ログ · 環境検証 · リリース準備"
+          title={t('nav.startupDiagnostics')}
+          subtitle={t('nav.startupDiagnosticsSubtitle')}
           onPress={() => stackNav.navigate('StartupDiagnostics')}
         />
         <SettingsMenuRow
           icon="shield-checkmark-outline"
-          title="個人用運用"
-          subtitle="バックアップ · ヘルスチェック · 緊急停止 · 実機テスト"
+          title={t('nav.personalProduction')}
+          subtitle={t('nav.personalProductionSubtitle')}
           onPress={() => stackNav.navigate('PersonalProduction')}
         />
         <SettingsMenuRow
           icon="speedometer-outline"
-          title="Production Dashboard"
-          subtitle="API · memory · queue · AI負荷 · 本番準備チェックリスト"
+          title={t('nav.productionDashboard')}
+          subtitle={t('nav.productionDashboardSubtitle')}
           onPress={() => stackNav.navigate('ProductionDashboard')}
         />
+        </>
+        ) : null}
         {isProMode ? (
         <>
         <SettingsMenuRow

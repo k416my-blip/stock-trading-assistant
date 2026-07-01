@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { ConciergeShortAnswer } from '../../types/conciergeUx';
+import { containsJapaneseScript, isJaAppLocale } from '../../utils/localeScript';
 import { listKey } from '../../utils/reactKeyDiagnostics';
 import { theme } from '../../theme';
 
@@ -7,54 +9,65 @@ type Props = {
   answer: ConciergeShortAnswer;
 };
 
+function displayText(
+  ja: string,
+  fallback: string,
+): string {
+  if (isJaAppLocale()) return ja;
+  if (containsJapaneseScript(ja)) return fallback;
+  return ja;
+}
+
 export function ConciergeShortAnswerBlock({ answer }: Props) {
+  const { t } = useTranslation('concierge');
+
   return (
     <View style={styles.wrap} testID="concierge-ux-short-answer">
       <Text selectable style={styles.conclusion}>
         <Text selectable style={styles.key}>
-          結論:{' '}
+          {t('shortAnswer.conclusion')}:{' '}
         </Text>
-        {answer.conclusionJa}
+        {displayText(answer.conclusionJa, t('shortAnswer.fallbackConclusion'))}
       </Text>
       {answer.factsJa?.map((fact, i) => (
         <Text key={listKey('fact', i, fact.labelJa)} selectable style={styles.fact}>
           <Text selectable style={styles.key}>
-            {fact.labelJa}:{' '}
+            {displayText(fact.labelJa, fact.labelJa)}:{' '}
           </Text>
-          {fact.valueJa}
+          {displayText(fact.valueJa, fact.valueJa)}
         </Text>
       ))}
       {answer.reasonsJa.length > 0 ? (
         <Text selectable style={styles.sectionLabel}>
-          判断理由
+          {t('shortAnswer.reasons')}
         </Text>
       ) : null}
       {answer.reasonsJa.map((r, i) => (
         <Text key={listKey('reason', i, r)} selectable style={styles.reason}>
-          {i + 1}. {r}
+          {i + 1}. {displayText(r, t('shortAnswer.fallbackReason'))}
         </Text>
       ))}
       {answer.riskJa ? (
         <Text selectable style={styles.risk}>
           <Text selectable style={styles.key}>
-            リスク:{' '}
+            {t('shortAnswer.risk')}:{' '}
           </Text>
-          {answer.riskJa}
+          {displayText(answer.riskJa, answer.riskJa)}
         </Text>
       ) : null}
       {answer.watchJa ? (
         <Text selectable style={styles.watch}>
           <Text selectable style={styles.key}>
-            次に見る:{' '}
+            {t('shortAnswer.watch')}:{' '}
           </Text>
-          {answer.watchJa}
+          {displayText(answer.watchJa, answer.watchJa)}
         </Text>
       ) : null}
       <Text selectable style={styles.action}>
         <Text selectable style={styles.key}>
-          推奨:{' '}
+          {t('shortAnswer.action')}:{' '}
         </Text>
-        {answer.actionJa}
+        {displayText(answer.actionJa, t('shortAnswer.fallbackAction'))}
       </Text>
     </View>
   );

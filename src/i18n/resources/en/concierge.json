@@ -100,6 +100,11 @@
     "buyCandidate": "Buy candidate",
     "pass": "Pass"
   },
+  "viewDetails": "View details",
+  "closeDetails": "Close",
+  "homeCardHeading": "AI Concierge — top alert",
+  "homeCardViewAlerts": "View AI alerts",
+  "homeCardUnreadCount": "({{count}} unread)",
   "alerts": {
     "openAiKeyMissingTitle": "OpenAI API key not set",
     "openAiKeyMissingBody": "Reading transaction screenshots requires an OpenAI API key. Use manual or natural-language entry instead.",
@@ -110,5 +115,31 @@
     "failureKindRateLimit": "Rate limit",
     "failureKindApiError": "API error",
     "failureKindUnknown": "Unknown"
+  },
+  "shortAnswer": {
+    "conclusion": "Conclusion",
+    "reasons": "Reasoning",
+    "risk": "Risk",
+    "watch": "Watch next",
+    "action": "Recommended",
+    "fallbackConclusion": "Summarized the available evidence.",
+    "fallbackReason": "Limited independent evidence — verify data updates",
+    "fallbackAction": "Review position size and stop rules before acting (reference only)."
+  },
+  "mockReply": {
+    "buyReasonDetailed": "Buy recommendations often combine support-zone pullbacks with trend maintenance. Confidence is often moderate or lower — validate with small size first.",
+    "buyReasonBrief": "In mock mode, support-zone pullbacks and trend maintenance are used as reference reasons for buy recommendations.",
+    "sellReason": "In mock mode, sell candidates appear when price is above fair value or volatility expands. Use as a guide to trim oversized positions.",
+    "urgency": "High urgency is a monitoring label — it does not prompt trading.",
+    "risk": "Focus on stale prices, mock accuracy when APIs are offline, and oversized positions.",
+    "hold1155": "1155 (Maybank) skews toward hold in mock mode. Unless overweight, there is little urgency to sell now.",
+    "buyCandidate": "Small buy candidates exist but confidence is moderate or lower. Practice mode is a safe way to test the logging flow.",
+    "sellGuide": "Sell candidates are reference labels — confirm position size and news yourself.",
+    "generic": "Thanks for your question. Ask with a ticker (e.g. 1155) or try “What should I watch?” or “What is risk-off?” for a quick answer."
+  },
+  "tradeQueue": {
+    "viewExplanation": "View details",
+    "closeDetails": "Close",
+    "viewDetailsWithCount": "View details ({{count}})"
   }
 }

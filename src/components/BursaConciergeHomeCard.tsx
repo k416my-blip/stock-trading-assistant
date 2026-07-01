@@ -1,13 +1,21 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Card } from './ui/Card';
 import { useBursaConcierge } from '../context/BursaConciergeContext';
 import type { MainTabParamList } from '../navigation/types';
-import { CONCIERGE_NOTIFY_MISSING_JA } from '../services/bursa/bursaConciergeNotificationService';
+import {
+  formatMissingDataLabel,
+  formatNotificationMessageDisplay,
+  formatNotificationTitleDisplay,
+  formatTodayActionDisplay,
+} from '../utils/bursaNotificationDisplay';
 import { theme } from '../theme';
 
 export function BursaConciergeHomeCard() {
+  const { t } = useTranslation('concierge');
+  const { t: tAlerts } = useTranslation('alerts');
   const { report, loading } = useBursaConcierge();
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
 
@@ -18,25 +26,41 @@ export function BursaConciergeHomeCard() {
 
   return (
     <Card>
-      <Text style={styles.heading}>AIコンシェルジュ — 最重要通知</Text>
+      <Text style={styles.heading}>{t('homeCardHeading')}</Text>
       {top ? (
         <>
           <Text style={styles.stars}>{top.importanceJa}</Text>
-          <Text style={styles.title}>{top.titleJa}</Text>
-          <Text style={styles.message}>{top.messageJa}</Text>
+          <Text style={styles.title}>
+            {formatNotificationTitleDisplay(
+              {
+                titleJa: top.titleJa,
+                triggerKindJa: top.triggerKindJa,
+                stockCodeJa: top.stockCodeJa,
+              },
+              tAlerts,
+            )}
+          </Text>
+          <Text style={styles.message}>
+            {formatNotificationMessageDisplay(top.messageJa, tAlerts, top.stockCodeJa)}
+          </Text>
         </>
       ) : (
-        <Text style={styles.message}>{CONCIERGE_NOTIFY_MISSING_JA}</Text>
+        <Text style={styles.message}>{formatMissingDataLabel(tAlerts)}</Text>
       )}
       {report?.todayActionJa ? (
-        <Text style={styles.today}>{report.todayActionJa}</Text>
+        <Text style={styles.today}>
+          {formatTodayActionDisplay(report.todayActionJa, tAlerts)}
+        </Text>
       ) : null}
       <Pressable
         style={styles.link}
         onPress={() => tabNav.navigate('AiNotifications')}
       >
         <Text style={styles.linkText}>
-          AI通知を見る{report?.unreadCount ? `（${report.unreadCount}件未読）` : ''}
+          {t('homeCardViewAlerts')}
+          {report?.unreadCount
+            ? ` ${t('homeCardUnreadCount', { count: report.unreadCount })}`
+            : ''}
         </Text>
       </Pressable>
     </Card>
