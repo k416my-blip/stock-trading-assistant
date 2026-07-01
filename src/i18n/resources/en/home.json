@@ -19,5 +19,19 @@
     "enterDeposit": "Enter deposit amount"
   },
   "trustNoPlanHint": "No allocation plan yet. Enter a deposit amount to create one.",
-  "portfolioSummary": "{{count}} stocks · Total RM {{amount}}"
+  "portfolioSummary": "{{count}} stocks · Total RM {{amount}}",
+  "todayAiAdvice": {
+    "title": "Today's AI advice",
+    "loading": "Loading AI advice...",
+    "empty": "No holdings or material data yet",
+    "newPurchaseAvailable": "New buy candidates available",
+    "noNewPurchase": "No new purchases",
+    "footer": "No need to rush trades",
+    "cta": "View details in Stock Check",
+    "lineHoldHeld": "{{name}} — Hold",
+    "lineHold": "{{name}} — Hold",
+    "lineMonitor": "{{name}} — Watch",
+    "lineBuyCandidate": "{{name}} — Buy candidate",
+    "linePass": "{{name}} — Pass"
+  }
 }

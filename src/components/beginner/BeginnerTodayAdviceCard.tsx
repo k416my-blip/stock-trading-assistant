@@ -1,7 +1,8 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { MATERIAL_CTA_FROM_HOME_JA } from '../../constants/beginnerTabLabelsJa';
+import type { BeginnerTodayAdviceLine } from '../../services/beginner/beginnerTodayAdviceBuilder';
 import type { BeginnerTodayAdviceCardData } from '../../services/beginner/beginnerTodayAdviceBuilder';
 import { theme } from '../../theme';
 
@@ -16,43 +17,56 @@ function bulletChar(bullet: 'filled' | 'open' | 'dash'): string {
   return '—';
 }
 
+function adviceLineKey(line: BeginnerTodayAdviceLine): string {
+  if (line.judgment === 'hold') {
+    return line.isHeld ? 'todayAiAdvice.lineHoldHeld' : 'todayAiAdvice.lineHold';
+  }
+  if (line.judgment === 'monitor') return 'todayAiAdvice.lineMonitor';
+  if (line.judgment === 'buy_candidate') return 'todayAiAdvice.lineBuyCandidate';
+  return 'todayAiAdvice.linePass';
+}
+
 export function BeginnerTodayAdviceCard({ data, onPressDetail }: Props) {
+  const { t } = useTranslation('home');
+
   if (data.loading) {
     return (
       <Card style={styles.card} testID="beginner-today-advice-card">
-        <Text style={styles.title}>今日のAIアドバイス</Text>
+        <Text style={styles.title}>{t('todayAiAdvice.title')}</Text>
         <View style={styles.loadingRow}>
           <ActivityIndicator size="small" color={theme.colors.primary} />
-          <Text style={styles.loadingText}>AIアドバイスを取得中…</Text>
+          <Text style={styles.loadingText}>{t('todayAiAdvice.loading')}</Text>
         </View>
       </Card>
     );
   }
 
+  const newPurchaseSummary = data.hasNewPurchase
+    ? t('todayAiAdvice.newPurchaseAvailable')
+    : t('todayAiAdvice.noNewPurchase');
+
   return (
     <Card style={styles.card} testID="beginner-today-advice-card">
-      <Text style={styles.title}>今日のAIアドバイス</Text>
+      <Text style={styles.title}>{t('todayAiAdvice.title')}</Text>
       <Text style={styles.date}>{data.dateJa}</Text>
 
       {data.lines.length === 0 ? (
-        <Text style={styles.emptyLine}>保有銘柄や材料データがまだありません</Text>
+        <Text style={styles.emptyLine}>{t('todayAiAdvice.empty')}</Text>
       ) : (
         data.lines.map((line) => (
           <Text key={line.symbol} style={styles.line}>
-            {bulletChar(line.bullet)} {line.lineJa}
+            {bulletChar(line.bullet)} {t(adviceLineKey(line), { name: line.nameJa })}
           </Text>
         ))
       )}
 
-      <Text style={styles.newPurchase}>
-        — {data.newPurchaseSummaryJa}
-      </Text>
+      <Text style={styles.newPurchase}>— {newPurchaseSummary}</Text>
 
-      <Text style={styles.footer}>{data.footerJa}</Text>
+      <Text style={styles.footer}>{t('todayAiAdvice.footer')}</Text>
 
       {onPressDetail ? (
         <Button
-          label={`${MATERIAL_CTA_FROM_HOME_JA} →`}
+          label={`${t('todayAiAdvice.cta')} →`}
           onPress={onPressDetail}
           variant="ghost"
         />

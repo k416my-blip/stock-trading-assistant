@@ -19,5 +19,19 @@
     "enterDeposit": "入金額を入力する"
   },
   "trustNoPlanHint": "今月の配分プランはまだありません。入金額を入力してプランを作成してください。",
-  "portfolioSummary": "{{count}} 銘柄 · 総資産 RM {{amount}}"
+  "portfolioSummary": "{{count}} 銘柄 · 総資産 RM {{amount}}",
+  "todayAiAdvice": {
+    "title": "今日のAIアドバイス",
+    "loading": "AIアドバイスを取得中…",
+    "empty": "保有銘柄や材料データがまだありません",
+    "newPurchaseAvailable": "新規購入候補あり",
+    "noNewPurchase": "新規購入  なし",
+    "footer": "急いで売買する必要はありません",
+    "cta": "銘柄チェックで詳しく見る",
+    "lineHoldHeld": "{{name}}  保有継続",
+    "lineHold": "{{name}}  保有",
+    "lineMonitor": "{{name}}  監視",
+    "lineBuyCandidate": "{{name}}  買い候補（検討）",
+    "linePass": "{{name}}  見送り"
+  }
 }

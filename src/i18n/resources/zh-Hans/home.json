@@ -19,5 +19,19 @@
     "enterDeposit": "输入入金金额"
   },
   "trustNoPlanHint": "尚无本月配置计划。请输入入金金额以创建计划。",
-  "portfolioSummary": "{{count}} 只股票 · 总资产 RM {{amount}}"
+  "portfolioSummary": "{{count}} 只股票 · 总资产 RM {{amount}}",
+  "todayAiAdvice": {
+    "title": "今日AI建议",
+    "loading": "正在获取AI建议...",
+    "empty": "尚无持仓或材料数据",
+    "newPurchaseAvailable": "有新买入候选",
+    "noNewPurchase": "无新买入",
+    "footer": "无需急于买卖",
+    "cta": "在股票检查中查看详情",
+    "lineHoldHeld": "{{name}} — 继续持有",
+    "lineHold": "{{name}} — 持有",
+    "lineMonitor": "{{name}} — 观察",
+    "lineBuyCandidate": "{{name}} — 买入候选",
+    "linePass": "{{name}} — 观望"
+  }
 }
