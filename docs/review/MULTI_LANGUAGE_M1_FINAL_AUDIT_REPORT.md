@@ -233,13 +233,18 @@ English に無い検出 9 件 — いずれも **日本語 UI 固定**（言語�
 
 ## 12. GitHub commit hash
 
-（コミット後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Commit** | `db2d184` — docs: add M1 i18n final audit report (en/zh-Hans JA leak scan). |
+| **Branch** | `cursor/top3-maxdd-capital-audit` |
 
 ---
 
 ## 13. push 結果
 
-（push 後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Push** | **success** — `954ebea..db2d184` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
