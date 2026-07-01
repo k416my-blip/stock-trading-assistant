@@ -28,38 +28,47 @@ import zhSettings from './zh-Hans/settings.json';
 import zhRakutenImport from './zh-Hans/rakutenImport.json';
 import zhErrors from './zh-Hans/errors.json';
 
+const jaBundle = {
+  common: jaCommon,
+  navigation: jaNavigation,
+  home: jaHome,
+  portfolio: jaPortfolio,
+  stockCheck: jaStockCheck,
+  concierge: jaConcierge,
+  settings: jaSettings,
+  rakutenImport: jaRakutenImport,
+  errors: jaErrors,
+} as const;
+
+const enBundle = {
+  common: enCommon,
+  navigation: enNavigation,
+  home: enHome,
+  portfolio: enPortfolio,
+  stockCheck: enStockCheck,
+  concierge: enConcierge,
+  settings: enSettings,
+  rakutenImport: enRakutenImport,
+  errors: enErrors,
+} as const;
+
+const zhHansBundle = {
+  common: zhCommon,
+  navigation: zhNavigation,
+  home: zhHome,
+  portfolio: zhPortfolio,
+  stockCheck: zhStockCheck,
+  concierge: zhConcierge,
+  settings: zhSettings,
+  rakutenImport: zhRakutenImport,
+  errors: zhErrors,
+} as const;
+
+/** zh / zh-CN aliases share zh-Hans bundles so i18next resolves any Chinese tag. */
 export const i18nResources = {
-  ja: {
-    common: jaCommon,
-    navigation: jaNavigation,
-    home: jaHome,
-    portfolio: jaPortfolio,
-    stockCheck: jaStockCheck,
-    concierge: jaConcierge,
-    settings: jaSettings,
-    rakutenImport: jaRakutenImport,
-    errors: jaErrors,
-  },
-  en: {
-    common: enCommon,
-    navigation: enNavigation,
-    home: enHome,
-    portfolio: enPortfolio,
-    stockCheck: enStockCheck,
-    concierge: enConcierge,
-    settings: enSettings,
-    rakutenImport: enRakutenImport,
-    errors: enErrors,
-  },
-  'zh-Hans': {
-    common: zhCommon,
-    navigation: zhNavigation,
-    home: zhHome,
-    portfolio: zhPortfolio,
-    stockCheck: zhStockCheck,
-    concierge: zhConcierge,
-    settings: zhSettings,
-    rakutenImport: zhRakutenImport,
-    errors: zhErrors,
-  },
+  ja: jaBundle,
+  en: enBundle,
+  'zh-Hans': zhHansBundle,
+  zh: zhHansBundle,
+  'zh-CN': zhHansBundle,
 } as const;

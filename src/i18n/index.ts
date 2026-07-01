@@ -1,10 +1,11 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import type { AppLanguage } from '../types/appLanguage';
+import { normalizeAppLanguage } from '../types/appLanguage';
 import {
   DEFAULT_APP_LANGUAGE,
   I18N_NAMESPACES,
-  SUPPORTED_APP_LANGUAGES,
+  I18N_SUPPORTED_LNGS,
 } from './config';
 import { i18nResources } from './resources';
 
@@ -18,18 +19,30 @@ export function setCurrentAppLanguageSync(language: AppLanguage): void {
   currentAppLanguage = language;
 }
 
+function coerceAppLanguage(language: AppLanguage | string): AppLanguage {
+  return normalizeAppLanguage(language) ?? DEFAULT_APP_LANGUAGE;
+}
+
 export async function initI18n(language: AppLanguage = DEFAULT_APP_LANGUAGE): Promise<void> {
-  setCurrentAppLanguageSync(language);
+  const normalized = coerceAppLanguage(language);
+  setCurrentAppLanguageSync(normalized);
   if (i18n.isInitialized) {
-    await i18n.changeLanguage(language);
+    await i18n.changeLanguage(normalized);
     return;
   }
   await i18n.use(initReactI18next).init({
     resources: i18nResources,
-    lng: language,
-    fallbackLng: DEFAULT_APP_LANGUAGE,
-    supportedLngs: [...SUPPORTED_APP_LANGUAGES],
+    lng: normalized,
+    fallbackLng: {
+      zh: ['zh-Hans', 'ja'],
+      'zh-CN': ['zh-Hans', 'ja'],
+      'zh-Hans': ['ja'],
+      default: [DEFAULT_APP_LANGUAGE],
+    },
+    supportedLngs: [...I18N_SUPPORTED_LNGS],
     nonExplicitSupportedLngs: true,
+    cleanCode: false,
+    lowerCaseLng: false,
     load: 'currentOnly',
     ns: [...I18N_NAMESPACES],
     defaultNS: 'common',
@@ -38,9 +51,10 @@ export async function initI18n(language: AppLanguage = DEFAULT_APP_LANGUAGE): Pr
   });
 }
 
-export async function changeAppLanguage(language: AppLanguage): Promise<void> {
-  setCurrentAppLanguageSync(language);
-  await i18n.changeLanguage(language);
+export async function changeAppLanguage(language: AppLanguage | string): Promise<void> {
+  const normalized = coerceAppLanguage(language);
+  setCurrentAppLanguageSync(normalized);
+  await i18n.changeLanguage(normalized);
 }
 
 export { i18n };

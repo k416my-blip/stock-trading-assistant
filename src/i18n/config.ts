@@ -4,6 +4,15 @@ export const DEFAULT_APP_LANGUAGE: AppLanguage = 'ja';
 
 export const SUPPORTED_APP_LANGUAGES: readonly AppLanguage[] = ['ja', 'en', 'zh-Hans'];
 
+/** i18next supportedLngs — includes zh aliases that map to zh-Hans resources. */
+export const I18N_SUPPORTED_LNGS = [
+  'ja',
+  'en',
+  'zh-Hans',
+  'zh',
+  'zh-CN',
+] as const;
+
 export const I18N_NAMESPACES = [
   'common',
   'navigation',

@@ -9,7 +9,7 @@ import {
 } from 'react';
 import * as Localization from 'expo-localization';
 import type { AppLanguage } from '../types/appLanguage';
-import { APP_LANGUAGES } from '../types/appLanguage';
+import { APP_LANGUAGES, normalizeAppLanguage } from '../types/appLanguage';
 import {
   APP_LANGUAGE_NATIVE_LABELS,
   DEFAULT_APP_LANGUAGE,
@@ -35,10 +35,18 @@ const AppLanguageContext = createContext<AppLanguageContextValue | null>(null);
 
 function deviceLocaleSuggestion(): AppLanguage {
   const locales = Localization.getLocales();
-  const code = locales[0]?.languageCode?.toLowerCase() ?? '';
-  if (code === 'ja') return 'ja';
-  if (code === 'zh') return 'zh-Hans';
-  if (code === 'en') return 'en';
+  const primary = locales[0];
+  const candidates = [
+    primary?.languageTag,
+    primary?.languageCode && primary?.regionCode
+      ? `${primary.languageCode}-${primary.regionCode}`
+      : null,
+    primary?.languageCode,
+  ];
+  for (const candidate of candidates) {
+    const normalized = normalizeAppLanguage(candidate);
+    if (normalized) return normalized;
+  }
   return DEFAULT_APP_LANGUAGE;
 }
 
@@ -65,10 +73,12 @@ export function AppLanguageProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setAppLanguage = useCallback(async (language: AppLanguage) => {
-    if (language === appLanguage) return;
-    await saveAppLanguage(language);
-    await changeAppLanguage(language);
-    setAppLanguageState(language);
+    const normalized = normalizeAppLanguage(language);
+    if (!normalized) return;
+    if (normalized === appLanguage) return;
+    await saveAppLanguage(normalized);
+    await changeAppLanguage(normalized);
+    setAppLanguageState(normalized);
     setLanguageRevision((revision) => revision + 1);
     setLanguageChosen(true);
   }, [appLanguage]);
