@@ -1,0 +1,12 @@
+{
+  "versionCode": 34,
+  "appVersion": "1.0.0",
+  "buildId": "4ec48aec-8711-4482-b4b1-44be213ff318",
+  "buildUrl": "https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/4ec48aec-8711-4482-b4b1-44be213ff318",
+  "artifactUrl": "https://expo.dev/artifacts/eas/QYIxJzKRFYedr81PtptiODNbkKZrOtkRFgSKa9EvbE4.aab",
+  "aabFile": "malaysia-stock-ai-concierge-v34-production.aab",
+  "aabBytes": 54648342,
+  "gitCommit": "4d05c7ad85c1bf79637b271c1329d1eab1b302f3",
+  "branch": "cursor/top3-maxdd-capital-audit",
+  "completedAt": "2026-07-01T23:43:58.666Z"
+}
