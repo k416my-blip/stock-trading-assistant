@@ -1,6 +1,6 @@
 import type { AppUxMode } from '../types/appUxMode';
 import type { MainTabParamList } from './types';
-import { i18n } from '../i18n';
+import type { TFunction } from 'i18next';
 
 const TAB_TITLE_KEYS: Record<keyof MainTabParamList, string> = {
   Home: 'navigation:tab.home',
@@ -63,15 +63,19 @@ export function isTabVisibleForAppUxMode(mode: AppUxMode, routeName: keyof MainT
   return VISIBLE_TABS_BY_MODE[mode].includes(routeName);
 }
 
-export function tabTitleForAppUxMode(mode: AppUxMode, routeName: keyof MainTabParamList): string {
+export function tabTitleForAppUxMode(
+  mode: AppUxMode,
+  routeName: keyof MainTabParamList,
+  t: TFunction,
+): string {
   if (mode === 'beginner' && routeName === 'MaterialAnalysis') {
-    return i18n.t('navigation:tab.stockCheck');
+    return t('navigation:tab.stockCheck');
   }
   if (mode === 'standard' && routeName === 'MaterialAnalysis') {
-    return i18n.t('navigation:tab.stockCheck');
+    return t('navigation:tab.stockCheck');
   }
   if (mode === 'standard' && routeName === 'AiNotifications') {
-    return i18n.t('navigation:tab.notifications');
+    return t('navigation:tab.notifications');
   }
-  return i18n.t(TAB_TITLE_KEYS[routeName]);
+  return t(TAB_TITLE_KEYS[routeName]);
 }

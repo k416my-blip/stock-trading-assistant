@@ -8,6 +8,7 @@ import {
 } from '../services/chatMessageFactory';
 import { createDatetimeInstantMessage } from '../services/currentDateTime';
 import { getConciergeInstantAnswer } from '../services/aiConciergeInstantAnswers';
+import { i18n } from '../i18n';
 import { classifyConciergeResponseIntent } from '../services/aiConciergeResponseIntent';
 import {
   resolveConciergeConversationMode,
@@ -23,6 +24,13 @@ const WELCOME: AiChatMessage = createChatMessage({
   responseIntent: 'general_education',
   conversationMode: 'conversation',
 });
+
+function buildWelcomeMessage(): AiChatMessage {
+  return {
+    ...WELCOME,
+    text: i18n.t('concierge:welcomeMessage'),
+  };
+}
 
 function finalizeMockReply(
   text: string,
@@ -161,7 +169,7 @@ function buildReply(
 }
 
 export function getInitialAiChatMessages(): AiChatMessage[] {
-  return [WELCOME];
+  return [buildWelcomeMessage()];
 }
 
 export function createUserChatMessage(

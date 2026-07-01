@@ -66,8 +66,8 @@ export function AppLanguageProvider({ children }: { children: ReactNode }) {
 
   const setAppLanguage = useCallback(async (language: AppLanguage) => {
     if (language === appLanguage) return;
-    await changeAppLanguage(language);
     await saveAppLanguage(language);
+    await changeAppLanguage(language);
     setAppLanguageState(language);
     setLanguageRevision((revision) => revision + 1);
     setLanguageChosen(true);

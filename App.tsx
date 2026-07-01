@@ -134,7 +134,7 @@ function StartupHomeShell({ showRecoveryActions = false }: { showRecoveryActions
 
 function AppShell() {
   const { loading } = useApp();
-  const { needsLanguagePicker, ready: languageReady } = useAppLanguage();
+  const { needsLanguagePicker, ready: languageReady, appLanguage, languageRevision } = useAppLanguage();
   const [interactiveReady, setInteractiveReady] = useState(false);
   const [slowBoot, setSlowBoot] = useState(false);
   useNotificationMonitor(
@@ -181,7 +181,7 @@ function AppShell() {
 
   return (
     <Suspense fallback={<StartupHomeShell />}>
-      <LazyInteractiveRuntime />
+      <LazyInteractiveRuntime key={`runtime-${appLanguage}-${languageRevision}`} />
     </Suspense>
   );
 }

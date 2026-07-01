@@ -165,7 +165,7 @@ export function MainTabNavigator() {
   const tabBarHeight = 56 + insets.bottom;
   const { appUxMode, ready, isBeginnerMode } = useAppUxMode();
   const { appLanguage, languageRevision } = useAppLanguage();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const activeLanguage = i18n.language;
 
@@ -195,7 +195,7 @@ export function MainTabNavigator() {
       key={`${appLanguage}-${languageRevision}-${activeLanguage}`}
       screenOptions={({ route }) => {
         const visible = isTabVisibleForAppUxMode(appUxMode, route.name);
-        const title = tabTitleForAppUxMode(appUxMode, route.name);
+        const title = tabTitleForAppUxMode(appUxMode, route.name, t);
         return {
           headerStyle: { backgroundColor: theme.colors.surface },
           headerTintColor: theme.colors.text,

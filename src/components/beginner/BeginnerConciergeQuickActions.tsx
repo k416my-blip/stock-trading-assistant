@@ -1,6 +1,15 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { BEGINNER_CONCIERGE_QUICK_ACTIONS } from '../../constants/beginnerConciergeQuickActionsJa';
+import { useTranslation } from 'react-i18next';
 import { theme } from '../../theme';
+
+const QUICK_ACTIONS = [
+  { id: 'today', labelKey: 'quickActionToday', seedKey: 'quickSeedToday' },
+  { id: 'holdings', labelKey: 'quickActionHoldings', seedKey: 'quickSeedHoldings' },
+  { id: 'buy_timing', labelKey: 'quickActionBuyTiming', seedKey: 'quickSeedBuyTiming' },
+  { id: 'sell', labelKey: 'quickActionSell', seedKey: 'quickSeedSell' },
+  { id: 'urgency', labelKey: 'quickActionUrgency', seedKey: 'quickSeedUrgency' },
+  { id: 'order_log', labelKey: 'quickActionOrderLog', seedKey: 'quickSeedOrderLog' },
+] as const;
 
 type Props = {
   onAction: (seed: string) => void;
@@ -8,14 +17,16 @@ type Props = {
 };
 
 export function BeginnerConciergeQuickActions({ onAction, disabled }: Props) {
+  const { t } = useTranslation('concierge');
+
   return (
     <View style={styles.wrap} testID="beginner-concierge-quick-actions">
-      <Text style={styles.title}>よくある質問:</Text>
+      <Text style={styles.title}>{t('quickActionsTitle')}</Text>
       <View style={styles.chipRow}>
-        {BEGINNER_CONCIERGE_QUICK_ACTIONS.map((action) => (
+        {QUICK_ACTIONS.map((action) => (
           <Pressable
             key={action.id}
-            onPress={() => onAction(action.seed)}
+            onPress={() => onAction(t(action.seedKey))}
             disabled={disabled}
             style={({ pressed }) => [
               styles.chip,
@@ -23,9 +34,9 @@ export function BeginnerConciergeQuickActions({ onAction, disabled }: Props) {
               disabled && styles.chipDisabled,
             ]}
             accessibilityRole="button"
-            accessibilityLabel={action.label}
+            accessibilityLabel={t(action.labelKey)}
           >
-            <Text style={styles.chipText}>{action.label}</Text>
+            <Text style={styles.chipText}>{t(action.labelKey)}</Text>
           </Pressable>
         ))}
       </View>

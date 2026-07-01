@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -87,6 +88,7 @@ import { isUnhandledProactiveStatus } from '../types/proactiveSuggestion';
 import { ProactiveSuggestionCard } from './proactive/ProactiveSuggestionCard';
 import { BeginnerConciergeQuickActions } from './beginner/BeginnerConciergeQuickActions';
 import { useAppUxMode } from '../context/AppUxModeContext';
+import { useAppLanguage } from '../context/AppLanguageContext';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { SelectableText } from './ui/SelectableText';
@@ -104,7 +106,6 @@ import { ConciergeRiskControlPanel } from './concierge/ConciergeRiskControlPanel
 import { PortfolioIntelligencePanel } from './concierge/PortfolioIntelligencePanel';
 import { ConciergePromptDebugPanel } from './concierge/ConciergePromptDebugPanel';
 import {
-  AI_ANALYSIS_MODE_LABELS_JA,
   AI_ANALYSIS_MODE_ORDER,
 } from '../constants/aiDataDriven';
 import { buildConciergeUxBundle } from '../services/conciergeUxPriorityBuilder';
@@ -146,10 +147,11 @@ import {
 } from '../services/conciergeChatPerfLog';
 
 function ConciergeWarningBadge({ message }: { message: AiChatMessage }) {
+  const { t } = useTranslation('concierge');
   if (message.conversationMode !== 'warning') return null;
   return (
     <View style={styles.warningBadge}>
-      <SelectableText style={styles.warningBadgeText}>システム注意</SelectableText>
+      <SelectableText style={styles.warningBadgeText}>{t('warningBadge')}</SelectableText>
     </View>
   );
 }
@@ -161,6 +163,7 @@ function StructuredBlock({
   message: AiChatMessage;
   uxMode: ConciergeUxDisplayMode;
 }) {
+  const { t } = useTranslation('concierge');
   const s = message.structured;
   if (!s) return null;
   const mode = message.conversationMode ?? 'conversation';
@@ -174,61 +177,61 @@ function StructuredBlock({
     <View style={styles.structured}>
       {s.conclusion ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>{AI_UI.conclusion}: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structConclusion')}: </SelectableText>
           {s.conclusion}
         </SelectableText>
       ) : null}
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>理由: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structReason')}: </SelectableText>
         {s.reason}
       </SelectableText>
       {s.technicalReason ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>テクニカル: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structTechnical')}: </SelectableText>
           {s.technicalReason}
         </SelectableText>
       ) : null}
       {s.macroReason ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>マクロ: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structMacro')}: </SelectableText>
           {s.macroReason}
         </SelectableText>
       ) : null}
       {s.systemStateReason ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>システム状態: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structSystemState')}: </SelectableText>
           {s.systemStateReason}
         </SelectableText>
       ) : null}
       {s.confidenceDegradationReason ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>信頼度低下: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structConfidenceLow')}: </SelectableText>
           {s.confidenceDegradationReason}
         </SelectableText>
       ) : null}
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>リスク: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structRisk')}: </SelectableText>
         {s.risk}
       </SelectableText>
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>市場状況: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structMarket')}: </SelectableText>
         {s.market}
       </SelectableText>
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>緊急性: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structUrgency')}: </SelectableText>
         {s.urgency}
       </SelectableText>
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>信頼度: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structConfidence')}: </SelectableText>
         {s.confidence}
       </SelectableText>
       <SelectableText style={styles.structLine}>
-        <SelectableText style={styles.structKey}>データ鮮度: </SelectableText>
+        <SelectableText style={styles.structKey}>{t('structDataFreshness')}: </SelectableText>
         {s.dataFreshness}
       </SelectableText>
       {s.followUp ? (
         <SelectableText style={styles.structLine}>
-          <SelectableText style={styles.structKey}>{AI_UI.followUp}: </SelectableText>
+          <SelectableText style={styles.structKey}>{t('structFollowUp')}: </SelectableText>
           {s.followUp}
         </SelectableText>
       ) : null}
@@ -298,12 +301,12 @@ function resultToMessage(
   return msg;
 }
 
-function roleLabelJa(msg: AiChatMessage): string {
+function roleLabel(msg: AiChatMessage, t: (key: string) => string): string {
   if (msg.role === 'user') {
-    return msg.messageSource === 'voice' ? AI_UI.voiceLabel : AI_UI.userLabel;
+    return msg.messageSource === 'voice' ? t('voiceLabel') : t('userLabel');
   }
-  if (msg.role === 'system') return AI_UI.systemLabel;
-  return AI_UI.assistantLabel;
+  if (msg.role === 'system') return t('systemLabel');
+  return t('assistantLabel');
 }
 
 function appendChatMessages(prev: AiChatMessage[], ...items: AiChatMessage[]): AiChatMessage[] {
@@ -314,23 +317,23 @@ function isAbortError(e: unknown): boolean {
   return e instanceof DOMException && e.name === 'AbortError';
 }
 
-function composingLabelJa(status: AiRequestStatus, isConcierge: boolean): string {
-  if (!isConcierge) return AI_UI.sending;
+function composingLabel(status: AiRequestStatus, isConcierge: boolean, t: (key: string) => string): string {
+  if (!isConcierge) return t('sending');
   switch (status) {
     case 'thinking':
-      return i18n.t('concierge:statusThinking');
+      return t('statusThinking');
     case 'retrying':
-      return i18n.t('concierge:statusRetrying');
+      return t('statusRetrying');
     case 'reconnecting':
-      return i18n.t('concierge:statusReconnecting');
+      return t('statusReconnecting');
     case 'degraded':
-      return i18n.t('concierge:statusDegraded');
+      return t('statusDegraded');
     case 'streaming':
-      return i18n.t('concierge:statusStreaming');
+      return t('statusStreaming');
     case 'waiting_response':
-      return i18n.t('concierge:composingAnswer');
+      return t('composingAnswer');
     default:
-      return i18n.t('concierge:composingAnswer');
+      return t('composingAnswer');
   }
 }
 
@@ -348,6 +351,8 @@ export function AiAssistantChat({
   seedMessage,
   focusSuggestionId,
 }: AiAssistantChatProps) {
+  const { t } = useTranslation('concierge');
+  const { appLanguage, languageRevision } = useAppLanguage();
   const resolvedVariant = variant ?? (embedded ? 'embedded' : 'default');
   const isConcierge = resolvedVariant === 'concierge';
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
@@ -399,6 +404,10 @@ export function AiAssistantChat({
   const sessionMemoryRef = useRef(
     createEmptyConciergeSessionMemory(aiPreferences.aiExplanationLevel),
   );
+  useEffect(() => {
+    setMessages(getInitialAiChatMessages());
+  }, [appLanguage, languageRevision]);
+
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -1073,20 +1082,20 @@ export function AiAssistantChat({
     <>
       <View style={styles.statusRow}>
         <SelectableText style={styles.statusLabel}>
-          {AI_UI.apiStatus}: <SelectableText style={{ color: statusColor }}>{statusJa}</SelectableText>
+          {t('apiStatus')}: <SelectableText style={{ color: statusColor }}>{statusJa}</SelectableText>
         </SelectableText>
         {shouldShowApiSpinner(requestStatus, isCheckingConnection || isSending) ? (
           <ActivityIndicator size="small" color={theme.colors.primary} />
         ) : null}
       </View>
       {usedMockFallback ? (
-        <SelectableText style={styles.mockBanner}>{errorJa ?? AI_UI.mockFallback}</SelectableText>
+        <SelectableText style={styles.mockBanner}>{errorJa ?? t('mockFallback')}</SelectableText>
       ) : null}
       {errorJa && !usedMockFallback ? (
         <SelectableText style={styles.errorText}>{errorJa}</SelectableText>
       ) : null}
       {slowResponse && isSending ? (
-        <SelectableText style={styles.errorText}>{i18n.t('concierge:statusSlow')}</SelectableText>
+        <SelectableText style={styles.errorText}>{t('statusSlow')}</SelectableText>
       ) : null}
       {retryPrompt ? (
         <View style={styles.retryRow}>
@@ -1103,13 +1112,13 @@ export function AiAssistantChat({
         </View>
       ) : null}
       {staleWarning ? (
-        <SelectableText style={styles.staleWarning}>{AI_UI.staleDataWarning}</SelectableText>
+        <SelectableText style={styles.staleWarning}>{t('staleDataWarning')}</SelectableText>
       ) : null}
       {!aiPreferences.aiEnabled ? (
-        <SelectableText style={styles.mockBanner}>AI機能オフ — モック応答のみ</SelectableText>
+        <SelectableText style={styles.mockBanner}>{t('aiDisabledBanner')}</SelectableText>
       ) : null}
       {aiPreferences.mockOnly ? (
-        <SelectableText style={styles.mockBanner}>モックのみモード — 外部API未使用</SelectableText>
+        <SelectableText style={styles.mockBanner}>{t('mockOnlyBanner')}</SelectableText>
       ) : null}
     </>
   );
@@ -1120,38 +1129,44 @@ export function AiAssistantChat({
     <View style={styles.conciergeStatus}>
       <View style={styles.statusRow}>
         <SelectableText style={styles.conciergeStatusLabel}>
-          {AI_UI.apiStatus}: <SelectableText style={{ color: statusColor }}>{statusJa}</SelectableText>
+          {t('apiStatus')}: <SelectableText style={{ color: statusColor }}>{statusJa}</SelectableText>
         </SelectableText>
         {shouldShowApiSpinner(requestStatus, isCheckingConnection || isSending) ? (
           <ActivityIndicator size="small" color={theme.colors.primary} />
         ) : null}
       </View>
       {usedMockFallback ? (
-        <SelectableText style={styles.conciergeStatusLine}>{errorJa ?? AI_UI.mockFallback}</SelectableText>
+        <SelectableText style={styles.conciergeStatusLine}>{errorJa ?? t('mockFallback')}</SelectableText>
       ) : null}
       {errorJa && !usedMockFallback ? (
         <SelectableText style={styles.conciergeStatusLine}>{errorJa}</SelectableText>
       ) : null}
       {slowResponse && isSending ? (
-        <SelectableText style={styles.conciergeStatusWarn}>{i18n.t('concierge:statusSlow')}</SelectableText>
+        <SelectableText style={styles.conciergeStatusWarn}>{t('statusSlow')}</SelectableText>
       ) : null}
       {staleWarning ? (
-        <SelectableText style={styles.conciergeStatusWarn}>{AI_UI.staleDataWarning}</SelectableText>
+        <SelectableText style={styles.conciergeStatusWarn}>{t('staleDataWarning')}</SelectableText>
       ) : null}
       {!aiPreferences.aiEnabled ? (
-        <SelectableText style={styles.conciergeStatusLine}>AI機能オフ — モック応答のみ</SelectableText>
+        <SelectableText style={styles.conciergeStatusLine}>{t('aiDisabledBanner')}</SelectableText>
       ) : null}
       {aiPreferences.mockOnly ? (
-        <SelectableText style={styles.conciergeStatusLine}>モックのみモード — 外部API未使用</SelectableText>
+        <SelectableText style={styles.conciergeStatusLine}>{t('mockOnlyBanner')}</SelectableText>
       ) : null}
     </View>
   );
 
   const analysisModeBlock = isConcierge ? (
     <View style={styles.analysisModeRow}>
-      <SelectableText style={styles.analysisModeLabel}>分析モード</SelectableText>
+      <SelectableText style={styles.analysisModeLabel}>{t('analysisModeLabel')}</SelectableText>
       {AI_ANALYSIS_MODE_ORDER.map((mode) => {
         const active = aiPreferences.aiAnalysisMode === mode;
+        const modeLabelKey =
+          mode === 'conservative'
+            ? 'analysisModeConservative'
+            : mode === 'balanced'
+              ? 'analysisModeBalanced'
+              : 'analysisModeAggressive';
         return (
           <Pressable
             key={mode}
@@ -1159,7 +1174,7 @@ export function AiAssistantChat({
             style={[styles.analysisChip, active && styles.analysisChipActive]}
           >
             <Text style={[styles.analysisChipText, active && styles.analysisChipTextActive]}>
-              {AI_ANALYSIS_MODE_LABELS_JA[mode]}
+              {t(modeLabelKey)}
             </Text>
           </Pressable>
         );
@@ -1230,8 +1245,8 @@ export function AiAssistantChat({
       <AiTradeQueueSection
         marketRegime={marketRegime}
         scrollRef={conciergeScrollRef}
-        sectionTitle="今日の提案"
-        sectionSubtitle="AIが整理した売買候補と根拠"
+        sectionTitle={t('todayProposalsTitle')}
+        sectionSubtitle={t('todayProposalsSubtitle')}
         testID="concierge-today-trade-proposals"
         defaultCollapsed
       />
@@ -1280,7 +1295,7 @@ export function AiAssistantChat({
               pressed && styles.voiceBtnPressed,
             ]}
             accessibilityRole="button"
-            accessibilityLabel="履歴スクショを読み取る"
+            accessibilityLabel={t('ocrScreenshotLabel')}
           >
             <Ionicons
               name="camera-outline"
@@ -1312,7 +1327,7 @@ export function AiAssistantChat({
           style={[styles.input, isConcierge && styles.inputConcierge]}
           value={input}
           onChangeText={setInput}
-          placeholder={AI_UI.chatInputPlaceholder}
+          placeholder={t('chatInputPlaceholder')}
           placeholderTextColor={theme.colors.textMuted}
           multiline
           editable={!isSending}
@@ -1321,7 +1336,7 @@ export function AiAssistantChat({
           onFocus={isConcierge ? scrollComposerIntoView : undefined}
         />
         <Button
-          label={isSending ? composingLabelJa(requestStatus, isConcierge) : AI_UI.send}
+          label={isSending ? composingLabel(requestStatus, isConcierge, t) : t('send')}
           onPress={onPressSend}
           disabled={!shouldAcceptChatSend(input, isSending)}
         />
@@ -1385,7 +1400,7 @@ export function AiAssistantChat({
               />
             ) : null}
             <ChatMessageTimestamp message={msg} compact={isConcierge} />
-            <SelectableText style={styles.bubbleRole}>{roleLabelJa(msg)}</SelectableText>
+            <SelectableText style={styles.bubbleRole}>{roleLabel(msg, t)}</SelectableText>
             {msg.role === 'assistant' ? <ConciergeWarningBadge message={msg} /> : null}
             {msg.role === 'assistant' && isConcierge && !msg.rakutenImportCandidateId ? (
               (() => {
@@ -1421,10 +1436,10 @@ export function AiAssistantChat({
             msg.deliveryStatus !== 'ok' ? (
               <SelectableText style={styles.deliveryMeta}>
                 {msg.deliveryStatus === 'pending_response'
-                  ? '未応答'
+                  ? t('deliveryPending')
                   : msg.deliveryStatus === 'timeout'
-                    ? `タイムアウト${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`
-                    : `失敗${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`}
+                    ? `${t('deliveryTimeout')}${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`
+                    : `${t('deliveryFailed')}${msg.failureKindJa ? ` (${msg.failureKindJa})` : ''}`}
               </SelectableText>
             ) : null}
             {uxMode === 'advanced' || msg.role !== 'assistant' ? (
@@ -1446,7 +1461,7 @@ export function AiAssistantChat({
             ) : null}
             {msg.role === 'assistant' && msg.globalMarketAnalysis ? (
               <ConciergePrioritySection
-                title="市場状況"
+                title={t('panelMarketSituation')}
                 priority="medium"
                 defaultCollapsed={uxBundle.defaultCollapse.medium}
               >
@@ -1455,7 +1470,7 @@ export function AiAssistantChat({
             ) : null}
             {msg.role === 'assistant' && msg.evidenceData?.riskControl ? (
               <ConciergePrioritySection
-                title="リスク統制"
+                title={t('panelRiskControl')}
                 priority="critical"
                 defaultCollapsed={uxBundle.defaultCollapse.critical}
               >
@@ -1467,7 +1482,7 @@ export function AiAssistantChat({
             ) : null}
             {msg.role === 'assistant' && msg.evidenceData?.actionGuide ? (
               <ConciergePrioritySection
-                title="行動ガイド"
+                title={t('panelActionGuide')}
                 priority="high"
                 defaultCollapsed={uxBundle.defaultCollapse.high}
               >
@@ -1480,7 +1495,7 @@ export function AiAssistantChat({
             ) : null}
             {msg.role === 'assistant' && msg.evidenceData && uxMode === 'advanced' ? (
               <ConciergePrioritySection
-                title="根拠・evidence"
+                title={t('panelEvidence')}
                 priority="low"
                 defaultCollapsed
               >
@@ -1489,7 +1504,7 @@ export function AiAssistantChat({
             ) : null}
             {msg.role === 'assistant' && msg.portfolioIntelligence ? (
               <ConciergePrioritySection
-                title="ポートフォリオ学習"
+                title={t('panelPortfolioLearning')}
                 priority="low"
                 defaultCollapsed={uxBundle.defaultCollapse.low}
               >
@@ -1521,7 +1536,7 @@ export function AiAssistantChat({
         <View style={styles.loadingRow}>
           <ActivityIndicator color={theme.colors.primary} />
           <SelectableText style={styles.loadingText}>
-            {composingLabelJa(requestStatus, isConcierge)}
+            {composingLabel(requestStatus, isConcierge, t)}
           </SelectableText>
         </View>
       ) : null}
@@ -1615,9 +1630,20 @@ export function AiAssistantChat({
   );
 
   if (isEmbedded) {
-    return <View style={[styles.embeddedWrap, isConcierge && styles.embeddedConcierge]}>{chatBody}</View>;
+    return (
+      <View
+        key={`ai-chat-${appLanguage}-${languageRevision}`}
+        style={[styles.embeddedWrap, isConcierge && styles.embeddedConcierge]}
+      >
+        {chatBody}
+      </View>
+    );
   }
-  return <Card style={styles.card}>{chatBody}</Card>;
+  return (
+    <Card key={`ai-chat-${appLanguage}-${languageRevision}`} style={styles.card}>
+      {chatBody}
+    </Card>
+  );
 }
 
 const styles = StyleSheet.create({

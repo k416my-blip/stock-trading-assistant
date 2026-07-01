@@ -1,0 +1,10 @@
+{
+  "versionCode": 29,
+  "buildId": "9bf999b2-31f3-481a-bc0e-3e6862dfbc70",
+  "buildUrl": "https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/9bf999b2-31f3-481a-bc0e-3e6862dfbc70",
+  "artifactUrl": "https://expo.dev/artifacts/eas/S24cga3b8LIjl7HnXOqTcDElfRfrJx2KKXkYakUrK-4.aab",
+  "aabFilename": "malaysia-stock-ai-concierge-v29-production.aab",
+  "aabBytes": 54614823,
+  "downloadedAt": "2026-07-01T05:31:00Z",
+  "downloadMethod": "curl direct artifact URL (eas-cli build:download TAR_BAD_ARCHIVE)"
+}

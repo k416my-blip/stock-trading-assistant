@@ -6,7 +6,7 @@
   "build": {
     "production": {
       "distribution": "store",
-      "autoIncrement": true,
+      "autoIncrement": false,
       "env": {
         "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": "0"
       },

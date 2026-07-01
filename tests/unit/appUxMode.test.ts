@@ -78,16 +78,16 @@ describe('beginnerTabNavigatorConfig', () => {
   });
 
   it('renames AiNotifications tab for standard', async () => {
-    const { initI18n } = await import('../../src/i18n');
+    const { initI18n, i18n } = await import('../../src/i18n');
     await initI18n('ja');
     const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
-    expect(tabTitleForAppUxMode('standard', 'AiNotifications')).toBe('通知');
+    expect(tabTitleForAppUxMode('standard', 'AiNotifications', i18n.t.bind(i18n))).toBe('通知');
   });
 
   it('renames MaterialAnalysis tab for beginner', async () => {
-    const { initI18n } = await import('../../src/i18n');
+    const { initI18n, i18n } = await import('../../src/i18n');
     await initI18n('ja');
     const { tabTitleForAppUxMode } = await import('../../src/navigation/beginnerTabNavigatorConfig');
-    expect(tabTitleForAppUxMode('beginner', 'MaterialAnalysis')).toBe('銘柄チェック');
+    expect(tabTitleForAppUxMode('beginner', 'MaterialAnalysis', i18n.t.bind(i18n))).toBe('銘柄チェック');
   });
 });
