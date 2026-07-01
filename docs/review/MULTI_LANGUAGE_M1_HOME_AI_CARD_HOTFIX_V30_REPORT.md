@@ -176,13 +176,20 @@ M1 hotfix: Home AI advice card now follows app language (ja/en/zh-Hans).
 
 ## 15. GitHub commit hash
 
-（コミット後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Hotfix commit** | `2740f19` — Fix Home AI advice card i18n for M1 hotfix (v30). |
+| **Branch** | `cursor/top3-maxdd-capital-audit` |
+
+**注:** EAS build `cfc82323-…` はコミット前のローカル変更をアップロード（EAS メタ `gitCommitHash`: `b5dde5b`）。ソース内容は `2740f19` と同一。
 
 ---
 
 ## 16. push 結果
 
-（push 後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Push** | **success** — `b5dde5b..2740f19` → `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
 
