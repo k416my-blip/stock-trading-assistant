@@ -119,11 +119,11 @@ AAB 取得先（Owner）:
 
 ## GitHub commit hash
 
-（本レポートコミット後に記載 — 下記 push セクション参照）
+`bbe56cc0b49d572ae089fa60ed749a654825981b`
 
 ## push結果
 
-（push 実行後に記載）
+**成功** — `git push origin cursor/top3-maxdd-capital-audit`（`eff2bdc..bbe56cc`）
 
 ---
 
@@ -131,3 +131,4 @@ AAB 取得先（Owner）:
 
 - `npx eas-cli build:download --build-id acd1f04e-45e0-4dc9-86bd-773ca9be616c` → **TAR_BAD_ARCHIVE: Unrecognized archive format**（eas-cli 20.x 既知問題の可能性）。回避: artifact URL 直接ダウンロード。
 - 実機 smoke はデバイス接続後に checklist §3 以降と合わせて再実行推奨。
+
