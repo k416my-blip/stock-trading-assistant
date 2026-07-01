@@ -185,7 +185,11 @@ M1 hotfix: Portfolio, Alerts, AI Chat panels, and Settings UX mode labels now fo
 
 ## 15. push 結果
 
-（report コミット後に更新）
+| 項目 | 値 |
+|------|-----|
+| **Push** | **success** — `a514479..af7f85c` → `origin/cursor/top3-maxdd-capital-audit` |
+| **Hotfix commit** | `d6e762a` |
+| **Report commit** | `af7f85c` |
 
 ---
 
