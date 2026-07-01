@@ -156,7 +156,10 @@ M1 hotfix: Simplified Chinese (zh-Hans) locale resolution fixed.
 
 ## 15. push 結果
 
-（push 後に追記）
+| 項目 | 値 |
+|------|-----|
+| **Push** | **success** — `e19a602..aedd094` → `origin/cursor/top3-maxdd-capital-audit` |
+| **Report commit** | `aedd094` |
 
 ---
 
