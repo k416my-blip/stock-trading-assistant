@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MarketPicker } from '../components/MarketPicker';
 import { Button } from '../components/ui/Button';
@@ -11,6 +11,7 @@ import { useApp } from '../context/AppContext';
 import type { RootStackParamList } from '../navigation/types';
 import type { Currency, Market } from '../types';
 import type { RakutenImportManualFormInput } from '../types/rakutenImport';
+import { findImportCandidate } from '../services/rakutenImport/rakutenImportStagingStorage';
 import { theme } from '../theme';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +25,7 @@ function currencyForMarket(market: Market): Currency {
 
 export function RakutenImportManualEntryScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { params } = useRoute<RouteProp<RootStackParamList, 'RakutenImportManualEntry'>>();
   const { state, stageRakutenImportManual, readOnlyBlockedMessage } = useApp();
   const { t } = useTranslation('rakutenImport');
 
@@ -38,6 +40,31 @@ export function RakutenImportManualEntryScreen() {
   const [referenceNumber, setReferenceNumber] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const candidateId = params?.candidateId;
+    if (!candidateId) return;
+    void findImportCandidate(candidateId, { activeOnly: true }).then((found) => {
+      const c = found?.candidate;
+      if (!c) return;
+      if (c.type === 'deposit' || c.type === 'buy' || c.type === 'sell') {
+        setKind(c.type);
+      }
+      if (c.type === 'deposit' && c.totalMYR != null) {
+        setAmount(String(c.totalMYR));
+      }
+      if (c.executedAt) {
+        setExecutedDate(c.executedAt.slice(0, 10));
+      }
+      if (c.symbol) setSymbol(c.symbol);
+      if (c.market) setMarket(c.market);
+      if (c.quantity != null) setQuantity(String(c.quantity));
+      if (c.price != null) setPrice(String(c.price));
+      if (c.fee != null) setFee(String(c.fee));
+      if (c.referenceNumber) setReferenceNumber(c.referenceNumber);
+      if (c.userNote) setNote(c.userNote);
+    });
+  }, [params?.candidateId]);
 
   const guidance = useMemo(() => {
     switch (kind) {

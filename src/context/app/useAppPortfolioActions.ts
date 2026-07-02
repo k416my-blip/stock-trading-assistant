@@ -816,7 +816,7 @@ export function useAppPortfolioActions({
       const blocked = tradeBlockedReason();
       if (blocked) return { ok: false as const, error: blocked };
 
-      const found = await findImportCandidate(candidateId);
+      const found = await findImportCandidate(candidateId, { activeOnly: true });
       if (!found) {
         return { ok: false as const, error: '候補が見つかりません。' };
       }
@@ -851,7 +851,7 @@ export function useAppPortfolioActions({
   );
 
   const rejectRakutenImportCandidate = useCallback(async (candidateId: string) => {
-    const found = await findImportCandidate(candidateId);
+    const found = await findImportCandidate(candidateId, { activeOnly: true });
     if (!found) return;
     const rejected = {
       ...found.candidate,

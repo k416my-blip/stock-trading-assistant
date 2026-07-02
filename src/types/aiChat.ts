@@ -64,4 +64,5 @@ export type AiChatMessage = {
   /** Rakuten import confirm card (R2 NL) */
   rakutenImportCandidateId?: string;
   rakutenImportBlocked?: boolean;
+  rakutenImportDismissed?: boolean;
 };

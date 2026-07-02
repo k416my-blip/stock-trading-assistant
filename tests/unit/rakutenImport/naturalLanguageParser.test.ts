@@ -44,6 +44,14 @@ describe('parseNaturalLanguageTransaction — user examples', () => {
     expect(r.overallConfidence).toBeGreaterThanOrEqual(0.85);
   });
 
+  it('RM5000入金しました — deposit RM5000 no space', () => {
+    const r = parseNaturalLanguageTransaction('RM5000入金しました', { state });
+    expect('type' in r && r.type).toBe('deposit');
+    if (!('type' in r)) return;
+    expect(r.totalMYR).toBe(5000);
+    expect(r.overallConfidence).toBeGreaterThanOrEqual(0.85);
+  });
+
   it('Maybankを100株買った — price missing blocks save', () => {
     const r = parseNaturalLanguageTransaction('Maybankを100株買った', { state });
     expect('type' in r && r.type).toBe('buy');

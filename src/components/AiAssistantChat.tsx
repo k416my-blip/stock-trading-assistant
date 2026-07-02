@@ -358,6 +358,13 @@ export function AiAssistantChat({
   const isEmbedded = resolvedVariant === 'embedded' || isConcierge;
   const { sendAiStrategyMessage, aiPreferences, saveAiPreferences, aiApiKey, dataResetRevision, state, marketRegime, stageRakutenImportNaturalLanguage, stageRakutenImportOcrScreenshot } = useApp();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dismissRakutenImportCard = useCallback((messageId: string) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId ? { ...m, rakutenImportDismissed: true, rakutenImportCandidateId: undefined } : m,
+      ),
+    );
+  }, []);
   const { isBeginnerMode, isProMode } = useAppUxMode();
   const { worldModel } = useCentralIntelligence();
   const proactive = useProactiveConciergeOptional();
@@ -1454,10 +1461,11 @@ export function AiAssistantChat({
               </SelectableText>
             ) : null}
             {msg.role === 'assistant' ? <StructuredBlock message={msg} uxMode={uxMode} /> : null}
-            {msg.role === 'assistant' && msg.rakutenImportCandidateId ? (
+            {msg.role === 'assistant' && msg.rakutenImportCandidateId && !msg.rakutenImportDismissed ? (
               <ConciergeImportActionCard
                 candidateId={msg.rakutenImportCandidateId}
                 blocked={msg.rakutenImportBlocked}
+                onDismiss={() => dismissRakutenImportCard(msg.id)}
               />
             ) : null}
             {msg.role === 'assistant' && msg.globalMarketAnalysis ? (

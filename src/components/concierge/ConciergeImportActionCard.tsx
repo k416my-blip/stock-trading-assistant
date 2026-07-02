@@ -7,8 +7,12 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { CURRENCY_SYMBOL } from '../../constants/rakutenTrade';
 import { useApp } from '../../context/AppContext';
+import { navigateRootStack } from '../../navigation/rootStackNavigation';
 import type { RootStackParamList } from '../../navigation/types';
-import { findImportCandidate } from '../../services/rakutenImport/rakutenImportStagingStorage';
+import {
+  findImportCandidate,
+  isActiveImportCandidate,
+} from '../../services/rakutenImport/rakutenImportStagingStorage';
 import {
   canSaveImportCandidate,
   confidenceLabelLocalized,
@@ -40,18 +44,25 @@ function formatSummary(
 type Props = {
   candidateId: string;
   blocked?: boolean;
+  onDismiss?: () => void;
 };
 
-export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
+export function ConciergeImportActionCard({ candidateId, blocked, onDismiss }: Props) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { rejectRakutenImportCandidate, readOnlyBlockedMessage } = useApp();
   const { t } = useTranslation('rakutenImport');
   const [candidate, setCandidate] = useState<BrokerTransactionCandidate | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  const reloadCandidate = useCallback(async () => {
+    const found = await findImportCandidate(candidateId, { activeOnly: true });
+    setCandidate(found?.candidate ?? null);
+  }, [candidateId]);
 
   useEffect(() => {
     let cancelled = false;
-    void findImportCandidate(candidateId).then((found) => {
+    void findImportCandidate(candidateId, { activeOnly: true }).then((found) => {
       if (!cancelled) setCandidate(found?.candidate ?? null);
     });
     return () => {
@@ -73,22 +84,40 @@ export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
         ? styles.confidenceWarn
         : styles.confidenceBlocked;
 
-  const onRecord = useCallback(() => {
-    navigation.navigate('RakutenImportConfirm', { candidateId });
-  }, [candidateId, navigation]);
+  const onRecord = useCallback(async () => {
+    setBusy(true);
+    try {
+      const found = await findImportCandidate(candidateId, { activeOnly: true });
+      if (!found?.candidate || !isActiveImportCandidate(found.candidate)) {
+        setDismissed(true);
+        onDismiss?.();
+        return;
+      }
+      navigateRootStack(navigation, 'RakutenImportConfirm', { candidateId });
+    } finally {
+      setBusy(false);
+    }
+  }, [candidateId, navigation, onDismiss]);
 
   const onEdit = useCallback(() => {
-    navigation.navigate('RakutenImportManualEntry');
-  }, [navigation]);
+    navigateRootStack(navigation, 'RakutenImportManualEntry', { candidateId });
+  }, [candidateId, navigation]);
 
   const onCancel = useCallback(async () => {
     setBusy(true);
     try {
       await rejectRakutenImportCandidate(candidateId);
+      setDismissed(true);
+      onDismiss?.();
+      await reloadCandidate();
     } finally {
       setBusy(false);
     }
-  }, [candidateId, rejectRakutenImportCandidate]);
+  }, [candidateId, onDismiss, rejectRakutenImportCandidate, reloadCandidate]);
+
+  if (dismissed) {
+    return null;
+  }
 
   if (!candidate) {
     return (
@@ -136,7 +165,7 @@ export function ConciergeImportActionCard({ candidateId, blocked }: Props) {
       ) : null}
 
       <View style={styles.actions}>
-        <Button label={t('card.record')} onPress={onRecord} disabled={busy || saveBlocked} />
+        <Button label={t('card.record')} onPress={() => void onRecord()} disabled={busy || saveBlocked} />
         <Button label={t('card.edit')} variant="ghost" onPress={onEdit} disabled={busy} />
         <Button
           label={t('card.cancel')}

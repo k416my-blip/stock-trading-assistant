@@ -95,7 +95,7 @@ export function RakutenImportConfirmScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const found = await findImportCandidate(params.candidateId);
+    const found = await findImportCandidate(params.candidateId, { activeOnly: true });
     setCandidate(found?.candidate ?? null);
     setLoading(false);
   }, [params.candidateId]);

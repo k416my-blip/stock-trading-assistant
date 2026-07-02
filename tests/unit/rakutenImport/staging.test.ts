@@ -56,6 +56,24 @@ describe('rakutenImportStagingStorage', () => {
     expect(found?.candidate.status).toBe('rejected');
   });
 
+  it('findImportCandidate with activeOnly excludes rejected candidates', async () => {
+    const state = createDefaultAppState();
+    const { batch, candidate } = buildManualImportCandidate(
+      {
+        type: 'deposit',
+        amountMYR: 1000,
+        executedAt: '2026-06-20',
+      },
+      { state },
+    );
+    await saveImportBatch(batch);
+    const rejected = { ...candidate, status: 'rejected' as const, rejectedAt: '2026-06-20' };
+    await upsertImportCandidate(batch.id, rejected);
+
+    expect(await findImportCandidate(candidate.id, { activeOnly: true })).toBeNull();
+    expect(await findImportCandidate(candidate.id, { activeOnly: false })).not.toBeNull();
+  });
+
   it('pruneConfirmedBatches removes confirmed and rejected candidates', async () => {
     const state = createDefaultAppState();
     const { batch, candidate } = buildManualImportCandidate(
