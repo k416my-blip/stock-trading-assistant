@@ -51,7 +51,10 @@ export function BeginnerTodayAdviceCard({ data, onPressDetail }: Props) {
       <Text style={styles.date}>{data.dateJa}</Text>
 
       {data.lines.length === 0 ? (
-        <Text style={styles.emptyLine}>{t('todayAiAdvice.empty')}</Text>
+        <>
+          <Text style={styles.emptyLine}>{t('todayAiAdvice.empty')}</Text>
+          <Text style={styles.emptyHint}>{t('todayAiAdvice.emptyHint')}</Text>
+        </>
       ) : (
         data.lines.map((line) => (
           <Text key={line.symbol} style={styles.line}>
@@ -60,9 +63,13 @@ export function BeginnerTodayAdviceCard({ data, onPressDetail }: Props) {
         ))
       )}
 
-      <Text style={styles.newPurchase}>— {newPurchaseSummary}</Text>
+      {data.lines.length > 0 ? (
+        <Text style={styles.newPurchase}>— {newPurchaseSummary}</Text>
+      ) : null}
 
-      <Text style={styles.footer}>{t('todayAiAdvice.footer')}</Text>
+      {data.lines.length > 0 ? (
+        <Text style={styles.footer}>{t('todayAiAdvice.footer')}</Text>
+      ) : null}
 
       {onPressDetail ? (
         <Button
@@ -117,5 +124,11 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.fontSize.md,
     lineHeight: 22,
+  },
+  emptyHint: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 20,
+    marginTop: theme.spacing.xs,
   },
 });

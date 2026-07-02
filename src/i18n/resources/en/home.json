@@ -23,7 +23,8 @@
   "todayAiAdvice": {
     "title": "Today's AI advice",
     "loading": "Loading AI advice...",
-    "empty": "No holdings or material data yet",
+    "empty": "No AI advice yet",
+    "emptyHint": "Add a deposit amount or holdings to generate advice",
     "newPurchaseAvailable": "New buy candidates available",
     "noNewPurchase": "No new purchases",
     "footer": "No need to rush trades",

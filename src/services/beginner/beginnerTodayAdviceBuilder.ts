@@ -31,6 +31,23 @@ export type BeginnerTodayAdviceCardData = {
 const FOOTER_JA = '急いで売買する必要はありません';
 const MAX_LINES = 5;
 
+/** Safety cap — standalone APK must not show loading indefinitely. */
+export const TODAY_AI_ADVICE_LOAD_TIMEOUT_MS = 9000;
+
+export function resolveTodayAdviceCardLoading(input: {
+  materialLoading?: boolean;
+  materialReport: MaterialAnalysisReport | null;
+  materialError?: string | null;
+  materialContextAvailable?: boolean;
+  timedOut?: boolean;
+}): boolean {
+  if (input.timedOut) return false;
+  if (input.materialContextAvailable === false) return false;
+  if (input.materialReport) return false;
+  if (input.materialError) return false;
+  return input.materialLoading === true;
+}
+
 function todayDateJa(): string {
   const d = new Date();
   const y = d.getFullYear();

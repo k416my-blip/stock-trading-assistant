@@ -23,7 +23,8 @@
   "todayAiAdvice": {
     "title": "今日AI建议",
     "loading": "正在获取AI建议...",
-    "empty": "尚无持仓或材料数据",
+    "empty": "暂无AI建议",
+    "emptyHint": "添加入金金额或持仓后，AI会生成建议",
     "newPurchaseAvailable": "有新买入候选",
     "noNewPurchase": "无新买入",
     "footer": "无需急于买卖",

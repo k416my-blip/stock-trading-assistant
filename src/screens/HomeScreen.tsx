@@ -41,7 +41,7 @@ import {
   isSimplifiedInvestmentDisplayMode,
   isTrustDisplayMode,
 } from '../services/beginnerDisplayMapper';
-import { buildBeginnerTodayAdvice } from '../services/beginner/beginnerTodayAdviceBuilder';
+import { useBeginnerTodayAdviceCardData } from '../hooks/useBeginnerTodayAdviceCardData';
 import { portfolioMarketValueMYR } from '../services/portfolio';
 import { buildTrustPlanPresentation } from '../services/trustRecommendationSummary';
 import { recordTrustOperationStartIfNeeded } from '../services/trustOperatingPerformanceStorage';
@@ -158,23 +158,19 @@ export function HomeScreen() {
     });
   }, [tabNav, stackNav, simplifiedMode, isStandardMode]);
 
-  const beginnerAdvice = useMemo(
-    () =>
-      buildBeginnerTodayAdvice({
-        holdings: isPractice ? state.practice.portfolio : state.portfolio,
-        materialReport: materialCtx?.report ?? null,
-        strategyBundle: proactive?.strategyBundle ?? null,
-        loading: materialCtx?.loading === true && !materialCtx?.report,
-      }),
-    [
-      isPractice,
-      state.portfolio,
-      state.practice.portfolio,
-      materialCtx?.report,
-      materialCtx?.loading,
-      proactive?.strategyBundle,
-    ],
-  );
+  const holdings = isPractice ? state.practice.portfolio : state.portfolio;
+
+  const beginnerAdvice = useBeginnerTodayAdviceCardData({
+    holdings,
+    materialCtx: materialCtx
+      ? {
+          report: materialCtx.report,
+          loading: materialCtx.loading,
+          error: materialCtx.error,
+        }
+      : null,
+    strategyBundle: proactive?.strategyBundle ?? null,
+  });
 
   const beginnerPortfolioSummary = useMemo(() => {
     const holdings = (isPractice ? state.practice.portfolio : state.portfolio).filter(

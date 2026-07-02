@@ -23,7 +23,8 @@
   "todayAiAdvice": {
     "title": "今日のAIアドバイス",
     "loading": "AIアドバイスを取得中…",
-    "empty": "保有銘柄や材料データがまだありません",
+    "empty": "現在、AIアドバイスはありません",
+    "emptyHint": "入金額または保有銘柄を追加すると、AIが提案を作成します",
     "newPurchaseAvailable": "新規購入候補あり",
     "noNewPurchase": "新規購入  なし",
     "footer": "急いで売買する必要はありません",
