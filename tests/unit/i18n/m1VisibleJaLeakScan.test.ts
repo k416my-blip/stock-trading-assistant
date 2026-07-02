@@ -156,8 +156,14 @@ const REQUIRED_SETTINGS_KEYS = [
   'displayMode.modes.pro.label',
   'displayMode.modes.standard.hint',
   'nav.apiKeySettings',
+  'nav.marketSettings',
+  'nav.practiceMode',
+  'nav.xApiUsage',
   'priceRefresh.options.15',
   'common.cancel',
+  'common.notTested',
+  'apiKeys.connectionTest',
+  'apiKeys.savedState',
   'detailedSettings.sectionTitle',
   'detailedSettings.sectionHint',
   'personalUse.label',
@@ -167,6 +173,17 @@ const REQUIRED_SETTINGS_KEYS = [
   'platformClarification.analysisDisclaimer',
   'riskNotice.title',
   'riskNotice.selfResponsibility',
+  'markets.bursa',
+  'markets.us',
+  'markets.hk',
+  'appMode.practice',
+  'appMode.liveAnalysis',
+  'apiTest.newsApiTest',
+  'apiTest.newsAuthHint',
+  'apiTest.xApiTest',
+  'apiTest.rssFallbackSuccess',
+  'rakutenRow.title',
+  'rakutenRow.subtitle',
 ] as const;
 
 function hasKey(obj: Record<string, unknown>, dotted: string): boolean {
@@ -258,6 +275,20 @@ describe('M1 visible JA leak — runtime English resolution', () => {
     );
     expect(i18n.t('settings:displayMode.modes.standard.label')).toBe('Standard');
     expect(i18n.t('settings:priceRefresh.options.15')).toBe('15 min (recommended)');
+    expect(i18n.t('settings:markets.bursa')).toBe('Bursa Malaysia');
+    expect(i18n.t('settings:appMode.liveAnalysis')).toBe('Live analysis mode');
+    expect(i18n.t('settings:apiTest.newsApiTest')).toBe('News API test');
+    expect(i18n.t('settings:apiTest.newsAuthHint')).toContain('RSS fallback on failure');
+    expect(i18n.t('settings:common.notTested')).toBe('Not tested');
+  });
+
+  it('resolves Settings API/market nav chrome in zh-Hans', async () => {
+    await initI18n('zh-Hans');
+    expect(i18n.t('settings:markets.bursa')).toContain('Bursa Malaysia');
+    expect(i18n.t('settings:appMode.liveAnalysis')).toBe('实盘分析模式');
+    expect(i18n.t('settings:apiTest.newsApiTest')).toBe('News API 测试');
+    expect(i18n.t('settings:common.notTested')).toBe('未测试');
+    expect(i18n.t('settings:rakutenRow.subtitle')).toContain('确认后保存');
   });
 });
 
@@ -340,9 +371,63 @@ describe('M1 visible JA leak — Settings detailed section', () => {
     '現在は分析支援システムとして動作',
   ] as const;
 
+  const SETTINGS_STANDARD_JA_LITERALS = [
+    'News API 接続',
+    'News API テスト',
+    'X API search/recent テスト',
+    '失敗時 RSS フォールバック',
+    'バルサ・マレーシア',
+    '実運用分析モード',
+    '接続成功',
+    '接続失敗',
+    '未確認',
+    '接続テスト',
+    'RSS フォールバック',
+  ] as const;
+
+  it('SettingsScreen avoids hardcoded Standard-mode API/market Japanese literals', () => {
+    const content = readFileSync(join(REPO_ROOT, 'src/screens/SettingsScreen.tsx'), 'utf8');
+    const visibleLines = content
+      .split('\n')
+      .filter((line) => !line.includes('console.'))
+      .filter((line) => !line.includes('statusLabelJa'))
+      .filter((line) => !line.includes('maskedHint'))
+      .join('\n');
+    const violations = SETTINGS_STANDARD_JA_LITERALS.filter((literal) => visibleLines.includes(literal));
+    expect(violations).toEqual([]);
+  });
+
+  const SETTINGS_ZH_HANS_JA_PHRASES = [
+    'フォールバック',
+    'バルサ',
+    '実運用',
+    '買入',
+    '売出',
+    '設定済み',
+    '未テスト',
+    '接続テスト',
+  ] as const;
+
   it('SettingsScreen avoids hardcoded detailed-settings Japanese literals', () => {
     const content = readFileSync(join(REPO_ROOT, 'src/screens/SettingsScreen.tsx'), 'utf8');
     const violations = DETAILED_SETTINGS_LITERALS.filter((literal) => content.includes(literal));
+    expect(violations).toEqual([]);
+  });
+
+  it('zh-Hans settings.json avoids Japanese kana and known JA-only phrases', () => {
+    const violations: string[] = [];
+    walkJsonStrings(zhSettings as unknown, (keyPath, value) => {
+      if (HIRAGANA.test(value) || KATAKANA.test(value)) {
+        if (!isEnZhKanaAllowed(value)) {
+          violations.push(`zh-Hans/settings.json:${keyPath}: kana in ${value.slice(0, 80)}`);
+        }
+      }
+      for (const phrase of SETTINGS_ZH_HANS_JA_PHRASES) {
+        if (value.includes(phrase)) {
+          violations.push(`zh-Hans/settings.json:${keyPath}: JA phrase "${phrase}" in ${value.slice(0, 80)}`);
+        }
+      }
+    });
     expect(violations).toEqual([]);
   });
 });

@@ -128,7 +128,7 @@
   },
   "rakutenRow": {
     "title": "Rakuten trade records",
-    "subtitle": "Manual deposit/buy/sell records (saved after confirmation)",
+    "subtitle": "Manually record deposit / buy / sell (saved after confirmation)",
     "ocrTitle": "Read transaction screenshot",
     "ocrBusy": "Reading…",
     "ocrReady": "Transaction History image → review list (save after confirm)",
@@ -192,7 +192,8 @@
     "colResult": "Result",
     "colMs": "Response (ms)",
     "ok": "OK",
-    "fail": "Failed"
+    "fail": "Failed",
+    "failureTitle": "Operational test failed"
   },
   "advancedDisclosure": {
     "beginnerGuideTitle": "Beginner guide",
@@ -237,5 +238,57 @@
     "title": "Risk notice",
     "body": "This app does not guarantee investment outcomes. Place actual orders manually in your broker app. Stock investing carries loss-of-principal risk; stale displayed data may be insufficient for decisions.",
     "selfResponsibility": "Investment decisions are your own responsibility. Returns are not guaranteed."
+  },
+  "markets": {
+    "bursa": "Bursa Malaysia",
+    "us": "United States",
+    "hk": "Hong Kong"
+  },
+  "appMode": {
+    "practice": "Practice mode",
+    "liveAnalysis": "Live analysis mode"
+  },
+  "apiTest": {
+    "xSearchRecentTitle": "X API search/recent test",
+    "xSearchRecentHelp": "GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token",
+    "xApiTest": "X API test",
+    "newsConnectionTitle": "News API connection test",
+    "newsConnectionHelp": "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&language=en",
+    "newsAuthHint": "Auth: X-Api-Key / Bearer / ?apiKey= · RSS fallback on failure",
+    "newsApiTest": "News API test",
+    "testing": "Testing…",
+    "connectionSuccess": "Connected",
+    "connectionFailure": "Connection failed",
+    "httpStatus": "HTTP Status: {{status}}",
+    "tweetCount": "Fetched: {{count}}",
+    "articleCount": "Fetched: {{count}}",
+    "testedAt": "Tested at: {{datetime}}",
+    "firstThreeBody": "First 3 texts:",
+    "zeroItems": "(0 items)",
+    "reason": "Reason:",
+    "errorBody": "Error body:",
+    "empty": "(empty)",
+    "classification": "Classification:",
+    "adoptedEndpoint": "Adopted endpoint:",
+    "adoptedHeader": "Adopted header:",
+    "adoptedNewsSource": "News source:",
+    "productionBlocked": "NewsAPI: Developer plan device restriction (426)",
+    "invalidKey": "NewsAPI: Invalid API key (401) — recopy from newsapi.org/account and save",
+    "rssFallbackSuccess": "RSS fallback: success ({{count}} items)",
+    "articleTitles": "Article titles:",
+    "zeroItemsRateLimit": "(0 items · rate limit, etc.)",
+    "bodySummary": "Body summary:",
+    "responseBodyMasked": "Response body (masked):",
+    "probes": "Probes:",
+    "errorDetailsUnavailable": "Error details unavailable in this language",
+    "failureKinds": {
+      "success": "Connected",
+      "invalid_key": "401 · Invalid API key",
+      "plan_or_rate_limit": "426/429 · Plan or rate limit",
+      "production_blocked": "426 · Developer plan blocked on device APK",
+      "bad_request": "400 · Bad request",
+      "network_error": "Network error · request failed",
+      "other": "Other error"
+    }
   }
 }

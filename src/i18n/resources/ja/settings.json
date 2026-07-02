@@ -156,5 +156,57 @@
     "beginnerGuideBody": "はじめての方は、練習モードで仮想売買を試し、実運用分析では証券会社で約定後に記録する流れを確認してください。用語は各画面の「？」から参照できます。",
     "openBeginnerGuide": "初心者ガイドを開く",
     "riskNoticeFull": "リスク告知（全文）"
+  },
+  "markets": {
+    "bursa": "バルサ・マレーシア",
+    "us": "米国",
+    "hk": "香港"
+  },
+  "appMode": {
+    "practice": "練習モード",
+    "liveAnalysis": "実運用分析モード"
+  },
+  "apiTest": {
+    "xSearchRecentTitle": "X API search/recent テスト",
+    "xSearchRecentHelp": "GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token",
+    "xApiTest": "X API テスト",
+    "newsConnectionTitle": "News API 接続テスト",
+    "newsConnectionHelp": "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&language=en",
+    "newsAuthHint": "Auth: X-Api-Key / Bearer / ?apiKey= · 失敗時 RSS フォールバック",
+    "newsApiTest": "News API テスト",
+    "testing": "テスト中…",
+    "connectionSuccess": "接続成功",
+    "connectionFailure": "接続失敗",
+    "httpStatus": "HTTP Status: {{status}}",
+    "tweetCount": "取得件数: {{count}}",
+    "articleCount": "取得件数: {{count}}",
+    "testedAt": "テスト日時: {{datetime}}",
+    "firstThreeBody": "最初の3件の本文:",
+    "zeroItems": "（0件）",
+    "reason": "理由:",
+    "errorBody": "エラー本文:",
+    "empty": "（空）",
+    "classification": "分類:",
+    "adoptedEndpoint": "採用 endpoint:",
+    "adoptedHeader": "採用 Header:",
+    "adoptedNewsSource": "採用ニュース源:",
+    "productionBlocked": "NewsAPI: Developer プラン実機制限（426）",
+    "invalidKey": "NewsAPI: APIキー無効（401）— newsapi.org/account でコピーし直して保存",
+    "rssFallbackSuccess": "RSS フォールバック: 成功（{{count}}件）",
+    "articleTitles": "記事タイトル:",
+    "zeroItemsRateLimit": "（0件 · レート制限等）",
+    "bodySummary": "body要約:",
+    "responseBodyMasked": "response body（マスク）:",
+    "probes": "プローブ:",
+    "errorDetailsUnavailable": "この言語ではエラー詳細を表示できません",
+    "failureKinds": {
+      "success": "接続成功",
+      "invalid_key": "401 · APIキー無効",
+      "plan_or_rate_limit": "426/429 · プラン制限またはレート制限",
+      "production_blocked": "426 · Developer プランは実機APK不可",
+      "bad_request": "400 · パラメータ不正",
+      "network_error": "network error · 通信失敗",
+      "other": "その他のエラー"
+    }
   }
 }

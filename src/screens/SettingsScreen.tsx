@@ -11,10 +11,11 @@ import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { getPriceRefreshLabelI18n } from '../utils/marketDataI18n';
 import {
-  APP_MODE_LIVE_ANALYSIS_LABEL,
-  APP_MODE_PRACTICE_LABEL,
-} from '../constants/platformClarification';
-import { MARKET_LABEL } from '../constants/rakutenTrade';
+  formatApiTestErrorReason,
+  formatApiTestLocaleDateTime,
+  getMarketLabelI18n,
+  getNewsApiFailureKindLabelI18n,
+} from '../utils/settingsDisplayI18n';
 import { useAppUxMode } from '../context/AppUxModeContext';
 import {
   LANGUAGE_PICKER_OPTIONS,
@@ -51,7 +52,6 @@ import {
   runNewsApiEverythingTest,
   type NewsApiEverythingTestResult,
 } from '../services/newsApiEverythingTest';
-import { failureKindLabelJa } from '../services/newsApiConnectionDebug';
 import {
   runXApiSearchRecentTest,
   type XApiSearchRecentTestResult,
@@ -96,17 +96,11 @@ export function SettingsScreen() {
     polygon: 'idle',
     fmp: 'idle',
   });
-  const [apiConnectionMessages, setApiConnectionMessages] = useState<Record<SupportedApiProviderId, string>>({
-    openai: '未確認',
-    twelve_data: '未確認',
-    newsapi: '未確認',
-    x: '未確認',
-    reddit: '未確認',
-    alpha_vantage: '未確認',
-    finnhub: '未確認',
-    polygon: '未確認',
-    fmp: '未確認',
-  });
+  const [apiConnectionMessages, setApiConnectionMessages] = useState<Record<SupportedApiProviderId, string>>(() =>
+    Object.fromEntries(
+      API_PROVIDERS.map((p) => [p.id, '']),
+    ) as Record<SupportedApiProviderId, string>,
+  );
   const [operationalRunning, setOperationalRunning] = useState(false);
   const [operationalReport, setOperationalReport] = useState<OperationalApiTestReport | null>(null);
   const [newsApiTestRunning, setNewsApiTestRunning] = useState(false);
@@ -158,7 +152,7 @@ export function SettingsScreen() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [t, appLanguage]);
 
   const refreshLabel = getPriceRefreshLabelI18n(t, state.settings.priceRefreshMinutes);
 
@@ -264,7 +258,7 @@ export function SettingsScreen() {
       await refreshApiKeyStatuses();
       setApiConnectionMessages((prev) => ({
         ...prev,
-        [providerId]: '未テスト',
+        [providerId]: t('common.notTested'),
       }));
       setApiConnectionStates((prev) => ({ ...prev, [providerId]: 'idle' }));
       await reloadStoredApiKeys();
@@ -332,7 +326,6 @@ export function SettingsScreen() {
           ok: result.ok,
           httpStatus: result.httpStatus,
           failureKind: result.failureKind,
-          failureKindJa: failureKindLabelJa(result.failureKind),
           adoptedEndpoint: result.adoptedEndpoint,
           adoptedStage: result.adoptedStage,
           adoptedAuthMode: result.adoptedAuthMode,
@@ -384,7 +377,7 @@ export function SettingsScreen() {
     try {
       const result = await runXApiSearchRecentTest(apiKeyInputs.x);
       setXApiTestResult(result);
-      console.log('[X API テスト]', JSON.stringify({
+      console.log('[X API TEST]', JSON.stringify({
         ok: result.ok,
         httpStatus: result.httpStatus,
         tweetCount: result.tweetCount,
@@ -429,7 +422,7 @@ export function SettingsScreen() {
       const report = await runOperationalApiTest();
       setOperationalReport(report);
     } catch (e) {
-      Alert.alert('実運用テスト失敗', e instanceof Error ? e.message : String(e));
+      Alert.alert(t('operationalTest.failureTitle'), e instanceof Error ? e.message : String(e));
     } finally {
       setOperationalRunning(false);
     }
@@ -561,7 +554,7 @@ export function SettingsScreen() {
           <SettingsMenuRow
             icon="globe-outline"
             title={t('nav.marketSettings')}
-            subtitle={MARKET_LABEL[state.settings.selectedMarket]}
+            subtitle={getMarketLabelI18n(t, state.settings.selectedMarket)}
             onPress={() => stackNav.navigate('MarketSettings')}
           />
           <SettingsMenuRow
@@ -596,7 +589,7 @@ export function SettingsScreen() {
               <Text style={styles.apiHelpText}>{getApiProviderHelpText(provider.id, t)}</Text>
               <Text style={styles.apiMaskText}>{t('apiKeys.savedState')}: {masked}</Text>
               <Text style={[styles.apiStatusText, { color: stateColor }]}>
-                {t('apiKeys.connectionState')}: {saved ? apiConnectionMessages[provider.id] : t('common.notTested')}
+                {t('apiKeys.connectionState')}: {saved ? (apiConnectionMessages[provider.id] || t('common.notTested')) : t('common.notTested')}
               </Text>
               <TextInput
                 style={styles.input}
@@ -625,12 +618,10 @@ export function SettingsScreen() {
               </View>
               {provider.id === 'x' ? (
                 <View style={styles.newsApiTestBlock}>
-                  <Text style={styles.newsApiTestTitle}>X API search/recent テスト</Text>
-                  <Text style={styles.apiHelpText}>
-                    GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token
-                  </Text>
+                  <Text style={styles.newsApiTestTitle}>{t('apiTest.xSearchRecentTitle')}</Text>
+                  <Text style={styles.apiHelpText}>{t('apiTest.xSearchRecentHelp')}</Text>
                   <Button
-                    label={xApiTestRunning ? 'テスト中…' : 'X API テスト'}
+                    label={xApiTestRunning ? t('apiTest.testing') : t('apiTest.xApiTest')}
                     onPress={() => void onRunXApiSearchRecentTest()}
                     disabled={xApiTestRunning || busy}
                     variant="ghost"
@@ -643,20 +634,22 @@ export function SettingsScreen() {
                           { color: xApiTestResult.ok ? theme.colors.success : theme.colors.danger },
                         ]}
                       >
-                        {xApiTestResult.ok ? '接続成功' : '接続失敗'}
+                        {xApiTestResult.ok ? t('apiTest.connectionSuccess') : t('apiTest.connectionFailure')}
                       </Text>
                       <Text style={styles.newsApiTestMeta} selectable>
-                        HTTP Status: {xApiTestResult.httpStatus || '—'}
+                        {t('apiTest.httpStatus', { status: xApiTestResult.httpStatus || '—' })}
                       </Text>
                       {xApiTestResult.ok ? (
                         <>
                           <Text style={styles.newsApiTestMeta}>
-                            取得件数: {xApiTestResult.tweetCount}
+                            {t('apiTest.tweetCount', { count: xApiTestResult.tweetCount })}
                           </Text>
                           <Text style={styles.newsApiTestMeta}>
-                            テスト日時: {new Date(xApiTestResult.testedAt).toLocaleString('ja-JP')}
+                            {t('apiTest.testedAt', {
+                              datetime: formatApiTestLocaleDateTime(xApiTestResult.testedAt, appLanguage),
+                            })}
                           </Text>
-                          <Text style={styles.newsApiTestMeta}>最初の3件の本文:</Text>
+                          <Text style={styles.newsApiTestMeta}>{t('apiTest.firstThreeBody')}</Text>
                           {xApiTestResult.tweetTexts.length > 0 ? (
                             xApiTestResult.tweetTexts.map((text, i) => (
                               <Text key={`x-tweet-${i}`} style={styles.newsApiTestTitleLine} selectable>
@@ -664,19 +657,19 @@ export function SettingsScreen() {
                               </Text>
                             ))
                           ) : (
-                            <Text style={styles.newsApiTestTitleLine}>（0件）</Text>
+                            <Text style={styles.newsApiTestTitleLine}>{t('apiTest.zeroItems')}</Text>
                           )}
                         </>
                       ) : (
                         <>
                           {xApiTestResult.errorReason ? (
                             <Text style={styles.newsApiTestMeta} selectable>
-                              理由: {xApiTestResult.errorReason}
+                              {t('apiTest.reason')} {formatApiTestErrorReason(t, null, xApiTestResult.errorReason)}
                             </Text>
                           ) : null}
-                          <Text style={styles.newsApiTestMeta}>エラー本文:</Text>
+                          <Text style={styles.newsApiTestMeta}>{t('apiTest.errorBody')}</Text>
                           <Text style={styles.newsApiTestBody} selectable>
-                            {(xApiTestResult.responseBody || '（空）').slice(0, 200)}
+                            {(xApiTestResult.responseBody || t('apiTest.empty')).slice(0, 200)}
                           </Text>
                         </>
                       )}
@@ -686,15 +679,14 @@ export function SettingsScreen() {
               ) : null}
               {provider.id === 'newsapi' ? (
                 <View style={styles.newsApiTestBlock}>
-                  <Text style={styles.newsApiTestTitle}>News API 接続テスト</Text>
+                  <Text style={styles.newsApiTestTitle}>{t('apiTest.newsConnectionTitle')}</Text>
                   <Text style={styles.apiHelpText}>
-                    A: GET /v2/top-headlines?country=us&pageSize=5{'\n'}
-                    A2: GET /v2/top-headlines?category=business&country=us&pageSize=5{'\n'}
-                    B: GET /v2/everything?q=Maybank&pageSize=5&language=en{'\n'}
-                    Auth: X-Api-Key / Bearer / ?apiKey= · 失敗時 RSS フォールバック
+                    {t('apiTest.newsConnectionHelp')}
+                    {'\n'}
+                    {t('apiTest.newsAuthHint')}
                   </Text>
                   <Button
-                    label={newsApiTestRunning ? 'テスト中…' : 'News API テスト'}
+                    label={newsApiTestRunning ? t('apiTest.testing') : t('apiTest.newsApiTest')}
                     onPress={() => void onRunNewsApiEverythingTest()}
                     disabled={newsApiTestRunning || busy}
                     variant="ghost"
@@ -707,53 +699,57 @@ export function SettingsScreen() {
                           { color: newsApiTestResult.ok ? theme.colors.success : theme.colors.danger },
                         ]}
                       >
-                        {newsApiTestResult.ok ? '接続成功' : '接続失敗'}
+                        {newsApiTestResult.ok ? t('apiTest.connectionSuccess') : t('apiTest.connectionFailure')}
                       </Text>
                       <Text style={styles.newsApiTestMeta} selectable>
-                        HTTP Status: {newsApiTestResult.httpStatus || '—'}
+                        {t('apiTest.httpStatus', { status: newsApiTestResult.httpStatus || '—' })}
                       </Text>
                       <Text style={styles.newsApiTestMeta} selectable>
-                        分類: {failureKindLabelJa(newsApiTestResult.failureKind)}
+                        {t('apiTest.classification')}{' '}
+                        {getNewsApiFailureKindLabelI18n(t, newsApiTestResult.failureKind)}
                       </Text>
                       {newsApiTestResult.adoptedEndpoint ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          採用 endpoint: {newsApiTestResult.adoptedEndpoint}
+                          {t('apiTest.adoptedEndpoint')} {newsApiTestResult.adoptedEndpoint}
                         </Text>
                       ) : null}
                       {newsApiTestResult.adoptedAuthMode ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          採用 Header: {newsApiTestResult.adoptedAuthMode}
+                          {t('apiTest.adoptedHeader')} {newsApiTestResult.adoptedAuthMode}
                         </Text>
                       ) : null}
                       {newsApiTestResult.adoptedNewsSource ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          採用ニュース源: {newsApiTestResult.adoptedNewsSource === 'rss' ? 'RSS' : 'NewsAPI'}
+                          {t('apiTest.adoptedNewsSource')}{' '}
+                          {newsApiTestResult.adoptedNewsSource === 'rss' ? 'RSS' : 'NewsAPI'}
                         </Text>
                       ) : null}
                       {newsApiTestResult.productionBlocked ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          NewsAPI: Developer プラン実機制限（426）
+                          {t('apiTest.productionBlocked')}
                         </Text>
                       ) : null}
                       {newsApiTestResult.newsApiKeyInvalid ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          NewsAPI: APIキー無効（401）— newsapi.org/account でコピーし直して保存
+                          {t('apiTest.invalidKey')}
                         </Text>
                       ) : null}
                       {newsApiTestResult.rssFallbackOk ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          RSS フォールバック: 成功（{newsApiTestResult.rssFallbackCount}件）
+                          {t('apiTest.rssFallbackSuccess', { count: newsApiTestResult.rssFallbackCount })}
                         </Text>
                       ) : null}
                       {newsApiTestResult.ok ? (
                         <>
                           <Text style={styles.newsApiTestMeta}>
-                            取得件数: {newsApiTestResult.articleCount}
+                            {t('apiTest.articleCount', { count: newsApiTestResult.articleCount })}
                           </Text>
                           <Text style={styles.newsApiTestMeta}>
-                            テスト日時: {new Date(newsApiTestResult.testedAt).toLocaleString('ja-JP')}
+                            {t('apiTest.testedAt', {
+                              datetime: formatApiTestLocaleDateTime(newsApiTestResult.testedAt, appLanguage),
+                            })}
                           </Text>
-                          <Text style={styles.newsApiTestMeta}>記事タイトル:</Text>
+                          <Text style={styles.newsApiTestMeta}>{t('apiTest.articleTitles')}</Text>
                           {newsApiTestResult.titles.length > 0 ? (
                             newsApiTestResult.titles.map((title, i) => (
                               <Text key={`news-title-${i}`} style={styles.newsApiTestTitleLine} selectable>
@@ -761,34 +757,39 @@ export function SettingsScreen() {
                               </Text>
                             ))
                           ) : (
-                            <Text style={styles.newsApiTestTitleLine}>（0件 · レート制限等）</Text>
+                            <Text style={styles.newsApiTestTitleLine}>{t('apiTest.zeroItemsRateLimit')}</Text>
                           )}
                         </>
                       ) : (
                         <>
                           {newsApiTestResult.errorReasonJa ? (
                             <Text style={styles.newsApiTestMeta} selectable>
-                              理由: {newsApiTestResult.errorReasonJa}
+                              {t('apiTest.reason')}{' '}
+                              {formatApiTestErrorReason(
+                                t,
+                                newsApiTestResult.errorReasonJa,
+                                newsApiTestResult.errorReason,
+                              )}
                             </Text>
                           ) : null}
                         </>
                       )}
                       {newsApiTestResult.responseBodySummary ? (
                         <Text style={styles.newsApiTestMeta} selectable>
-                          body要約: {newsApiTestResult.responseBodySummary}
+                          {t('apiTest.bodySummary')} {newsApiTestResult.responseBodySummary}
                         </Text>
                       ) : null}
-                      <Text style={styles.newsApiTestMeta}>response body（マスク）:</Text>
+                      <Text style={styles.newsApiTestMeta}>{t('apiTest.responseBodyMasked')}</Text>
                       <Text style={styles.newsApiTestBody} selectable>
-                        {newsApiTestResult.responseBodyMasked || '（空）'}
+                        {newsApiTestResult.responseBodyMasked || t('apiTest.empty')}
                       </Text>
                       {newsApiTestResult.probes.length > 0 ? (
                         <>
-                          <Text style={styles.newsApiTestMeta}>プローブ:</Text>
+                          <Text style={styles.newsApiTestMeta}>{t('apiTest.probes')}</Text>
                           {newsApiTestResult.probes.map((probe, i) => (
                             <Text key={`news-probe-${i}`} style={styles.newsApiTestTitleLine} selectable>
                               {probe.stage} · {probe.authMode} · HTTP {probe.httpStatus} ·{' '}
-                              {failureKindLabelJa(probe.failureKind)}
+                              {getNewsApiFailureKindLabelI18n(t, probe.failureKind)}
                             </Text>
                           ))}
                         </>
@@ -920,7 +921,7 @@ export function SettingsScreen() {
         <SettingsMenuRow
           icon="globe-outline"
           title={t('nav.marketSettings')}
-          subtitle={MARKET_LABEL[state.settings.selectedMarket]}
+          subtitle={getMarketLabelI18n(t, state.settings.selectedMarket)}
           onPress={() => stackNav.navigate('MarketSettings')}
         />
         <SettingsMenuRow
@@ -932,7 +933,7 @@ export function SettingsScreen() {
         <SettingsMenuRow
           icon="school-outline"
           title={t('nav.practiceMode')}
-          subtitle={isPractice ? APP_MODE_PRACTICE_LABEL : APP_MODE_LIVE_ANALYSIS_LABEL}
+          subtitle={isPractice ? t('appMode.practice') : t('appMode.liveAnalysis')}
           onPress={() => stackNav.navigate('PracticeModeSettings')}
         />
         <SettingsMenuRow

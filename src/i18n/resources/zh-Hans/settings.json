@@ -192,7 +192,8 @@
     "colResult": "结果",
     "colMs": "响应(ms)",
     "ok": "成功",
-    "fail": "失败"
+    "fail": "失败",
+    "failureTitle": "实际运行测试失败"
   },
   "advancedDisclosure": {
     "beginnerGuideTitle": "新手指南",
@@ -237,5 +238,57 @@
     "title": "风险告知",
     "body": "本应用不保证投资结果。实际订单请在证券公司应用中手动执行。股票投资存在本金损失风险；显示数据过旧时可能不足以作为判断依据。",
     "selfResponsibility": "投资判断由您自行负责。不保证收益。"
+  },
+  "markets": {
+    "bursa": "马来西亚交易所（Bursa Malaysia）",
+    "us": "美国",
+    "hk": "香港"
+  },
+  "appMode": {
+    "practice": "练习模式",
+    "liveAnalysis": "实盘分析模式"
+  },
+  "apiTest": {
+    "xSearchRecentTitle": "X API search/recent 测试",
+    "xSearchRecentHelp": "GET /2/tweets/search/recent?query=Maybank&max_results=10 · Bearer Token",
+    "xApiTest": "X API 测试",
+    "newsConnectionTitle": "News API 连接测试",
+    "newsConnectionHelp": "A: GET /v2/top-headlines?country=us&pageSize=5\nA2: GET /v2/top-headlines?category=business&country=us&pageSize=5\nB: GET /v2/everything?q=Maybank&pageSize=5&language=en",
+    "newsAuthHint": "Auth: X-Api-Key / Bearer / ?apiKey= · 失败时使用 RSS 备用方案",
+    "newsApiTest": "News API 测试",
+    "testing": "测试中…",
+    "connectionSuccess": "连接成功",
+    "connectionFailure": "连接失败",
+    "httpStatus": "HTTP Status: {{status}}",
+    "tweetCount": "获取条数：{{count}}",
+    "articleCount": "获取条数：{{count}}",
+    "testedAt": "测试时间：{{datetime}}",
+    "firstThreeBody": "前 3 条正文：",
+    "zeroItems": "（0 条）",
+    "reason": "原因：",
+    "errorBody": "错误正文：",
+    "empty": "（空）",
+    "classification": "分类：",
+    "adoptedEndpoint": "采用 endpoint：",
+    "adoptedHeader": "采用 Header：",
+    "adoptedNewsSource": "采用新闻源：",
+    "productionBlocked": "NewsAPI：Developer 计划真机限制（426）",
+    "invalidKey": "NewsAPI：API 密钥无效（401）— 请在 newsapi.org/account 重新复制并保存",
+    "rssFallbackSuccess": "RSS 备用方案：成功（{{count}} 条）",
+    "articleTitles": "文章标题：",
+    "zeroItemsRateLimit": "（0 条 · 速率限制等）",
+    "bodySummary": "body 摘要：",
+    "responseBodyMasked": "response body（已掩码）：",
+    "probes": "探测：",
+    "errorDetailsUnavailable": "此语言暂无错误详情",
+    "failureKinds": {
+      "success": "连接成功",
+      "invalid_key": "401 · API 密钥无效",
+      "plan_or_rate_limit": "426/429 · 计划或速率限制",
+      "production_blocked": "426 · Developer 计划真机 APK 不可用",
+      "bad_request": "400 · 参数错误",
+      "network_error": "network error · 通信失败",
+      "other": "其他错误"
+    }
   }
 }
