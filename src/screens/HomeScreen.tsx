@@ -81,6 +81,10 @@ export function HomeScreen() {
     setTrustPlan(snapshot?.plan ?? null);
   }, []);
 
+  const openDepositRecord = useCallback(() => {
+    stackNav.navigate('RakutenImportManualEntry', { kind: 'deposit' });
+  }, [stackNav]);
+
   useEffect(() => {
     if (!trustMode) return;
     void reloadTrustSnapshot();
@@ -201,6 +205,7 @@ export function HomeScreen() {
           onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
         />
         <Button label={t('cta.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
+        <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} variant="ghost" />
         {!isStandardMode ? (
           <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
         ) : null}
@@ -265,6 +270,7 @@ export function HomeScreen() {
             variant="ghost"
           />
         </View>
+        <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} />
         <View style={styles.ctaRow}>
           <Button
             label={t('cta.viewAllocation')}
@@ -305,6 +311,7 @@ export function HomeScreen() {
         onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
       />
       <Button label={t('proButtons.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
+      <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} />
       {!conciergeFirstHome ? (
         <>
           <BursaConciergeHomeCard />

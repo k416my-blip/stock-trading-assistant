@@ -16,7 +16,8 @@
     "checkHoldings": "保有を確認",
     "viewAllocation": "おすすめ配分を見る",
     "beginnerGuide": "はじめての使い方",
-    "enterDeposit": "入金額を入力する"
+    "enterDeposit": "入金額を入力する",
+    "recordDeposit": "入金を記録する"
   },
   "trustNoPlanHint": "今月の配分プランはまだありません。入金額を入力してプランを作成してください。",
   "portfolioSummary": "{{count}} 銘柄 · 総資産 RM {{amount}}",

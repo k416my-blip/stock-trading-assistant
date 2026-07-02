@@ -31,6 +31,14 @@ describe('home todayAiAdvice i18n resources', () => {
   });
 });
 
+describe('home recordDeposit CTA i18n', () => {
+  it('defines recordDeposit in ja, en, zh-Hans', () => {
+    expect(jaHome.cta.recordDeposit).toBe('入金を記録する');
+    expect(enHome.cta.recordDeposit).toBe('Record deposit');
+    expect(zhHome.cta.recordDeposit).toBe('记录入金');
+  });
+});
+
 describe('home todayAiAdvice runtime i18n', () => {
   it('resolves keys for Japanese and English', async () => {
     await initI18n('ja');

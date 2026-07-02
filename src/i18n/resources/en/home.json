@@ -16,7 +16,8 @@
     "checkHoldings": "View holdings",
     "viewAllocation": "View allocation",
     "beginnerGuide": "How to use",
-    "enterDeposit": "Enter deposit amount"
+    "enterDeposit": "Enter deposit amount",
+    "recordDeposit": "Record deposit"
   },
   "trustNoPlanHint": "No allocation plan yet. Enter a deposit amount to create one.",
   "portfolioSummary": "{{count}} stocks · Total RM {{amount}}",

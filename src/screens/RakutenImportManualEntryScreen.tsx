@@ -29,7 +29,7 @@ export function RakutenImportManualEntryScreen() {
   const { state, stageRakutenImportManual, readOnlyBlockedMessage } = useApp();
   const { t } = useTranslation('rakutenImport');
 
-  const [kind, setKind] = useState<ImportKind>('deposit');
+  const [kind, setKind] = useState<ImportKind>(params?.kind ?? 'deposit');
   const [amount, setAmount] = useState('500');
   const [symbol, setSymbol] = useState('');
   const [market, setMarket] = useState<Market>(state.settings.selectedMarket);

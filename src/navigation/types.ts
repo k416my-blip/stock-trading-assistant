@@ -49,7 +49,7 @@ export type RootStackParamList = {
   ProactiveSuggestions: undefined;
   XApiUsage: undefined;
   AllocationCommitteeDetail: { candidate: AllocationCandidate };
-  RakutenImportManualEntry: { candidateId?: string } | undefined;
+  RakutenImportManualEntry: { candidateId?: string; kind?: 'deposit' | 'buy' | 'sell' } | undefined;
   RakutenImportConfirm: { candidateId: string };
   RakutenImportOcrReview: { batchId: string };
 };

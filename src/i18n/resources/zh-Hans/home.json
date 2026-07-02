@@ -16,7 +16,8 @@
     "checkHoldings": "查看持仓",
     "viewAllocation": "查看推荐配置",
     "beginnerGuide": "使用方法",
-    "enterDeposit": "输入入金金额"
+    "enterDeposit": "输入入金金额",
+    "recordDeposit": "记录入金"
   },
   "trustNoPlanHint": "尚无本月配置计划。请输入入金金额以创建计划。",
   "portfolioSummary": "{{count}} 只股票 · 总资产 RM {{amount}}",
