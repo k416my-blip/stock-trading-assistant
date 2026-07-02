@@ -44,8 +44,8 @@
 
 | 項目 | 値 |
 |------|-----|
-| **Commit** | `3568c76` — Allow today's recommendation without watchlist using latest deposit and market AI selection. |
-| **Push** | （push 後に追記） |
+| **Commit** | `3568c76`（機能） / `1e25453`（レポート） |
+| **Push** | ✅ `origin/cursor/top3-maxdd-capital-audit` へ push 済み |
 
 ---
 
