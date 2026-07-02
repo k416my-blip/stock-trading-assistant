@@ -151,5 +151,5 @@ No new TypeScript errors from v37 changes.
 
 | Field | Value |
 |---|---|
-| **Commit hash** | _(see git log after push)_ |
-| **Push** | `origin/cursor/top3-maxdd-capital-audit` |
+| **Commit hash** | `45dfcf4` |
+| **Push** | `origin/cursor/top3-maxdd-capital-audit` ✅ |
