@@ -117,8 +117,8 @@ Internal Testing / Expo で以下を確認:
 
 | 項目 | 値 |
 |------|-----|
-| Commit | （push 後に追記） |
-| Push | （push 後に追記） |
+| Commit | `3977514` — Fix deposit duplicate detection to require matching reference number. |
+| Push | ✅ `origin/cursor/top3-maxdd-capital-audit` へ push 済み (`d5f34bf..3977514`) |
 
 ---
 
