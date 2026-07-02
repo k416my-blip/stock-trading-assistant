@@ -746,7 +746,7 @@ export function MaterialAnalysisScreen() {
   }, [report, isBeginnerMode, heldSymbols, portfolioEval]);
 
   const onRefresh = useCallback(() => {
-    void refresh();
+    void refresh({ live: true });
   }, [refresh]);
 
   if (loading && !report) {

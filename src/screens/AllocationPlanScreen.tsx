@@ -197,7 +197,7 @@ export function AllocationPlanScreen() {
       let conciergeEvidence;
       const evidenceUniverse =
         allocationUniverse ?? getStocksByMarket(effectiveMarket);
-      if (evidenceUniverse.length > 0) {
+      if (!beginnerMode && evidenceUniverse.length > 0) {
         try {
           const { loadAnalysisApiKeys } = await import('../services/analysisApiKeys');
           const { buildConciergeEvidenceForAllocationUniverse } = await import(
@@ -238,38 +238,40 @@ export function AllocationPlanScreen() {
       if (proMode) {
         void persistAllocationPlanAudit(result);
       }
-      void (async () => {
-        try {
-          const { enrichAllocationPlanNarratives } = await import('../services/recommendationMetaEnrichment');
-          const { plan: enriched, audits } = await enrichAllocationPlanNarratives(result);
-          setPlan(enriched);
-          if (trustMode) {
-            const presentation = buildTrustPlanPresentation(enriched);
-            await recordTrustOperationStartIfNeeded();
-            await saveTrustPlanSnapshot({
-              depositMYR: enriched.depositMYR,
-              allocationSummary: presentation.allocationSummaryText,
-              committeeApproved: presentation.committeeApproved,
-              expectedRiskLevel: presentation.expectedRiskLevel,
-              totalAmountMYR: enriched.depositMYR,
-              profileTypeLabel: presentation.profileTypeLabel,
-              monthlyOneLinerJa: presentation.monthlyOneLinerJa,
-              updatedAt: new Date().toISOString(),
-              plan: enriched,
-            });
+      if (trustMode || proMode) {
+        void (async () => {
+          try {
+            const { enrichAllocationPlanNarratives } = await import('../services/recommendationMetaEnrichment');
+            const { plan: enriched, audits } = await enrichAllocationPlanNarratives(result);
+            setPlan(enriched);
+            if (trustMode) {
+              const presentation = buildTrustPlanPresentation(enriched);
+              await recordTrustOperationStartIfNeeded();
+              await saveTrustPlanSnapshot({
+                depositMYR: enriched.depositMYR,
+                allocationSummary: presentation.allocationSummaryText,
+                committeeApproved: presentation.committeeApproved,
+                expectedRiskLevel: presentation.expectedRiskLevel,
+                totalAmountMYR: enriched.depositMYR,
+                profileTypeLabel: presentation.profileTypeLabel,
+                monthlyOneLinerJa: presentation.monthlyOneLinerJa,
+                updatedAt: new Date().toISOString(),
+                plan: enriched,
+              });
+            }
+            if (proMode) {
+              await persistAllocationPlanEnrichmentAudit(
+                enriched,
+                audits.map((a) => ({ symbol: a.symbol, audit: a.audit })),
+              );
+            }
+          } catch (err) {
+            if (err instanceof Error && err.message === 'ERROR_DECISION_TAMPERED') {
+              console.error('[allocation-plan] decision tamper blocked', err);
+            }
           }
-          if (proMode) {
-            await persistAllocationPlanEnrichmentAudit(
-              enriched,
-              audits.map((a) => ({ symbol: a.symbol, audit: a.audit })),
-            );
-          }
-        } catch (err) {
-          if (err instanceof Error && err.message === 'ERROR_DECISION_TAMPERED') {
-            console.error('[allocation-plan] decision tamper blocked', err);
-          }
-        }
-      })();
+        })();
+      }
     } finally {
       setGenerating(false);
     }

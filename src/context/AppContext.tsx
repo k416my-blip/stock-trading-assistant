@@ -447,7 +447,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
 
   const isPractice = state.appMode === 'practice';
-  const buyingPower = useMemo(() => calculateBuyingPower(state), [state]);
+  const buyingPower = useMemo(
+    () => calculateBuyingPower(state),
+    [state.portfolio, state.deposits, state.withdrawals, state.settings],
+  );
   const practiceStats = useMemo(() => calculatePracticeStats(state.practice), [state.practice]);
 
   const marketRegime = useMemo(

@@ -16,5 +16,13 @@ modules/sta-native-runtime/android/build/
 
 # Review evidence / large local artifacts (not needed for cloud build)
 docs/review/
+docs/
 artifacts/
 !artifacts/.gitkeep
+
+# Unit tests and dev scripts (not needed in production bundle)
+/tests/
+/scripts/
+!scripts/sync-sta-native-runtime.mjs
+/src/tooling/
+/.cursor/

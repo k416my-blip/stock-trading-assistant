@@ -217,22 +217,24 @@ export async function enrichAllocationPlanNarratives(
   audits: Array<{ symbol: string; audit: RecommendationEnrichmentAudit; reviewApplied: boolean }>;
 }> {
   const audits: Array<{ symbol: string; audit: RecommendationEnrichmentAudit; reviewApplied: boolean }> = [];
-  const candidates = await Promise.all(
-    plan.candidates.map(async (candidate) => {
-      if (!candidate.recommendationMeta) return candidate;
-      const result = await enrichRecommendationMeta(
-        candidate.symbol,
-        candidate.recommendationMeta,
-        { ...options, name: candidate.name },
-      );
-      audits.push({
-        symbol: candidate.symbol,
-        audit: result.audit,
-        reviewApplied: result.reviewApplied,
-      });
-      return { ...candidate, recommendationMeta: result.meta };
-    }),
-  );
+  const candidates: AllocationPlan['candidates'] = [];
+  for (const candidate of plan.candidates) {
+    if (!candidate.recommendationMeta) {
+      candidates.push(candidate);
+      continue;
+    }
+    const result = await enrichRecommendationMeta(
+      candidate.symbol,
+      candidate.recommendationMeta,
+      { ...options, name: candidate.name },
+    );
+    audits.push({
+      symbol: candidate.symbol,
+      audit: result.audit,
+      reviewApplied: result.reviewApplied,
+    });
+    candidates.push({ ...candidate, recommendationMeta: result.meta });
+  }
   return { plan: { ...plan, candidates }, audits };
 }
 

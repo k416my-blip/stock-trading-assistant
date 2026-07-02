@@ -206,7 +206,12 @@ async function buildSymbolEvidence(
   userMessage: string,
   apiKeys: AnalysisApiKeys,
   fetchXLive: boolean,
-  options?: { skipLiveNews?: boolean; newsSource?: 'chat' | 'proactive' | 'allocation' },
+  options?: {
+    skipLiveNews?: boolean;
+    newsSource?: 'chat' | 'proactive' | 'allocation';
+    skipQuoteProbe?: boolean;
+    skipXLive?: boolean;
+  },
 ): Promise<{ evidence: ConciergeSymbolEvidence; fetchRows: import('../types/conciergeEvidence').ConciergeFetchResultRow[] }> {
   const sample = findStock(normalizeSym(target.symbol));
   const companyName = sample?.name ?? target.position?.companyName ?? target.symbol;
@@ -240,8 +245,33 @@ async function buildSymbolEvidence(
       });
 
   const [xPack, quoteProbe] = await Promise.all([
-    fetchConciergeXEvidence(stock, apiKeys, fetchXLive),
-    probeConciergeSymbolQuotes(target.symbol, target.market),
+    options?.skipXLive
+      ? Promise.resolve({
+          xSentiment: undefined,
+          row: {
+            source: 'x' as const,
+            ok: false,
+            detailJa: 'allocation lite skip',
+            headlineCount: 0,
+          },
+        })
+      : fetchConciergeXEvidence(stock, apiKeys, fetchXLive),
+    options?.skipQuoteProbe
+      ? Promise.resolve({
+          twelve: {
+            source: 'twelve_data' as const,
+            ok: false,
+            detailJa: 'allocation lite skip',
+            headlineCount: 0,
+          },
+          yahoo: {
+            source: 'yahoo' as const,
+            ok: false,
+            detailJa: 'allocation lite skip',
+            headlineCount: 0,
+          },
+        })
+      : probeConciergeSymbolQuotes(target.symbol, target.market),
   ]);
   const news = {
     headlines: newsPack.headlines,
@@ -463,7 +493,7 @@ export async function buildConciergeEvidenceForAllocationUniverse(input: {
   analysisMode: AiAnalysisMode;
 }): Promise<ConciergeEvidenceBundle> {
   const holdings = getActivePortfolio(input.state);
-  const targets = input.universe.slice(0, 12).map((stock) => {
+  const targets = input.universe.slice(0, 6).map((stock) => {
     const pos = holdings.find(
       (p) => normalizeSymbolKey(p.symbol) === normalizeSymbolKey(stock.symbol),
     );
@@ -473,15 +503,16 @@ export async function buildConciergeEvidenceForAllocationUniverse(input: {
       position: pos,
     };
   });
-  const built = await Promise.all(
-    targets.map((target) =>
-      buildSymbolEvidence(target, '', input.apiKeys, false, {
-        skipLiveNews: true,
-        newsSource: 'allocation',
-      }),
-    ),
-  );
-  const symbols = built.map((b) => b.evidence);
+  const symbols: ConciergeSymbolEvidence[] = [];
+  for (const target of targets) {
+    const built = await buildSymbolEvidence(target, '', input.apiKeys, false, {
+      skipLiveNews: true,
+      skipQuoteProbe: true,
+      skipXLive: true,
+      newsSource: 'allocation',
+    });
+    symbols.push(built.evidence);
+  }
   const partial = {
     generatedAt: new Date().toISOString(),
     analysisMode: input.analysisMode,

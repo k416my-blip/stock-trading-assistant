@@ -26,7 +26,7 @@ type BursaMaterialContextValue = {
   auditReport: MaterialApiAuditReport | null;
   loading: boolean;
   error: string | null;
-  refresh: () => Promise<void>;
+  refresh: (options?: { live?: boolean }) => Promise<void>;
 };
 
 const BursaMaterialContext = createContext<BursaMaterialContextValue | null>(null);
@@ -35,27 +35,30 @@ export function BursaMaterialProvider({ children }: { children: ReactNode }) {
   const { state, loading: appLoading } = useApp();
   const [report, setReport] = useState<MaterialAnalysisReport | null>(null);
   const [auditReport, setAuditReport] = useState<MaterialApiAuditReport | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (options?: { live?: boolean }) => {
+    const fetchLiveExternal = options?.live ?? false;
     setLoading(true);
     setError(null);
     try {
       const [phase11, audit] = await Promise.all([
         buildBursaPhase11Analysis({
           holdings: state.portfolio,
-          fetchLiveExternal: true,
+          fetchLiveExternal,
         }),
-        runMaterialApiAudit(),
+        options?.live ? runMaterialApiAudit() : Promise.resolve(null),
       ]);
       setReport(formatMaterialAnalysisReport(phase11));
-      setAuditReport(audit);
-      const { noteTwelveHourNewsFetch } = await import('../services/twelveHourTestMonitor');
-      noteTwelveHourNewsFetch({
-        stockCount: phase11.stocks.length,
-        sources: phase11.stocks.map((s) => s.stockCode),
-      });
+      if (audit) setAuditReport(audit);
+      if (fetchLiveExternal) {
+        const { noteTwelveHourNewsFetch } = await import('../services/twelveHourTestMonitor');
+        noteTwelveHourNewsFetch({
+          stockCount: phase11.stocks.length,
+          sources: phase11.stocks.map((s) => s.stockCode),
+        });
+      }
     } catch (e) {
       setError(mapBursaAnalysisError('MaterialAnalysis', e, MATERIAL_ANALYSIS_MISSING_JA));
     } finally {
@@ -65,13 +68,16 @@ export function BursaMaterialProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (appLoading) return;
-    void refresh();
+    const timer = setTimeout(() => {
+      void refresh({ live: false });
+    }, 4000);
+    return () => clearTimeout(timer);
   }, [appLoading, refresh]);
 
   useEffect(() => {
     if (!isTwelveHourTestMonitorActive()) return;
     const timer = setInterval(() => {
-      void refresh();
+      void refresh({ live: true });
     }, 60 * 60 * 1000);
     return () => clearInterval(timer);
   }, [refresh]);

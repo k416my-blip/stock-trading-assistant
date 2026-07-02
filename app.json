@@ -25,7 +25,7 @@
         "backgroundColor": "#0f1419"
       },
       "package": "com.assistant.stocktrading",
-      "versionCode": 41,
+      "versionCode": 42,
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
