@@ -1,26 +1,22 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  PERSONAL_USE_DISCLAIMERS,
-  PERSONAL_USE_LABEL,
-  PERSONAL_USE_TAGLINE,
-} from '../constants/personalUse';
+import { useTranslation } from 'react-i18next';
 import { Card } from './ui/Card';
 import { theme } from '../theme';
 
 export function PersonalUseBanner() {
+  const { t } = useTranslation('settings');
+
   return (
     <Card style={styles.card}>
       <View style={styles.row}>
         <Ionicons name="person-circle-outline" size={22} color={theme.colors.primary} />
-        <Text style={styles.label}>{PERSONAL_USE_LABEL}</Text>
+        <Text style={styles.label}>{t('personalUse.label')}</Text>
       </View>
-      <Text style={styles.tagline}>{PERSONAL_USE_TAGLINE}</Text>
-      {PERSONAL_USE_DISCLAIMERS.map((line) => (
-        <Text key={line} style={styles.line}>
-          · {line}
-        </Text>
-      ))}
+      <Text style={styles.tagline}>{t('personalUse.tagline')}</Text>
+      <Text style={styles.line}>· {t('personalUse.disclaimer1')}</Text>
+      <Text style={styles.line}>· {t('personalUse.disclaimer2')}</Text>
+      <Text style={styles.line}>· {t('personalUse.disclaimer3')}</Text>
     </Card>
   );
 }

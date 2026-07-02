@@ -199,5 +199,43 @@
     "beginnerGuideBody": "Start with practice mode for virtual trades. In live analysis mode, record trades in your broker app after execution. Tap ? on each screen for glossary terms.",
     "openBeginnerGuide": "Open beginner guide",
     "riskNoticeFull": "Full risk disclosure"
+  },
+  "detailedSettings": {
+    "sectionTitle": "Detailed settings",
+    "sectionHint": "Personal-use notes, beginner guide, and risk warnings are collected here instead of on Home."
+  },
+  "personalUse": {
+    "label": "Personal use",
+    "tagline": "Personal AI investing OS — analysis, strategy suggestions, portfolio tracking, and decision support",
+    "disclaimer1": "For your own review only — not for public or commercial use.",
+    "disclaimer2": "Mock/read-only AI suggestions — no orders are sent to brokers.",
+    "disclaimer3": "This app is an analysis tool that supports investment decisions. Place actual orders yourself in a broker app such as Rakuten Trade."
+  },
+  "platformClarification": {
+    "personalAssistTitle": "Personal-use analysis assist",
+    "systemNotice": "Currently operating as an analysis support system",
+    "analysisDisclaimer": "This app is an analysis tool that supports investment decisions. Place actual orders yourself in a broker app such as Rakuten Trade.",
+    "orderExecutionNotice": "Place actual orders in your broker app.",
+    "supportedSection": "Supported (current version)",
+    "notSupportedSection": "Not supported",
+    "supportedCapabilities": [
+      "AI analysis & strategy suggestions",
+      "Portfolio tracking",
+      "Practice trading (simulation)",
+      "Execution simulation & risk management",
+      "Urgency analysis, reconciliation & diagnostics"
+    ],
+    "notSupportedCapabilities": [
+      "Direct order execution to Rakuten Trade, etc.",
+      "Automated trading via broker APIs",
+      "Live auto-trading & broker-linked execution",
+      "Unofficial scraping & unofficial automation"
+    ],
+    "futureLiveTradingNote": "Future live execution would require official broker APIs, authentication, broker-side confirmation, and regulatory review. Not implemented in this version."
+  },
+  "riskNotice": {
+    "title": "Risk notice",
+    "body": "This app does not guarantee investment outcomes. Place actual orders manually in your broker app. Stock investing carries loss-of-principal risk; stale displayed data may be insufficient for decisions.",
+    "selfResponsibility": "Investment decisions are your own responsibility. Returns are not guaranteed."
   }
 }

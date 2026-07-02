@@ -1,25 +1,25 @@
 import { StyleSheet, View, type ViewProps } from 'react-native';
-import { AI_CONCIERGE_RISK_NOTICE_BODY_JA, AI_CONCIERGE_RISK_NOTICE_TITLE_JA } from '../constants/aiConciergeLayout';
-import {
-  ANALYSIS_SUPPORT_DISCLAIMER_JA,
-  ORDER_EXECUTION_NOTICE_JA,
-} from '../constants/platformClarification';
+import { useTranslation } from 'react-i18next';
 import { SelectableText } from './ui/SelectableText';
 import { theme } from '../theme';
 
 type Props = ViewProps;
 
-/** Orange risk disclosure — Settings → 詳細設定 */
+/** Orange risk disclosure — Settings → detailed settings */
 export function RiskNoticeOrangeBox({ style, ...props }: Props) {
+  const { t } = useTranslation('settings');
+
   return (
     <View style={[styles.box, style]} {...props}>
-      <SelectableText style={styles.title}>{AI_CONCIERGE_RISK_NOTICE_TITLE_JA}</SelectableText>
-      <SelectableText style={styles.body}>{AI_CONCIERGE_RISK_NOTICE_BODY_JA}</SelectableText>
-      <SelectableText style={styles.body}>{ANALYSIS_SUPPORT_DISCLAIMER_JA}</SelectableText>
-      <SelectableText style={styles.emphasis}>{ORDER_EXECUTION_NOTICE_JA}</SelectableText>
+      <SelectableText style={styles.title}>{t('riskNotice.title')}</SelectableText>
+      <SelectableText style={styles.body}>{t('riskNotice.body')}</SelectableText>
       <SelectableText style={styles.body}>
-        投資判断は自己責任です。利益を保証するものではありません。
+        {t('platformClarification.analysisDisclaimer')}
       </SelectableText>
+      <SelectableText style={styles.emphasis}>
+        {t('platformClarification.orderExecutionNotice')}
+      </SelectableText>
+      <SelectableText style={styles.body}>{t('riskNotice.selfResponsibility')}</SelectableText>
     </View>
   );
 }

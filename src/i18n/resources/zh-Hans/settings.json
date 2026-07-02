@@ -199,5 +199,43 @@
     "beginnerGuideBody": "建议先在练习模式尝试虚拟交易。实际分析模式下，请在券商 App 成交后再记录。各屏幕的「？」可查看术语说明。",
     "openBeginnerGuide": "打开新手指南",
     "riskNoticeFull": "风险告知（全文）"
+  },
+  "detailedSettings": {
+    "sectionTitle": "详细设置",
+    "sectionHint": "个人使用说明、初学者指南和风险提示集中在这里，而不是首页。"
+  },
+  "personalUse": {
+    "label": "个人使用",
+    "tagline": "个人AI投资系统 — 分析、策略建议、投资组合跟踪和决策支持",
+    "disclaimer1": "仅供个人研究使用 — 不用于公开或商业用途。",
+    "disclaimer2": "模拟/只读AI建议 — 不会向证券公司发送订单。",
+    "disclaimer3": "本应用是辅助投资判断的分析工具。实际订单请由用户本人在Rakuten Trade等证券公司应用中执行。"
+  },
+  "platformClarification": {
+    "personalAssistTitle": "个人使用分析辅助",
+    "systemNotice": "当前作为分析支持系统运行",
+    "analysisDisclaimer": "本应用是辅助投资判断的分析工具。实际订单请由用户本人在Rakuten Trade等证券公司应用中执行。",
+    "orderExecutionNotice": "实际订单请在证券公司应用中执行。",
+    "supportedSection": "支持（当前版本）",
+    "notSupportedSection": "不支持",
+    "supportedCapabilities": [
+      "AI分析与策略建议",
+      "投资组合跟踪",
+      "练习交易（模拟）",
+      "执行模拟与风险管理",
+      "紧急度分析、对账与诊断"
+    ],
+    "notSupportedCapabilities": [
+      "向 Rakuten Trade 等直接下单",
+      "通过券商 API 自动交易",
+      "实时自动交易与券商联动执行",
+      "非官方抓取与非官方自动化"
+    ],
+    "futureLiveTradingNote": "未来的实时执行需要官方券商 API、认证、券商侧确认和监管审查。当前版本未实现。"
+  },
+  "riskNotice": {
+    "title": "风险告知",
+    "body": "本应用不保证投资结果。实际订单请在证券公司应用中手动执行。股票投资存在本金损失风险；显示数据过旧时可能不足以作为判断依据。",
+    "selfResponsibility": "投资判断由您自行负责。不保证收益。"
   }
 }

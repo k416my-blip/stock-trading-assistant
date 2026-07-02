@@ -43,6 +43,10 @@
   "undervaluedRank": "低估 {{pct}}% · 综合排名第 {{rank}}",
   "rankPosition": "综合排名第 {{rank}}",
   "dataUnavailable": "数据不可用",
+  "dividendCutMessage": "{{symbol}}削减了股息",
+  "dividendCutMessageWithReason": "{{symbol}}削减了股息（{{reason}}）",
+  "dividendIncreaseMessage": "{{symbol}}宣布增派股息",
+  "dividendIncreaseMessageWithReason": "{{symbol}}宣布增派股息（{{reason}}）",
   "materialQualityLabels": {
     "fullStack": "Bursa+RSS+News+X+Reddit",
     "bursaRssNews": "Bursa+RSS+News",
@@ -54,6 +58,7 @@
     "sellKindProfitTaking": "获利了结",
     "sellKindStopLoss": "止损",
     "addToPosition": "加仓",
-    "considerBuy": "考虑买入"
+    "considerBuy": "考虑买入",
+    "genericNotification": "此语言暂无警报详情"
   }
 }

@@ -1,14 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SelectableText } from './ui/SelectableText';
-import { AI_CONCIERGE_PERSONAL_USE_TITLE_JA } from '../constants/aiConciergeLayout';
-import {
-  AI_ANALYSIS_SYSTEM_NOTICE_JA,
-  ANALYSIS_SUPPORT_DISCLAIMER_JA,
-  FUTURE_LIVE_TRADING_NOTE_JA,
-  NOT_SUPPORTED_CAPABILITIES_JA,
-  ORDER_EXECUTION_NOTICE_JA,
-  SUPPORTED_CAPABILITIES_JA,
-} from '../constants/platformClarification';
 import { Card } from './ui/Card';
 import { theme } from '../theme';
 
@@ -20,28 +12,46 @@ type Props = {
 };
 
 export function PlatformClarificationCard({ compact = false, personalAssist = false }: Props) {
+  const { t } = useTranslation('settings');
+
   return (
     <Card style={styles.card}>
       <SelectableText style={styles.notice}>
-        {personalAssist ? AI_CONCIERGE_PERSONAL_USE_TITLE_JA : AI_ANALYSIS_SYSTEM_NOTICE_JA}
+        {personalAssist
+          ? t('platformClarification.personalAssistTitle')
+          : t('platformClarification.systemNotice')}
       </SelectableText>
-      <SelectableText style={styles.body}>{ANALYSIS_SUPPORT_DISCLAIMER_JA}</SelectableText>
-      <SelectableText style={styles.emphasis}>{ORDER_EXECUTION_NOTICE_JA}</SelectableText>
+      <SelectableText style={styles.body}>
+        {t('platformClarification.analysisDisclaimer')}
+      </SelectableText>
+      <SelectableText style={styles.emphasis}>
+        {t('platformClarification.orderExecutionNotice')}
+      </SelectableText>
       {!compact ? (
         <>
-          <SelectableText style={styles.section}>対応（現バージョン）</SelectableText>
-          {SUPPORTED_CAPABILITIES_JA.map((line) => (
+          <SelectableText style={styles.section}>
+            {t('platformClarification.supportedSection')}
+          </SelectableText>
+          {(t('platformClarification.supportedCapabilities', {
+            returnObjects: true,
+          }) as string[]).map((line) => (
             <SelectableText key={line} style={styles.bullet}>
               · {line}
             </SelectableText>
           ))}
-          <SelectableText style={styles.section}>非対応</SelectableText>
-          {NOT_SUPPORTED_CAPABILITIES_JA.map((line) => (
+          <SelectableText style={styles.section}>
+            {t('platformClarification.notSupportedSection')}
+          </SelectableText>
+          {(t('platformClarification.notSupportedCapabilities', {
+            returnObjects: true,
+          }) as string[]).map((line) => (
             <SelectableText key={line} style={styles.bulletMuted}>
               · {line}
             </SelectableText>
           ))}
-          <SelectableText style={styles.future}>{FUTURE_LIVE_TRADING_NOTE_JA}</SelectableText>
+          <SelectableText style={styles.future}>
+            {t('platformClarification.futureLiveTradingNote')}
+          </SelectableText>
         </>
       ) : null}
     </Card>

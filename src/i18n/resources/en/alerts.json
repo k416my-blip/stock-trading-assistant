@@ -43,6 +43,10 @@
   "undervaluedRank": "Undervalued {{pct}}% · Overall rank {{rank}}",
   "rankPosition": "Overall rank {{rank}}",
   "dataUnavailable": "Data unavailable",
+  "dividendCutMessage": "{{symbol}} cut its dividend",
+  "dividendCutMessageWithReason": "{{symbol}} cut its dividend ({{reason}})",
+  "dividendIncreaseMessage": "{{symbol}} announced a dividend increase",
+  "dividendIncreaseMessageWithReason": "{{symbol}} announced a dividend increase ({{reason}})",
   "materialQualityLabels": {
     "fullStack": "Bursa+RSS+News+X+Reddit",
     "bursaRssNews": "Bursa+RSS+News",
@@ -54,6 +58,7 @@
     "sellKindProfitTaking": "Profit taking",
     "sellKindStopLoss": "Stop loss",
     "addToPosition": "add to position",
-    "considerBuy": "consider buying"
+    "considerBuy": "consider buying",
+    "genericNotification": "Alert details unavailable in this language"
   }
 }

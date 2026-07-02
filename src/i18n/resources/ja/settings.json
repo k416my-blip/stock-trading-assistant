@@ -112,5 +112,49 @@
     "ocrBusy": "読み取り中…",
     "ocrReady": "Transaction History 画像 → 候補一覧（確認後に保存）",
     "ocrNoKey": "OpenAI APIキー未設定 — 手動/自然文入力をご利用ください"
+  },
+  "detailedSettings": {
+    "sectionTitle": "詳細設定",
+    "sectionHint": "個人利用の説明・初心者ガイド・リスク告知はホームではなくここに集約しています。"
+  },
+  "personalUse": {
+    "label": "個人利用",
+    "tagline": "個人用AI投資OS — 分析・戦略提案・ポートフォリオ追跡・意思決定支援",
+    "disclaimer1": "ご自身の検討用のみ — 公開・商用利用ではありません。",
+    "disclaimer2": "モック／閲覧専用のAI提案 — 証券会社への注文送信は行いません。",
+    "disclaimer3": "このアプリは投資判断を補助する分析ツールです。実際の注文はRakuten Tradeなどの証券会社アプリでユーザー自身が行ってください。"
+  },
+  "platformClarification": {
+    "personalAssistTitle": "個人利用の分析補助",
+    "systemNotice": "現在は分析支援システムとして動作しています",
+    "analysisDisclaimer": "このアプリは投資判断を補助する分析ツールです。実際の注文はRakuten Tradeなどの証券会社アプリでユーザー自身が行ってください。",
+    "orderExecutionNotice": "実際の注文は証券会社アプリ側で実行してください",
+    "supportedSection": "対応（現バージョン）",
+    "notSupportedSection": "非対応",
+    "supportedCapabilities": [
+      "AI分析・戦略提案",
+      "ポートフォリオ追跡",
+      "練習取引（シミュレーション）",
+      "執行シミュレーション・リスク管理",
+      "緊急度分析・照合・診断"
+    ],
+    "notSupportedCapabilities": [
+      "Rakuten Trade 等への直接注文執行",
+      "ブローカーAPIによる自動売買",
+      "ライブ自動取引・証券会社連携執行",
+      "非公式スクレイピング・非公式自動化"
+    ],
+    "futureLiveTradingNote": "将来のライブ執行連携には、公式ブローカーAPI・認証・ブローカー側確認・規制レビューが必要です。現バージョンでは実装していません。"
+  },
+  "riskNotice": {
+    "title": "リスク告知",
+    "body": "本アプリは投資判断を保証しません。実際の注文は証券会社アプリで手動実行してください。株式投資には元本割れのリスクがあり、表示データが古い場合は判断材料として不十分です。",
+    "selfResponsibility": "投資判断は自己責任です。利益を保証するものではありません。"
+  },
+  "advancedDisclosure": {
+    "beginnerGuideTitle": "初心者ガイド",
+    "beginnerGuideBody": "はじめての方は、練習モードで仮想売買を試し、実運用分析では証券会社で約定後に記録する流れを確認してください。用語は各画面の「？」から参照できます。",
+    "openBeginnerGuide": "初心者ガイドを開く",
+    "riskNoticeFull": "リスク告知（全文）"
   }
 }

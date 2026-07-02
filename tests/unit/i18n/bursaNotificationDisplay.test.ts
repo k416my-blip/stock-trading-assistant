@@ -65,4 +65,53 @@ describe('bursaNotificationDisplay', () => {
       '本日の最重要行動: MAYBANK買い検討',
     );
   });
+
+  it('translates dividend cut title and message in English', async () => {
+    await initI18n('en');
+    setCurrentAppLanguageSync('en');
+    const t = i18n.getFixedT('en', 'alerts');
+
+    expect(
+      formatNotificationTitleDisplay(
+        { titleJa: 'ZETRIX — 減配', triggerKindJa: '減配' },
+        t,
+      ),
+    ).toBe('ZETRIX — Dividend cut');
+
+    expect(formatNotificationMessageDisplay('ZETRIXが減配しました', t)).toBe(
+      'ZETRIX cut its dividend',
+    );
+
+    expect(formatNotificationMessageDisplay('IOIが減配しました', t)).toBe('IOI cut its dividend');
+  });
+
+  it('translates dividend cut title and message in zh-Hans', async () => {
+    await initI18n('zh-Hans');
+    setCurrentAppLanguageSync('zh-Hans');
+    const t = i18n.getFixedT('zh-Hans', 'alerts');
+
+    expect(
+      formatNotificationTitleDisplay(
+        { titleJa: 'ZETRIX — 減配', triggerKindJa: '減配' },
+        t,
+      ),
+    ).toBe('ZETRIX — 削减股息');
+
+    expect(formatNotificationMessageDisplay('ZETRIXが減配しました', t)).toBe(
+      'ZETRIX削减了股息',
+    );
+  });
+
+  it('maps Chinese dividend suffix in title via trigger alias', async () => {
+    await initI18n('en');
+    setCurrentAppLanguageSync('en');
+    const t = i18n.getFixedT('en', 'alerts');
+
+    expect(
+      formatNotificationTitleDisplay(
+        { titleJa: 'IOI — 削减股息', triggerKindJa: '減配' },
+        t,
+      ),
+    ).toBe('IOI — Dividend cut');
+  });
 });

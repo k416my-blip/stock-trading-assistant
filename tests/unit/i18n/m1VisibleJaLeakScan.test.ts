@@ -37,6 +37,9 @@ const M1_COMPONENT_PATHS = [
   'src/components/BursaConciergeHomeCard.tsx',
   'src/components/concierge/ConciergeShortAnswerBlock.tsx',
   'src/components/SettingsAdvancedDisclosureSection.tsx',
+  'src/components/PersonalUseBanner.tsx',
+  'src/components/PlatformClarificationCard.tsx',
+  'src/components/RiskNoticeOrangeBox.tsx',
   'src/components/AiTradeQueueSection.tsx',
   'src/components/AiTradeQueueCard.tsx',
   'src/utils/bursaNotificationDisplay.ts',
@@ -155,6 +158,15 @@ const REQUIRED_SETTINGS_KEYS = [
   'nav.apiKeySettings',
   'priceRefresh.options.15',
   'common.cancel',
+  'detailedSettings.sectionTitle',
+  'detailedSettings.sectionHint',
+  'personalUse.label',
+  'personalUse.tagline',
+  'personalUse.disclaimer1',
+  'platformClarification.systemNotice',
+  'platformClarification.analysisDisclaimer',
+  'riskNotice.title',
+  'riskNotice.selfResponsibility',
 ] as const;
 
 function hasKey(obj: Record<string, unknown>, dotted: string): boolean {
@@ -312,6 +324,25 @@ describe('M1 visible JA leak — mockAiChat locale guard', () => {
       violations.push(`src/data/mockAiChat.ts:${idx + 1}: ${line.trim()}`);
     });
 
+    expect(violations).toEqual([]);
+  });
+});
+
+describe('M1 visible JA leak — Settings detailed section', () => {
+  const DETAILED_SETTINGS_LITERALS = [
+    '詳細設定',
+    '個人利用の説明・初心者ガイド・リスク告知',
+    '個人利用',
+    '個人用AI投資OS',
+    'ご自身の検討用のみ',
+    'モック／閲覧専用',
+    'このアプリは投資判断を補助',
+    '現在は分析支援システムとして動作',
+  ] as const;
+
+  it('SettingsScreen avoids hardcoded detailed-settings Japanese literals', () => {
+    const content = readFileSync(join(REPO_ROOT, 'src/screens/SettingsScreen.tsx'), 'utf8');
+    const violations = DETAILED_SETTINGS_LITERALS.filter((literal) => content.includes(literal));
     expect(violations).toEqual([]);
   });
 });

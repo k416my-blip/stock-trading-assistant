@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 import { translateAlertTrigger } from './alertsI18nHelpers';
-import { isJaAppLocale } from './localeScript';
+import { containsHiraganaOrKatakana, isJaAppLocale } from './localeScript';
 
 const MISSING_JA = 'データ未取得';
 
@@ -67,6 +67,30 @@ function translateBodySegment(t: TFunction<'alerts'>, segment: string): string {
   if (trimmed === '増配') return t('triggers.dividendIncrease');
   if (trimmed === '減配') return t('triggers.dividendDecrease');
 
+  m = trimmed.match(/^(.+?)が減配しました(?:（(.+)）)?$/);
+  if (m) {
+    const reason = m[2]?.trim();
+    if (reason && reason !== MISSING_JA) {
+      return t('dividendCutMessageWithReason', {
+        symbol: m[1],
+        reason: translateBodySegment(t, reason),
+      });
+    }
+    return t('dividendCutMessage', { symbol: m[1] });
+  }
+
+  m = trimmed.match(/^(.+?)が増配を発表しました(?:（(.+)）)?$/);
+  if (m) {
+    const reason = m[2]?.trim();
+    if (reason && reason !== MISSING_JA) {
+      return t('dividendIncreaseMessageWithReason', {
+        symbol: m[1],
+        reason: translateBodySegment(t, reason),
+      });
+    }
+    return t('dividendIncreaseMessage', { symbol: m[1] });
+  }
+
   m = trimmed.match(/^(.+) — (利益確定|損切り)$/);
   if (m) {
     return `${m[1]} — ${translateSellKind(t, m[2])}`;
@@ -77,7 +101,19 @@ function translateBodySegment(t: TFunction<'alerts'>, segment: string): string {
     return `${m[1]} — ${translateSellKind(t, m[2])}`;
   }
 
-  return trimmed;
+  if (containsHiraganaOrKatakana(trimmed)) {
+    const dividendCut = trimmed.match(/^(.+?)が減配/);
+    if (dividendCut) {
+      return t('dividendCutMessage', { symbol: dividendCut[1] });
+    }
+    const dividendIncrease = trimmed.match(/^(.+?)が増配/);
+    if (dividendIncrease) {
+      return t('dividendIncreaseMessage', { symbol: dividendIncrease[1] });
+    }
+    return t('fallbacks.genericNotification');
+  }
+
+  return translateAlertTrigger(t, trimmed);
 }
 
 export function formatMissingDataLabel(t: TFunction<'alerts'>): string {
@@ -106,7 +142,11 @@ export function formatNotificationTitleDisplay(
     return translateAlertTrigger(t, n.triggerKindJa);
   }
 
-  return n.titleJa;
+  if (containsHiraganaOrKatakana(n.titleJa)) {
+    return t('fallbacks.genericNotification');
+  }
+
+  return translateAlertTrigger(t, n.titleJa);
 }
 
 export function formatNotificationMessageDisplay(

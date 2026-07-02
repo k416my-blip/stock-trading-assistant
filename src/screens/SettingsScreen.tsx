@@ -1106,10 +1106,8 @@ export function SettingsScreen() {
       </Card>
 
       <Card>
-        <Text style={styles.sectionTitle}>詳細設定</Text>
-        <Text style={styles.sectionHint}>
-          個人利用の説明・初心者ガイド・リスク告知はホームではなくここに集約しています。
-        </Text>
+        <Text style={styles.sectionTitle}>{t('detailedSettings.sectionTitle')}</Text>
+        <Text style={styles.sectionHint}>{t('detailedSettings.sectionHint')}</Text>
         <PersonalUseBanner />
         <PlatformClarificationCard compact />
         <SettingsAdvancedDisclosureSection />
