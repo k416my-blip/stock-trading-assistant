@@ -567,22 +567,54 @@ export function useAppPortfolioActions({
         return { ok: false, error: '読み取り専用モードでは削除できません' };
       }
       let found = false;
+      let wasCompleted = false;
       setState((prev) => {
-        const nextList = prev.manualOrderList.filter((i) => {
-          if (i.id !== orderId) return true;
-          found = true;
-          return false;
-        });
-        if (!found) return prev;
+        const target = prev.manualOrderList.find((i) => i.id === orderId);
+        if (!target) return prev;
+        if (target.completed) {
+          wasCompleted = true;
+          return prev;
+        }
+        found = true;
+        const nextList = prev.manualOrderList.filter((i) => i.id !== orderId);
         const next = { ...prev, manualOrderList: nextList };
         stateRef.current = next;
         return next;
       });
+      if (wasCompleted) {
+        return {
+          ok: false,
+          error: '実行済みとして記録済みの注文は未完了リストから削除できません。',
+        };
+      }
       if (!found) return { ok: false, error: '候補が見つかりません' };
       return { ok: true };
     },
     [setState, stateRef],
   );
+
+  const clearPendingManualOrders = useCallback((): {
+    ok: boolean;
+    error?: string;
+    removedCount?: number;
+  } => {
+    if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
+      return { ok: false, error: '読み取り専用モードでは削除できません' };
+    }
+    let removedCount = 0;
+    setState((prev) => {
+      const pendingIds = prev.manualOrderList.filter((i) => !i.completed);
+      removedCount = pendingIds.length;
+      if (removedCount === 0) return prev;
+      const next = {
+        ...prev,
+        manualOrderList: prev.manualOrderList.filter((i) => i.completed),
+      };
+      stateRef.current = next;
+      return next;
+    });
+    return { ok: true, removedCount };
+  }, [setState, stateRef]);
 
   const updateManualOrderEntryPrice = useCallback(
     (orderId: string, entryPrice: number, estimatedShares?: number) => {
@@ -897,6 +929,7 @@ export function useAppPortfolioActions({
     confirmManualOrderAsExecuted,
     clearCompletedManualOrders,
     removePendingManualOrder,
+    clearPendingManualOrders,
     updateManualOrderEntryPrice,
     addScreenerCandidateToManualList,
     updateHoldingCurrentPrice,

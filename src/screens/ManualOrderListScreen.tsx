@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -25,6 +25,8 @@ export function ManualOrderListScreen() {
     confirmManualOrderAsExecuted,
     updateManualOrderEntryPrice,
     clearCompletedManualOrders,
+    removePendingManualOrder,
+    clearPendingManualOrders,
     readOnlyBlockedMessage,
   } = useApp();
   const pending = state.manualOrderList.filter((i) => !i.completed);
@@ -100,6 +102,70 @@ export function ManualOrderListScreen() {
     }
   };
 
+  const onDeleteItem = useCallback(
+    (item: ManualOrderItem) => {
+      if (readOnlyBlockedMessage) {
+        Alert.alert('操作できません', readOnlyBlockedMessage);
+        return;
+      }
+      Alert.alert('この手動注文を削除しますか？', '削除すると元に戻せません。', [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: () => {
+            const result = removePendingManualOrder(item.id);
+            if (!result.ok) {
+              Alert.alert('削除できません', result.error ?? '不明なエラー');
+            }
+          },
+        },
+      ]);
+    },
+    [readOnlyBlockedMessage, removePendingManualOrder],
+  );
+
+  const onClearAllPending = useCallback(() => {
+    if (readOnlyBlockedMessage) {
+      Alert.alert('操作できません', readOnlyBlockedMessage);
+      return;
+    }
+    if (pending.length === 0) return;
+    Alert.alert('未完了の手動注文をすべて削除しますか？', '削除すると元に戻せません。', [
+      { text: 'キャンセル', style: 'cancel' },
+      {
+        text: 'すべて削除',
+        style: 'destructive',
+        onPress: () => {
+          const result = clearPendingManualOrders();
+          if (!result.ok) {
+            Alert.alert('削除できません', result.error ?? '不明なエラー');
+          }
+        },
+      },
+    ]);
+  }, [clearPendingManualOrders, pending.length, readOnlyBlockedMessage]);
+
+  const onClearCompleted = useCallback(() => {
+    if (readOnlyBlockedMessage) {
+      Alert.alert('操作できません', readOnlyBlockedMessage);
+      return;
+    }
+    if (done.length === 0) return;
+    Alert.alert(
+      '完了済みの手動注文を削除しますか？',
+      `実行済みとして記録済みの ${done.length}件をリストから削除します。削除すると元に戻せません。`,
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '削除',
+          style: 'destructive',
+          onPress: () => clearCompletedManualOrders(),
+        },
+      ],
+    );
+  }, [clearCompletedManualOrders, done.length, readOnlyBlockedMessage]);
+
   return (
     <Screen title="手動注文リスト" subtitle="Rakuten Tradeで入力するチェックリスト">
       <Card>
@@ -119,7 +185,15 @@ export function ManualOrderListScreen() {
         </Card>
       ) : (
         <>
-          <Text style={styles.section}>未完了（{pending.length}件）</Text>
+          <View style={styles.sectionRow}>
+            <Text style={styles.section}>未完了（{pending.length}件）</Text>
+            <Button
+              label="未完了をすべて削除"
+              onPress={onClearAllPending}
+              variant="ghost"
+              disabled={!!readOnlyBlockedMessage}
+            />
+          </View>
           {pending.map((item, index) => (
             <Card key={`manual-pending-${item.id}-${index}`}>
               <Text style={styles.side}>{item.side === 'buy' ? '買い' : '売り'}</Text>
@@ -141,14 +215,22 @@ export function ManualOrderListScreen() {
               </Text>
               <Text style={styles.row}>allocationMYR: RM{item.allocationMYR.toLocaleString('ja-JP')}</Text>
               <Text style={styles.row}>注文方法: {item.orderMethod}</Text>
-              {item.side === 'buy' ? (
+              <View style={styles.cardActions}>
+                {item.side === 'buy' ? (
+                  <Button
+                    label="Rakuten指値を登録"
+                    onPress={() => openEditEntry(item)}
+                    variant="ghost"
+                    disabled={!!readOnlyBlockedMessage}
+                  />
+                ) : null}
                 <Button
-                  label="Rakuten指値を登録"
-                  onPress={() => openEditEntry(item)}
+                  label="削除"
+                  onPress={() => onDeleteItem(item)}
                   variant="ghost"
                   disabled={!!readOnlyBlockedMessage}
                 />
-              ) : null}
+              </View>
               <Pressable onPress={() => openConfirm(item)}>
                 <Text style={styles.tap}>タップして実行済みとして記録</Text>
               </Pressable>
@@ -159,7 +241,10 @@ export function ManualOrderListScreen() {
 
       {done.length > 0 ? (
         <>
-          <Text style={styles.section}>完了済み</Text>
+          <Text style={styles.section}>実行済みとして記録済み（{done.length}件）</Text>
+          <Text style={styles.hint}>
+            ここに表示される注文は保有銘柄へ反映済みです。リストから消す場合は下の「完了済みを削除」を使ってください。
+          </Text>
           {done.map((item, index) => (
             <Card key={`manual-done-${item.id}-${index}`} style={styles.doneCard}>
               <Text style={styles.muted}>
@@ -167,7 +252,7 @@ export function ManualOrderListScreen() {
               </Text>
             </Card>
           ))}
-          <Pressable onPress={clearCompletedManualOrders}>
+          <Pressable onPress={onClearCompleted}>
             <Text style={styles.clear}>完了済みを削除</Text>
           </Pressable>
         </>
@@ -293,6 +378,14 @@ const styles = StyleSheet.create({
   warn: { color: theme.colors.warning, fontSize: theme.fontSize.sm, lineHeight: 20 },
   hint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18, marginTop: theme.spacing.xs },
   section: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md, marginTop: theme.spacing.sm },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+  },
+  cardActions: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
   side: { color: theme.colors.primary, fontWeight: '700', fontSize: theme.fontSize.sm },
   name: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg, marginTop: 4 },
   row: { color: theme.colors.text, fontSize: theme.fontSize.sm, marginTop: 4 },
