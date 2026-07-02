@@ -82,8 +82,8 @@ npx vitest run tests/unit/i18n/m1VisibleJaLeakScan.test.ts
 
 | 項目 | 値 |
 |------|-----|
-| Commit | （push 後に追記） |
-| Push | （push 後に追記） |
+| Commit | `1e9be7a` — Add Home record-deposit button linking to Rakuten import with deposit tab selected. |
+| Push | ✅ `origin/cursor/top3-maxdd-capital-audit` へ push 済み (`287f134..1e9be7a`) |
 
 ---
 
