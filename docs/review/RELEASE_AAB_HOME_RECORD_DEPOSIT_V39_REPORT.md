@@ -73,7 +73,8 @@
 | 項目 | 値 |
 |------|-----|
 | **Commit (version bump)** | `3411d22` — Bump Android versionCode to 39 for home record-deposit release. |
-| **Push** | （push 後に追記） |
+| **Commit (report)** | `acf95ac` — Add Release AAB v39 build report for home record-deposit release. |
+| **Push** | ✅ `origin/cursor/top3-maxdd-capital-audit` へ push 済み (`b5054a8..acf95ac`) |
 
 ---
 
