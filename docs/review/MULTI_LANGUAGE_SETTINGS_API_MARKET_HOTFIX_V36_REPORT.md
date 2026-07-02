@@ -196,7 +196,7 @@ No new TypeScript errors from v36 Settings i18n changes.
 
 | Field | Value |
 |---|---|
-| **Commit hash** | _(see git log after push)_ |
+| **Commit hash** | `8a1ba5b` |
 | **Push** | `origin/cursor/top3-maxdd-capital-audit` |
 
 ---
