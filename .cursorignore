@@ -1,4 +1,4 @@
-﻿# Secrets
+# Secrets
 .env
 .env.*
 *.pem
@@ -14,6 +14,7 @@ dist/
 build/
 coverage/
 .cache/
+metro-cache/
 .turbo/
 .next/
 logs/
@@ -35,6 +36,7 @@ android/
 ios/
 
 # Logs & debug artifacts
+.expo-*-log.txt
 *.log
 *.tmp
 *.map
@@ -64,3 +66,25 @@ src/native/soak/generated/
 *.backup
 *.orig
 *~
+
+
+# ── Cursor performance: exclude review evidence & audit scripts ──
+# docs/review alone is 7000+ files / ~11GB — major Cursor slowdown source
+docs/
+scripts/
+
+# Play Store / device binaries
+*.aab
+*.apk
+
+# Device capture evidence
+**/*-device/
+**/hyperos-*/
+**/logcat*.txt
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.webp
+**/*.xml
+!assets/**
+!android/app/src/main/res/**

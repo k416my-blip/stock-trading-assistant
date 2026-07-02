@@ -81,3 +81,26 @@ Thumbs.db
 # HyperOS long-run temp logcat (multi-GB; summaries kept in repo)
 docs/review/hyperos-screen-off-survival/logcat-live*.log
 docs/review/hyperos-screen-off-survival/logcat-live-verify*.log
+
+# Review evidence blobs (keep markdown reports; ignore captures & binaries)
+docs/review/**/*.png
+docs/review/**/*.jpg
+docs/review/**/*.jpeg
+docs/review/**/*.webp
+docs/review/**/*.xml
+docs/review/**/*.aab
+docs/review/**/*.apk
+docs/review/**/*.jsonl
+docs/review/**/logcat*.txt
+docs/review/**/evidence/
+docs/review/**/phase*/
+docs/review/**/play-it-aab*/
+docs/review/**/device*/
+docs/review/**/final-evidence*/
+docs/review/**/final-review*/
+docs/review/**/api-connectivity*/
+docs/review/**/ai-analyst*/
+docs/review/**/hyperos*/
+docs/review/phase12-5-long-run/
+docs/review/_tmp*
+docs/review/_play*
