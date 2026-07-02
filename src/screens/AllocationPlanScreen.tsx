@@ -61,6 +61,8 @@ import {
 } from '../services/userAnalysisSymbols';
 import { buildAllocationPlan, persistAllocationPlanAudit, persistAllocationPlanEnrichmentAudit } from '../services/allocationPlan';
 import { adjustAllocationPlanToLiveCash } from '../services/allocationPlanFees';
+import { getStocksByMarket } from '../data/sampleStocks';
+import { resolveLatestInvestableDepositMYR } from '../services/resolveLatestInvestableDepositMYR';
 import { getActivePortfolio } from '../services/portfolioPriceUpdate';
 import { calculateBuyingPower } from '../services/buyingPower';
 import {
@@ -140,7 +142,9 @@ export function AllocationPlanScreen() {
   const proMode = isProDisplayMode(aiPreferences);
   const tabNav = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const stackNav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [deposit, setDeposit] = useState('1000');
+  const [deposit, setDeposit] = useState(() =>
+    String(resolveLatestInvestableDepositMYR(state, isPractice)),
+  );
   const [market, setMarket] = useState<Market>(state.settings.selectedMarket);
   const [style, setStyle] = useState<InvestmentStyle>('balanced');
   const [fractionalShares, setFractionalShares] = useState(false);
@@ -150,6 +154,11 @@ export function AllocationPlanScreen() {
   const [buyDebug, setBuyDebug] = useState<BulkBuyDebugInfo | null>(null);
   const [lastBuyError, setLastBuyError] = useState<string | null>(null);
   const marketSession = useMarketSession(market);
+
+  useEffect(() => {
+    if (trustMode) return;
+    setDeposit(String(resolveLatestInvestableDepositMYR(state, isPractice)));
+  }, [state.deposits, state.settings.totalCapitalMYR, state.practice.cashBalanceMYR, isPractice, trustMode]);
 
   useEffect(() => {
     if (!trustMode) return;
@@ -174,16 +183,21 @@ export function AllocationPlanScreen() {
   const generate = async () => {
     const depositMYR = Number(deposit) || 0;
     const userRefs = resolveSymbolsForAllocation(state, isPractice);
+    const effectiveMarket =
+      beginnerMode && userRefs.length === 0 ? 'bursa' : market;
     const userUniverse = userSymbolsToAllocationUniverse(
       userRefs,
-      market,
+      effectiveMarket,
       getActivePortfolio(state),
       state.manualOrderList,
     );
+    const allocationUniverse = userUniverse.length > 0 ? userUniverse : undefined;
     setGenerating(true);
     try {
       let conciergeEvidence;
-      if (userUniverse.length > 0) {
+      const evidenceUniverse =
+        allocationUniverse ?? getStocksByMarket(effectiveMarket);
+      if (evidenceUniverse.length > 0) {
         try {
           const { loadAnalysisApiKeys } = await import('../services/analysisApiKeys');
           const { buildConciergeEvidenceForAllocationUniverse } = await import(
@@ -192,7 +206,7 @@ export function AllocationPlanScreen() {
           const apiKeys = await loadAnalysisApiKeys();
           conciergeEvidence = await buildConciergeEvidenceForAllocationUniverse({
             state,
-            universe: userUniverse,
+            universe: evidenceUniverse,
             apiKeys,
             analysisMode: 'balanced',
           });
@@ -202,11 +216,11 @@ export function AllocationPlanScreen() {
       }
       let result = buildAllocationPlan({
         depositMYR,
-        market,
+        market: effectiveMarket,
         riskLevel: getPlanRiskLevel(style),
         investmentStyle: style,
         fractionalSharesEnabled: fractionalShares,
-        userUniverse,
+        userUniverse: allocationUniverse,
         conciergeEvidence,
       });
       if ('error' in result) {
@@ -214,7 +228,7 @@ export function AllocationPlanScreen() {
         setPlan(null);
         return;
       }
-      if (!isPractice && market === 'bursa') {
+      if (!isPractice && effectiveMarket === 'bursa') {
         const cashMYR = calculateBuyingPower(state).buyingPowerMYR;
         const cap = Math.min(depositMYR, cashMYR);
         result = adjustAllocationPlanToLiveCash(result, cap);
@@ -440,7 +454,7 @@ export function AllocationPlanScreen() {
 
   if (beginnerMode) {
     return (
-      <Screen title="今日のおすすめ" subtitle="入金額を入れて、買うべきか確認できます">
+      <Screen title="今日のおすすめ" subtitle="最新の入金額から、AIが市場分析と最適配分を提案します">
         {isPractice ? <PracticeModeBadge /> : null}
 
         <Card>

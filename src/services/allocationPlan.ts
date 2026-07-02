@@ -1,5 +1,4 @@
 import { CANNOT_BUY_ONE_SHARE_WARNING } from '../constants/allocation';
-import { EMPTY_USER_SYMBOLS_ALLOCATION_JA } from '../constants/aiAnalysisScope';
 import { STOCK_CATEGORY_LABEL } from '../constants/stockCatalog';
 import { getStocksByMarket, getSamplePriceHistory } from '../data/sampleStocks';
 import type {
@@ -341,13 +340,15 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
     return { error: '入金額はRM100以上で入力してください。' };
   }
 
-  const universe =
+  const userFiltered =
     input.userUniverse !== undefined
       ? input.userUniverse.filter((s) => s.market === market)
-      : getStocksByMarket(market);
+      : [];
+  const universe =
+    userFiltered.length > 0 ? userFiltered : getStocksByMarket(market);
 
-  if (input.userUniverse !== undefined && universe.length === 0) {
-    return { error: EMPTY_USER_SYMBOLS_ALLOCATION_JA };
+  if (universe.length === 0) {
+    return { error: 'この市場の分析対象銘柄が見つかりません。市場設定を確認してください。' };
   }
 
   const reservePct = Math.min(MAX_CASH_PCT, Math.max(MIN_CASH_PCT, cashReservePct(riskLevel)));
@@ -469,7 +470,7 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
   if (candidates.length === 0) {
     return {
       error:
-        '配分候補を作成できませんでした。ウォッチリストに銘柄を追加するか、入金額を見直してください。',
+        '配分候補を作成できませんでした。入金額を見直すか、端株をONにしてください。',
     };
   }
 
