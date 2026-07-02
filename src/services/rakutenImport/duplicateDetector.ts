@@ -44,6 +44,20 @@ function amountClose(a: number, b: number, tolerance = 0.01): boolean {
   return Math.abs(a - b) <= tolerance;
 }
 
+function normalizeRef(ref?: string | null): string | null {
+  const trimmed = ref?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function referenceFromDepositNote(note?: string): string | null {
+  const match = note?.match(/(?:^|\s·\s)ref:([^\s·]+)/i);
+  return normalizeRef(match?.[1]);
+}
+
+function referencesEqual(a: string | null, b: string | null): boolean {
+  return a === b;
+}
+
 function tradeAmountMYR(trade: {
   shares: number;
   price: number;
@@ -80,27 +94,86 @@ function candidateAmountMYR(candidate: DuplicateDetectionInput['candidate']): nu
   return candidate.totalMYR ?? null;
 }
 
+function cashLikeDuplicateResult(
+  matchedEntryId: string,
+  matchedKind: 'deposit' | 'withdrawal',
+  existingRef: string | null,
+  candRef: string | null,
+): DuplicateDetectionResult {
+  if (referencesEqual(candRef, existingRef)) {
+    return {
+      score: 0.98,
+      blockSave: true,
+      hint: {
+        matchedEntryId,
+        matchedOn: ['date', 'amount', 'referenceNumber'],
+        score: 0.98,
+        matchedKind,
+      },
+    };
+  }
+
+  return {
+    score: 0.75,
+    blockSave: false,
+    hint: {
+      matchedEntryId,
+      matchedOn: ['date', 'amount'],
+      score: 0.75,
+      matchedKind,
+    },
+  };
+}
+
+function detectDepositWithdrawalDuplicate(
+  input: DuplicateDetectionInput,
+  candAmount: number,
+): DuplicateDetectionResult | null {
+  const { candidate, state, journalEntries = [] } = input;
+  const candRef = normalizeRef(candidate.referenceNumber);
+
+  if (candidate.type === 'deposit') {
+    for (const d of state.deposits) {
+      if (!d.completed) continue;
+      if (!sameDay(d.plannedDate, candidate.executedAt)) continue;
+      if (!amountClose(d.amountMYR, candAmount)) continue;
+      return cashLikeDuplicateResult(
+        d.id,
+        'deposit',
+        referenceFromDepositNote(d.note),
+        candRef,
+      );
+    }
+
+    for (const j of journalEntries) {
+      if (!j.brokerReferenceNumber?.trim()) continue;
+      if (!sameDay(j.createdAt, candidate.executedAt)) continue;
+      if (!amountClose(j.requestedPrice, candAmount)) continue;
+      const journalRef = normalizeRef(j.brokerReferenceNumber);
+      if (!journalRef) continue;
+      return cashLikeDuplicateResult(j.orderId, 'deposit', journalRef, candRef);
+    }
+  }
+
+  if (candidate.type === 'withdrawal') {
+    for (const w of state.withdrawals ?? []) {
+      if (!sameDay(w.withdrawnAt, candidate.executedAt)) continue;
+      if (!amountClose(w.amountMYR, candAmount)) continue;
+      const existingRef = normalizeRef(w.referenceNumber) ?? referenceFromDepositNote(w.note);
+      return cashLikeDuplicateResult(w.id, 'withdrawal', existingRef, candRef);
+    }
+  }
+
+  return null;
+}
+
 export function detectDuplicateImport(
   input: DuplicateDetectionInput,
 ): DuplicateDetectionResult {
   const { candidate, state, journalEntries = [] } = input;
 
-  if (candidate.referenceNumber?.trim()) {
+  if (candidate.referenceNumber?.trim() && candidate.type !== 'deposit' && candidate.type !== 'withdrawal') {
     const ref = candidate.referenceNumber.trim();
-    for (const d of state.deposits) {
-      if (d.note?.includes(ref)) {
-        return {
-          score: 0.98,
-          blockSave: true,
-          hint: {
-            matchedEntryId: d.id,
-            matchedOn: ['referenceNumber'],
-            score: 0.98,
-            matchedKind: 'deposit',
-          },
-        };
-      }
-    }
     for (const t of state.trades) {
       if (t.notes?.includes(ref)) {
         return {
@@ -133,39 +206,12 @@ export function detectDuplicateImport(
 
   const candAmount = candidateAmountMYR(candidate);
 
-  if (candidate.type === 'deposit' && candAmount != null) {
-    for (const d of state.deposits) {
-      if (!d.completed) continue;
-      if (sameDay(d.plannedDate, candidate.executedAt) && amountClose(d.amountMYR, candAmount)) {
-        return {
-          score: 0.92,
-          blockSave: true,
-          hint: {
-            matchedEntryId: d.id,
-            matchedOn: ['date', 'amount'],
-            score: 0.92,
-            matchedKind: 'deposit',
-          },
-        };
-      }
-    }
-  }
-
-  if (candidate.type === 'withdrawal' && candAmount != null) {
-    for (const w of state.withdrawals ?? []) {
-      if (sameDay(w.withdrawnAt, candidate.executedAt) && amountClose(w.amountMYR, candAmount)) {
-        return {
-          score: 0.92,
-          blockSave: true,
-          hint: {
-            matchedEntryId: w.id,
-            matchedOn: ['date', 'amount'],
-            score: 0.92,
-            matchedKind: 'withdrawal',
-          },
-        };
-      }
-    }
+  if (
+    (candidate.type === 'deposit' || candidate.type === 'withdrawal') &&
+    candAmount != null
+  ) {
+    const cashDup = detectDepositWithdrawalDuplicate(input, candAmount);
+    if (cashDup) return cashDup;
   }
 
   if (candidate.type === 'dividend' && candAmount != null && candidate.symbol) {

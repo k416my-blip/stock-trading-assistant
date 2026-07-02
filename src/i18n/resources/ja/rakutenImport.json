@@ -8,7 +8,11 @@
     "edit": "修正する",
     "cancel": "キャンセル",
     "saving": "保存中…",
-    "backToEntry": "入力に戻る"
+    "backToEntry": "入力に戻る",
+    "duplicateExactTitle": "重複の可能性が高いため保存できません",
+    "duplicateSoftTitle": "同じ金額・同日の記録があります",
+    "duplicateSimilarTitle": "類似の記録があります",
+    "duplicateMatch": "一致: {{fields}}（スコア {{score}}%）"
   },
   "manual": {
     "title": "Rakuten取引記録",

@@ -8,7 +8,11 @@
     "edit": "修改",
     "cancel": "取消",
     "saving": "保存中…",
-    "backToEntry": "返回输入"
+    "backToEntry": "返回输入",
+    "duplicateExactTitle": "无法保存 — 可能重复",
+    "duplicateSoftTitle": "已有相同日期和金额的记录",
+    "duplicateSimilarTitle": "存在类似记录",
+    "duplicateMatch": "匹配: {{fields}}（得分 {{score}}%）"
   },
   "manual": {
     "title": "Rakuten交易记录",

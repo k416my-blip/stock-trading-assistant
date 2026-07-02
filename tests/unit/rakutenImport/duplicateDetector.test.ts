@@ -3,7 +3,7 @@ import { detectDuplicateImport } from '../../../src/services/rakutenImport/dupli
 import { createDefaultAppState } from '../../../src/services/storage';
 
 describe('detectDuplicateImport', () => {
-  it('blocks deposit duplicate on same day and amount', () => {
+  it('warns but does not block deposit on same day and amount without matching reference', () => {
     const state = createDefaultAppState();
     state.deposits = [
       {
@@ -11,7 +11,63 @@ describe('detectDuplicateImport', () => {
         amountMYR: 500,
         plannedDate: '2026-06-20',
         completed: true,
-        note: 'test',
+        note: 'Rakuten import (manual) · ref:ABC123',
+      },
+    ];
+
+    const result = detectDuplicateImport({
+      candidate: {
+        type: 'deposit',
+        executedAt: '2026-06-20T10:00:00.000Z',
+        totalMYR: 500,
+        currency: 'MYR',
+        referenceNumber: 'XYZ999',
+      },
+      state,
+    });
+
+    expect(result.blockSave).toBe(false);
+    expect(result.hint?.matchedKind).toBe('deposit');
+    expect(result.hint?.matchedOn).toEqual(['date', 'amount']);
+  });
+
+  it('blocks deposit on exact date + amount + reference match', () => {
+    const state = createDefaultAppState();
+    state.deposits = [
+      {
+        id: 'dep-1',
+        amountMYR: 500,
+        plannedDate: '2026-06-20',
+        completed: true,
+        note: 'Rakuten import (manual) · ref:ABC123',
+      },
+    ];
+
+    const result = detectDuplicateImport({
+      candidate: {
+        type: 'deposit',
+        executedAt: '2026-06-20T10:00:00.000Z',
+        totalMYR: 500,
+        currency: 'MYR',
+        referenceNumber: 'ABC123',
+      },
+      state,
+    });
+
+    expect(result.blockSave).toBe(true);
+    expect(result.hint?.matchedKind).toBe('deposit');
+    expect(result.hint?.matchedOn).toEqual(['date', 'amount', 'referenceNumber']);
+  });
+
+  it('blocks deposit on exact date + amount when both references are empty', () => {
+    const state = createDefaultAppState();
+    state.deposits = [
+      {
+        id: 'dep-1',
+        amountMYR: 500,
+        plannedDate: '2026-06-20',
+        completed: true,
+        note: 'Rakuten import (manual)',
       },
     ];
 
@@ -26,8 +82,34 @@ describe('detectDuplicateImport', () => {
     });
 
     expect(result.blockSave).toBe(true);
-    expect(result.hint?.matchedKind).toBe('deposit');
-    expect(result.hint?.matchedEntryId).toBe('dep-1');
+    expect(result.hint?.matchedOn).toEqual(['date', 'amount', 'referenceNumber']);
+  });
+
+  it('warns when same date and amount but candidate has reference and existing does not', () => {
+    const state = createDefaultAppState();
+    state.deposits = [
+      {
+        id: 'dep-1',
+        amountMYR: 5000,
+        plannedDate: '2026-07-02',
+        completed: true,
+        note: 'Rakuten import (manual)',
+      },
+    ];
+
+    const result = detectDuplicateImport({
+      candidate: {
+        type: 'deposit',
+        executedAt: '2026-07-02',
+        totalMYR: 5000,
+        currency: 'MYR',
+        referenceNumber: 'REF-NEW',
+      },
+      state,
+    });
+
+    expect(result.blockSave).toBe(false);
+    expect(result.hint?.matchedOn).toEqual(['date', 'amount']);
   });
 
   it('blocks trade duplicate on date, symbol, quantity, and amount', () => {
@@ -64,31 +146,31 @@ describe('detectDuplicateImport', () => {
     expect(result.hint?.matchedKind).toBe('trade');
   });
 
-  it('blocks when reference number matches deposit note', () => {
+  it('blocks withdrawal on exact date + amount + reference', () => {
     const state = createDefaultAppState();
-    state.deposits = [
+    state.withdrawals = [
       {
-        id: 'dep-ref',
-        amountMYR: 100,
-        plannedDate: '2026-06-01',
-        completed: true,
-        note: 'ref:ABC123',
+        id: 'wdr-1',
+        amountMYR: 200,
+        withdrawnAt: '2026-06-20',
+        referenceNumber: 'WDR-1',
+        source: 'manual_form',
       },
     ];
 
     const result = detectDuplicateImport({
       candidate: {
-        type: 'deposit',
+        type: 'withdrawal',
         executedAt: '2026-06-20',
         totalMYR: 200,
         currency: 'MYR',
-        referenceNumber: 'ABC123',
+        referenceNumber: 'WDR-1',
       },
       state,
     });
 
     expect(result.blockSave).toBe(true);
-    expect(result.hint?.matchedOn).toContain('referenceNumber');
+    expect(result.hint?.matchedOn).toEqual(['date', 'amount', 'referenceNumber']);
   });
 
   it('returns no duplicate for unrelated candidate', () => {

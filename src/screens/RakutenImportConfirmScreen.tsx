@@ -106,6 +106,18 @@ export function RakutenImportConfirmScreen() {
 
   const saveAllowed = candidate ? canSaveImportCandidate(candidate) : false;
   const duplicateBlocked = candidate?.status === 'duplicate_blocked';
+  const duplicateSoftWarning =
+    Boolean(candidate?.duplicateHint) &&
+    !duplicateBlocked &&
+    candidate?.duplicateHint?.matchedOn.includes('date') &&
+    candidate?.duplicateHint?.matchedOn.includes('amount') &&
+    !candidate?.duplicateHint?.matchedOn.includes('referenceNumber');
+
+  const duplicateTitle = duplicateBlocked
+    ? t('confirm.duplicateExactTitle')
+    : duplicateSoftWarning
+      ? t('confirm.duplicateSoftTitle')
+      : t('confirm.duplicateSimilarTitle');
 
   const preview =
     candidate && saveAllowed && !duplicateBlocked
@@ -204,12 +216,12 @@ export function RakutenImportConfirmScreen() {
 
       {candidate.duplicateHint ? (
         <Card style={styles.warnCard}>
-          <Text style={styles.warnTitle}>
-            {duplicateBlocked ? '重複の可能性が高いため保存できません' : '類似の記録があります'}
-          </Text>
+          <Text style={styles.warnTitle}>{duplicateTitle}</Text>
           <Text style={styles.warnBody}>
-            一致: {candidate.duplicateHint.matchedOn.join(' · ')}（スコア{' '}
-            {Math.round(candidate.duplicateHint.score * 100)}%）
+            {t('confirm.duplicateMatch', {
+              fields: candidate.duplicateHint.matchedOn.join(' · '),
+              score: Math.round(candidate.duplicateHint.score * 100),
+            })}
           </Text>
         </Card>
       ) : null}

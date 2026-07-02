@@ -8,7 +8,11 @@
     "edit": "Edit",
     "cancel": "Cancel",
     "saving": "Saving…",
-    "backToEntry": "Back to entry"
+    "backToEntry": "Back to entry",
+    "duplicateExactTitle": "Cannot save — likely a duplicate",
+    "duplicateSoftTitle": "A record with the same date and amount already exists",
+    "duplicateSimilarTitle": "A similar record exists",
+    "duplicateMatch": "Matched: {{fields}} (score {{score}}%)"
   },
   "manual": {
     "title": "Rakuten trade record",
