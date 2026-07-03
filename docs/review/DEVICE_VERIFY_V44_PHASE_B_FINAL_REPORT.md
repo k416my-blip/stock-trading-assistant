@@ -90,7 +90,7 @@ UIAutomator corpus では1/4になることがあるため、**スクリーン�
 ## 7. Git / AAB
 
 - **AAB 作成**: いいえ — **Build Credit 節約のため**
-- **push**: 本レポートとスクリプトを commit 後 push 予定
+- **- **Git commit**: ef93db — push 成功
 
 ## 再現コマンド
 
