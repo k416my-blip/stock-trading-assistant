@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { HomeManualOrderEntrySection } from '../components/home/HomeManualOrderEntrySection';
 import { BursaConciergeHomeCard } from '../components/BursaConciergeHomeCard';
 import { BursaMaterialHomeCard } from '../components/BursaMaterialHomeCard';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
@@ -206,6 +207,7 @@ export function HomeScreen() {
         />
         <Button label={t('cta.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
         <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} variant="ghost" />
+        <HomeManualOrderEntrySection />
         {!isStandardMode ? (
           <TrustConciergeHomeCard fallbackDepositMYR={depositDefault} />
         ) : null}
@@ -271,6 +273,7 @@ export function HomeScreen() {
           />
         </View>
         <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} />
+        <HomeManualOrderEntrySection />
         <View style={styles.ctaRow}>
           <Button
             label={t('cta.viewAllocation')}
@@ -312,6 +315,7 @@ export function HomeScreen() {
       />
       <Button label={t('proButtons.askAi')} onPress={() => tabNav.navigate('ConciergeConsult')} />
       <Button label={t('cta.recordDeposit')} onPress={openDepositRecord} />
+      <HomeManualOrderEntrySection />
       {!conciergeFirstHome ? (
         <>
           <BursaConciergeHomeCard />

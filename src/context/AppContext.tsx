@@ -207,6 +207,11 @@ interface AppContextValue {
   reloadHoldingsFromStorage: () => Promise<void>;
   portfolioRevision: number;
   addAllocationToManualOrderList: (plan: AllocationPlan) => { ok: boolean; error?: string; addedCount?: number };
+  addManualBuyOrders: (items: import('../types').ManualOrderItem[]) => {
+    ok: boolean;
+    error?: string;
+    addedCount?: number;
+  };
   addManualSellFromHolding: (position: PortfolioPosition, name: string, currentPrice: number) => void;
   practiceSellAll: (position: PortfolioPosition, name: string, currentPrice: number) => { ok: boolean; error?: string };
   practiceSellAllHoldings: (
@@ -494,6 +499,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     applyAllocationPractice,
     reloadHoldingsFromStorage,
     addAllocationToManualOrderList,
+    addManualBuyOrders,
     addManualSellFromHolding,
     practiceSellAll,
     practiceSellAllHoldings,
@@ -739,6 +745,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       reloadHoldingsFromStorage,
       portfolioRevision,
       addAllocationToManualOrderList,
+      addManualBuyOrders,
       addManualSellFromHolding,
       practiceSellAll,
       practiceSellAllHoldings,
@@ -827,6 +834,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       reloadHoldingsFromStorage,
       portfolioRevision,
       addAllocationToManualOrderList,
+      addManualBuyOrders,
       addManualSellFromHolding,
       practiceSellAll,
       practiceSellAllHoldings,

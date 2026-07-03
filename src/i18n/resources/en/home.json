@@ -87,5 +87,64 @@
     "skip": "Skip",
     "close": "Close",
     "viewAll": "View all"
+  },
+  "manualOrderEntry": {
+    "sectionTitle": "Create manual order list",
+    "sectionSubtitle": "Build a checklist for manual entry in Rakuten Trade",
+    "conciergeFull": {
+      "title": "Let concierge handle everything",
+      "description": "Enter amount only. Concierge picks symbols and quantities."
+    },
+    "manualFull": {
+      "title": "Pick symbol and quantity myself",
+      "description": "Enter symbol and quantity to add to the list."
+    },
+    "conciergeSymbol": {
+      "title": "Let concierge pick the symbol",
+      "description": "Specify amount or quantity. Concierge selects the symbol."
+    },
+    "conciergeQuantity": {
+      "title": "Let concierge calculate quantity",
+      "description": "Specify symbol. Concierge calculates shares."
+    }
+  },
+  "manualOrderFlow": {
+    "title": "Create manual order list",
+    "depositLabel": "Investment amount (MYR)",
+    "symbolLabel": "Symbol",
+    "sharesLabel": "Quantity",
+    "entryPriceLabel": "Limit price (optional)",
+    "entryPriceOptional": "Uses sample price if empty",
+    "inputAmount": "By amount",
+    "inputShares": "By quantity",
+    "createList": "Create manual order list",
+    "creating": "Creating…",
+    "backHome": "Back",
+    "cannotCreateTitle": "Cannot create",
+    "createFailed": "Something went wrong",
+    "createdTitle": "Added to list",
+    "createdBody": "Added {{count}} item(s) to the manual order list.",
+    "practiceBlockedTitle": "Practice mode",
+    "practiceBlockedBody": "Manual order lists can only be created in live account mode.",
+    "conciergeFull": {
+      "title": "Concierge handles everything",
+      "subtitle": "Enter investment amount",
+      "hint": "Concierge selects symbols and quantities for your checklist."
+    },
+    "manualFull": {
+      "title": "Specify symbol and quantity",
+      "subtitle": "Enter symbol and quantity",
+      "hint": "Adds one buy candidate based on your input."
+    },
+    "conciergeSymbol": {
+      "title": "Concierge picks symbol",
+      "subtitle": "Enter amount or quantity",
+      "hint": "Concierge selects one suitable symbol."
+    },
+    "conciergeQuantity": {
+      "title": "Concierge calculates quantity",
+      "subtitle": "Enter symbol and amount",
+      "hint": "Calculates buyable shares from your amount."
+    }
   }
 }

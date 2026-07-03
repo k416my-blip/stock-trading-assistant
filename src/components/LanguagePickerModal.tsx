@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/Button';
@@ -19,10 +19,31 @@ export function LanguagePickerModal({ visible }: Props) {
   const { appLanguage, confirmInitialLanguage } = useAppLanguage();
   const [selected, setSelected] = useState<AppLanguage>(appLanguage);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
 
-  const onConfirm = () => {
-    setBusy(true);
-    void confirmInitialLanguage(selected).finally(() => setBusy(false));
+  useEffect(() => {
+    if (!visible) return;
+    setSelected(appLanguage);
+    setBusy(false);
+    busyRef.current = false;
+  }, [visible, appLanguage]);
+
+  const runConfirm = useCallback(
+    (language: AppLanguage) => {
+      if (busyRef.current) return;
+      busyRef.current = true;
+      setBusy(true);
+      void confirmInitialLanguage(language).finally(() => {
+        busyRef.current = false;
+        setBusy(false);
+      });
+    },
+    [confirmInitialLanguage],
+  );
+
+  const onSelect = (language: AppLanguage) => {
+    setSelected(language);
+    runConfirm(language);
   };
 
   return (
@@ -31,6 +52,9 @@ export function LanguagePickerModal({ visible }: Props) {
       animationType="fade"
       transparent
       testID="language-picker-modal"
+      onRequestClose={() => {
+        /* 初回は言語未選択のまま閉じない */
+      }}
     >
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
@@ -40,7 +64,8 @@ export function LanguagePickerModal({ visible }: Props) {
           {LANGUAGE_PICKER_OPTIONS.map((language, index) => (
             <Pressable
               key={language}
-              onPress={() => setSelected(language)}
+              onPress={() => onSelect(language)}
+              disabled={busy}
               testID={`language-option-${language}`}
               style={({ pressed }) => [
                 styles.optionRow,
@@ -67,7 +92,7 @@ export function LanguagePickerModal({ visible }: Props) {
 
           <Button
             label={t('languagePicker.confirm')}
-            onPress={onConfirm}
+            onPress={() => runConfirm(selected)}
             disabled={busy}
           />
         </View>

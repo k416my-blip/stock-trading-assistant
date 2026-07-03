@@ -87,5 +87,64 @@
     "skip": "跳过",
     "close": "关闭",
     "viewAll": "查看全部"
+  },
+  "manualOrderEntry": {
+    "sectionTitle": "创建手动订单列表",
+    "sectionSubtitle": "为Rakuten Trade手动输入创建清单",
+    "conciergeFull": {
+      "title": "全部交给顾问",
+      "description": "仅输入投资金额。顾问指定股票与数量。"
+    },
+    "manualFull": {
+      "title": "自己指定股票与数量",
+      "description": "输入股票代码与数量创建列表。"
+    },
+    "conciergeSymbol": {
+      "title": "仅股票交给顾问",
+      "description": "指定金额或数量。顾问选股票。"
+    },
+    "conciergeQuantity": {
+      "title": "仅数量交给顾问",
+      "description": "指定股票。顾问计算数量。"
+    }
+  },
+  "manualOrderFlow": {
+    "title": "创建手动订单列表",
+    "depositLabel": "投资金额 (MYR)",
+    "symbolLabel": "股票代码",
+    "sharesLabel": "数量",
+    "entryPriceLabel": "限价（可选）",
+    "entryPriceOptional": "留空则使用样本价格",
+    "inputAmount": "按金额",
+    "inputShares": "按数量",
+    "createList": "创建手动订单列表",
+    "creating": "创建中…",
+    "backHome": "返回",
+    "cannotCreateTitle": "无法创建",
+    "createFailed": "处理失败",
+    "createdTitle": "已添加到列表",
+    "createdBody": "已向手动订单列表添加 {{count}} 项。",
+    "practiceBlockedTitle": "练习模式",
+    "practiceBlockedBody": "手动订单列表仅在实盘模式下创建。",
+    "conciergeFull": {
+      "title": "全部交给顾问",
+      "subtitle": "请输入投资金额",
+      "hint": "顾问将选股票与数量并创建清单。"
+    },
+    "manualFull": {
+      "title": "指定股票与数量",
+      "subtitle": "请输入股票与数量",
+      "hint": "根据输入添加一条买入候选。"
+    },
+    "conciergeSymbol": {
+      "title": "仅股票交给顾问",
+      "subtitle": "请输入金额或数量",
+      "hint": "顾问将选一只合适股票。"
+    },
+    "conciergeQuantity": {
+      "title": "仅数量交给顾问",
+      "subtitle": "请输入股票与投资金额",
+      "hint": "根据金额计算可买数量。"
+    }
   }
 }

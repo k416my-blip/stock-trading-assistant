@@ -165,9 +165,8 @@ export function MainTabNavigator() {
   const tabBarHeight = 56 + insets.bottom;
   const { appUxMode, ready, isBeginnerMode } = useAppUxMode();
   const { appLanguage, languageRevision } = useAppLanguage();
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const activeLanguage = i18n.language;
 
   useEffect(() => {
     if (!ready || !isBeginnerMode) {
@@ -192,7 +191,9 @@ export function MainTabNavigator() {
   return (
     <>
     <Tab.Navigator
-      key={`${appLanguage}-${languageRevision}-${activeLanguage}`}
+      key={`${appLanguage}-${languageRevision}`}
+      initialRouteName="Home"
+      backBehavior="history"
       screenOptions={({ route }) => {
         const visible = isTabVisibleForAppUxMode(appUxMode, route.name);
         const title = tabTitleForAppUxMode(appUxMode, route.name, t);
@@ -216,6 +217,7 @@ export function MainTabNavigator() {
           tabBarLabel: title,
           tabBarLabelStyle: styles.tabLabel,
           tabBarItemStyle: visible ? styles.tabItem : styles.tabItemHidden,
+          tabBarAccessibilityState: visible ? undefined : { disabled: true },
           tabBarStyle: {
             backgroundColor: theme.colors.surface,
             borderTopColor: theme.colors.border,
@@ -250,7 +252,10 @@ const styles = StyleSheet.create({
     display: 'none',
     width: 0,
     height: 0,
+    minWidth: 0,
     overflow: 'hidden',
+    opacity: 0,
+    pointerEvents: 'none',
   },
   tabLabel: {
     fontSize: 10,

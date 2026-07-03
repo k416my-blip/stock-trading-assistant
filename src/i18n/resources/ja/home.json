@@ -87,5 +87,64 @@
     "skip": "スキップ",
     "close": "閉じる",
     "viewAll": "一覧を見る"
+  },
+  "manualOrderEntry": {
+    "sectionTitle": "手動注文リストを作成",
+    "sectionSubtitle": "Rakuten Tradeで手入力するためのチェックリストを作成します",
+    "conciergeFull": {
+      "title": "コンシェルジュに全て任せる",
+      "description": "投資金額だけ入力。コンシェルジュが銘柄・数量を指定します。"
+    },
+    "manualFull": {
+      "title": "自分で銘柄と数量を指定する",
+      "description": "銘柄コードと数量を入力してリストを作成します。"
+    },
+    "conciergeSymbol": {
+      "title": "銘柄だけコンシェルジュに任せる",
+      "description": "投資金額または数量を指定。コンシェルジュが銘柄を選定します。"
+    },
+    "conciergeQuantity": {
+      "title": "数量だけコンシェルジュに任せる",
+      "description": "銘柄を指定。コンシェルジュが数量を計算します。"
+    }
+  },
+  "manualOrderFlow": {
+    "title": "手動注文リスト作成",
+    "depositLabel": "投資金額 (MYR)",
+    "symbolLabel": "銘柄コード",
+    "sharesLabel": "数量",
+    "entryPriceLabel": "指値（任意）",
+    "entryPriceOptional": "未入力時はサンプル価格を使用",
+    "inputAmount": "金額で指定",
+    "inputShares": "数量で指定",
+    "createList": "手動注文リストを作成",
+    "creating": "作成中…",
+    "backHome": "戻る",
+    "cannotCreateTitle": "作成できません",
+    "createFailed": "処理に失敗しました",
+    "createdTitle": "リストに追加しました",
+    "createdBody": "{{count}}件を手動注文リストに追加しました。",
+    "practiceBlockedTitle": "練習モード",
+    "practiceBlockedBody": "手動注文リストは実口座モードでのみ作成できます。",
+    "conciergeFull": {
+      "title": "コンシェルジュに全て任せる",
+      "subtitle": "投資金額を入力してください",
+      "hint": "コンシェルジュが銘柄と数量を選定し、手動注文リストを作成します。"
+    },
+    "manualFull": {
+      "title": "銘柄と数量を指定",
+      "subtitle": "銘柄・数量を入力してください",
+      "hint": "入力内容をもとに1件の買い候補をリストに追加します。"
+    },
+    "conciergeSymbol": {
+      "title": "銘柄だけコンシェルジュに任せる",
+      "subtitle": "金額または数量を入力してください",
+      "hint": "コンシェルジュが最適な銘柄を1件選定します。"
+    },
+    "conciergeQuantity": {
+      "title": "数量だけコンシェルジュに任せる",
+      "subtitle": "銘柄と投資金額を入力してください",
+      "hint": "投資金額から購入可能な数量を計算します。"
+    }
   }
 }

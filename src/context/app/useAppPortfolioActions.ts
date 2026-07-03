@@ -452,6 +452,17 @@ export function useAppPortfolioActions({
     return { ok: true, addedCount: items.length };
   }, [setState]);
 
+  const addManualBuyOrders = useCallback((items: ManualOrderItem[]) => {
+    if (items.length === 0) {
+      return { ok: false, error: '追加する注文がありません' };
+    }
+    setState((prev) => ({
+      ...prev,
+      manualOrderList: [...items, ...prev.manualOrderList],
+    }));
+    return { ok: true, addedCount: items.length };
+  }, [setState]);
+
   const addManualSellFromHolding = useCallback(
     (position: PortfolioPosition, name: string, currentPrice: number) => {
       const item: ManualOrderItem = {
@@ -922,6 +933,7 @@ export function useAppPortfolioActions({
     applyAllocationPractice,
     reloadHoldingsFromStorage,
     addAllocationToManualOrderList,
+    addManualBuyOrders,
     addManualSellFromHolding,
     practiceSellAll,
     practiceSellAllHoldings,

@@ -1,6 +1,8 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { AllocationCandidate, Market, SellAllResult } from '../types';
 
+import type { ManualOrderFlowMode } from '../services/manualOrderFlow';
+
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   StockDetail: { symbol: string; market: Market };
@@ -11,6 +13,7 @@ export type RootStackParamList = {
   RiskWarning: undefined;
   AddDividend: undefined;
   ManualOrderList: undefined;
+  ManualOrderFlow: { mode: ManualOrderFlowMode };
   SellAllResult: { result: SellAllResult };
   Capital: undefined;
   Performance: undefined;

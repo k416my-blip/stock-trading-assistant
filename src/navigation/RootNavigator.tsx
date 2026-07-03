@@ -10,6 +10,7 @@ import { AddTradeScreen } from '../screens/AddTradeScreen';
 import { ManualAddHoldingScreen } from '../screens/ManualAddHoldingScreen';
 import { CapitalScreen } from '../screens/CapitalScreen';
 import { ManualOrderListScreen } from '../screens/ManualOrderListScreen';
+import { ManualOrderFlowScreen } from '../screens/ManualOrderFlowScreen';
 import { SellAllResultScreen } from '../screens/SellAllResultScreen';
 import { HistoricalValidationScreen } from '../screens/HistoricalValidationScreen';
 import ForwardValidationScreen from '../screens/ForwardValidationRoute';
@@ -102,6 +103,7 @@ export function RootNavigator() {
         <Stack.Screen name="AddDividend" component={AddDividendScreen} options={{ title: '配当記録' }} />
         <Stack.Screen name="RiskWarning" component={RiskWarningScreen} options={{ title: 'リスク告知' }} />
         <Stack.Screen name="ManualOrderList" component={ManualOrderListScreen} options={{ title: '手動注文リスト' }} />
+        <Stack.Screen name="ManualOrderFlow" component={ManualOrderFlowScreen} options={{ title: '手動注文リスト作成' }} />
         <Stack.Screen name="SellAllResult" component={SellAllResultScreen} options={{ title: 'すべて売却' }} />
         <Stack.Screen name="Capital" component={CapitalScreen} options={{ title: '投資金額' }} />
         <Stack.Screen name="Performance" component={PerformanceScreen} options={{ title: '成績' }} />

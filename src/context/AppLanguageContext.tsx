@@ -15,6 +15,7 @@ import {
   DEFAULT_APP_LANGUAGE,
 } from '../i18n/config';
 import { changeAppLanguage, initI18n } from '../i18n';
+import { confirmInitialAppLanguage } from '../services/appLanguageConfirm';
 import {
   loadAppLanguage,
   saveAppLanguage,
@@ -85,9 +86,18 @@ export function AppLanguageProvider({ children }: { children: ReactNode }) {
 
   const confirmInitialLanguage = useCallback(
     async (language: AppLanguage) => {
-      await setAppLanguage(language);
+      const result = await confirmInitialAppLanguage(language, appLanguage, {
+        saveAppLanguage,
+        changeAppLanguage,
+      });
+      if (!result.ok) return;
+      if (result.languageChanged) {
+        setAppLanguageState(result.language);
+        setLanguageRevision((revision) => revision + 1);
+      }
+      setLanguageChosen(true);
     },
-    [setAppLanguage],
+    [appLanguage],
   );
 
   const value = useMemo(
