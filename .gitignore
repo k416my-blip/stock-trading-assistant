@@ -13,6 +13,8 @@ temp/
 reports/
 artifacts/
 screenshots/
+!docs/pages/screenshots/
+!docs/pages/screenshots/**
 playwright-report/
 test-results/
 generated/

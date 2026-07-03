@@ -1,0 +1,83 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - cursor/top3-maxdd-capital-audit
+    paths:
+      - 'docs/pages/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare evaluation site (minimal artifact)
+        run: |
+          set -euo pipefail
+          SITE="_site"
+          rm -rf "$SITE"
+          mkdir -p "$SITE"
+
+          # Publish ONLY evaluation-focused static content.
+          rsync -a \
+            --exclude='node_modules/' \
+            --exclude='android/' \
+            --exclude='ios/' \
+            --exclude='.expo/' \
+            --exclude='.dev/' \
+            --exclude='logs/' \
+            --exclude='docs/archive/' \
+            --exclude='docs/review/' \
+            --exclude='*.aab' \
+            --exclude='*.apk' \
+            --exclude='*.jsonl' \
+            --exclude='*.csv' \
+            --exclude='*.mp4' \
+            --exclude='*.xml' \
+            docs/pages/ "$SITE/"
+
+          echo "=== Published files ==="
+          find "$SITE" -type f | sort
+          echo "=== Artifact size ==="
+          du -sh "$SITE"
+          du -sh "$SITE"/* 2>/dev/null || true
+
+          TOTAL_KB=$(du -sk "$SITE" | cut -f1)
+          if [ "$TOTAL_KB" -gt 51200 ]; then
+            echo "::error::Artifact exceeds 50MB limit (${TOTAL_KB}KB). Aborting deploy."
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
