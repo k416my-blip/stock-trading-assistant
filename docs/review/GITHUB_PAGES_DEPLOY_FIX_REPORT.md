@@ -85,7 +85,7 @@ Expected URL (GitHub Pages default for this repo):
 |------|--------|
 | Commit + push | See section 7 |
 | Workflow trigger | `push` to branch (paths: `docs/pages/**`, `.github/workflows/pages.yml`) or `workflow_dispatch` |
-| Deploy verification | Pending post-push — run `gh run list --workflow=pages.yml` and open Pages URL |
+| Deploy verification | **SUCCESS** — see runs below |
 
 ---
 
@@ -93,7 +93,7 @@ Expected URL (GitHub Pages default for this repo):
 
 | Item | Value |
 |------|-------|
-| Commit | *(filled after commit)* |
+| Commit | **866768e** |
 | Push | `origin/cursor/top3-maxdd-capital-audit` |
 | AAB created | **No** — Pages workflow is static docs only (Build Credit savings) |
 
@@ -112,3 +112,4 @@ Expected URL (GitHub Pages default for this repo):
 ---
 
 *Report generated as part of GitHub Pages deploy fix.*
+
