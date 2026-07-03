@@ -1,8 +1,9 @@
-﻿# Device Verify v44 — testID / Verification Helper Report
+# Device Verify v44 — testID / Verification Helper Report
 
 - **Overall (code-level)**: PASS — testIDs and verification helpers implemented
-- **Overall (device E2E)**: **保留** — **実機未接続** — 最終 PASS 判定は実機E2E後
-- **Commit (pre-push)**: `f6382ee`
+- **Overall (device E2E)**: **保留** — **実機未接続** — 実機E2E未実施 / 最終判定は保留
+- **Git commit**: `69bc1a3` (report note: `9fbbd5a`)
+- **Push**: 成功 (`origin/cursor/top3-maxdd-capital-audit`)
 - **AAB**: 未作成（Build Credit 節約）
 
 ## 実装内容
@@ -32,7 +33,8 @@
 
 ## テスト
 
-- `tests/unit/manualOrderVerification.test.ts` — probe フォーマット / 件数集計
+- `tests/unit/manualOrderVerification.test.ts` — probe フォーマット / 件数集計（4 tests PASS）
+- typecheck: 今回の変更起因の新規エラーなし（既存の pre-existing エラーのみ）
 
 ## 実機E2E（未実施 / 保留）
 
@@ -43,9 +45,8 @@ chcp 65001
 $env:PYTHONIOENCODING='utf-8'
 adb devices
 adb reverse tcp:8081 tcp:8081
-npx expo run:android --no-bundler   # または debug APK インストール
+npx expo run:android --no-bundler
 node run-v44-phase-b-complete.mjs
 ```
 
 **実機未接続のため、本レポート時点では E2E 結果は前回 Phase B Final（PARTIAL）を引き継ぎ、最終判定は保留です。**
-
