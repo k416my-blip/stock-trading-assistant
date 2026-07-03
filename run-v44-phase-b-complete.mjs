@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { findTestId, parsePendingCountFromXml, TIDS } from './_deviceVerifyAdb.mjs';
 
 const SERIAL = process.env.ADB_SERIAL || 'FYRWXSNNAIOR9DCM';
 const ADB = `adb -s ${SERIAL}`;
@@ -152,7 +153,23 @@ async function scrollHomeShots(prefix) {
   return { n, shots };
 }
 
+async function findButtonByTestId(testId, prefix) {
+  for (let i = 0; i < 24; i++) {
+    const xml = await dump(`${prefix}-tid-${i}`);
+    const hit = findTestId(xml, testId);
+    if (hit) return hit;
+    adb('input swipe 540 1900 540 650 350');
+    await sleep(450);
+  }
+  return null;
+}
+
 async function findButton(label, prefix) {
+  const mode = FLOWS.find((f) => f.home === label)?.key;
+  if (mode) {
+    const byId = await findButtonByTestId(TIDS.homeManualOrderButton(mode), prefix);
+    if (byId) return byId;
+  }
   for (let i = 0; i < 24; i++) {
     const xml = await dump(`${prefix}-find-${i}`);
     const b = find(xml, (t) => t === label);
@@ -186,21 +203,30 @@ async function fillFlow(key) {
   }
 }
 
-async function tapCreate(prefix) {
+async function tapCreate(prefix, modeKey) {
   let xml = await dump(`${prefix}-before-create`);
-  let b = find(xml, (t) => t === CREATE);
-  if (!b[0]) {
+  let hit = findTestId(xml, TIDS.manualOrderCreate(modeKey));
+  if (!hit) {
     adb('input swipe 540 1600 540 800 300');
     await sleep(500);
     xml = await dump(`${prefix}-before-create-2`);
-    b = find(xml, (t) => t === CREATE);
+    hit = findTestId(xml, TIDS.manualOrderCreate(modeKey));
   }
-  if (!b[0]) return false;
-  tap(b[0]);
+  if (!hit) {
+    const b = find(xml, (t) => t === CREATE);
+    if (b[0]) {
+      tap(b[0]);
+      return true;
+    }
+    return false;
+  }
+  tap(hit);
   return true;
 }
 
 function pendingCount(xml) {
+  const probe = parsePendingCountFromXml(xml);
+  if (probe != null) return probe;
   const j = [...texts(xml)].join('\n');
   const m = j.match(/\u672a\u5b8c\u4e86[（(](\d+)件[）)]/);
   return m ? Number(m[1]) : null;
@@ -222,13 +248,14 @@ async function openList() {
   return false;
 }
 
-async function setDisplay(label) {
+async function setDisplay(modeKey) {
   await tapTab('settings');
+  const testId = TIDS.settingsUxMode(modeKey);
   for (let i = 0; i < 16; i++) {
-    const xml = await dump(`mode-${label}-${i}`);
-    const b = find(xml, (t) => t === label);
-    if (b[0]) {
-      tap(b[0]);
+    const xml = await dump(`mode-${modeKey}-${i}`);
+    const hit = findTestId(xml, testId);
+    if (hit) {
+      tap(hit);
       await sleep(1500);
       return true;
     }
@@ -242,9 +269,9 @@ async function setTrust() {
   await tapTab('settings');
   for (let i = 0; i < 18; i++) {
     const xml = await dump(`trust-nav-${i}`);
-    const row = find(xml, (t) => t === AI_ROW);
-    if (row[0]) {
-      tap(row[0]);
+    const hit = findTestId(xml, TIDS.settingsNavAiStrategy);
+    if (hit) {
+      tap(hit);
       await sleep(2000);
       break;
     }
@@ -253,9 +280,9 @@ async function setTrust() {
   }
   for (let i = 0; i < 18; i++) {
     const xml = await dump(`trust-${i}`);
-    const b = find(xml, (t) => t === TRUST_LABEL);
-    if (b[0]) {
-      tap(b[0]);
+    const hit = findTestId(xml, TIDS.aiInvestmentMode('trust'));
+    if (hit) {
+      tap(hit);
       await sleep(1500);
       adb('input keyevent 4');
       await sleep(800);
@@ -297,7 +324,7 @@ async function runE2E(prefix) {
     record(`${prefix}-flow-${flow.key}-open`, opened ? 'PASS' : 'FAIL', opened ? flow.title : 'flow not open', [`${prefix}-flow-${flow.key}.png`]);
 
     await fillFlow(flow.key);
-    if (!(await tapCreate(`${prefix}-${flow.key}`))) {
+    if (!(await tapCreate(`${prefix}-${flow.key}`, flow.key))) {
       record(`${prefix}-e2e-${flow.key}`, 'FAIL', 'create button missing', []);
       adb('input keyevent 4');
       continue;
@@ -330,7 +357,7 @@ async function runE2E(prefix) {
 
 async function verifyMode(mode) {
   const prefix = `final-${mode.key}`;
-  const switched = mode.trust ? await setTrust() : await setDisplay(mode.label);
+  const switched = mode.trust ? await setTrust() : await setDisplay(mode.key);
   record(`${prefix}-mode-switch`, switched ? 'PASS' : 'FAIL', mode.label, []);
   await tapTab('home');
   await dismissOnboarding();
@@ -404,7 +431,7 @@ async function main() {
     timestamp: new Date().toISOString(),
   };
 
-  await setDisplay(jaSettings.displayMode.modes.standard.label);
+  await setDisplay('standard');
   await tapTab('home');
   await scrollHomeShots('final-e2e');
   await runE2E('final-e2e');

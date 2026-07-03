@@ -26,6 +26,7 @@ import { useApp } from '../context/AppContext';
 import type { AppUxMode } from '../types/appUxMode';
 import type { AppLanguage } from '../types/appLanguage';
 import { APP_UX_MODES } from '../types/appUxMode';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
 import { API_PROVIDERS, type SupportedApiProviderId } from '../config/apiProviders';
@@ -509,12 +510,14 @@ export function SettingsScreen() {
         ))}
       </Card>
 
-      <Card>
+      <Card testID={DEVICE_VERIFY_TEST_IDS.settingsDisplayModeSection}>
         <Text style={styles.sectionTitle}>{t('displayMode.sectionTitle')}</Text>
         <Text style={styles.sectionHint}>{t('displayMode.sectionHint')}</Text>
         {APP_UX_MODES.map((mode, index) => (
           <Pressable
             key={mode}
+            testID={DEVICE_VERIFY_TEST_IDS.settingsUxMode(mode)}
+            accessibilityLabel={DEVICE_VERIFY_TEST_IDS.settingsUxMode(mode)}
             onPress={() => void setAppUxMode(mode as AppUxMode)}
             style={({ pressed }) => [
               styles.uxModeRow,
@@ -911,6 +914,8 @@ export function SettingsScreen() {
           title={t('nav.aiStrategySettings')}
           subtitle={t('nav.aiStrategySettingsSubtitle')}
           onPress={() => stackNav.navigate('AiSettings')}
+          testID={DEVICE_VERIFY_TEST_IDS.settingsNavAiStrategy}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.settingsNavAiStrategy}
         />
         <SettingsMenuRow
           icon="notifications"

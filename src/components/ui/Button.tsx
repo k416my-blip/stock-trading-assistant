@@ -8,6 +8,7 @@ type Props = {
   variant?: 'primary' | 'ghost';
   disabled?: boolean;
   size?: 'md' | 'lg';
+  testID?: string;
   accessibilityLabel?: string;
 };
 
@@ -17,6 +18,7 @@ export function Button({
   variant = 'primary',
   disabled = false,
   size = 'md',
+  testID,
   accessibilityLabel,
 }: Props) {
   const handlePress = useCallback(() => {
@@ -31,6 +33,7 @@ export function Button({
 
   return (
     <Pressable
+      testID={testID}
       onPress={handlePress}
       disabled={disabled}
       accessibilityLabel={accessibilityLabel ?? label}

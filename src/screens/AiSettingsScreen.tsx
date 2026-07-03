@@ -13,6 +13,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { AI_SETTINGS } from '../constants/aiSettings';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import {
   AI_ANALYSIS_MODE_HINTS_JA,
   AI_ANALYSIS_MODE_LABELS_JA,
@@ -1052,7 +1053,7 @@ export function AiSettingsScreen() {
         ))}
       </Card>
 
-      <Card>
+      <Card testID={DEVICE_VERIFY_TEST_IDS.aiInvestmentModeSection}>
         <Text style={styles.label}>投資表示モード</Text>
         <Text style={styles.hint}>
           AI信託は専属MD任せの最小表示。初心者はやさしい言葉。プロは詳細・監査ログを表示します。
@@ -1060,6 +1061,8 @@ export function AiSettingsScreen() {
         {INVESTMENT_DISPLAY_MODE_ORDER.map((mode, index) => (
           <Pressable
             key={mode}
+            testID={DEVICE_VERIFY_TEST_IDS.aiInvestmentMode(mode)}
+            accessibilityLabel={DEVICE_VERIFY_TEST_IDS.aiInvestmentMode(mode)}
             onPress={() =>
               void saveAiPreferences({
                 investmentDisplayMode: mode,

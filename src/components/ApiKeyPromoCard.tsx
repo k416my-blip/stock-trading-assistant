@@ -46,11 +46,22 @@ type SettingsMenuRowProps = {
   title: string;
   subtitle?: string;
   onPress: () => void;
+  testID?: string;
+  accessibilityLabel?: string;
 };
 
-export function SettingsMenuRow({ icon, title, subtitle, onPress }: SettingsMenuRowProps) {
+export function SettingsMenuRow({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  testID,
+  accessibilityLabel,
+}: SettingsMenuRowProps) {
   return (
     <Pressable
+      testID={testID}
+      accessibilityLabel={accessibilityLabel ?? title}
       onPress={onPress}
       style={({ pressed }) => [styles.menuRow, pressed && styles.menuRowPressed]}
     >

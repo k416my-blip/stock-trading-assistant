@@ -7,6 +7,8 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
+import { writePendingManualOrderProbe } from '../services/manualOrderVerification';
 import { useApp } from '../context/AppContext';
 import {
   buildManualOrderFlowItems,
@@ -76,6 +78,10 @@ export function ManualOrderFlowScreen() {
         Alert.alert(t('manualOrderFlow.cannotCreateTitle'), added.error ?? t('manualOrderFlow.createFailed'));
         return;
       }
+      void writePendingManualOrderProbe([
+        ...built.items,
+        ...state.manualOrderList,
+      ]);
       Alert.alert(
         t('manualOrderFlow.createdTitle'),
         t('manualOrderFlow.createdBody', { count: added.addedCount ?? built.items.length }),
@@ -183,6 +189,8 @@ export function ManualOrderFlowScreen() {
         label={busy ? t('manualOrderFlow.creating') : t('manualOrderFlow.createList')}
         onPress={onCreate}
         disabled={busy}
+        testID={DEVICE_VERIFY_TEST_IDS.manualOrderCreate(mode)}
+        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderCreate(mode)}
       />
       <Button label={t('manualOrderFlow.backHome')} onPress={() => navigation.goBack()} variant="ghost" />
     </Screen>

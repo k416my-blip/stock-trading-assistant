@@ -96,4 +96,6 @@ export const STORAGE_KEYS = {
   twelveHourTestMonitor: '@sta/twelve_hour_test_monitor_v1',
   rakutenImportBatches: '@sta/rakuten_import_batches_v1',
   rakutenImportAudit: '@sta/rakuten_import_audit_v1',
+  /** Device verification: pending manual order count probe (JSON). */
+  deviceVerifyPendingManualOrderCount: '@sta/device_verify_pending_manual_order_count_v1',
 } as const;

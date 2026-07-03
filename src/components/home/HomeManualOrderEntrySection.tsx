@@ -4,6 +4,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { MANUAL_ORDER_WARNING } from '../../services/allocationActions';
+import { DEVICE_VERIFY_TEST_IDS } from '../../constants/deviceVerifyTestIds';
 import type { ManualOrderFlowMode } from '../../services/manualOrderFlow';
 import type { RootStackParamList } from '../../navigation/types';
 import { theme } from '../../theme';
@@ -36,7 +37,7 @@ export function HomeManualOrderEntrySection() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <Card>
+    <Card testID={DEVICE_VERIFY_TEST_IDS.homeManualOrderSection}>
       <Text style={styles.sectionTitle}>{t('manualOrderEntry.sectionTitle')}</Text>
       <Text style={styles.sectionSubtitle}>{t('manualOrderEntry.sectionSubtitle')}</Text>
       <Text style={styles.disclaimer}>{MANUAL_ORDER_WARNING}</Text>
@@ -47,7 +48,8 @@ export function HomeManualOrderEntrySection() {
             <Button
               label={t(`manualOrderEntry.${modeToKey(mode)}.title`)}
               onPress={() => navigation.navigate('ManualOrderFlow', { mode })}
-              testID={`home-manual-order-${mode}`}
+              testID={DEVICE_VERIFY_TEST_IDS.homeManualOrderButton(mode)}
+              accessibilityLabel={DEVICE_VERIFY_TEST_IDS.homeManualOrderButton(mode)}
             />
             <Text style={styles.flowDesc}>{t(`manualOrderEntry.${modeToKey(mode)}.description`)}</Text>
           </View>

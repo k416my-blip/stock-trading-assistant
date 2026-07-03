@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -12,6 +12,11 @@ import {
 import { CURRENCY_SYMBOL, MARKET_LABEL } from '../constants/rakutenTrade';
 import { MANUAL_HOLDING_SUCCESS_JA } from '../constants/holdingErrors';
 import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
+import {
+  buildPendingManualOrderProbe,
+  writePendingManualOrderProbe,
+} from '../services/manualOrderVerification';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
@@ -166,8 +171,21 @@ export function ManualOrderListScreen() {
     );
   }, [clearCompletedManualOrders, done.length, readOnlyBlockedMessage]);
 
+  const pendingProbe = buildPendingManualOrderProbe(state.manualOrderList);
+
+  useEffect(() => {
+    void writePendingManualOrderProbe(state.manualOrderList);
+  }, [state.manualOrderList]);
+
   return (
     <Screen title="手動注文リスト" subtitle="Rakuten Tradeで入力するチェックリスト">
+      <View
+        testID={DEVICE_VERIFY_TEST_IDS.manualOrderPendingCount}
+        accessibilityLabel={pendingProbe.probeLabel}
+        accessible
+        importantForAccessibility="yes"
+        style={styles.probeHidden}
+      />
       <Card>
         <Text style={styles.warn}>{MANUAL_ORDER_WARNING}</Text>
         <Text style={styles.hint}>
@@ -377,6 +395,7 @@ export function ManualOrderListScreen() {
 const styles = StyleSheet.create({
   warn: { color: theme.colors.warning, fontSize: theme.fontSize.sm, lineHeight: 20 },
   hint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18, marginTop: theme.spacing.xs },
+  probeHidden: { width: 1, height: 1, opacity: 0.01 },
   section: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md, marginTop: theme.spacing.sm },
   sectionRow: {
     flexDirection: 'row',
