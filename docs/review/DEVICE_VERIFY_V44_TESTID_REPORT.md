@@ -1,4 +1,4 @@
-# Device Verify v44 — testID / Verification Helper Report
+﻿# Device Verify v44 — testID / Verification Helper Report
 
 - **Overall (code-level)**: PASS — testIDs and verification helpers implemented
 - **Overall (device E2E)**: **保留** — **実機未接続** — 最終 PASS 判定は実機E2E後
@@ -48,3 +48,4 @@ node run-v44-phase-b-complete.mjs
 ```
 
 **実機未接続のため、本レポート時点では E2E 結果は前回 Phase B Final（PARTIAL）を引き継ぎ、最終判定は保留です。**
+
