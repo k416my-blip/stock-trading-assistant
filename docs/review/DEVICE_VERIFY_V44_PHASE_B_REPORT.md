@@ -1,4 +1,4 @@
-# Device Verify v44 — Phase B Report
+﻿# Device Verify v44 窶・Phase B Report
 
 **Branch:** `cursor/top3-maxdd-capital-audit`  
 **Device:** FYRWXSNNAIOR9DCM (23090RA98G)  
@@ -43,25 +43,25 @@
 
 ### Flow destinations (capture run)
 
-- **flow-concierge_full**: PASS — opened コンシェルジュに全て任せる
-- **flow-manual_full**: PASS — opened 銘柄と数量を指定
-- **flow-concierge_symbol**: PASS — opened 銘柄だけコンシェルジュに任せる
-- **flow-concierge_quantity**: PASS — opened 数量だけコンシェルジュに任せる
+- **flow-concierge_full**: PASS 窶・opened 繧ｳ繝ｳ繧ｷ繧ｧ繝ｫ繧ｸ繝･縺ｫ蜈ｨ縺ｦ莉ｻ縺帙ｋ
+- **flow-manual_full**: PASS 窶・opened 驫俶氛縺ｨ謨ｰ驥上ｒ謖・ｮ・
+- **flow-concierge_symbol**: PASS 窶・opened 驫俶氛縺縺代さ繝ｳ繧ｷ繧ｧ繝ｫ繧ｸ繝･縺ｫ莉ｻ縺帙ｋ
+- **flow-concierge_quantity**: PASS 窶・opened 謨ｰ驥上□縺代さ繝ｳ繧ｷ繧ｧ繝ｫ繧ｸ繝･縺ｫ莉ｻ縺帙ｋ
 
 ## UX mode notes
 
 - **Settings navigation:** use bottom tab coordinates (`Home` 101,2486 / `Settings` 1118,2486), scroll settings to top before picking display mode rows.
-- **Display mode rows:** exact `初心者` / `標準` / `プロ` (JA) or `Beginner` / `Standard` / `Pro` (EN fallback in `run-v44-phase-b.mjs`).
-- **Trust mode:** `AI信託モード` via Settings → `AI戦略アシスタント設定` (constants in `src/constants/investmentDisplay.ts`).
+- **Display mode rows:** exact `蛻晏ｿ・・ / `讓呎ｺ冒 / `繝励Ο` (JA) or `Beginner` / `Standard` / `Pro` (EN fallback in `run-v44-phase-b.mjs`).
+- **Trust mode:** `AI菫｡險励Δ繝ｼ繝荏 via Settings 竊・`AI謌ｦ逡･繧｢繧ｷ繧ｹ繧ｿ繝ｳ繝郁ｨｭ螳啻 (constants in `src/constants/investmentDisplay.ts`).
 - **Onboarding blocker:** after language change, beginner onboarding (`home.onboarding.skip`) must be dismissed before home manual-order section is reachable (root cause of run 4 `0/4` corpus).
 
 ## Script changes
 
 ### `docs/review/device-verify-v44/run-v44-phase-b.mjs`
-- `ADB_SERIAL` support, `adb exec-out` screenshots, dump retry (5×, 1.5s).
+- `ADB_SERIAL` support, `adb exec-out` screenshots, dump retry (5ﾃ・ 1.5s).
 - Splash guard: host `dumpsys window` (no device `grep`), skip dump while splash text unstable.
-- Home scroll corpus: 28+ swipes (1900→600), merged `*-scroll-corpus.txt`.
-- Post-tap wait: `POST_TAP_MS` default 15s (10–30 configurable).
+- Home scroll corpus: 28+ swipes (1900竊・00), merged `*-scroll-corpus.txt`.
+- Post-tap wait: `POST_TAP_MS` default 15s (10窶・0 configurable).
 - Settings: bottom-tab open + `scrollSettingsToTop()` before mode/language rows.
 - JA language via `settings-language-ja` accessibility row.
 - `completeOnboarding()` + `scrollHomeToTop()` before corpus/flows.
@@ -76,12 +76,13 @@
 ## Git / push / AAB
 
 - **AAB:** not built (per instruction).
-- **Commit:** device verification scripts + this report only (see commit hash below after push).
+- **Commit:** device verification scripts + this report only (`deb45d4`).
 
 ## Root causes / follow-ups
 
 1. UIAutomator scroll corpus under-counts stacked RN buttons (PARTIAL visibility); per-button tap-scroll succeeds.
 2. Onboarding overlay after JA language must be dismissed before home section checks.
-3. Automate create-list + `ManualOrderList` assertion in `run-v44-phase-b.mjs` (alert `リストを見る`).
+3. Automate create-list + `ManualOrderList` assertion in `run-v44-phase-b.mjs` (alert `繝ｪ繧ｹ繝医ｒ隕九ｋ`).
 4. Re-run full 4-mode matrix once onboarding + settings helpers are stable.
+
 
