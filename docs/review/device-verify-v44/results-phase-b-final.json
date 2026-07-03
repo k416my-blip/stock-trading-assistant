@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "timestamp": "2026-07-03T08:19:20.487Z"
+  },
+  "results": [
+    {
+      "id": "final-e2e-four-buttons",
+      "status": "PARTIAL",
+      "detail": "1/4 buttons in corpus",
+      "evidence": [
+        "final-e2e-home-scroll-0-found1.png",
+        "final-e2e-home-scroll-1-found1.png",
+        "final-e2e-home-scroll-2-found1.png",
+        "final-e2e-home-scroll-3-found1.png",
+        "final-e2e-home-scroll-4-found1.png",
+        "final-e2e-home-scroll-5-found1.png",
+        "final-e2e-home-scroll-6-found1.png",
+        "final-e2e-home-scroll-7-found1.png",
+        "final-e2e-home-scroll-8-found1.png",
+        "final-e2e-home-scroll-9-found1.png",
+        "final-e2e-home-scroll-10-found1.png",
+        "final-e2e-home-scroll-11-found1.png",
+        "final-e2e-home-scroll-12-found1.png",
+        "final-e2e-home-scroll-13-found1.png",
+        "final-e2e-home-scroll-14-found1.png",
+        "final-e2e-home-scroll-15-found1.png",
+        "final-e2e-home-scroll-16-found1.png",
+        "final-e2e-home-scroll-17-found1.png",
+        "final-e2e-home-scroll-18-found1.png",
+        "final-e2e-home-scroll-19-found1.png",
+        "final-e2e-home-scroll-20-found1.png",
+        "final-e2e-home-scroll-21-found1.png",
+        "final-e2e-home-scroll-22-found1.png",
+        "final-e2e-home-scroll-23-found1.png"
+      ]
+    },
+    {
+      "id": "final-e2e-flow-concierge_full-open",
+      "status": "PASS",
+      "detail": "コンシェルジュに全て任せる",
+      "evidence": [
+        "final-e2e-flow-concierge_full.png"
+      ]
+    },
+    {
+      "id": "final-e2e-e2e-concierge_full",
+      "status": "FAIL",
+      "detail": "pending ? -> ?",
+      "evidence": [
+        "final-e2e-list-concierge_full.png"
+      ]
+    },
+    {
+      "id": "final-e2e-flow-manual_full-open",
+      "status": "PASS",
+      "detail": "銘柄と数量を指定",
+      "evidence": [
+        "final-e2e-flow-manual_full.png"
+      ]
+    },
+    {
+      "id": "final-e2e-e2e-manual_full",
+      "status": "FAIL",
+      "detail": "pending ? -> ?",
+      "evidence": [
+        "final-e2e-list-manual_full.png"
+      ]
+    },
+    {
+      "id": "final-e2e-flow-concierge_symbol-open",
+      "status": "PASS",
+      "detail": "銘柄だけコンシェルジュに任せる",
+      "evidence": [
+        "final-e2e-flow-concierge_symbol.png"
+      ]
+    },
+    {
+      "id": "final-e2e-e2e-concierge_symbol",
+      "status": "FAIL",
+      "detail": "pending ? -> ?",
+      "evidence": [
+        "final-e2e-list-concierge_symbol.png"
+      ]
+    },
+    {
+      "id": "final-e2e-e2e-concierge_quantity",
+      "status": "FAIL",
+      "detail": "button not found",
+      "evidence": []
+    },
+    {
+      "id": "final-beginner-mode-switch",
+      "status": "FAIL",
+      "detail": "初心者",
+      "evidence": []
+    },
+    {
+      "id": "final-beginner-four-buttons",
+      "status": "FAIL",
+      "detail": "0/4 buttons in corpus",
+      "evidence": []
+    },
+    {
+      "id": "final-beginner-flow-open",
+      "status": "FAIL",
+      "detail": "concierge_full not tappable",
+      "evidence": []
+    },
+    {
+      "id": "final-standard-mode-switch",
+      "status": "FAIL",
+      "detail": "標準",
+      "evidence": []
+    },
+    {
+      "id": "final-standard-four-buttons",
+      "status": "FAIL",
+      "detail": "0/4 buttons in corpus",
+      "evidence": []
+    },
+    {
+      "id": "final-standard-flow-open",
+      "status": "FAIL",
+      "detail": "concierge_full not tappable",
+      "evidence": []
+    },
+    {
+      "id": "final-pro-mode-switch",
+      "status": "FAIL",
+      "detail": "プロ",
+      "evidence": []
+    },
+    {
+      "id": "final-pro-four-buttons",
+      "status": "FAIL",
+      "detail": "0/4 buttons in corpus",
+      "evidence": []
+    },
+    {
+      "id": "final-pro-flow-open",
+      "status": "FAIL",
+      "detail": "concierge_full not tappable",
+      "evidence": []
+    },
+    {
+      "id": "final-trust-mode-switch",
+      "status": "FAIL",
+      "detail": "AI信託モード",
+      "evidence": []
+    },
+    {
+      "id": "final-trust-four-buttons",
+      "status": "FAIL",
+      "detail": "0/4 buttons in corpus",
+      "evidence": []
+    },
+    {
+      "id": "final-trust-flow-open",
+      "status": "FAIL",
+      "detail": "concierge_full not tappable",
+      "evidence": []
+    }
+  ]
+}
