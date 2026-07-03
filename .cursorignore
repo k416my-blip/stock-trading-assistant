@@ -1,4 +1,4 @@
-# Secrets
+﻿# Secrets
 .env
 .env.*
 *.pem
@@ -50,13 +50,14 @@ expo-go-qr.png
 .git/
 .cursor/
 **/.cursor/projects/
+.dev/
 
 # Lock files (large, rarely edited)
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Offline verify / tooling scripts (not app runtime; run via tsx)
+# Offline verify / tooling scripts (not app runtime)
 src/verify/
 src/tooling/
 src/native/soak/generated/
@@ -67,15 +68,17 @@ src/native/soak/generated/
 *.orig
 *~
 
-
-# ── Cursor performance: exclude review evidence & audit scripts ──
-# docs/review alone is 7000+ files / ~11GB — major Cursor slowdown source
+# docs/review ~7000+ files — keep out of AI index
 docs/
 scripts/
 
-# Play Store / device binaries
+# Binaries & large exports
 *.aab
 *.apk
+**/*.csv
+**/*.jsonl
+**/forward-validation-*.json
+**/forward-validation-*.csv
 
 # Device capture evidence
 **/*-device/
@@ -88,3 +91,6 @@ scripts/
 **/*.xml
 !assets/**
 !android/app/src/main/res/**
+
+# OOM post-mortem (local)
+OOM_REPORT.md

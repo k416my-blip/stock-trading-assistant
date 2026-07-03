@@ -28,7 +28,8 @@ src/native/soak/generated/
 android/build/
 android/app/build/
 ios/build/
-.vscode/settings.json
+.dev/
+OOM_REPORT.md
 
 # Environment & secrets (never commit)
 .env
