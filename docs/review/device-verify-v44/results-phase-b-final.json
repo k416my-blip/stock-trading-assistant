@@ -3,87 +3,49 @@
     "serial": "FYRWXSNNAIOR9DCM",
     "model": "23090RA98G",
     "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
-    "timestamp": "2026-07-03T08:19:20.487Z"
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-05T13:53:47.445Z"
   },
   "results": [
     {
-      "id": "final-e2e-four-buttons",
-      "status": "PARTIAL",
-      "detail": "1/4 buttons in corpus",
+      "id": "final-language-ja",
+      "status": "FAIL",
+      "detail": "language-option-ja / 日本語",
       "evidence": [
-        "final-e2e-home-scroll-0-found1.png",
-        "final-e2e-home-scroll-1-found1.png",
-        "final-e2e-home-scroll-2-found1.png",
-        "final-e2e-home-scroll-3-found1.png",
-        "final-e2e-home-scroll-4-found1.png",
-        "final-e2e-home-scroll-5-found1.png",
-        "final-e2e-home-scroll-6-found1.png",
-        "final-e2e-home-scroll-7-found1.png",
-        "final-e2e-home-scroll-8-found1.png",
-        "final-e2e-home-scroll-9-found1.png",
-        "final-e2e-home-scroll-10-found1.png",
-        "final-e2e-home-scroll-11-found1.png",
-        "final-e2e-home-scroll-12-found1.png",
-        "final-e2e-home-scroll-13-found1.png",
-        "final-e2e-home-scroll-14-found1.png",
-        "final-e2e-home-scroll-15-found1.png",
-        "final-e2e-home-scroll-16-found1.png",
-        "final-e2e-home-scroll-17-found1.png",
-        "final-e2e-home-scroll-18-found1.png",
-        "final-e2e-home-scroll-19-found1.png",
-        "final-e2e-home-scroll-20-found1.png",
-        "final-e2e-home-scroll-21-found1.png",
-        "final-e2e-home-scroll-22-found1.png",
-        "final-e2e-home-scroll-23-found1.png"
+        "lang-after.png"
       ]
     },
     {
-      "id": "final-e2e-flow-concierge_full-open",
+      "id": "final-home-stability",
       "status": "PASS",
-      "detail": "コンシェルジュに全て任せる",
+      "detail": "15s ホーム維持",
       "evidence": [
-        "final-e2e-flow-concierge_full.png"
+        "home-stability-3.png"
       ]
+    },
+    {
+      "id": "final-e2e-four-buttons",
+      "status": "FAIL",
+      "detail": "0/4 buttons (testID+corpus)",
+      "evidence": []
     },
     {
       "id": "final-e2e-e2e-concierge_full",
       "status": "FAIL",
-      "detail": "pending ? -> ?",
-      "evidence": [
-        "final-e2e-list-concierge_full.png"
-      ]
-    },
-    {
-      "id": "final-e2e-flow-manual_full-open",
-      "status": "PASS",
-      "detail": "銘柄と数量を指定",
-      "evidence": [
-        "final-e2e-flow-manual_full.png"
-      ]
+      "detail": "button not found",
+      "evidence": []
     },
     {
       "id": "final-e2e-e2e-manual_full",
       "status": "FAIL",
-      "detail": "pending ? -> ?",
-      "evidence": [
-        "final-e2e-list-manual_full.png"
-      ]
-    },
-    {
-      "id": "final-e2e-flow-concierge_symbol-open",
-      "status": "PASS",
-      "detail": "銘柄だけコンシェルジュに任せる",
-      "evidence": [
-        "final-e2e-flow-concierge_symbol.png"
-      ]
+      "detail": "button not found",
+      "evidence": []
     },
     {
       "id": "final-e2e-e2e-concierge_symbol",
       "status": "FAIL",
-      "detail": "pending ? -> ?",
-      "evidence": [
-        "final-e2e-list-concierge_symbol.png"
-      ]
+      "detail": "button not found",
+      "evidence": []
     },
     {
       "id": "final-e2e-e2e-concierge_quantity",
@@ -99,51 +61,70 @@
     },
     {
       "id": "final-beginner-four-buttons",
-      "status": "FAIL",
-      "detail": "0/4 buttons in corpus",
-      "evidence": []
+      "status": "PASS",
+      "detail": "4/4 buttons (testID+corpus)",
+      "evidence": [
+        "final-beginner-home-scroll-1-found2.png",
+        "final-beginner-home-scroll-2-found3.png",
+        "final-beginner-home-scroll-3-found4.png"
+      ]
     },
     {
       "id": "final-beginner-flow-open",
-      "status": "FAIL",
-      "detail": "concierge_full not tappable",
-      "evidence": []
+      "status": "PASS",
+      "detail": "コンシェルジュに全て任せる",
+      "evidence": [
+        "final-beginner-flow-screen.png",
+        "final-beginner-home-scroll-1-found2.png",
+        "final-beginner-home-scroll-2-found3.png",
+        "final-beginner-home-scroll-3-found4.png"
+      ]
     },
     {
       "id": "final-standard-mode-switch",
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "標準",
       "evidence": []
     },
     {
       "id": "final-standard-four-buttons",
-      "status": "FAIL",
-      "detail": "0/4 buttons in corpus",
-      "evidence": []
+      "status": "PASS",
+      "detail": "4/4 buttons (testID+corpus)",
+      "evidence": [
+        "final-standard-home-scroll-0-found4.png"
+      ]
     },
     {
       "id": "final-standard-flow-open",
-      "status": "FAIL",
-      "detail": "concierge_full not tappable",
-      "evidence": []
+      "status": "PASS",
+      "detail": "コンシェルジュに全て任せる",
+      "evidence": [
+        "final-standard-flow-screen.png",
+        "final-standard-home-scroll-0-found4.png"
+      ]
     },
     {
       "id": "final-pro-mode-switch",
-      "status": "FAIL",
+      "status": "PASS",
       "detail": "プロ",
       "evidence": []
     },
     {
       "id": "final-pro-four-buttons",
-      "status": "FAIL",
-      "detail": "0/4 buttons in corpus",
-      "evidence": []
+      "status": "PASS",
+      "detail": "4/4 buttons (testID+corpus)",
+      "evidence": [
+        "final-pro-home-scroll-0-found4.png"
+      ]
     },
     {
       "id": "final-pro-flow-open",
-      "status": "FAIL",
-      "detail": "concierge_full not tappable",
-      "evidence": []
+      "status": "PASS",
+      "detail": "コンシェルジュに全て任せる",
+      "evidence": [
+        "final-pro-flow-screen.png",
+        "final-pro-home-scroll-0-found4.png"
+      ]
     },
     {
       "id": "final-trust-mode-switch",
@@ -154,7 +135,7 @@
     {
       "id": "final-trust-four-buttons",
       "status": "FAIL",
-      "detail": "0/4 buttons in corpus",
+      "detail": "0/4 buttons (testID+corpus)",
       "evidence": []
     },
     {

@@ -9,7 +9,7 @@ export function xmlTexts(xml) {
 }
 
 export function findTestId(xml, testId) {
-  const re = /(?:text|content-desc)="([^"]*)"/g;
+  const re = /(?:text|content-desc|resource-id)="([^"]*)"/g;
   const boundsRe = /bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"/;
   let m;
   while ((m = re.exec(xml))) {
