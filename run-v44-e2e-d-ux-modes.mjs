@@ -7,6 +7,7 @@ import {
   buildMeta,
   createRecorder,
   saveResults,
+  resultPath,
   OUT,
   UX_MODES,
   FLOWS,
@@ -27,7 +28,7 @@ import {
 const ctx = initContext();
 const results = [];
 const record = createRecorder(results);
-const RESULT_FILE = `${OUT}/results-e2e-d.json`;
+const RESULT_FILE = resultPath('d');
 
 async function verifyUxMode(mode) {
   const prefix = `test-d-${mode.key}`;

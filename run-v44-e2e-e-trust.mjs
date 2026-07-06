@@ -6,6 +6,7 @@ import {
   buildMeta,
   createRecorder,
   saveResults,
+  resultPath,
   OUT,
   FLOWS,
   TRUST_LABEL,
@@ -28,7 +29,7 @@ import {
 const ctx = initContext();
 const results = [];
 const record = createRecorder(results);
-const RESULT_FILE = `${OUT}/results-e2e-e.json`;
+const RESULT_FILE = resultPath('e');
 
 async function main() {
   await prepareDevice(ctx);

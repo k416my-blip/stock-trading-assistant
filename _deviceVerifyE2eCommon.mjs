@@ -53,6 +53,23 @@ export const UX_MODES = [
 export const sh = (c) => execSync(c, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }).trim();
 export const adb = (a) => sh(`${ADB} shell ${a}`);
 
+export function e2eRunTag() {
+  return process.env.E2E_RUN_TAG || 'legacy';
+}
+
+export function resultPath(step) {
+  return path.join(OUT, `results-${e2eRunTag()}-${step}.json`);
+}
+
+export function artifactsSubdir() {
+  return `${e2eRunTag()}-artifacts`;
+}
+
+export function writeUtf8File(file, text) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, text, { encoding: 'utf8' });
+}
+
 export function loadResults(file) {
   if (fs.existsSync(file)) {
     try {
@@ -63,8 +80,7 @@ export function loadResults(file) {
 }
 
 export function saveResults(file, data) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+  writeUtf8File(file, `${JSON.stringify(data, null, 2)}\n`);
 }
 
 export function createRecorder(results) {
@@ -163,8 +179,9 @@ export async function dismissSystemChrome(ctx) {
 }
 
 export async function saveFailureArtifacts(tag, reason) {
-  fs.mkdirSync(ARTIFACTS, { recursive: true });
-  const base = path.join(ARTIFACTS, tag);
+  const dir = path.join(OUT, artifactsSubdir());
+  fs.mkdirSync(dir, { recursive: true });
+  const base = path.join(dir, tag);
   const xml = await dump({}, `${tag}-fail`);
   shot(`${tag}-fail`);
   const meta = {
@@ -175,7 +192,7 @@ export async function saveFailureArtifacts(tag, reason) {
     texts: xml ? [...texts(xml)].slice(0, 40) : [],
   };
   fs.writeFileSync(`${base}.json`, JSON.stringify(meta, null, 2), 'utf8');
-  return [`${tag}-fail.png`, `${tag}-fail.xml`, `rerun2-artifacts/${path.basename(base)}.json`];
+  return [`${tag}-fail.png`, `${tag}-fail.xml`, `${artifactsSubdir()}/${path.basename(base)}.json`];
 }
 
 export function findLanguageJa(xml) {
@@ -183,8 +200,43 @@ export function findLanguageJa(xml) {
     findTestId(xml, TIDS.languageJa) ||
     findTestId(xml, TIDS.languageOption('ja')) ||
     findTestId(xml, TIDS.settingsLanguage('ja')) ||
-    find(xml, (t) => t === JA_LABEL)[0]
+    find(xml, (t) => t === JA_LABEL || t === '\u65e5\u672c\u8a9e (Japanese)')[0]
   );
+}
+
+export function isJapaneseUiReady(xml) {
+  if (!xml) return false;
+  if (findTestId(xml, TIDS.homeManualOrderSection)) return true;
+  const tx = [...texts(xml)];
+  if (tx.some((t) => t === SECTION)) return true;
+  if (tx.some((t) => t.includes('\u624b\u52d5\u6ce8\u6587') || t.includes('\u30b3\u30f3\u30b7\u30a7\u30eb\u30b8\u30e5'))) return true;
+  return false;
+}
+
+export async function ensureLanguageJapanese(ctx) {
+  for (let i = 0; i < 18; i++) {
+    const xml = await dump(ctx, `lang-${i}`);
+    await dismissPermissionDialogs(ctx);
+    if (!xml) {
+      await sleep(1500);
+      continue;
+    }
+    if (isJapaneseUiReady(xml)) {
+      return { ok: true, detail: `${JA_LABEL} already active (picker skipped)` };
+    }
+    const ja = findLanguageJa(xml);
+    if (ja) {
+      tap(ja);
+      await sleep(5000);
+      const after = await dump(ctx, `lang-after-${i}`);
+      if (isJapaneseUiReady(after)) {
+        return { ok: true, detail: `${JA_LABEL} selected via language-ja` };
+      }
+    }
+    await dismissOnboarding(ctx);
+    await sleep(1200);
+  }
+  return { ok: false, detail: 'language-ja not found and Japanese UI not detected' };
 }
 
 export function hasRedbox(xml) {
@@ -479,71 +531,6 @@ export async function readPendingCountMandatory(ctx, tag) {
   return { count: null, source: 'none' };
 }
 
-export async function enableLiveAnalysisMode(ctx, record, opts = {}) {
-  if (!opts.alreadyOnSettings) {
-    for (let i = 0; i < 4; i++) {
-      adb('input keyevent 4');
-      await sleep(350);
-    }
-    await tapTab(ctx, 'settings');
-    await sleep(2000);
-    adb('input swipe 540 650 540 1900 400');
-    await sleep(600);
-  } else {
-    await sleep(800);
-  }
-  let opened = false;
-  for (let i = 0; i < 60; i++) {
-    const xml = await dump(ctx, `live-nav-${i}`);
-    const hit =
-      findTestId(xml, TIDS.settingsNavPracticeMode) ||
-      find(xml, (t) =>
-        t === '\u7df4\u7fd2\u30e2\u30fc\u30c9\u8a2d\u5b9a' ||
-        t.includes('\u7df4\u7fd2\u30e2\u30fc\u30c9') ||
-        t.includes('\u7df4\u7fd2') ||
-        t.includes('Practice'))[0];
-    if (hit) {
-      tap(hit);
-      await sleep(2500);
-      opened = true;
-      break;
-    }
-    if (findTestId(xml, TIDS.settingsNavAiStrategy)) {
-      adb('input swipe 540 1600 540 900 280');
-      await sleep(450);
-      continue;
-    }
-    adb('input swipe 540 1900 540 650 350');
-    await sleep(500);
-  }
-  if (!opened) {
-    record('test-c-live-mode', 'FAIL', 'settings-nav-practice-mode not found', await saveFailureArtifacts('live-nav', 'practice nav missing'));
-    adb('input keyevent 4');
-    return false;
-  }
-  for (let i = 0; i < 12; i++) {
-    const xml = await dump(ctx, `live-mode-${i}`);
-    const liveHit =
-      findTestId(xml, TIDS.appModeLiveAnalysis) ||
-      find(xml, (t) => t === '\u5b9f\u904b\u7528\u5206\u6790\u30e2\u30fc\u30c9')[0];
-    if (liveHit) {
-      tap(liveHit);
-      await sleep(2000);
-      record('test-c-live-mode', 'PASS', 'app-mode-live-analysis selected', []);
-      adb('input keyevent 4');
-      await sleep(800);
-      return true;
-    }
-    if (findTestId(xml, TIDS.appModePractice) || find(xml, (t) => t === '\u7df4\u7fd2\u30e2\u30fc\u30c9')[0]) {
-      record('test-c-live-mode', 'PARTIAL', 'still on practice chip before tap', []);
-    }
-    await sleep(800);
-  }
-  record('test-c-live-mode', 'FAIL', 'app-mode-live-analysis not tappable', await saveFailureArtifacts('live-mode', 'live mode chip missing'));
-  adb('input keyevent 4');
-  return false;
-}
-
 export async function waitForCreateReady(ctx, modeKey, tag, record, maxSec = 30) {
   for (let i = 0; i < maxSec / 2; i++) {
     const xml = await dump(ctx, `${tag}-ready-${i}`);
@@ -684,7 +671,7 @@ export function buildMeta() {
 
 export function initContext() {
   fs.mkdirSync(OUT, { recursive: true });
-  fs.mkdirSync(ARTIFACTS, { recursive: true });
+  fs.mkdirSync(path.join(OUT, artifactsSubdir()), { recursive: true });
   return {};
 }
 

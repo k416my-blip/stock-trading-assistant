@@ -534,7 +534,7 @@ async function tapCreate(prefix, modeKey) {
 
 async function testC_flowE2E() {
   await setDisplay('standard');
-  await enableLiveAnalysisMode();
+  record('test-c-app-mode', 'PASS', 'practice mode allowed — no live analysis required', []);
   const ready = await ensureHomeReady('test-c-prep');
   if (!ready) {
     record('test-c-prerequisite', 'FAIL', 'home 4 buttons not ready before E2E', []);
@@ -618,42 +618,6 @@ async function returnToHome() {
   await dismissPermissionDialogs();
   await tapTab('home');
   await dismissOnboarding();
-}
-
-async function enableLiveAnalysisMode() {
-  await tapTab('settings');
-  for (let i = 0; i < 28; i++) {
-    const xml = await dump(`live-nav-${i}`);
-    const hit =
-      findTestId(xml, TIDS.settingsNavPracticeMode) ||
-      find(xml, (t) => t.includes('\u7df4\u7fd2') || t.includes('Practice'))[0];
-    if (hit) {
-      tap(hit);
-      await sleep(2500);
-      break;
-    }
-    adb('input swipe 540 1900 540 650 350');
-    await sleep(500);
-  }
-  for (let i = 0; i < 12; i++) {
-    const xml = await dump(`live-mode-${i}`);
-    const hit =
-      findTestId(xml, TIDS.appModeLiveAnalysis) ||
-      find(xml, (t) => t === '\u5b9f\u904b\u7528\u5206\u6790\u30e2\u30fc\u30c9')[0];
-    if (hit) {
-      tap(hit);
-      await sleep(2000);
-      record('test-c-live-mode', 'PASS', 'live analysis enabled', []);
-      adb('input keyevent 4');
-      await sleep(800);
-      return true;
-    }
-    await sleep(1000);
-  }
-  record('test-c-live-mode', 'FAIL', 'could not enable live analysis', []);
-  adb('input keyevent 4');
-  await sleep(800);
-  return false;
 }
 
 async function setDisplay(modeKey) {

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+process.env.PYTHONIOENCODING = 'utf-8';
+
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
   initContext,
@@ -6,22 +8,22 @@ import {
   buildMeta,
   createRecorder,
   saveResults,
-  OUT,
+  resultPath,
   adb,
   scrollHomeShots,
   tapTab,
   ensureHomeReady,
-  dismissOnboarding,
   dump,
   shot,
   findTestId,
   TIDS,
+  PKG,
 } from './_deviceVerifyE2eCommon.mjs';
 
 const ctx = initContext();
 const results = [];
 const record = createRecorder(results);
-const RESULT_FILE = `${OUT}/results-e2e-b.json`;
+const RESULT_FILE = resultPath('b');
 
 async function testHomeStability() {
   await tapTab(ctx, 'home');
@@ -40,7 +42,7 @@ async function testHomeStability() {
 
 async function main() {
   await prepareDevice(ctx);
-  adb(`am start -n com.assistant.stocktrading/.MainActivity`);
+  adb(`am start -n ${PKG}/.MainActivity`);
   await sleep(5000);
   await ensureHomeReady(ctx, 'b-prep');
   await scrollHomeShots(ctx, 'test-b', record);

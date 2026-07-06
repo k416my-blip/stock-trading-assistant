@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+process.env.PYTHONIOENCODING = 'utf-8';
+
 import { setTimeout as sleep } from 'node:timers/promises';
 import {
   initContext,
@@ -6,7 +8,7 @@ import {
   buildMeta,
   createRecorder,
   saveResults,
-  OUT,
+  resultPath,
   FLOWS,
   CREATE,
   VIEW_LIST,
@@ -19,7 +21,6 @@ import {
   dump,
   shot,
   dismissSystemChrome,
-  setDisplayMode,
   ensureHomeReady,
   returnToHome,
   tapHomeFlowButton,
@@ -34,7 +35,7 @@ import {
 const ctx = initContext();
 const results = [];
 const record = createRecorder(results);
-const RESULT_FILE = `${OUT}/results-e2e-c.json`;
+const RESULT_FILE = resultPath('c');
 
 function flowOpened(xml, flow) {
   return (
@@ -48,7 +49,6 @@ async function main() {
   await prepareDevice(ctx);
   await dismissSystemChrome(ctx);
   await sleep(1500);
-  await setDisplayMode(ctx, 'standard');
   record(
     'test-c-app-mode',
     'PASS',
@@ -62,7 +62,7 @@ async function main() {
     saveResults(RESULT_FILE, { meta: buildMeta(), results });
     return;
   }
-  record('test-c-prerequisite', 'PASS', 'standard UX + 4 home buttons (practice OK)', []);
+  record('test-c-prerequisite', 'PASS', '4 home buttons visible (practice OK)', []);
 
   const baseline = await readPendingCountMandatory(ctx, 'test-c-baseline');
   if (baseline.count == null) {
