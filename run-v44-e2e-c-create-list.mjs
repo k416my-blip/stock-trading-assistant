@@ -18,6 +18,7 @@ import {
   tap,
   dump,
   shot,
+  dismissSystemChrome,
   enableLiveAnalysisMode,
   setDisplayMode,
   ensureHomeReady,
@@ -46,8 +47,11 @@ function flowOpened(xml, flow) {
 
 async function main() {
   await prepareDevice(ctx);
+  await dismissSystemChrome(ctx);
+  await sleep(1500);
+  await setDisplayMode(ctx, 'pro');
   await setDisplayMode(ctx, 'standard');
-  const liveOk = await enableLiveAnalysisMode(ctx, record);
+  const liveOk = await enableLiveAnalysisMode(ctx, record, { alreadyOnSettings: true });
   if (!liveOk) {
     record('test-c-prerequisite', 'FAIL', 'live analysis mode required', []);
     for (const f of FLOWS) {

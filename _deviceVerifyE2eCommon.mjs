@@ -140,6 +140,24 @@ export function currentActivity() {
   }
 }
 
+export function ensureAppForeground() {
+  const act = currentActivity();
+  if (!act.includes(PKG)) {
+    adb(`am start -n ${PKG}/.MainActivity`);
+  }
+}
+
+export async function dismissSystemChrome(ctx) {
+  for (let i = 0; i < 3; i++) {
+    adb('input keyevent 4');
+    await sleep(350);
+  }
+  adb('input keyevent 224');
+  await sleep(400);
+  ensureAppForeground();
+  await dismissPermissionDialogs(ctx);
+}
+
 export async function saveFailureArtifacts(tag, reason) {
   fs.mkdirSync(ARTIFACTS, { recursive: true });
   const base = path.join(ARTIFACTS, tag);
@@ -241,6 +259,8 @@ export async function waitForUiHydration(ctx, prefix, maxSec = 180) {
 }
 
 export async function tapTab(ctx, label) {
+  ensureAppForeground();
+  await sleep(500);
   const xml = await dump(ctx, 'tab');
   for (const l of label === 'home'
     ? ['Home', '\u30db\u30fc\u30e0']
@@ -369,6 +389,28 @@ export function readPendingFromStorage() {
   }
 }
 
+export function writeAsyncStorageValue(storageKey, value) {
+  try {
+    const val = JSON.stringify(value).replace(/'/g, "''");
+    const key = storageKey.replace(/'/g, "''");
+    const sql = `INSERT OR REPLACE INTO catalystLocalStorage (key, value) VALUES ('${key}', '${val}')`;
+    sh(`${ADB} shell run-as ${PKG} sqlite3 databases/RKStorage "${sql}"`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Beginner UX hides Settings tab — seed standard mode before Test C/D/E settings navigation. */
+export async function ensureStandardUxMode(ctx) {
+  writeAsyncStorageValue('@sta/app_ux_mode_v1', 'standard');
+  adb(`am force-stop ${PKG}`);
+  await sleep(2500);
+  adb(`am start -n ${PKG}/.MainActivity`);
+  await waitForUiHydration(ctx, 'ux-std', 120);
+  await dismissSystemChrome(ctx);
+}
+
 export function pendingFromXml(xml) {
   const probe = parsePendingCountFromXml(xml);
   if (probe != null) return probe;
@@ -422,19 +464,39 @@ export async function readPendingCountMandatory(ctx, tag) {
   return { count: null, source: 'none' };
 }
 
-export async function enableLiveAnalysisMode(ctx, record) {
-  await tapTab(ctx, 'settings');
+export async function enableLiveAnalysisMode(ctx, record, opts = {}) {
+  if (!opts.alreadyOnSettings) {
+    for (let i = 0; i < 4; i++) {
+      adb('input keyevent 4');
+      await sleep(350);
+    }
+    await tapTab(ctx, 'settings');
+    await sleep(2000);
+    adb('input swipe 540 650 540 1900 400');
+    await sleep(600);
+  } else {
+    await sleep(800);
+  }
   let opened = false;
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 60; i++) {
     const xml = await dump(ctx, `live-nav-${i}`);
     const hit =
       findTestId(xml, TIDS.settingsNavPracticeMode) ||
-      find(xml, (t) => t.includes('\u7df4\u7fd2') || t.includes('Practice'))[0];
+      find(xml, (t) =>
+        t === '\u7df4\u7fd2\u30e2\u30fc\u30c9\u8a2d\u5b9a' ||
+        t.includes('\u7df4\u7fd2\u30e2\u30fc\u30c9') ||
+        t.includes('\u7df4\u7fd2') ||
+        t.includes('Practice'))[0];
     if (hit) {
       tap(hit);
       await sleep(2500);
       opened = true;
       break;
+    }
+    if (findTestId(xml, TIDS.settingsNavAiStrategy)) {
+      adb('input swipe 540 1600 540 900 280');
+      await sleep(450);
+      continue;
     }
     adb('input swipe 540 1900 540 650 350');
     await sleep(500);
@@ -595,6 +657,8 @@ export async function prepareDevice(ctx) {
   const ok = await ensureMetroLink();
   if (!ok) throw new Error('Metro not reachable on :8081');
   sh(`${ADB} reverse tcp:8081 tcp:8081`);
+  ensureAppForeground();
+  await sleep(1500);
   adb('input keyevent 224');
 }
 

@@ -1,12 +1,12 @@
 # Device Verify v44 — E2E Final Rerun 2 Report
 
 - **Overall**: **PARTIAL**
-- **PASS / PARTIAL / FAIL**: 5 / 0 / 22
+- **PASS / PARTIAL / FAIL**: 14 / 0 / 13
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
-- **Timestamp**: 2026-07-06T04:53:48.679Z
-- **Git commit**: `e315be143c43dcba637d4832d1b64c119fcf10ad`
-- **Push**: pending post-run commit
+- **Timestamp**: 2026-07-06T07:50:21.006Z
+- **Git commit**: `86a34c6a31c0830dad7cc302798b2e8bc3fc9453`
+- **Push**: pending post-rerun commit
 
 ## Commands
 ```powershell
@@ -41,21 +41,21 @@ FYRWXSNNAIOR9DCM	device
 | 数量だけコンシェルジュに任せる | FAIL | FAIL | skipped: practice mode |
 
 Baseline: —
-Live mode: FAIL app-mode-live-analysis not tappable
+Live mode: FAIL settings-nav-practice-mode not found
 
 ## Test D — UX modes
 | Mode | Switch | 4 buttons | Flow open |
 |------|--------|-----------|-----------|
-| Beginner | FAIL | 0/4 | FAIL |
-| Standard | FAIL | 0/4 | FAIL |
-| Pro | FAIL | 0/4 | FAIL |
+| Beginner | FAIL | 4/4 | PASS |
+| Standard | PASS | 4/4 | PASS |
+| Pro | PASS | 4/4 | FAIL |
 
 ## Test E — Trust
 | Check | Status | Detail |
 |-------|--------|--------|
-| test-e-trust-mode-switch | FAIL | AI信託モード |
+| test-e-trust-mode-switch | PASS | AI信託モード |
 | test-e-four-buttons | FAIL | 0/4 |
-| test-e-flow-open | FAIL | concierge_full not tappable activity=com.whatsapp |
+| test-e-flow-open | PASS | コンシェルジュに全て任せる |
 
 ## Evidence
 - Screenshots/XML: `docs/review/device-verify-v44/`
@@ -74,7 +74,9 @@ git push origin cursor/top3-maxdd-capital-audit
 ```
 
 ## Remaining failures
-- **test-c-live-mode** (FAIL): app-mode-live-analysis not tappable
+- **test-d-beginner-mode-switch** (FAIL): 初心者
+- **test-d-pro-flow-open** (FAIL): コンシェルジュに全て任せる
+- **test-c-live-mode** (FAIL): settings-nav-practice-mode not found
 - **test-c-prerequisite** (FAIL): live analysis mode required
 - **test-c-flow-concierge_full-open** (FAIL): skipped: practice mode
 - **test-c-e2e-concierge_full** (FAIL): skipped: practice mode
@@ -84,15 +86,4 @@ git push origin cursor/top3-maxdd-capital-audit
 - **test-c-e2e-concierge_symbol** (FAIL): skipped: practice mode
 - **test-c-flow-concierge_quantity-open** (FAIL): skipped: practice mode
 - **test-c-e2e-concierge_quantity** (FAIL): skipped: practice mode
-- **test-d-beginner-mode-switch** (FAIL): 初心者
-- **test-d-beginner-four-buttons** (FAIL): 0/4
-- **test-d-beginner-flow-open** (FAIL): concierge_full not tappable activity=com.whatsapp
-- **test-d-standard-mode-switch** (FAIL): 標準
-- **test-d-standard-four-buttons** (FAIL): 0/4
-- **test-d-standard-flow-open** (FAIL): concierge_full not tappable activity=com.whatsapp
-- **test-d-pro-mode-switch** (FAIL): プロ
-- **test-d-pro-four-buttons** (FAIL): 0/4
-- **test-d-pro-flow-open** (FAIL): concierge_full not tappable activity=com.whatsapp
-- **test-e-trust-mode-switch** (FAIL): AI信託モード
 - **test-e-four-buttons** (FAIL): 0/4
-- **test-e-flow-open** (FAIL): concierge_full not tappable activity=com.whatsapp

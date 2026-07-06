@@ -3,6 +3,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import {
   initContext,
   prepareDevice,
+  dismissSystemChrome,
   buildMeta,
   createRecorder,
   saveResults,
@@ -53,6 +54,7 @@ async function verifyUxMode(mode) {
 
 async function main() {
   await prepareDevice(ctx);
+  await dismissSystemChrome(ctx);
   await ensureHomeReady(ctx, 'test-d-prep');
   for (const mode of UX_MODES) await verifyUxMode(mode);
   saveResults(RESULT_FILE, { meta: buildMeta(), results });

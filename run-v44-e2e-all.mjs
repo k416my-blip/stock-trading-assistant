@@ -24,8 +24,8 @@ const REPORT = path.join('docs', 'review', 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN2_R
 const STEPS = [
   { script: 'run-v44-e2e-a-onboarding.mjs', result: 'results-e2e-a.json' },
   { script: 'run-v44-e2e-b-home-buttons.mjs', result: 'results-e2e-b.json' },
-  { script: 'run-v44-e2e-c-create-list.mjs', result: 'results-e2e-c.json' },
   { script: 'run-v44-e2e-d-ux-modes.mjs', result: 'results-e2e-d.json' },
+  { script: 'run-v44-e2e-c-create-list.mjs', result: 'results-e2e-c.json' },
   { script: 'run-v44-e2e-e-trust.mjs', result: 'results-e2e-e.json' },
 ];
 
@@ -154,6 +154,12 @@ function writeReport(meta, results, pushInfo) {
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
+  if (process.argv.includes('--merge-only')) {
+    const { meta, results } = mergeResults();
+    const summary = writeReport(meta, results, 'pending post-rerun commit');
+    console.log('MERGE DONE', summary);
+    return;
+  }
   const metroOk = await ensureMetroLink();
   if (!metroOk) {
     console.error('FATAL: Start Metro first (npm run start:clear)');

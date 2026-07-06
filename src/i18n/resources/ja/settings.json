@@ -46,6 +46,9 @@
     "notifications": "通知設定",
     "notificationsSubtitle": "買付・売却・損切りなどのアラート",
     "marketSettings": "市場設定",
+    "currencySettings": "通貨設定",
+    "currencySettingsSubtitle": "表示通貨 · 市場ごとの取引通貨",
+    "practiceMode": "練習モード設定",
     "security": "セキュリティ",
     "securitySubtitle": "ローカル保存 · 整合性 · 機密データの削除"
   },

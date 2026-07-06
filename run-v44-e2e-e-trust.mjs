@@ -14,6 +14,7 @@ import {
   texts,
   dump,
   shot,
+  dismissSystemChrome,
   setTrustMode,
   ensureHomeReady,
   scrollHomeShots,
@@ -30,6 +31,7 @@ const RESULT_FILE = `${OUT}/results-e2e-e.json`;
 
 async function main() {
   await prepareDevice(ctx);
+  await dismissSystemChrome(ctx);
   await ensureHomeReady(ctx, 'test-e-prep');
 
   const switched = await setTrustMode(ctx);
