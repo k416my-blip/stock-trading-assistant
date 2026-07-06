@@ -1,11 +1,11 @@
 ﻿# Device Verify v44 - E2E Final Rerun 5 Report
 
 - **Overall**: **PARTIAL**
-- **PASS / PARTIAL / FAIL**: 7 / 0 / 1
+- **PASS / PARTIAL / FAIL**: 4 / 0 / 3
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
-- **Timestamp**: 2026-07-06T22:24:46.072Z
-- **Git commit**: `82312aa765fa6864168f02d5d8a048a2a27c84ee`
+- **Timestamp**: 2026-07-06T22:55:38.160Z
+- **Git commit**: `e1ebd4f0ff954cf856e838ce6181a19a671c1449`
 - **Push**: not attempted
 
 ## ADB preflight
@@ -45,8 +45,8 @@ FYRWXSNNAIOR9DCM	device
 ## Language / onboarding / home
 | Check | Status | Detail |
 |-------|--------|--------|
-| test-a-language-ja | PASS | 日本語 already active (picker skipped) |
-| test-a-onboarding-dismiss | PASS | home reachable |
+| test-a-language-ja | FAIL | language-ja not found and Japanese UI not detected |
+| test-a-onboarding-dismiss | FAIL | home not ready |
 | test-b-four-buttons | PASS | 4/4 |
 | test-b-home-stability | PASS | 20s home stable |
 
@@ -58,7 +58,7 @@ FYRWXSNNAIOR9DCM	device
 | 銘柄だけコンシェルジュに任せる | N/A | N/A | N/A |
 | 数量だけコンシェルジュに任せる | N/A | N/A | N/A |
 
-**Pending baseline**: baseline pending unavailable (ui+storage+appState)
+**Pending baseline**: N/A
 **App mode policy**: practice mode allowed — manual order list is Rakuten hand-entry only (no live analysis required)
 
 ## Create error alerts (if any)
@@ -105,4 +105,6 @@ git push origin cursor/top3-maxdd-capital-audit
 ```
 
 ## Remaining failures
-- **test-c-pending-baseline** (FAIL): baseline pending unavailable (ui+storage+appState)
+- **test-a-language-ja** (FAIL): language-ja not found and Japanese UI not detected
+- **test-a-onboarding-dismiss** (FAIL): home not ready
+- **test-c-prerequisite** (FAIL): home 4 buttons not ready

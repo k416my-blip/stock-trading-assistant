@@ -495,7 +495,10 @@ export function readManualOrderListTotalFromAppState() {
   }
 }
 
-export async function readPendingAllProbesAsync(ctx, tag) {
+export async function readPendingAllProbesAsync(ctx, tag, { openListFirst = false } = {}) {
+  if (openListFirst) {
+    await openManualOrderList(ctx, `${tag}-nav`);
+  }
   const inline = await readPendingInline(ctx, tag);
   const storageProbe = readPendingFromStorage();
   const appState = readPendingFromAppState();
