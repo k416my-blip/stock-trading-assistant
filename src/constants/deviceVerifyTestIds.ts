@@ -4,6 +4,11 @@ import type { ManualOrderFlowMode } from '../services/manualOrderFlow';
 
 /** Stable testIDs / accessibility probes for device verification (UiAutomator). */
 export const DEVICE_VERIFY_TEST_IDS = {
+  languagePickerModal: 'language-picker-modal',
+  languageOption: (language: string) => `language-option-${language}`,
+  /** UiAutomator alias for initial language picker (ja). */
+  languageJa: 'language-ja',
+  settingsLanguage: (language: string) => `settings-language-${language}`,
   homeManualOrderSection: 'home-manual-order-section',
   homeManualOrderButton: (mode: ManualOrderFlowMode) => `home-manual-order-${mode}`,
   settingsDisplayModeSection: 'settings-display-mode-section',
@@ -13,6 +18,8 @@ export const DEVICE_VERIFY_TEST_IDS = {
   aiInvestmentMode: (mode: InvestmentDisplayMode) => `ai-investment-mode-${mode}`,
   manualOrderCreate: (mode: ManualOrderFlowMode) => `manual-order-create-${mode}`,
   manualOrderPendingCount: 'manual-order-pending-count',
+  settingsNavPracticeMode: 'settings-nav-practice-mode',
+  appModeLiveAnalysis: 'app-mode-live-analysis',
 } as const;
 
 export const DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX = 'manual-order-pending-count:';

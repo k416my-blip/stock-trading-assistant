@@ -8,6 +8,7 @@ import {
   useAppLanguage,
 } from '../context/AppLanguageContext';
 import type { AppLanguage } from '../types/appLanguage';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import { theme } from '../theme';
 
 type Props = {
@@ -51,14 +52,17 @@ export function LanguagePickerModal({ visible }: Props) {
       visible={visible}
       animationType="fade"
       transparent
-      testID="language-picker-modal"
+      testID={DEVICE_VERIFY_TEST_IDS.languagePickerModal}
+      accessibilityViewIsModal
       onRequestClose={() => {
         /* 初回は言語未選択のまま閉じない */
       }}
     >
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
-          <Text style={styles.title}>{t('languagePicker.title')}</Text>
+          <Text style={styles.title} accessibilityRole="header" accessibilityLabel="language-picker-title">
+            {t('languagePicker.title')}
+          </Text>
           <Text style={styles.subtitle}>{t('languagePicker.subtitle')}</Text>
 
           {LANGUAGE_PICKER_OPTIONS.map((language, index) => (
@@ -66,7 +70,15 @@ export function LanguagePickerModal({ visible }: Props) {
               key={language}
               onPress={() => onSelect(language)}
               disabled={busy}
-              testID={`language-option-${language}`}
+              testID={DEVICE_VERIFY_TEST_IDS.languageOption(language)}
+              accessibilityRole="button"
+              accessibilityLabel={
+                language === 'ja'
+                  ? DEVICE_VERIFY_TEST_IDS.languageJa
+                  : DEVICE_VERIFY_TEST_IDS.languageOption(language)
+              }
+              accessible
+              importantForAccessibility="yes"
               style={({ pressed }) => [
                 styles.optionRow,
                 index < LANGUAGE_PICKER_OPTIONS.length - 1 && styles.optionRowBorder,

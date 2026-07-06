@@ -5,6 +5,7 @@ import {
 } from '../constants/platformClarification';
 import type { AppMode } from '../types';
 import { theme } from '../theme';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 
 type Props = {
   mode: AppMode;
@@ -22,6 +23,9 @@ export function ModeToggle({ mode, onChange }: Props) {
       </Pressable>
       <Pressable
         onPress={() => onChange('manual')}
+        testID={DEVICE_VERIFY_TEST_IDS.appModeLiveAnalysis}
+        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.appModeLiveAnalysis}
+        accessible
         style={[styles.chip, mode === 'manual' && styles.manualActive]}
       >
         <Text style={[styles.text, mode === 'manual' && styles.textActive]}>{APP_MODE_LIVE_ANALYSIS_LABEL}</Text>

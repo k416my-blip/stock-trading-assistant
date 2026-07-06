@@ -940,6 +940,8 @@ export function SettingsScreen() {
           title={t('nav.practiceMode')}
           subtitle={isPractice ? t('appMode.practice') : t('appMode.liveAnalysis')}
           onPress={() => stackNav.navigate('PracticeModeSettings')}
+          testID={DEVICE_VERIFY_TEST_IDS.settingsNavPracticeMode}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.settingsNavPracticeMode}
         />
         <SettingsMenuRow
           icon="refresh-outline"

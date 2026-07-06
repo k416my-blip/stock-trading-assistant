@@ -36,9 +36,16 @@ export function parsePendingCountFromXml(xml) {
 }
 
 export const TIDS = {
+  languagePickerModal: 'language-picker-modal',
+  languageJa: 'language-ja',
+  languageOption: (lang) => `language-option-${lang}`,
+  settingsLanguage: (lang) => `settings-language-${lang}`,
+  homeManualOrderSection: 'home-manual-order-section',
   homeManualOrderButton: (mode) => `home-manual-order-${mode}`,
   settingsUxMode: (mode) => `settings-ux-mode-${mode}`,
   settingsNavAiStrategy: 'settings-nav-ai-strategy',
   aiInvestmentMode: (mode) => `ai-investment-mode-${mode}`,
   manualOrderCreate: (mode) => `manual-order-create-${mode}`,
+  settingsNavPracticeMode: 'settings-nav-practice-mode',
+  appModeLiveAnalysis: 'app-mode-live-analysis',
 };

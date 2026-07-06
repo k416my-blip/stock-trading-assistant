@@ -132,24 +132,41 @@ async function dismissOnboarding() {
   return false;
 }
 
+function countHomeButtonsInXml(xml) {
+  let n = 0;
+  for (const flow of FLOWS) {
+    if (findTestId(xml, TIDS.homeManualOrderButton(flow.key))) n++;
+  }
+  return n;
+}
+
 async function scrollHomeShots(prefix) {
   const corpus = new Set();
+  const seenTestIds = new Set();
   const shots = [];
+  let maxByTestId = 0;
   for (let i = 0; i < 24; i++) {
     const xml = await dump(`${prefix}-home-scroll-${i}`);
-    if (xml) for (const t of texts(xml)) corpus.add(t);
-    const found = FLOWS.filter((f) => corpus.has(f.home)).length;
+    if (xml) {
+      for (const t of texts(xml)) corpus.add(t);
+      for (const flow of FLOWS) {
+        if (findTestId(xml, TIDS.homeManualOrderButton(flow.key))) seenTestIds.add(flow.key);
+      }
+      maxByTestId = Math.max(maxByTestId, countHomeButtonsInXml(xml), seenTestIds.size);
+    }
+    const foundText = FLOWS.filter((f) => corpus.has(f.home)).length;
+    const found = Math.max(foundText, maxByTestId);
     if (found > 0) {
       const s = `${prefix}-home-scroll-${i}-found${found}`;
       shot(s);
       shots.push(`${s}.png`);
     }
-    if (found === 4) break;
+    if (found >= 4) break;
     adb('input swipe 540 1900 540 650 350');
     await sleep(500);
   }
-  const n = FLOWS.filter((f) => corpus.has(f.home)).length;
-  record(`${prefix}-four-buttons`, n === 4 ? 'PASS' : n > 0 ? 'PARTIAL' : 'FAIL', `${n}/4 buttons in corpus`, shots);
+  const n = Math.max(FLOWS.filter((f) => corpus.has(f.home)).length, seenTestIds.size, maxByTestId);
+  record(`${prefix}-four-buttons`, n === 4 ? 'PASS' : n > 0 ? 'PARTIAL' : 'FAIL', `${n}/4 buttons (testID+corpus)`, shots);
   return { n, shots };
 }
 
@@ -232,6 +249,81 @@ function pendingCount(xml) {
   return m ? Number(m[1]) : null;
 }
 
+function readPendingFromStorage() {
+  try {
+    const key = '@sta/device_verify_pending_manual_order_count_v1';
+    const sql = `SELECT value FROM catalystLocalStorage WHERE key='${key}'`;
+    const out = sh(`${ADB} shell run-as ${PKG} sqlite3 databases/RKStorage "${sql}"`);
+    if (!out) return null;
+    const parsed = JSON.parse(out);
+    return typeof parsed.count === 'number' ? parsed.count : null;
+  } catch {
+    return null;
+  }
+}
+
+async function readPendingWithRetry(prefix, attempts = 8) {
+  for (let i = 0; i < attempts; i++) {
+    const xml = await dump(`${prefix}-pending-${i}`);
+    const c = pendingCount(xml);
+    if (c != null) return c;
+    await sleep(1500);
+  }
+  return readPendingFromStorage();
+}
+
+async function verifyLanguagePicker() {
+  adb(`pm clear ${PKG}`);
+  await sleep(2000);
+  adb(`am start -n ${PKG}/.MainActivity`);
+  await sleep(8000);
+  let picked = false;
+  for (let i = 0; i < 8; i++) {
+    const xml = await dump(`lang-picker-${i}`);
+    shot(`lang-picker-${i}`);
+    const ja = findTestId(xml, 'language-option-ja');
+    if (ja) {
+      tap(ja);
+      await sleep(4000);
+      picked = true;
+      break;
+    }
+    await sleep(1500);
+  }
+  const after = await dump('lang-after');
+  shot('lang-after');
+  const ok =
+    picked &&
+    !findTestId(after, 'language-picker-modal') &&
+    ([...texts(after)].some((t) => t === SECTION) ||
+      FLOWS.some((f) => [...texts(after)].includes(f.home)) ||
+      [...texts(after)].some((t) => t === '\u30db\u30fc\u30e0' || t === 'Home'));
+  record('final-language-ja', ok ? 'PASS' : picked ? 'PARTIAL' : 'FAIL', ok ? '日本語選択→ホーム表示' : 'language-option-ja', [
+    'lang-after.png',
+  ]);
+  return ok;
+}
+
+async function verifyHomeStability() {
+  await tapTab('home');
+  await dismissOnboarding();
+  const homeLabels = new Set(['\u30db\u30fc\u30e0', 'Home', SECTION, ...FLOWS.map((f) => f.home)]);
+  let stable = true;
+  for (let i = 0; i < 4; i++) {
+    await sleep(5000);
+    const xml = await dump(`home-stability-${i}`);
+    shot(`home-stability-${i}`);
+    const tx = texts(xml);
+    const onHome = [...tx].some((t) => homeLabels.has(t)) || findTestId(xml, TIDS.homeManualOrderButton('concierge_full'));
+    const onOtherTab = [...tx].some((t) => t === '\u4fdd\u6709\u9298\u67c4' || t === '\u8a2d\u5b9a') && !onHome;
+    if (onOtherTab) stable = false;
+  }
+  record('final-home-stability', stable ? 'PASS' : 'FAIL', stable ? '15s ホーム維持' : '意図しないタブ遷移', [
+    'home-stability-3.png',
+  ]);
+  return stable;
+}
+
 async function openList() {
   await tapTab('portfolio');
   for (let i = 0; i < 18; i++) {
@@ -299,7 +391,7 @@ async function setTrust() {
 async function runE2E(prefix) {
   let pending = null;
   if (await openList()) {
-    pending = pendingCount(await dump(`${prefix}-pending-start`)) ?? 0;
+    pending = (await readPendingWithRetry(`${prefix}-start`)) ?? 0;
     shot(`${prefix}-pending-start`);
     adb('input keyevent 4');
     await sleep(1000);
@@ -342,11 +434,17 @@ async function runE2E(prefix) {
       await sleep(1000);
       await openList();
     }
-    const lx = await dump(`${prefix}-list-${flow.key}`);
+    await dump(`${prefix}-list-${flow.key}`);
     shot(`${prefix}-list-${flow.key}`);
-    const count = pendingCount(lx);
+    const count = await readPendingWithRetry(`${prefix}-list-${flow.key}`);
+    const increased = count !== null && count > (pending ?? 0);
     const ok = count !== null && (pending === null || count >= pending);
-    record(`${prefix}-e2e-${flow.key}`, ok && count > (pending ?? 0) ? 'PASS' : count !== null ? 'PARTIAL' : 'FAIL', `pending ${pending ?? '?'} -> ${count ?? '?'}`, [`${prefix}-list-${flow.key}.png`]);
+    record(
+      `${prefix}-e2e-${flow.key}`,
+      increased ? 'PASS' : ok ? 'PARTIAL' : 'FAIL',
+      `pending ${pending ?? '?'} -> ${count ?? '?'}`,
+      [`${prefix}-list-${flow.key}.png`],
+    );
     if (count != null) pending = count;
     adb('input keyevent 4');
     await sleep(800);
@@ -377,41 +475,110 @@ async function verifyMode(mode) {
   await sleep(800);
 }
 
+function gitHash() {
+  try {
+    return sh('git rev-parse HEAD');
+  } catch {
+    return metaFallbackHash();
+  }
+}
+
+function metaFallbackHash() {
+  try {
+    const head = fs.readFileSync('.git/HEAD', 'utf8').trim();
+    if (head.startsWith('ref: ')) {
+      return fs.readFileSync(path.join('.git', head.slice(5)), 'utf8').trim();
+    }
+    return head;
+  } catch {
+    return 'unknown';
+  }
+}
+
 function writeReport(meta) {
   const pass = results.filter((r) => r.status === 'PASS').length;
   const partial = results.filter((r) => r.status === 'PARTIAL').length;
   const fail = results.filter((r) => r.status === 'FAIL').length;
   const overall = fail === 0 && partial === 0 ? 'PASS' : pass > 0 ? 'PARTIAL' : 'FAIL';
+  const commit = gitHash();
+  const modeRows = MODES.map((m) => {
+    const sw = results.find((r) => r.id === `final-${m.key}-mode-switch`);
+    const bt = results.find((r) => r.id === `final-${m.key}-four-buttons`);
+    const fo = results.find((r) => r.id === `final-${m.key}-flow-open`);
+    return `| ${m.label} | ${sw?.status ?? '?'} | ${bt?.detail ?? '?'} | ${fo?.status ?? '?'} |`;
+  });
+  const flowRows = FLOWS.map((f) => {
+    const op = results.find((r) => r.id === `final-e2e-flow-${f.key}-open`);
+    const e2e = results.find((r) => r.id === `final-e2e-e2e-${f.key}`);
+    return `| ${f.home} | ${op?.status ?? '?'} | ${e2e?.status ?? '?'} | ${e2e?.detail ?? '?'} |`;
+  });
   const lines = [
-    '# Device Verify v44 — Phase B Final Report',
+    '# Device Verify v44 — E2E Final Report',
     '',
-    `- **Overall**: ${overall}`,
+    `- **Overall**: **${overall}**`,
     `- **Device**: ${meta.model} (${meta.serial})`,
     `- **versionCode**: ${meta.versionCode}`,
     `- **Timestamp**: ${meta.timestamp}`,
+    `- **Git commit**: \`${commit}\``,
+    `- **Push**: pending (report commit)`,
     `- **PASS / PARTIAL / FAIL**: ${pass} / ${partial} / ${fail}`,
     '',
-    '## UTF-8 encoding fixes',
-    '- Shell: `chcp 65001`, `PYTHONIOENCODING=utf-8`',
-    '- Script reads ja i18n JSON as UTF-8; Markdown saved UTF-8',
+    '## Commands',
+    '```powershell',
+    'chcp 65001',
+    "$env:PYTHONIOENCODING='utf-8'",
+    'adb devices',
+    'adb -s FYRWXSNNAIOR9DCM reverse tcp:8081 tcp:8081',
+    '$env:ANDROID_SERIAL=\'FYRWXSNNAIOR9DCM\'; npx expo run:android --no-bundler',
+    'node run-v44-phase-b-complete.mjs',
+    '```',
     '',
-    '## Results',
+    '## adb devices',
+    '```',
+    meta.adbDevices,
+    '```',
     '',
+    '## Mode results',
+    '| Mode | Switch | 4 buttons | Flow open |',
+    '|------|--------|-----------|-----------|',
+    ...modeRows,
+    '',
+    '## Flow E2E results',
+    '| Flow | Open | Create/list | Pending delta |',
+    '|------|------|-------------|---------------|',
+    ...flowRows,
+    '',
+    '## Supplementary',
+    '| Check | Status | Detail |',
+    '|-------|--------|--------|',
+    ...['final-language-ja', 'final-home-stability', 'final-e2e-four-buttons'].map((id) => {
+      const r = results.find((x) => x.id === id);
+      return r ? `| ${id} | ${r.status} | ${r.detail.replace(/\|/g, '\\|')} |` : '';
+    }).filter(Boolean),
+    '',
+    '## All results',
     '| ID | Status | Detail |',
     '|----|--------|--------|',
     ...results.map((r) => `| ${r.id} | ${r.status} | ${r.detail.replace(/\|/g, '\\|')} |`),
     '',
     '## Evidence',
-    '- `docs/review/device-verify-v44/final-*-home-scroll-*.png`',
-    '- `docs/review/device-verify-v44/final-*-flow-*.png`',
-    '- `docs/review/device-verify-v44/final-*-list-*.png`',
+    '- Screenshots/logs: `docs/review/device-verify-v44/`',
+    '- JSON: `docs/review/device-verify-v44/results-phase-b-final.json`',
+    '- Run log: `docs/review/device-verify-v44/phase-b-complete-run.log`',
     '',
     '## AAB',
-    '- **Created**: No — Build Credit savings',
+    '- **Created**: No — Build Credit 節約のため今回は未作成',
     '',
     '## Script',
     '- `run-v44-phase-b-complete.mjs`',
   ];
+  if (fail > 0 || partial > 0) {
+    lines.push('', '## Failures / next actions');
+    for (const r of results.filter((x) => x.status !== 'PASS')) {
+      lines.push(`- **${r.id}** (${r.status}): ${r.detail}`);
+    }
+  }
+  fs.writeFileSync(path.join('docs', 'review', 'DEVICE_VERIFY_V44_E2E_FINAL_REPORT.md'), lines.join('\n'), 'utf8');
   fs.writeFileSync(path.join('docs', 'review', 'DEVICE_VERIFY_V44_PHASE_B_FINAL_REPORT.md'), lines.join('\n'), 'utf8');
 }
 
@@ -419,18 +586,17 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   sh(`${ADB} reverse tcp:8081 tcp:8081`);
   adb('input keyevent 224');
-  adb(`am start -n ${PKG}/.MainActivity`);
-  await sleep(8000);
-  await tapTab('home');
-  await dismissOnboarding();
 
   const meta = {
     serial: SERIAL,
     model: adb('getprop ro.product.model'),
     versionCode: sh(`${ADB} shell dumpsys package ${PKG} | findstr versionCode`),
+    adbDevices: sh('adb devices'),
     timestamp: new Date().toISOString(),
   };
 
+  await verifyLanguagePicker();
+  await verifyHomeStability();
   await setDisplay('standard');
   await tapTab('home');
   await scrollHomeShots('final-e2e');
