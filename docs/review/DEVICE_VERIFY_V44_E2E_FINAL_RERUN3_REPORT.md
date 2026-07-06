@@ -1,4 +1,4 @@
-# Device Verify v44 — E2E Final Rerun 3 Report
+# Device Verify v44  EE2E Final Rerun 3 Report
 
 - **Overall**: **PARTIAL**
 - **PASS / PARTIAL / FAIL**: 11 / 0 / 16
@@ -6,10 +6,10 @@
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
 - **Timestamp**: 2026-07-06T07:55:09.371Z
 - **Git commit**: `30abde18f3202210e3f93923653029b8784be330`
-- **Push**: pending post-rerun commit
+- **Push**: SUCCESS (98ccc1c)
 
 ## Manual order list policy
-- **Live analysis required**: No — lists are for Rakuten manual hand-entry only; practice mode may create lists.
+- **Live analysis required**: No  Elists are for Rakuten manual hand-entry only; practice mode may create lists.
 - **Practice mode create allowed**: See Test C
 
 ## Commands
@@ -36,28 +36,27 @@ FYRWXSNNAIOR9DCM	device
 | test-b-four-buttons | PASS | 4/4 |
 | test-b-home-stability | PASS | 20s home stable |
 
-## Test C — create → list
+## Test C  Ecreate ↁElist
 | Flow | Open | E2E | Pending |
 |------|------|-----|---------|
 | コンシェルジュに全て任せる | FAIL | FAIL | skipped: practice mode |
-| 自分で銘柄と数量を指定する | FAIL | FAIL | skipped: practice mode |
+| 自刁E��銘柄と数量を持E��すめE| FAIL | FAIL | skipped: practice mode |
 | 銘柄だけコンシェルジュに任せる | FAIL | FAIL | skipped: practice mode |
 | 数量だけコンシェルジュに任せる | FAIL | FAIL | skipped: practice mode |
 
-Baseline: —
-App mode policy: live analysis mode required
+Baseline:  EApp mode policy: live analysis mode required
 
-## Test D — UX modes
+## Test D  EUX modes
 | Mode | Switch | 4 buttons | Flow open |
 |------|--------|-----------|-----------|
 | Beginner | PASS | 4/4 | PASS |
 | Standard | FAIL | 4/4 | PASS |
 | Pro | FAIL | 4/4 | PASS |
 
-## Test E — Trust
+## Test E  ETrust
 | Check | Status | Detail |
 |-------|--------|--------|
-| test-e-trust-mode-switch | FAIL | AI信託モード |
+| test-e-trust-mode-switch | FAIL | AI信託モーチE|
 | test-e-four-buttons | FAIL | 0/4 |
 | test-e-flow-open | FAIL | concierge_full not tappable activity=com.assistant.stocktrading |
 
@@ -68,7 +67,7 @@ App mode policy: live analysis mode required
 - Per-step logs: `e2e-rerun3-run-*.log`
 
 ## AAB
-- **Created**: No — Build Credit 節約のため今回は未作成
+- **Created**: No  EBuild Credit 節紁E�Eため今回は未作�E
 
 ## Git manual
 ```powershell
@@ -79,8 +78,7 @@ git push origin cursor/top3-maxdd-capital-audit
 
 ## Remaining failures
 - **test-a-language-ja** (FAIL): language-ja not found
-- **test-d-standard-mode-switch** (FAIL): 標準
-- **test-d-pro-mode-switch** (FAIL): プロ
+- **test-d-standard-mode-switch** (FAIL): 標溁E- **test-d-pro-mode-switch** (FAIL): プロ
 - **test-c-live-mode** (FAIL): settings-nav-practice-mode not found
 - **test-c-prerequisite** (FAIL): live analysis mode required
 - **test-c-flow-concierge_full-open** (FAIL): skipped: practice mode
@@ -91,6 +89,5 @@ git push origin cursor/top3-maxdd-capital-audit
 - **test-c-e2e-concierge_symbol** (FAIL): skipped: practice mode
 - **test-c-flow-concierge_quantity-open** (FAIL): skipped: practice mode
 - **test-c-e2e-concierge_quantity** (FAIL): skipped: practice mode
-- **test-e-trust-mode-switch** (FAIL): AI信託モード
-- **test-e-four-buttons** (FAIL): 0/4
+- **test-e-trust-mode-switch** (FAIL): AI信託モーチE- **test-e-four-buttons** (FAIL): 0/4
 - **test-e-flow-open** (FAIL): concierge_full not tappable activity=com.assistant.stocktrading
