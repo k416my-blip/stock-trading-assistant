@@ -5,8 +5,8 @@
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: unknown
 - **Timestamp**: 2026-07-06T08:49:51.464Z
-- **Git commit**: `e7e6b37ec46ee080efdc06741ba25fe52644b28b`
-- **Push**: merge-only (no push)
+- **Git commit**: `442465b1f1dd9d5580aa2a7c0ebfa4e80e31698d`
+- **Push**: SUCCESS (442465b pushed to cursor/top3-maxdd-capital-audit)
 
 ## Run infrastructure
 - Test A aborted mid-run: adb `input` service unavailable (`cmd: Can't find service: input`) — USB disconnect suspected.
