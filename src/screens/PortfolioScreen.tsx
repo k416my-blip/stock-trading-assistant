@@ -9,6 +9,7 @@ import { SellAllMissingPriceModal } from '../components/SellAllMissingPriceModal
 import { LabeledValue, TermHint } from '../components/TermHint';
 import { PracticeSummaryCard } from '../components/PracticeSummaryCard';
 import { Button } from '../components/ui/Button';
+import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { logFocusRefresh } from '../services/productionOpsLog';
@@ -455,6 +456,7 @@ export function PortfolioScreen() {
               label={t('sell.manualOrderList')}
               onPress={() => navigation.navigate('ManualOrderList')}
               variant="ghost"
+              testID={DEVICE_VERIFY_TEST_IDS.portfolioManualOrderList}
             />
           </>
         ) : null}

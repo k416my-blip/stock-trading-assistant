@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Device Verify v44 unified runner.
- * --rerun4  A → B → C only (create→list priority; modes separated)
+ * --rerun4       A → B → C only (create→list priority; modes separated)
+ * --rerun5       rerun4-retry fixes + create-error logging + pending fallbacks
+ * --rerun4-retry same as rerun4 + adb preflight + RETRY report + tag rerun4-retry
  * --rerun3  legacy full A → B → D → C → E
  */
 process.env.PYTHONIOENCODING = 'utf-8';
@@ -21,18 +23,24 @@ import {
   PKG,
 } from './_deviceVerifyE2eCommon.mjs';
 
-const isRerun4 = process.argv.includes('--rerun4');
+const isRerun5 = process.argv.includes('--rerun5');
+const isRerun4Retry = process.argv.includes('--rerun4-retry');
+const isRerun4 = process.argv.includes('--rerun4') || isRerun4Retry || isRerun5;
 const isRerun3 = process.argv.includes('--rerun3');
-const RUN_TAG = isRerun4 ? 'rerun4' : isRerun3 ? 'rerun3' : 'rerun2';
+const RUN_TAG = isRerun5 ? 'rerun5' : isRerun4Retry ? 'rerun4-retry' : isRerun4 ? 'rerun4' : isRerun3 ? 'rerun3' : 'rerun2';
 
 const REPORT = path.join(
   'docs',
   'review',
-  isRerun4
-    ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN4_REPORT.md'
-    : isRerun3
-      ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN3_REPORT.md'
-      : 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN2_REPORT.md',
+  isRerun5
+    ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN5_REPORT.md'
+    : isRerun4Retry
+      ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN4_RETRY_REPORT.md'
+      : isRerun4
+        ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN4_REPORT.md'
+        : isRerun3
+          ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN3_REPORT.md'
+          : 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN2_REPORT.md',
 );
 
 const CORE_STEPS = [
@@ -51,6 +59,55 @@ const LEGACY_STEPS = [
 
 const STEPS = isRerun4 ? CORE_STEPS : LEGACY_STEPS.map((s, i) => ({ ...s, step: ['a', 'b', 'd', 'c', 'e'][i] }));
 const MERGED_JSON = `results-${RUN_TAG}-merged.json`;
+const SERIAL = process.env.ADB_SERIAL || 'FYRWXSNNAIOR9DCM';
+
+function preflightAdInput() {
+  const checks = [];
+  try {
+    execSync('adb kill-server', { stdio: 'pipe', encoding: 'utf8' });
+    execSync('adb start-server', { stdio: 'pipe', encoding: 'utf8' });
+    checks.push('adb kill-server / start-server: OK');
+  } catch (e) {
+    checks.push(`adb server restart: ${e.message}`);
+    return { ok: false, checks };
+  }
+  let devices = '';
+  for (let i = 0; i < 12; i++) {
+    try {
+      devices = execSync('adb devices', { encoding: 'utf8' });
+      if (devices.includes(`${SERIAL}\tdevice`)) break;
+    } catch (e) {
+      checks.push(`adb devices: ${e.message}`);
+      return { ok: false, checks };
+    }
+    if (i < 11) {
+      try {
+        execSync('adb wait-for-device', { stdio: 'pipe', encoding: 'utf8', timeout: 8000 });
+      } catch {}
+      execSync('powershell -NoProfile -Command "Start-Sleep -Seconds 1"', { stdio: 'pipe', encoding: 'utf8' });
+    }
+  }
+  if (!devices.includes(`${SERIAL}\tdevice`)) {
+    checks.push(`device ${SERIAL} not in list:\n${devices}`);
+    return { ok: false, checks };
+  }
+  checks.push(`adb devices: ${SERIAL} device`);
+  try {
+    execSync(`adb -s ${SERIAL} shell input keyevent 3`, { stdio: 'pipe', encoding: 'utf8' });
+    checks.push('input keyevent 3: OK');
+  } catch (e) {
+    checks.push(`input keyevent 3: FAIL (${e.message})`);
+    return { ok: false, checks };
+  }
+  try {
+    execSync(`adb -s ${SERIAL} shell input tap 101 2541`, { stdio: 'pipe', encoding: 'utf8' });
+    checks.push('input tap 101 2541: OK');
+  } catch (e) {
+    checks.push(`input tap 101 2541: FAIL (${e.message})`);
+    return { ok: false, checks };
+  }
+  return { ok: true, checks };
+}
 
 const DEPRECATED_IDS = new Set([
   'test-c-live-mode',
@@ -64,11 +121,13 @@ function resultFile(step) {
 
 function runStep(script) {
   console.log('\n==========', script, `(tag=${RUN_TAG})`, '==========\n');
+  const env = { ...process.env, E2E_RUN_TAG: RUN_TAG, PYTHONIOENCODING: 'utf-8' };
+  if (isRerun5 || isRerun4Retry) env.SKIP_PM_CLEAR = '1';
   try {
     execSync(`node ${script}`, {
       stdio: 'inherit',
       encoding: 'utf8',
-      env: { ...process.env, E2E_RUN_TAG: RUN_TAG, PYTHONIOENCODING: 'utf-8' },
+      env,
     });
     return true;
   } catch (e) {
@@ -108,11 +167,15 @@ function writeReport(meta, results, pushInfo) {
     return `| ${label} | ${op?.status ?? 'N/A'} | ${e2e?.status ?? 'N/A'} | ${e2e?.detail ?? 'N/A'} |`;
   };
 
-  const reportTitle = isRerun4
-    ? '# Device Verify v44 - E2E Final Rerun 4 Report'
-    : isRerun3
-      ? '# Device Verify v44 — E2E Final Rerun 3 Report'
-      : '# Device Verify v44 — E2E Final Rerun 2 Report';
+  const reportTitle = isRerun5
+    ? '# Device Verify v44 - E2E Final Rerun 5 Report'
+    : isRerun4Retry
+      ? '# Device Verify v44 - E2E Final Rerun 4 Retry Report'
+      : isRerun4
+        ? '# Device Verify v44 - E2E Final Rerun 4 Report'
+        : isRerun3
+          ? '# Device Verify v44 - E2E Final Rerun 3 Report'
+          : '# Device Verify v44 - E2E Final Rerun 2 Report';
 
   const lines = [
     reportTitle,
@@ -126,6 +189,10 @@ function writeReport(meta, results, pushInfo) {
     `- **Push**: ${pushInfo}`,
     '',
   ];
+
+  if (meta.adbPreflight?.length) {
+    lines.push('## ADB preflight', ...meta.adbPreflight.map((c) => `- ${c}`), '');
+  }
 
   if (pick('test-a-fatal')) {
     lines.push(
@@ -151,11 +218,12 @@ function writeReport(meta, results, pushInfo) {
     '```powershell',
     'chcp 65001',
     "$env:PYTHONIOENCODING='utf-8'",
-    "$env:E2E_RUN_TAG='rerun4'",
+    "$env:E2E_RUN_TAG='rerun5'",
+    "$env:SKIP_PM_CLEAR='1'",
     '. .\\scripts\\git-env.ps1',
     'npm run start:clear',
     'adb -s FYRWXSNNAIOR9DCM reverse tcp:8081 tcp:8081',
-    'node run-v44-e2e-all.mjs --rerun4',
+    'node run-v44-e2e-all.mjs --rerun5',
     '```',
     '',
     '## adb devices',
@@ -178,6 +246,26 @@ function writeReport(meta, results, pushInfo) {
     '',
     `**Pending baseline**: ${pick('test-c-pending-baseline')?.detail ?? 'N/A'}`,
     `**App mode policy**: ${pick('test-c-app-mode')?.detail ?? 'N/A'}`,
+    '',
+    '## Create error alerts (if any)',
+    ...FLOWS.map((f) => {
+      const a = pick(`test-c-create-alert-${f.key}`);
+      const e2e = pick(`test-c-e2e-${f.key}`);
+      if (a?.status === 'FAIL') return `- **${f.key}**: ${a.detail}`;
+      if (e2e?.status === 'FAIL' && e2e.detail.includes('create-error-alert')) return `- **${f.key}**: ${e2e.detail}`;
+      return `- **${f.key}**: none (alert=${a?.detail ?? 'N/A'})`;
+    }),
+    '',
+    '## Pending probes (after create)',
+    ...FLOWS.map((f) => {
+      const p = pick(`test-c-pending-after-${f.key}`);
+      return `- **${f.key}**: ${p?.detail ?? pick(`test-c-e2e-${f.key}`)?.detail ?? 'N/A'}`;
+    }),
+    '',
+    '## Practice mode save guarantee (code review)',
+    '- `ManualOrderFlowScreen`: create blocked only by `readOnlyBlockedMessage`, not practice mode',
+    '- `addManualBuyOrders` (`useAppPortfolioActions.ts`): no practice guard on list append',
+    '- `manualOrderConfirmation`: practice blocks **confirm/execute**, not list **create**',
     '',
   );
 
@@ -247,8 +335,47 @@ function writeReport(meta, results, pushInfo) {
   return { overall, pass, partial, fail };
 }
 
+function isGitIgnored(relPath) {
+  const git = resolveGit();
+  if (!git) return false;
+  try {
+    execSync(`"${git}" check-ignore -q "${relPath.replace(/\\/g, '/')}"`, { stdio: 'pipe', encoding: 'utf8' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function gitAddSafe(git, paths) {
+  for (const p of paths) {
+    const norm = p.replace(/\\/g, '/');
+    if (!fs.existsSync(p)) continue;
+    if (isGitIgnored(norm)) {
+      console.log('git add skip (ignored):', norm);
+      continue;
+    }
+    execSync(`"${git}" add "${norm}"`, { stdio: 'inherit', encoding: 'utf8' });
+  }
+}
+
+function collectGitAddPaths() {
+  const paths = [
+    '_deviceVerifyE2eCommon.mjs',
+    '_deviceVerifyAdb.mjs',
+    'src/constants/deviceVerifyTestIds.ts',
+    'src/screens/ManualOrderFlowScreen.tsx',
+    'src/components/MarketPicker.tsx',
+  ];
+  for (const f of fs.readdirSync('.')) {
+    if (f.startsWith('run-v44-e2e') && f.endsWith('.mjs')) paths.push(f);
+  }
+  if (fs.existsSync(REPORT)) paths.push(REPORT);
+  return [...new Set(paths)];
+}
+
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
+  let metaPreflight = [];
   if (process.argv.includes('--merge-only')) {
     process.env.E2E_RUN_TAG = RUN_TAG;
     const { meta, results } = mergeResults();
@@ -262,24 +389,40 @@ async function main() {
     console.error('FATAL: Start Metro first (npm run start:clear)');
     process.exit(2);
   }
-  adb(`am force-stop ${PKG}`);
-  await new Promise((r) => setTimeout(r, 2000));
+
+  if (isRerun4Retry || isRerun5) {
+    const pf = preflightAdInput();
+    metaPreflight = pf.checks;
+    console.log('ADB preflight:', pf.ok ? 'OK' : 'FAIL');
+    for (const c of pf.checks) console.log(' ', c);
+    if (!pf.ok) {
+      const { meta, results } = mergeResults();
+      writeReport({ ...meta, adbPreflight: pf.checks }, results, 'aborted: adb preflight failed');
+      process.exit(2);
+    }
+  }
+
+  adb(`am start -n ${PKG}/.MainActivity`);
+  await new Promise((r) => setTimeout(r, isRerun5 || isRerun4Retry ? 8000 : 2000));
 
   for (const step of STEPS) {
     runStep(step.script);
   }
 
+  const { meta, results } = mergeResults();
   let pushStatus = 'not attempted';
+  writeReport({ ...meta, adbPreflight: metaPreflight }, results, pushStatus);
+
   const git = resolveGit();
   if (git) {
     try {
-      execSync(
-        `"${git}" add run-v44-e2e-*.mjs _deviceVerifyE2eCommon.mjs _deviceVerifyAdb.mjs docs/review/DEVICE_VERIFY_V44_E2E_FINAL_RERUN4_REPORT.md docs/review/device-verify-v44/results-${RUN_TAG}-*.json docs/review/device-verify-v44/${MERGED_JSON}`,
-        { stdio: 'inherit' },
-      );
-      execSync(`"${git}" commit -m "fix: Device Verify v44 E2E rerun4 — remove live-mode gate, core ABC only"`, { stdio: 'inherit' });
+      gitAddSafe(git, collectGitAddPaths());
+      const commitMsg = isRerun5
+        ? 'fix: Device Verify v44 E2E rerun5 create-alert probe and pending fallbacks'
+        : 'fix: Device Verify v44 E2E rerun4-retry pending probe after create';
+      execSync(`"${git}" commit -m "${commitMsg}"`, { stdio: 'inherit', encoding: 'utf8' });
       try {
-        execSync(`"${git}" push origin cursor/top3-maxdd-capital-audit`, { stdio: 'inherit' });
+        execSync(`"${git}" push origin cursor/top3-maxdd-capital-audit`, { stdio: 'inherit', encoding: 'utf8' });
         pushStatus = `SUCCESS (${gitHash()})`;
       } catch (e) {
         pushStatus = `push failed: ${e.message}`;
@@ -289,8 +432,10 @@ async function main() {
     }
   }
 
-  const { meta, results } = mergeResults();
-  const summary = writeReport(meta, results, pushStatus);
+  writeReport({ ...meta, adbPreflight: metaPreflight }, results, pushStatus);
+  const pass = results.filter((r) => r.status === 'PASS').length;
+  const fail = results.filter((r) => r.status === 'FAIL').length;
+  const summary = { pass, fail, overall: fail === 0 ? 'PASS' : pass > 0 ? 'PARTIAL' : 'FAIL' };
   console.log('DONE', summary);
   console.log('Report:', REPORT, 'tag=', RUN_TAG);
   const fails = results.filter((r) => r.status === 'FAIL').length;

@@ -18,6 +18,8 @@ export function MarketPicker({ selected, onSelect }: Props) {
           key={m}
           onPress={() => onSelect(m)}
           style={[styles.chip, selected === m && styles.chipActive]}
+          testID={`market-picker-${m}`}
+          accessibilityLabel={`market-picker-${m}`}
         >
           <Text style={[styles.text, selected === m && styles.textActive]}>{marketTabLabel[m]}</Text>
         </Pressable>

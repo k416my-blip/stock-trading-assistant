@@ -24,7 +24,14 @@ import {
   ensureHomeReady,
   returnToHome,
   tapHomeFlowButton,
+  readPendingInline,
   readPendingCountMandatory,
+  readPendingAllProbesAsync,
+  readPendingFromAppState,
+  readManualOrderListTotalFromAppState,
+  evaluatePendingAfterCreate,
+  openManualOrderList,
+  dismissPostCreateAlert,
   waitForCreateReady,
   fillFlow,
   tapCreate,
@@ -64,14 +71,14 @@ async function main() {
   }
   record('test-c-prerequisite', 'PASS', '4 home buttons visible (practice OK)', []);
 
-  const baseline = await readPendingCountMandatory(ctx, 'test-c-baseline');
+  const baseline = await readPendingAllProbesAsync(ctx, 'test-c-baseline');
   if (baseline.count == null) {
-    record('test-c-pending-baseline', 'FAIL', 'baseline pending unavailable (ui+storage)', await saveFailureArtifacts('test-c-baseline', 'no pending probe'));
+    record('test-c-pending-baseline', 'FAIL', 'baseline pending unavailable (ui+storage+appState)', await saveFailureArtifacts('test-c-baseline', 'no pending probe'));
     saveResults(RESULT_FILE, { meta: buildMeta(), results });
     return;
   }
   let pending = baseline.count;
-  record('test-c-pending-baseline', 'PASS', `before=${pending} (${baseline.source})`, []);
+  record('test-c-pending-baseline', 'PASS', `before=${pending} ui=${baseline.ui} storage=${baseline.storageProbe} appState=${baseline.appState}`, []);
 
   for (const flow of FLOWS) {
     const tag = `test-c-${flow.key}`;
@@ -104,35 +111,46 @@ async function main() {
     }
     record(`test-c-create-ready-${flow.key}`, 'PASS', 'manual-order-create-ready:yes', []);
 
-    await fillFlow(ctx, flow.key);
+    const inputs = await fillFlow(ctx, flow.key);
+    if (!inputs.ok) {
+      record(`test-c-flow-inputs-${flow.key}`, 'FAIL', `missing: ${inputs.issues.join(', ')}`, await saveFailureArtifacts(`${tag}-inputs`, inputs.issues.join(',')));
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `required inputs missing: ${inputs.issues.join(', ')}`, []);
+      await returnToHome(ctx);
+      continue;
+    }
+    record(`test-c-flow-inputs-${flow.key}`, 'PASS', JSON.stringify(inputs.filled), []);
+
+    await sleep(800);
     const before = pending;
+    const beforeProbes = await readPendingAllProbesAsync(ctx, `${tag}-before-create`);
+    if (beforeProbes.count != null) pending = Math.max(pending, beforeProbes.count);
     if (!(await tapCreate(ctx, tag, flow.key))) {
       record(`test-c-e2e-${flow.key}`, 'FAIL', 'create button not tappable', await saveFailureArtifacts(`${tag}-create`, 'create tap failed'));
       await returnToHome(ctx);
       continue;
     }
-    await sleep(5000);
-    const ax = await dump(ctx, `${tag}-alert`);
-    shot(`${tag}-alert`);
-    const view = find(ax, (t) => t === VIEW_LIST || t.includes('\u30ea\u30b9\u30c8'));
-    if (view[0]) {
-      tap(view[0]);
-      await sleep(POST_TAP_MS);
-    } else {
-      const okBtn = find(ax, (t) => t === OK_BTN || t === 'OK');
-      if (okBtn[0]) tap(okBtn[0]);
-      await sleep(1500);
+    await sleep(flow.key === 'concierge_full' ? 12000 : 8000);
+    const alertResult = await dismissPostCreateAlert(ctx, tag);
+    if (!alertResult.ok) {
+      const errDetail = alertResult.body ? `title=${alertResult.title} body=${alertResult.body}` : alertResult.reason;
+      record(`test-c-create-alert-${flow.key}`, 'FAIL', errDetail, await saveFailureArtifacts(`${tag}-alert-err`, alertResult.reason));
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `create failed: ${errDetail}`, await saveFailureArtifacts(`${tag}-alert-err`, alertResult.reason));
+      await returnToHome(ctx);
+      continue;
     }
+    record(`test-c-create-alert-${flow.key}`, 'PASS', `alert=${alertResult.reason}`, []);
 
-    const afterProbe = await readPendingCountMandatory(ctx, `${tag}-list`);
+    await openManualOrderList(ctx, `${tag}-list-nav`);
+    let afterProbe = await readPendingAllProbesAsync(ctx, `${tag}-list`);
     shot(`${tag}-list`);
-    if (afterProbe.count == null) {
-      record(`test-c-e2e-${flow.key}`, 'FAIL', `pending unreadable after create (was ${before})`, await saveFailureArtifacts(`${tag}-pending`, 'pending probe missing'));
-    } else if (afterProbe.count > before) {
-      record(`test-c-e2e-${flow.key}`, 'PASS', `pending ${before} -> ${afterProbe.count} (${afterProbe.source})`, [`${tag}-list.png`]);
-      pending = afterProbe.count;
+    const evalResult = evaluatePendingAfterCreate(before, afterProbe);
+    record(`test-c-pending-after-${flow.key}`, evalResult.pass ? 'PASS' : 'FAIL', evalResult.detail, [`${tag}-list.png`]);
+    if (evalResult.pass) {
+      record(`test-c-e2e-${flow.key}`, 'PASS', evalResult.detail, [`${tag}-list.png`]);
+      const best = Math.max(afterProbe.ui ?? 0, afterProbe.storageProbe ?? 0, afterProbe.appState ?? 0);
+      if (best > 0) pending = best;
     } else {
-      record(`test-c-e2e-${flow.key}`, 'FAIL', `pending not increased ${before} -> ${afterProbe.count} (${afterProbe.source})`, [`${tag}-list.png`]);
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=${alertResult.reason}`, [`${tag}-list.png`]);
     }
     await returnToHome(ctx);
     await ensureHomeReady(ctx, `${tag}-post`);

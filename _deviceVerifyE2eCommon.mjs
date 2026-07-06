@@ -269,10 +269,21 @@ export async function dismissPermissionDialogs(ctx) {
   }
 }
 
+let redboxRecoverAttempts = 0;
+
 export async function recoverFromRedbox(ctx) {
   sh(`${ADB} reverse tcp:8081 tcp:8081`);
+  if (redboxRecoverAttempts >= 2) {
+    redboxRecoverAttempts = 0;
+    adb(`am force-stop ${PKG}`);
+    await sleep(2000);
+    adb(`am start -n ${PKG}/.MainActivity`);
+    await sleep(15000);
+    return;
+  }
+  redboxRecoverAttempts += 1;
   const xml = await dump(ctx, 'redbox');
-  const reload = find(xml, (t) => t === 'RELOAD' || t.includes('RELOAD'))[0];
+  const reload = find(xml, (t) => t === 'RELOAD' || t.startsWith('RELOAD'))[0];
   if (reload) {
     tap(reload);
     await sleep(20000);
@@ -281,7 +292,7 @@ export async function recoverFromRedbox(ctx) {
   adb(`am force-stop ${PKG}`);
   await sleep(1500);
   adb(`am start -n ${PKG}/.MainActivity`);
-  await sleep(20000);
+  await sleep(15000);
 }
 
 export async function waitForUiHydration(ctx, prefix, maxSec = 180) {
@@ -456,6 +467,73 @@ export function readPendingFromStorage() {
   }
 }
 
+export function readPendingFromAppState() {
+  try {
+    const key = '@sta/app_state';
+    const sql = `SELECT value FROM catalystLocalStorage WHERE key='${key}'`;
+    const out = sh(`${ADB} shell run-as ${PKG} sqlite3 databases/RKStorage "${sql}"`);
+    if (!out) return null;
+    const state = JSON.parse(out);
+    const list = Array.isArray(state.manualOrderList) ? state.manualOrderList : [];
+    return list.filter((i) => !i.completed).length;
+  } catch {
+    return null;
+  }
+}
+
+export function readManualOrderListTotalFromAppState() {
+  try {
+    const key = '@sta/app_state';
+    const sql = `SELECT value FROM catalystLocalStorage WHERE key='${key}'`;
+    const out = sh(`${ADB} shell run-as ${PKG} sqlite3 databases/RKStorage "${sql}"`);
+    if (!out) return null;
+    const state = JSON.parse(out);
+    const list = Array.isArray(state.manualOrderList) ? state.manualOrderList : [];
+    return list.length;
+  } catch {
+    return null;
+  }
+}
+
+export async function readPendingAllProbesAsync(ctx, tag) {
+  const inline = await readPendingInline(ctx, tag);
+  const storageProbe = readPendingFromStorage();
+  const appState = readPendingFromAppState();
+  const ui = inline.count;
+  const source = [
+    ui != null ? `ui=${ui}` : null,
+    storageProbe != null ? `storageProbe=${storageProbe}` : null,
+    appState != null ? `appState=${appState}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ');
+  console.log(`PENDING-PROBE ${tag}`, source || 'none');
+  return { ui, storageProbe, appState, count: ui ?? storageProbe ?? appState, source: source || 'none' };
+}
+
+export function evaluatePendingAfterCreate(before, after) {
+  const total = readManualOrderListTotalFromAppState();
+  const detail = `before=${before} ui=${after.ui ?? 'null'} storageProbe=${after.storageProbe ?? 'null'} appState=${after.appState ?? 'null'} listTotal=${total ?? 'null'} (${after.source})`;
+  console.log('PENDING-EVAL', detail);
+  const increased =
+    (after.ui != null && after.ui > before) ||
+    (after.storageProbe != null && after.storageProbe > before) ||
+    (after.appState != null && after.appState > before);
+  if (increased) {
+    const best = Math.max(
+      after.ui ?? before,
+      after.storageProbe ?? before,
+      after.appState ?? before,
+    );
+    return { pass: true, detail: `pending ${before} -> ${best} ${detail}` };
+  }
+  const anyReadable = after.ui != null || after.storageProbe != null || after.appState != null;
+  if (anyReadable) {
+    return { pass: false, detail: `pending not increased ${detail}` };
+  }
+  return { pass: false, detail: `pending unreadable ${detail}` };
+}
+
 export function writeAsyncStorageValue(storageKey, value) {
   try {
     const val = JSON.stringify(value).replace(/'/g, "''");
@@ -482,6 +560,7 @@ export function pendingFromXml(xml) {
   const probe = parsePendingCountFromXml(xml);
   if (probe != null) return probe;
   const j = [...texts(xml)].join('\n');
+  if (j.includes('\u672a\u5b8c\u4e86\u306e\u6ce8\u6587\u306f\u3042\u308a\u307e\u305b\u3093')) return 0;
   const m = j.match(/\u672a\u5b8c\u4e86[（(](\d+)件[）)]/);
   return m ? Number(m[1]) : null;
 }
@@ -490,6 +569,12 @@ export async function openManualOrderList(ctx, tag) {
   await tapTab(ctx, 'portfolio');
   for (let i = 0; i < 22; i++) {
     const xml = await dump(ctx, `${tag}-plist-${i}`);
+    const byId = findTestId(xml, TIDS.portfolioManualOrderList);
+    if (byId) {
+      tap(byId);
+      await sleep(POST_TAP_MS);
+      return true;
+    }
     const b = find(xml, (t) => t === LIST_TITLE);
     if (b[0]) {
       tap(b[0]);
@@ -502,7 +587,29 @@ export async function openManualOrderList(ctx, tag) {
   return false;
 }
 
+export async function readPendingInline(ctx, tag) {
+  adb('input swipe 540 350 540 1300 320');
+  await sleep(700);
+  for (let i = 0; i < 14; i++) {
+    const xml = await dump(ctx, `${tag}-inline-${i}`);
+    const c = pendingFromXml(xml);
+    if (c != null) return { count: c, source: 'ui-inline-probe' };
+    if ([...texts(xml)].some((t) => t === LIST_TITLE || t.includes('\u624b\u52d5\u6ce8\u6587\u30ea\u30b9\u30c8'))) {
+      if (i % 3 === 2) adb('input swipe 540 400 540 1200 280');
+      await sleep(1800);
+      continue;
+    }
+    await sleep(1200);
+  }
+  return { count: null, source: 'inline-none' };
+}
+
 export async function readPendingCountMandatory(ctx, tag) {
+  const inline = await readPendingInline(ctx, tag);
+  if (inline.count != null) {
+    await tapTab(ctx, 'home');
+    return inline;
+  }
   const sources = [];
   if (await openManualOrderList(ctx, tag)) {
     for (let i = 0; i < 12; i++) {
@@ -542,27 +649,165 @@ export async function waitForCreateReady(ctx, modeKey, tag, record, maxSec = 30)
   return { ok: false, reason: 'timeout-create-ready-probe' };
 }
 
-export async function fillFlow(ctx, key) {
-  const xml = await dump(ctx, `fill-${key}`);
-  const e = edits(xml);
-  const type = async (idx, val) => {
-    if (!e[idx]) return;
-    adb(`input tap ${e[idx].cx} ${e[idx].cy}`);
-    await sleep(300);
-    for (let i = 0; i < 6; i++) adb('input keyevent 67');
-    adb(`input text ${val}`);
-    await sleep(300);
-  };
-  if (key === 'concierge_full') await type(0, '2000');
+export async function typeIntoField(ctx, tag, testId, val) {
+  let xml = await dump(ctx, tag);
+  let hit = findTestId(xml, testId);
+  if (!hit) {
+    adb('input swipe 540 1600 540 900 280');
+    await sleep(500);
+    xml = await dump(ctx, `${tag}-scroll`);
+    hit = findTestId(xml, testId);
+  }
+  if (!hit) {
+    const e = edits(xml).sort((a, b) => a.cy - b.cy);
+    if (testId === TIDS.manualOrderInputDeposit && e[0]) hit = e[0];
+    if (testId === TIDS.manualOrderInputSymbol && e[0]) hit = e[0];
+    if (testId === TIDS.manualOrderInputShares && e[1]) hit = e[1];
+    else if (testId === TIDS.manualOrderInputShares && e[0]) hit = e[0];
+  }
+  if (!hit) return false;
+  adb(`input tap ${hit.cx} ${hit.cy}`);
+  await sleep(400);
+  for (let i = 0; i < 8; i++) adb('input keyevent 67');
+  adb(`input text ${val}`);
+  await sleep(300);
+  adb('input tap 540 220');
+  await sleep(300);
+  return true;
+}
+
+export function parseAlertFromXml(xml) {
+  const tx = [...texts(xml)];
+  const probeErr = tx.find((t) => t.startsWith('manual-order-create-error:'));
+  if (probeErr) {
+    return {
+      kind: 'error',
+      title: 'probe',
+      body: probeErr.slice('manual-order-create-error:'.length) || 'unknown',
+    };
+  }
+  const probeOk = tx.find((t) => t.startsWith('manual-order-create-success:'));
+  if (probeOk) {
+    return { kind: 'success', title: 'probe', body: probeOk };
+  }
+  const hasErrorTitle = tx.some((t) => t === '\u4f5c\u6210\u3067\u304d\u307e\u305b\u3093');
+  if (hasErrorTitle) {
+    const body =
+      tx.find(
+        (t) =>
+          t !== '\u4f5c\u6210\u3067\u304d\u307e\u305b\u3093' &&
+          t !== OK_BTN &&
+          t !== 'OK' &&
+          !t.startsWith('manual-order-') &&
+          t.length > 4,
+      ) || 'unknown';
+    return { kind: 'error', title: '\u4f5c\u6210\u3067\u304d\u307e\u305b\u3093', body };
+  }
+  return null;
+}
+
+export async function dismissPostCreateAlert(ctx, tag) {
+  await sleep(2000);
+  for (let i = 0; i < 15; i++) {
+    const xml = await dump(ctx, `${tag}-alert-${i}`);
+    const parsed = parseAlertFromXml(xml);
+    if (parsed?.kind === 'error') {
+      console.log(`CREATE-ERROR-ALERT ${tag} title=${parsed.title} body=${parsed.body}`);
+      const okBtn = find(xml, (t) => t === OK_BTN || t === 'OK')[0];
+      if (okBtn) tap(okBtn);
+      else adb('input tap 540 1500');
+      await sleep(1000);
+      return {
+        ok: false,
+        reason: `create-error-alert:${parsed.body}`,
+        title: parsed.title,
+        body: parsed.body,
+      };
+    }
+    const tx = [...texts(xml)];
+    const view = find(xml, (t) => t === VIEW_LIST || t === '\u30ea\u30b9\u30c8\u3092\u898b\u308b');
+    if (view[0]) {
+      tap(view[0]);
+      await sleep(POST_TAP_MS);
+      return { ok: true, reason: 'view-list' };
+    }
+    if (tx.some((t) => t === '\u30ea\u30b9\u30c8\u306b\u8ffd\u52a0\u3057\u307e\u3057\u305f')) {
+      adb('input tap 780 1520');
+      await sleep(POST_TAP_MS);
+      return { ok: true, reason: 'view-list-coord' };
+    }
+    if (parsed?.kind === 'success' || tx.some((t) => t.startsWith('manual-order-create-success:'))) {
+      const okBtn = find(xml, (t) => t === OK_BTN || t === 'OK')[0];
+      if (okBtn) {
+        tap(okBtn);
+        await sleep(1500);
+        return { ok: true, reason: 'success-probe-ok' };
+      }
+    }
+    const okBtn = find(xml, (t) => t === OK_BTN || t === 'OK')[0];
+    if (okBtn) {
+      tap(okBtn);
+      await sleep(1500);
+      return { ok: true, reason: 'ok-dismiss' };
+    }
+    await sleep(1500);
+  }
+  return { ok: true, reason: 'no-alert' };
+}
+
+export async function ensureMarketBursa(ctx, tag) {
+  let xml = await dump(ctx, `${tag}-market`);
+  let hit = findTestId(xml, 'market-picker-bursa');
+  if (!hit) hit = find(xml, (t) => t === '\u30d0\u30eb\u30b5' || t === 'Bursa')[0];
+  if (hit) {
+    tap(hit);
+    await sleep(500);
+    return true;
+  }
+  return false;
+}
+
+export async function verifyFlowInputs(ctx, key) {
+  const xml = await dump(ctx, `verify-${key}`);
+  const has = (tid) => !!findTestId(xml, tid);
+  const issues = [];
+  const filled = { market: has('market-picker-bursa') || [...texts(xml)].some((t) => t === '\u30d0\u30eb\u30b5') };
+  if (['concierge_full', 'concierge_symbol', 'concierge_quantity'].includes(key)) {
+    filled.deposit = has(TIDS.manualOrderInputDeposit);
+    if (!filled.deposit && key !== 'concierge_symbol') issues.push('deposit-empty');
+  }
+  if (key === 'concierge_symbol') {
+    filled.deposit = has(TIDS.manualOrderInputDeposit);
+    if (!filled.deposit && !has(TIDS.manualOrderInputShares)) issues.push('amount-or-shares-missing');
+  }
+  if (['manual_full', 'concierge_quantity'].includes(key)) {
+    filled.symbol = has(TIDS.manualOrderInputSymbol);
+    if (!filled.symbol) issues.push('symbol-empty');
+  }
   if (key === 'manual_full') {
-    await type(0, '1155');
-    await type(1, '100');
+    filled.shares = has(TIDS.manualOrderInputShares);
+    if (!filled.shares) issues.push('shares-empty');
+    filled.side = 'buy-default';
   }
-  if (key === 'concierge_symbol') await type(0, '2000');
+  if (!filled.market) issues.push('market-not-bursa');
+  console.log(`FLOW-INPUTS ${key}`, JSON.stringify({ filled, issues }));
+  return { ok: issues.length === 0, filled, issues };
+}
+
+export async function fillFlow(ctx, key) {
+  await ensureMarketBursa(ctx, `fill-${key}`);
+  if (key === 'concierge_full') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
+  if (key === 'manual_full') {
+    await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
+    await typeIntoField(ctx, `fill-${key}-s`, TIDS.manualOrderInputShares, '100');
+  }
+  if (key === 'concierge_symbol') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
   if (key === 'concierge_quantity') {
-    await type(0, '1155');
-    await type(1, '2000');
+    await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
+    await typeIntoField(ctx, `fill-${key}-d`, TIDS.manualOrderInputDeposit, '50000');
   }
+  await sleep(500);
+  return verifyFlowInputs(ctx, key);
 }
 
 export async function tapCreate(ctx, tag, modeKey) {

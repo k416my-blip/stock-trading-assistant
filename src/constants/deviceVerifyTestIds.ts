@@ -18,6 +18,10 @@ export const DEVICE_VERIFY_TEST_IDS = {
   aiInvestmentMode: (mode: InvestmentDisplayMode) => `ai-investment-mode-${mode}`,
   manualOrderCreate: (mode: ManualOrderFlowMode) => `manual-order-create-${mode}`,
   manualOrderPendingCount: 'manual-order-pending-count',
+  manualOrderInputDeposit: 'manual-order-input-deposit',
+  manualOrderInputSymbol: 'manual-order-input-symbol',
+  manualOrderInputShares: 'manual-order-input-shares',
+  portfolioManualOrderList: 'portfolio-manual-order-list',
   settingsNavPracticeMode: 'settings-nav-practice-mode',
   appModeLiveAnalysis: 'app-mode-live-analysis',
   appModePractice: 'app-mode-practice',
@@ -30,6 +34,17 @@ export const DEVICE_VERIFY_CREATE_READY_LABEL = 'manual-order-create-ready:yes';
 
 export function formatCreateBlockedProbe(reason: string): string {
   return `${DEVICE_VERIFY_CREATE_BLOCKED_PREFIX}${reason}`;
+}
+
+export const DEVICE_VERIFY_CREATE_ERROR_PREFIX = 'manual-order-create-error:';
+export const DEVICE_VERIFY_CREATE_SUCCESS_PREFIX = 'manual-order-create-success:';
+
+export function formatCreateErrorProbe(reason: string): string {
+  return `${DEVICE_VERIFY_CREATE_ERROR_PREFIX}${reason}`;
+}
+
+export function formatCreateSuccessProbe(count: number): string {
+  return `${DEVICE_VERIFY_CREATE_SUCCESS_PREFIX}${count}`;
 }
 
 export const DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX = 'manual-order-pending-count:';

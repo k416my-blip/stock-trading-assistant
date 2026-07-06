@@ -10,6 +10,8 @@ import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
 import {
   DEVICE_VERIFY_TEST_IDS,
   formatCreateBlockedProbe,
+  formatCreateErrorProbe,
+  formatCreateSuccessProbe,
   DEVICE_VERIFY_CREATE_READY_LABEL,
 } from '../constants/deviceVerifyTestIds';
 import { writePendingManualOrderProbe } from '../services/manualOrderVerification';
@@ -43,6 +45,11 @@ export function ManualOrderFlowScreen() {
   const [entryPrice, setEntryPrice] = useState('');
   const [inputMode, setInputMode] = useState<'amount' | 'shares'>('amount');
   const [busy, setBusy] = useState(false);
+  const [createVerifyProbe, setCreateVerifyProbe] = useState(DEVICE_VERIFY_CREATE_READY_LABEL);
+
+  const logCreate = (phase: string, detail: string) => {
+    console.warn(`[ManualOrderFlow/${mode}] ${phase}: ${detail}`);
+  };
 
   const title = t(manualOrderFlowModeTitleKey(mode));
   const subtitle = t(`manualOrderFlow.${modeToKey(mode)}.subtitle`);
@@ -55,6 +62,8 @@ export function ManualOrderFlowScreen() {
 
   const onCreate = () => {
     if (readOnlyBlockedMessage) {
+      logCreate('blocked-readonly', readOnlyBlockedMessage);
+      setCreateVerifyProbe(formatCreateErrorProbe(`readonly:${readOnlyBlockedMessage}`));
       Alert.alert(t('manualOrderFlow.cannotCreateTitle'), readOnlyBlockedMessage);
       return;
     }
@@ -70,14 +79,21 @@ export function ManualOrderFlowScreen() {
         entryPrice: entryPrice ? Number(entryPrice) : undefined,
       });
       if (!built.ok) {
+        logCreate('build-fail', built.error);
+        setCreateVerifyProbe(formatCreateErrorProbe(built.error));
         Alert.alert(t('manualOrderFlow.cannotCreateTitle'), built.error);
         return;
       }
       const added = addManualBuyOrders(built.items);
       if (!added.ok) {
-        Alert.alert(t('manualOrderFlow.cannotCreateTitle'), added.error ?? t('manualOrderFlow.createFailed'));
+        const err = added.error ?? t('manualOrderFlow.createFailed');
+        logCreate('add-fail', err);
+        setCreateVerifyProbe(formatCreateErrorProbe(err));
+        Alert.alert(t('manualOrderFlow.cannotCreateTitle'), err);
         return;
       }
+      logCreate('ok', `added=${added.addedCount ?? built.items.length} practice=${isPractice}`);
+      setCreateVerifyProbe(formatCreateSuccessProbe(added.addedCount ?? built.items.length));
       void writePendingManualOrderProbe([
         ...built.items,
         ...state.manualOrderList,
@@ -133,6 +149,7 @@ export function ManualOrderFlowScreen() {
             placeholder="1000"
             placeholderTextColor={theme.colors.textMuted}
             editable={!busy}
+            testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputDeposit}
           />
         </>
       ) : null}
@@ -148,6 +165,7 @@ export function ManualOrderFlowScreen() {
             placeholderTextColor={theme.colors.textMuted}
             autoCapitalize="characters"
             editable={!busy}
+            testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputSymbol}
           />
         </>
       ) : null}
@@ -163,6 +181,7 @@ export function ManualOrderFlowScreen() {
             placeholder="100"
             placeholderTextColor={theme.colors.textMuted}
             editable={!busy}
+            testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputShares}
           />
         </>
       ) : null}
@@ -189,7 +208,7 @@ export function ManualOrderFlowScreen() {
         accessibilityLabel={
           readOnlyBlockedMessage
             ? formatCreateBlockedProbe('readonly')
-            : DEVICE_VERIFY_CREATE_READY_LABEL
+            : createVerifyProbe
         }
         accessible
         importantForAccessibility="yes"

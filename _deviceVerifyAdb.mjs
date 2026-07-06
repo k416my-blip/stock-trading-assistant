@@ -43,8 +43,27 @@ export function parseCreateBlockReason(xml) {
   return null;
 }
 
+export function parseCreateErrorFromXml(xml) {
+  for (const label of xmlTexts(xml)) {
+    if (!label.startsWith('manual-order-create-error:')) continue;
+    return label.slice('manual-order-create-error:'.length) || 'unknown';
+  }
+  return null;
+}
+
+export function parseCreateSuccessFromXml(xml) {
+  for (const label of xmlTexts(xml)) {
+    if (!label.startsWith('manual-order-create-success:')) continue;
+    const n = Number(label.split(':')[1]);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
 export function isCreateReady(xml) {
-  return [...xmlTexts(xml)].some((l) => l === 'manual-order-create-ready:yes');
+  const labels = [...xmlTexts(xml)];
+  if (labels.some((l) => l.startsWith('manual-order-create-error:'))) return false;
+  return labels.some((l) => l === 'manual-order-create-ready:yes');
 }
 
 export const TIDS = {
@@ -60,6 +79,10 @@ export const TIDS = {
   manualOrderCreate: (mode) => `manual-order-create-${mode}`,
   manualOrderFlowScreen: (mode) => `manual-order-flow-${mode}`,
   manualOrderCreateReady: 'manual-order-create-ready',
+  manualOrderInputDeposit: 'manual-order-input-deposit',
+  manualOrderInputSymbol: 'manual-order-input-symbol',
+  manualOrderInputShares: 'manual-order-input-shares',
+  portfolioManualOrderList: 'portfolio-manual-order-list',
   settingsNavPracticeMode: 'settings-nav-practice-mode',
   appModeLiveAnalysis: 'app-mode-live-analysis',
   appModePractice: 'app-mode-practice',
