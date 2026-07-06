@@ -17,6 +17,9 @@ export function ModeToggle({ mode, onChange }: Props) {
     <View style={styles.row}>
       <Pressable
         onPress={() => onChange('practice')}
+        testID={DEVICE_VERIFY_TEST_IDS.appModePractice}
+        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.appModePractice}
+        accessible
         style={[styles.chip, mode === 'practice' && styles.practiceActive]}
       >
         <Text style={[styles.text, mode === 'practice' && styles.textActive]}>{APP_MODE_PRACTICE_LABEL}</Text>

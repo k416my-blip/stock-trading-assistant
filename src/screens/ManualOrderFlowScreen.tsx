@@ -7,7 +7,11 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
-import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
+import {
+  DEVICE_VERIFY_TEST_IDS,
+  formatCreateBlockedProbe,
+  DEVICE_VERIFY_CREATE_READY_LABEL,
+} from '../constants/deviceVerifyTestIds';
 import { writePendingManualOrderProbe } from '../services/manualOrderVerification';
 import { useApp } from '../context/AppContext';
 import {
@@ -185,6 +189,20 @@ export function ManualOrderFlowScreen() {
 
       <Text style={styles.hint}>{hint}</Text>
 
+      <View
+        testID={DEVICE_VERIFY_TEST_IDS.manualOrderCreateReady}
+        accessibilityLabel={
+          isPractice
+            ? formatCreateBlockedProbe('practice')
+            : readOnlyBlockedMessage
+              ? formatCreateBlockedProbe('readonly')
+              : DEVICE_VERIFY_CREATE_READY_LABEL
+        }
+        accessible
+        importantForAccessibility="yes"
+        style={styles.createReadyProbe}
+      />
+
       <Button
         label={busy ? t('manualOrderFlow.creating') : t('manualOrderFlow.createList')}
         onPress={onCreate}
@@ -244,6 +262,11 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     lineHeight: 20,
     marginVertical: theme.spacing.md,
+  },
+  createReadyProbe: {
+    width: 1,
+    height: 1,
+    opacity: 0.01,
   },
   toggleRow: {
     flexDirection: 'row',

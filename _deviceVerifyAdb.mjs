@@ -35,6 +35,18 @@ export function parsePendingCountFromXml(xml) {
   return null;
 }
 
+export function parseCreateBlockReason(xml) {
+  for (const label of xmlTexts(xml)) {
+    if (!label.startsWith('manual-order-create-blocked:')) continue;
+    return label.split(':').slice(1).join(':') || 'unknown';
+  }
+  return null;
+}
+
+export function isCreateReady(xml) {
+  return [...xmlTexts(xml)].some((l) => l === 'manual-order-create-ready:yes');
+}
+
 export const TIDS = {
   languagePickerModal: 'language-picker-modal',
   languageJa: 'language-ja',
@@ -46,6 +58,12 @@ export const TIDS = {
   settingsNavAiStrategy: 'settings-nav-ai-strategy',
   aiInvestmentMode: (mode) => `ai-investment-mode-${mode}`,
   manualOrderCreate: (mode) => `manual-order-create-${mode}`,
+  manualOrderFlowScreen: (mode) => `manual-order-flow-${mode}`,
+  manualOrderCreateReady: 'manual-order-create-ready',
   settingsNavPracticeMode: 'settings-nav-practice-mode',
   appModeLiveAnalysis: 'app-mode-live-analysis',
+  appModePractice: 'app-mode-practice',
 };
+
+export const CREATE_READY = 'manual-order-create-ready:yes';
+export const CREATE_BLOCKED_PREFIX = 'manual-order-create-blocked:';

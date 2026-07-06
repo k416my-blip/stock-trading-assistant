@@ -20,7 +20,17 @@ export const DEVICE_VERIFY_TEST_IDS = {
   manualOrderPendingCount: 'manual-order-pending-count',
   settingsNavPracticeMode: 'settings-nav-practice-mode',
   appModeLiveAnalysis: 'app-mode-live-analysis',
+  appModePractice: 'app-mode-practice',
+  manualOrderFlowScreen: (mode: ManualOrderFlowMode) => `manual-order-flow-${mode}`,
+  manualOrderCreateReady: 'manual-order-create-ready',
 } as const;
+
+export const DEVICE_VERIFY_CREATE_BLOCKED_PREFIX = 'manual-order-create-blocked:';
+export const DEVICE_VERIFY_CREATE_READY_LABEL = 'manual-order-create-ready:yes';
+
+export function formatCreateBlockedProbe(reason: string): string {
+  return `${DEVICE_VERIFY_CREATE_BLOCKED_PREFIX}${reason}`;
+}
 
 export const DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX = 'manual-order-pending-count:';
 
