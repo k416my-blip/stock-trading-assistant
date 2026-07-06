@@ -31,11 +31,13 @@ const RESULT_FILE = `${OUT}/results-e2e-d.json`;
 
 async function verifyUxMode(mode) {
   const prefix = `test-d-${mode.key}`;
+  await dismissSystemChrome(ctx);
   const switched = await setDisplayMode(ctx, mode.key);
   record(`${prefix}-mode-switch`, switched ? 'PASS' : 'FAIL', mode.label, switched ? [] : await saveFailureArtifacts(`${prefix}-switch`, 'ux mode row missing'));
 
   await returnToHome(ctx);
-  await sleep(2000);
+  await dismissSystemChrome(ctx);
+  await sleep(2500);
   const { n, shots } = await scrollHomeShots(ctx, prefix, null);
   record(`${prefix}-four-buttons`, n === 4 ? 'PASS' : 'FAIL', `${n}/4`, shots);
 

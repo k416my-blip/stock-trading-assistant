@@ -45,9 +45,9 @@ export const FLOWS = [
 ];
 
 export const UX_MODES = [
-  { key: 'beginner', label: jaSettings.displayMode.modes.beginner.label },
   { key: 'standard', label: jaSettings.displayMode.modes.standard.label },
   { key: 'pro', label: jaSettings.displayMode.modes.pro.label },
+  { key: 'beginner', label: jaSettings.displayMode.modes.beginner.label },
 ];
 
 export const sh = (c) => execSync(c, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }).trim();
@@ -141,9 +141,13 @@ export function currentActivity() {
 }
 
 export function ensureAppForeground() {
-  const act = currentActivity();
-  if (!act.includes(PKG)) {
-    adb(`am start -n ${PKG}/.MainActivity`);
+  try {
+    const act = currentActivity();
+    if (!act.includes(PKG)) {
+      adb(`am start -n ${PKG}/.MainActivity`);
+    }
+  } catch {
+    // device may be temporarily unavailable
   }
 }
 
@@ -297,7 +301,15 @@ export async function dismissOnboarding(ctx) {
   return false;
 }
 
+export async function scrollToHomeTop(ctx) {
+  for (let i = 0; i < 4; i++) {
+    adb('input swipe 540 650 540 1900 350');
+    await sleep(280);
+  }
+}
+
 export async function scrollToHomeSection(ctx, tag) {
+  await scrollToHomeTop(ctx);
   for (let i = 0; i < 32; i++) {
     const xml = await dump(ctx, `${tag}-sec-${i}`);
     if (findTestId(xml, TIDS.homeManualOrderSection)) return true;
@@ -337,6 +349,9 @@ export async function scrollHomeShots(ctx, prefix, record) {
   const seen = new Set();
   const shots = [];
   let max = 0;
+  await tapTab(ctx, 'home');
+  await dismissOnboarding(ctx);
+  await scrollToHomeTop(ctx);
   await scrollToHomeSection(ctx, prefix);
   for (let i = 0; i < 28; i++) {
     const xml = await dump(ctx, `${prefix}-scroll-${i}`);
@@ -534,10 +549,7 @@ export async function waitForCreateReady(ctx, modeKey, tag, record, maxSec = 30)
     const xml = await dump(ctx, `${tag}-ready-${i}`);
     if (isCreateReady(xml)) return { ok: true, reason: null };
     const block = parseCreateBlockReason(xml);
-    if (block) return { ok: false, reason: block };
-    if ([...texts(xml)].some((t) => t.includes(PRACTICE_BLOCKED_TEXT.slice(0, 8)))) {
-      return { ok: false, reason: 'practice-text-visible' };
-    }
+    if (block && block !== 'practice') return { ok: false, reason: block };
     await sleep(2000);
   }
   return { ok: false, reason: 'timeout-create-ready-probe' };
@@ -587,15 +599,26 @@ export async function tapCreate(ctx, tag, modeKey) {
   return true;
 }
 
+const UX_MODE_LABELS = {
+  beginner: '\u521d\u5fc3\u8005',
+  standard: '\u6a19\u6e96',
+  pro: '\u30d7\u30ed',
+};
+
 export async function setDisplayMode(ctx, modeKey) {
   await tapTab(ctx, 'settings');
+  await dismissSystemChrome(ctx);
+  await sleep(1000);
   const testId = TIDS.settingsUxMode(modeKey);
-  for (let i = 0; i < 24; i++) {
+  const label = UX_MODE_LABELS[modeKey];
+  for (let i = 0; i < 28; i++) {
     const xml = await dump(ctx, `ux-${modeKey}-${i}`);
-    const hit = findTestId(xml, testId);
+    const hit =
+      findTestId(xml, testId) ||
+      find(xml, (t) => t === label || t.startsWith(label))[0];
     if (hit) {
       tap(hit);
-      await sleep(2000);
+      await sleep(2500);
       return true;
     }
     adb('input swipe 540 1900 540 650 350');
@@ -638,11 +661,23 @@ export async function setTrustMode(ctx) {
 }
 
 export function buildMeta() {
+  let model = 'unknown';
+  let versionCode = 'unknown';
+  let adbDevices = '';
+  try {
+    model = adb('getprop ro.product.model');
+  } catch {}
+  try {
+    versionCode = sh(`${ADB} shell dumpsys package ${PKG} | findstr versionCode`);
+  } catch {}
+  try {
+    adbDevices = sh('adb devices');
+  } catch {}
   return {
     serial: SERIAL,
-    model: adb('getprop ro.product.model'),
-    versionCode: sh(`${ADB} shell dumpsys package ${PKG} | findstr versionCode`),
-    adbDevices: sh('adb devices'),
+    model,
+    versionCode,
+    adbDevices,
     timestamp: new Date().toISOString(),
   };
 }

@@ -16,6 +16,7 @@ import {
   shot,
   dismissSystemChrome,
   setTrustMode,
+  setDisplayMode,
   ensureHomeReady,
   scrollHomeShots,
   tapHomeFlowButton,
@@ -32,13 +33,15 @@ const RESULT_FILE = `${OUT}/results-e2e-e.json`;
 async function main() {
   await prepareDevice(ctx);
   await dismissSystemChrome(ctx);
+  await setDisplayMode(ctx, 'standard');
   await ensureHomeReady(ctx, 'test-e-prep');
 
   const switched = await setTrustMode(ctx);
   record('test-e-trust-mode-switch', switched ? 'PASS' : 'FAIL', TRUST_LABEL, switched ? [] : await saveFailureArtifacts('test-e-trust-switch', 'trust mode switch failed'));
 
   await returnToHome(ctx);
-  await sleep(2000);
+  await dismissSystemChrome(ctx);
+  await sleep(3000);
   const { n, shots } = await scrollHomeShots(ctx, 'test-e', null);
   record('test-e-four-buttons', n === 4 ? 'PASS' : 'FAIL', `${n}/4`, shots);
 

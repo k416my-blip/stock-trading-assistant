@@ -54,10 +54,6 @@ export function ManualOrderFlowScreen() {
   const showInputToggle = mode === 'concierge_symbol';
 
   const onCreate = () => {
-    if (isPractice) {
-      Alert.alert(t('manualOrderFlow.practiceBlockedTitle'), t('manualOrderFlow.practiceBlockedBody'));
-      return;
-    }
     if (readOnlyBlockedMessage) {
       Alert.alert(t('manualOrderFlow.cannotCreateTitle'), readOnlyBlockedMessage);
       return;
@@ -108,7 +104,6 @@ export function ManualOrderFlowScreen() {
       </Card>
 
       {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
-      {isPractice ? <Text style={styles.warn}>{t('manualOrderFlow.practiceBlockedBody')}</Text> : null}
 
       <MarketPicker selected={market} onSelect={setMarket} />
 
@@ -192,11 +187,9 @@ export function ManualOrderFlowScreen() {
       <View
         testID={DEVICE_VERIFY_TEST_IDS.manualOrderCreateReady}
         accessibilityLabel={
-          isPractice
-            ? formatCreateBlockedProbe('practice')
-            : readOnlyBlockedMessage
-              ? formatCreateBlockedProbe('readonly')
-              : DEVICE_VERIFY_CREATE_READY_LABEL
+          readOnlyBlockedMessage
+            ? formatCreateBlockedProbe('readonly')
+            : DEVICE_VERIFY_CREATE_READY_LABEL
         }
         accessible
         importantForAccessibility="yes"

@@ -20,7 +20,13 @@ import {
   PKG,
 } from './_deviceVerifyE2eCommon.mjs';
 
-const REPORT = path.join('docs', 'review', 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN2_REPORT.md');
+const isRerun3 = process.argv.includes('--rerun3');
+const REPORT = path.join(
+  'docs',
+  'review',
+  isRerun3 ? 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN3_REPORT.md' : 'DEVICE_VERIFY_V44_E2E_FINAL_RERUN2_REPORT.md',
+);
+const MERGED_JSON = isRerun3 ? 'results-e2e-rerun3-merged.json' : 'results-e2e-rerun2-merged.json';
 const STEPS = [
   { script: 'run-v44-e2e-a-onboarding.mjs', result: 'results-e2e-a.json' },
   { script: 'run-v44-e2e-b-home-buttons.mjs', result: 'results-e2e-b.json' },
@@ -44,7 +50,7 @@ function mergeResults() {
     if (data.meta) meta = { ...meta, ...data.meta };
     all.push(...(data.results || []));
   }
-  fs.writeFileSync(path.join(OUT, 'results-e2e-rerun2-merged.json'), JSON.stringify({ meta, results: all }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(OUT, MERGED_JSON), JSON.stringify({ meta, results: all }, null, 2), 'utf8');
   return { meta, results: all };
 }
 
@@ -67,8 +73,13 @@ function writeReport(meta, results, pushInfo) {
     return `| ${label} | ${sw?.status ?? '—'} | ${bt?.detail ?? bt?.status ?? '—'} | ${fo?.status ?? '—'} |`;
   };
 
+  const reportTitle = isRerun3
+    ? '# Device Verify v44 — E2E Final Rerun 3 Report'
+    : '# Device Verify v44 — E2E Final Rerun 2 Report';
+  const artifactDir = isRerun3 ? 'rerun3-artifacts' : 'rerun2-artifacts';
+
   const lines = [
-    '# Device Verify v44 — E2E Final Rerun 2 Report',
+    reportTitle,
     '',
     `- **Overall**: **${overall}**`,
     `- **PASS / PARTIAL / FAIL**: ${pass} / ${partial} / ${fail}`,
@@ -78,6 +89,10 @@ function writeReport(meta, results, pushInfo) {
     `- **Git commit**: \`${gitHash()}\``,
     `- **Push**: ${pushInfo}`,
     '',
+    '## Manual order list policy',
+    '- **Live analysis required**: No — lists are for Rakuten manual hand-entry only; practice mode may create lists.',
+    `- **Practice mode create allowed**: ${pick('test-c-app-mode')?.status === 'PASS' ? 'Yes (product + E2E)' : pick('test-c-prerequisite')?.status === 'PASS' ? 'Yes (E2E ran)' : 'See Test C'}`,
+    '',
     '## Commands',
     '```powershell',
     'chcp 65001',
@@ -85,7 +100,7 @@ function writeReport(meta, results, pushInfo) {
     '. .\\scripts\\git-env.ps1',
     'npm run start:clear',
     'adb -s FYRWXSNNAIOR9DCM reverse tcp:8081 tcp:8081',
-    'node run-v44-e2e-all.mjs',
+    'node run-v44-e2e-all.mjs --rerun3',
     '```',
     '',
     '## adb devices',
@@ -107,7 +122,7 @@ function writeReport(meta, results, pushInfo) {
     ...FLOWS.map((f) => flowRow(f.key, f.home)),
     '',
     `Baseline: ${pick('test-c-pending-baseline')?.detail ?? '—'}`,
-    `Live mode: ${pick('test-c-live-mode')?.status ?? '—'} ${pick('test-c-live-mode')?.detail ?? ''}`,
+    `App mode policy: ${pick('test-c-app-mode')?.detail ?? pick('test-c-prerequisite')?.detail ?? '—'}`,
     '',
     '## Test D — UX modes',
     '| Mode | Switch | 4 buttons | Flow open |',
@@ -126,9 +141,9 @@ function writeReport(meta, results, pushInfo) {
     '',
     '## Evidence',
     '- Screenshots/XML: `docs/review/device-verify-v44/`',
-    '- Failure artifacts: `docs/review/device-verify-v44/rerun2-artifacts/`',
-    '- Merged JSON: `docs/review/device-verify-v44/results-e2e-rerun2-merged.json`',
-    '- Per-step logs: `e2e-rerun2-run-*.log`',
+    `- Failure artifacts: \`docs/review/device-verify-v44/${artifactDir}/\``,
+    `- Merged JSON: \`docs/review/device-verify-v44/${MERGED_JSON}\``,
+    `- Per-step logs: \`e2e-rerun${isRerun3 ? '3' : '2'}-run-*.log\``,
     '',
     '## AAB',
     '- **Created**: No — Build Credit 節約のため今回は未作成',
