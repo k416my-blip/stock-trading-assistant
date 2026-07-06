@@ -1,11 +1,11 @@
 ﻿# Device Verify v44 - E2E Final Rerun 5 Report
 
 - **Overall**: **PARTIAL**
-- **PASS / PARTIAL / FAIL**: 4 / 0 / 3
+- **PASS / PARTIAL / FAIL**: 6 / 0 / 1
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
 - **Timestamp**: 2026-07-06T22:55:38.160Z
-- **Git commit**: `e1ebd4f0ff954cf856e838ce6181a19a671c1449`
+- **Git commit**: `2bbc12e0a40c25ab937f3b2d5d7fbe8a83965969`
 - **Push**: not attempted
 
 ## ADB preflight
@@ -45,8 +45,8 @@ FYRWXSNNAIOR9DCM	device
 ## Language / onboarding / home
 | Check | Status | Detail |
 |-------|--------|--------|
-| test-a-language-ja | FAIL | language-ja not found and Japanese UI not detected |
-| test-a-onboarding-dismiss | FAIL | home not ready |
+| test-a-language-ja | PASS | 日本語 already active (picker skipped) |
+| test-a-onboarding-dismiss | PASS | home reachable |
 | test-b-four-buttons | PASS | 4/4 |
 | test-b-home-stability | PASS | 20s home stable |
 
@@ -105,6 +105,4 @@ git push origin cursor/top3-maxdd-capital-audit
 ```
 
 ## Remaining failures
-- **test-a-language-ja** (FAIL): language-ja not found and Japanese UI not detected
-- **test-a-onboarding-dismiss** (FAIL): home not ready
 - **test-c-prerequisite** (FAIL): home 4 buttons not ready
