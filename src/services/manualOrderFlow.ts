@@ -129,6 +129,15 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     if (depositMYR <= 0) return { ok: false, error: '投資金額を入力してください。' };
     const plan = buildPlanOrError(defaultPlanInput(depositMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled));
     if ('error' in plan) return { ok: false, error: plan.error };
+    const planInput = defaultPlanInput(depositMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled);
+    void import('./allocationPlan').then(({ persistAllocationPlanQualityAudit }) => {
+      void persistAllocationPlanQualityAudit(plan, planInput, {
+        priceApi: 'ok',
+        newsApi: 'skipped',
+        openAi: 'skipped',
+        network: 'online',
+      });
+    });
     const safe = candidatesToManualBuyItemsSafe(plan.candidates);
     if (!safe.ok) return { ok: false, error: safe.error };
     if (safe.items.length === 0) return { ok: false, error: 'この金額では購入できる銘柄がありません。' };

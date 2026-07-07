@@ -1,0 +1,54 @@
+{
+  "startedAt": "2026-07-07T04:21:45.428Z",
+  "flow": "concierge_full",
+  "depositMYR": 5000,
+  "overall": "FAIL",
+  "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-07T04:21:46.560Z"
+  },
+  "memoryGate": {
+    "ok": true,
+    "reason": null,
+    "snapshot": {}
+  },
+  "metroOk": true,
+  "pendingBefore": 19,
+  "pendingAfter": 27,
+  "alertProbe": "view-list",
+  "rm5000Reflected": true,
+  "disclaimerVisible": true,
+  "reasonRiskOnScreen": "PARTIAL",
+  "createdItems": [
+    {
+      "symbol": "4707",
+      "name": "Nestlé (Malaysia) Berhad",
+      "shares": 5,
+      "side": "buy",
+      "market": "bursa",
+      "source": "ui"
+    },
+    {
+      "symbol": "1295",
+      "name": "Public Bank Berhad",
+      "shares": 142,
+      "side": "buy",
+      "market": "bursa",
+      "source": "ui"
+    }
+  ],
+  "auditEntry": null,
+  "evidence": [
+    "docs\\review\\rm5000-device-smoke\\list-after-create.png"
+  ],
+  "failures": [
+    "too-few-items-2",
+    "quality audit log missing"
+  ],
+  "totalAllocationMYR": null,
+  "finishedAt": "2026-07-07T04:26:49.874Z"
+}

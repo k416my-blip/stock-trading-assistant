@@ -38,6 +38,17 @@ export async function appendInvestmentQualityAudit(
     STORAGE_KEYS.investmentQualityAuditLog,
     JSON.stringify({ entries, updatedAt: new Date().toISOString() }),
   );
+  console.warn(
+    '[QUALITY-AUDIT]',
+    JSON.stringify({
+      investableMYR: full.investableMYR,
+      selectedCount: full.selected.length,
+      estimatedTotalMYR: full.estimatedTotalMYR,
+      cashRemainderMYR: full.cashRemainderMYR,
+      manualOrderCreatable: full.manualOrderCreatable,
+      apiStatus: full.apiStatus,
+    }),
+  );
   return full;
 }
 
