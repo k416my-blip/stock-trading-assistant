@@ -27,6 +27,7 @@ import {
   readPendingInline,
   readPendingCountMandatory,
   readPendingAllProbesAsync,
+  readPendingFromStorage,
   readPendingFromAppState,
   readManualOrderListTotalFromAppState,
   evaluatePendingAfterCreate,
@@ -142,7 +143,7 @@ async function main() {
       await returnToHome(ctx);
       continue;
     }
-    await sleep(flow.key === 'concierge_full' ? 12000 : 8000);
+    await sleep(15000);
     const alertResult = await dismissPostCreateAlert(ctx, tag);
     if (!alertResult.ok) {
       const errDetail = alertResult.body ? `title=${alertResult.title} body=${alertResult.body}` : alertResult.reason;
@@ -153,7 +154,14 @@ async function main() {
     }
     record(`test-c-create-alert-${flow.key}`, 'PASS', `alert=${alertResult.reason}`, []);
 
-    await openManualOrderList(ctx, `${tag}-list-nav`);
+    if (alertResult.reason === 'no-alert') {
+      await returnToHome(ctx);
+    }
+    let listOpened = await openManualOrderList(ctx, `${tag}-list-nav`);
+    if (!listOpened) {
+      await returnToHome(ctx);
+      listOpened = await openManualOrderList(ctx, `${tag}-list-nav-retry`);
+    }
     let afterProbe = await readPendingAllProbesAsync(ctx, `${tag}-list`, { openListFirst: false });
     if (afterProbe.count == null) {
       const mandatoryAfter = await readPendingCountMandatory(ctx, `${tag}-list-m`);
@@ -165,7 +173,7 @@ async function main() {
       };
     }
     shot(`${tag}-list`);
-    const evalResult = evaluatePendingAfterCreate(before, afterProbe);
+    const evalResult = evaluatePendingAfterCreate(before, afterProbe, alertResult);
     record(`test-c-pending-after-${flow.key}`, evalResult.pass ? 'PASS' : 'FAIL', evalResult.detail, [`${tag}-list.png`]);
     if (evalResult.pass) {
       record(`test-c-e2e-${flow.key}`, 'PASS', evalResult.detail, [`${tag}-list.png`]);
