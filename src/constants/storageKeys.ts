@@ -82,6 +82,7 @@ export const STORAGE_KEYS = {
   runtimeTelemetry: '@sta/runtime_telemetry_v1',
   forwardValidation: '@sta/forward_validation_v1',
   recommendationAuditLog: '@sta/recommendation_audit_log_v1',
+  investmentQualityAuditLog: '@sta/investment_recommendation_quality_audit_v1',
   committeeNarrativeCache: '@sta/committee_narrative_cache_v1',
   committeeRedTeamCache: '@sta/committee_red_team_cache_v1',
   trustPlanPreview: '@sta/trust_plan_preview_v1',

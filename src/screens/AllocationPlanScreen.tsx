@@ -59,7 +59,7 @@ import {
   resolveSymbolsForAllocation,
   userSymbolsToAllocationUniverse,
 } from '../services/userAnalysisSymbols';
-import { buildAllocationPlan, persistAllocationPlanAudit, persistAllocationPlanEnrichmentAudit } from '../services/allocationPlan';
+import { buildAllocationPlan, persistAllocationPlanAudit, persistAllocationPlanEnrichmentAudit, persistAllocationPlanQualityAudit } from '../services/allocationPlan';
 import { adjustAllocationPlanToLiveCash } from '../services/allocationPlanFees';
 import { getStocksByMarket } from '../data/sampleStocks';
 import { resolveLatestInvestableDepositMYR } from '../services/resolveLatestInvestableDepositMYR';
@@ -235,6 +235,15 @@ export function AllocationPlanScreen() {
       }
       setPlan(result);
       void dispatchAlert(buildAllocationPlanAlert(result));
+      void persistAllocationPlanQualityAudit(result, {
+        depositMYR,
+        market: effectiveMarket,
+        riskLevel: getPlanRiskLevel(style),
+        investmentStyle: style,
+        fractionalSharesEnabled: fractionalShares,
+        userUniverse: allocationUniverse,
+        conciergeEvidence,
+      });
       if (proMode) {
         void persistAllocationPlanAudit(result);
       }

@@ -424,6 +424,7 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
   logCommitteeJudgmentCounts(judgmentCounts);
 
   let adoptable = filterAdoptableCandidates(allCandidates);
+  const targetAdoptCount = Math.min(resolveFallbackPickCount(count), count);
 
   if (adoptable.length === 0 && allCandidates.length > 0) {
     const pickCount = resolveFallbackPickCount(count);
@@ -431,6 +432,19 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
     adoptable = fallbackPicks.map(promoteCandidateForTrustFallback);
     logCommitteeJudgmentCounts(judgmentCounts, {
       fallback: true,
+      fallbackPicked: adoptable.length,
+      symbols: adoptable.map((c) => c.symbol),
+    });
+  } else if (adoptable.length < targetAdoptCount && allCandidates.length > adoptable.length) {
+    const existing = new Set(adoptable.map((c) => c.symbol));
+    const supplemental = selectWatchFallbackCandidates(allCandidates, targetAdoptCount)
+      .filter((c) => !existing.has(c.symbol))
+      .slice(0, targetAdoptCount - adoptable.length)
+      .map(promoteCandidateForTrustFallback);
+    adoptable = [...adoptable, ...supplemental];
+    logCommitteeJudgmentCounts(judgmentCounts, {
+      fallback: true,
+      supplemented: supplemental.length,
       fallbackPicked: adoptable.length,
       symbols: adoptable.map((c) => c.symbol),
     });
@@ -502,6 +516,22 @@ export function buildAllocationPlan(input: AllocationPlanInput): AllocationPlan 
       ? '株価が高い銘柄（例：米国メガキャップ）は、1株単位では配分上限内に収まらないため候補から外しました。ETF・低価格株・バルサ銘柄を優先しています。'
       : undefined,
   };
+}
+
+/** 投資提案品質監査（RM5,000配分・API失敗・手動注文可否） */
+export async function persistAllocationPlanQualityAudit(
+  plan: AllocationPlan,
+  input: AllocationPlanInput,
+  apiStatus?: Partial<{
+    priceApi: 'ok' | 'failed' | 'partial';
+    newsApi: 'ok' | 'failed' | 'skipped';
+    openAi: 'ok' | 'failed' | 'skipped';
+    network: 'online' | 'offline';
+  }>,
+): Promise<void> {
+  const { buildAllocationPlanQualitySnapshot } = await import('./investmentRecommendationQuality');
+  const { appendInvestmentQualityAudit } = await import('./investmentRecommendationQualityAudit');
+  await appendInvestmentQualityAudit(buildAllocationPlanQualitySnapshot(plan, input, apiStatus));
 }
 
 /** 投資憲章審議結果を監査ログに保存 */

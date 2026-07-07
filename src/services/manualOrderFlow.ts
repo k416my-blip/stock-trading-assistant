@@ -2,10 +2,10 @@ import { findStock, getStocksByMarket } from '../data/sampleStocks';
 import { buildAllocationPlan } from './allocationPlan';
 import {
   buyableShares,
-  candidatesToManualBuyItems,
   filterBuyableCandidates,
   MANUAL_ORDER_METHOD,
 } from './allocationActions';
+import { candidatesToManualBuyItemsSafe } from './investmentRecommendationQuality';
 import { toMYR } from './fx';
 import type {
   AllocationPlan,
@@ -42,7 +42,7 @@ function defaultPlanInput(
   depositMYR: number,
   market: Market,
   investmentStyle: InvestmentStyle = 'balanced',
-  riskLevel: RiskLevel = 'medium',
+  riskLevel: RiskLevel = 'standard',
   fractionalSharesEnabled = false,
 ) {
   return {
@@ -129,9 +129,10 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     if (depositMYR <= 0) return { ok: false, error: '投資金額を入力してください。' };
     const plan = buildPlanOrError(defaultPlanInput(depositMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled));
     if ('error' in plan) return { ok: false, error: plan.error };
-    const items = candidatesToManualBuyItems(plan.candidates);
-    if (items.length === 0) return { ok: false, error: 'この金額では購入できる銘柄がありません。' };
-    return { ok: true, items };
+    const safe = candidatesToManualBuyItemsSafe(plan.candidates);
+    if (!safe.ok) return { ok: false, error: safe.error };
+    if (safe.items.length === 0) return { ok: false, error: 'この金額では購入できる銘柄がありません。' };
+    return { ok: true, items: safe.items };
   }
 
   if (mode === 'manual_full') {
@@ -156,6 +157,9 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     if ('error' in plan) return { ok: false, error: plan.error };
     const candidate = topBuyableCandidate(plan);
     if (!candidate) return { ok: false, error: 'コンシェルジュが選定できる銘柄がありません。' };
+    if (!(candidate.entryPrice > 0)) {
+      return { ok: false, error: '価格取得に失敗しました。銘柄を再取得するか、別の銘柄を選んでください。' };
+    }
     const resolvedShares = hasShares
       ? shares
       : buyableShares({ ...candidate, allocationMYR: depositMYR });

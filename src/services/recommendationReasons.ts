@@ -61,3 +61,48 @@ export function buildBeginnerNote(stock: StockFundamentals, style: InvestmentSty
   }
   return `${stock.name}は安定寄りの候補です。他の購入候補と組み合わせると分散になります。`;
 }
+
+export type BeginnerRecommendationQuality = {
+  whySelected: string;
+  beginnerBenefit: string;
+  mainRisk: string;
+  expectedReturnView: string;
+  whenToReview: string;
+  whenNotToBuy: string;
+};
+
+/** Structured beginner-facing rationale (no guaranteed-return language). */
+export function buildBeginnerRecommendationQuality(candidate: {
+  symbol: string;
+  name: string;
+  category: string;
+  selectionReason: string;
+  beginnerNote: string;
+  dividendYield?: number;
+}): BeginnerRecommendationQuality {
+  const whySelected = candidate.selectionReason || `${candidate.name}（${candidate.symbol}）を分散枠として選定`;
+  const beginnerBenefit =
+    candidate.beginnerNote ||
+    '複数銘柄に分けることで、1社だけに依存しない参考プランになります。';
+  const mainRisk =
+    candidate.category === 'growth'
+      ? '成長株は値下がりリスクがあり、元本割れの可能性があります。'
+      : candidate.category === 'etf'
+        ? 'ETFも市場全体の下落時には値下がりします。'
+        : '個別株は業績・金利・為替などで価格が変動します。';
+  const expectedReturnView =
+    candidate.dividendYield && candidate.dividendYield > 0
+      ? `配当利回り${candidate.dividendYield.toFixed(1)}%前後を参考に、長期の配当・値上がりを見込む考え方（保証ではありません）。`
+      : '短期の値上がりを狙うのではなく、中長期の分散保有を想定した候補です（結果を約束するものではありません）。';
+  const whenToReview = '四半期決算、配当発表、大きな値動きがあったとき、または入金額・目的が変わったとき';
+  const whenNotToBuy =
+    '急ぎの短期利益が目的のとき、同業種に既に偏っているとき、価格・数量をRakuten Tradeで確認できないとき';
+  return {
+    whySelected,
+    beginnerBenefit,
+    mainRisk,
+    expectedReturnView,
+    whenToReview,
+    whenNotToBuy,
+  };
+}
