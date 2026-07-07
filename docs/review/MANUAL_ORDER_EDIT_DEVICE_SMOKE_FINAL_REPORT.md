@@ -1,6 +1,6 @@
 # MANUAL_ORDER_EDIT_DEVICE_SMOKE_FINAL_REPORT
 
-Generated: 2026-07-07T22:03:08.492Z
+Generated: 2026-07-07T22:45:03.832Z
 
 ## Overall
 
@@ -62,8 +62,8 @@ Generated: 2026-07-07T22:03:08.492Z
 
 ## Git / build
 
-- **Commit**: `f7c534b5fedae75e70f4b249fc9deda3523ae737`
-- **Push**: 成功（リモートと同期）
+- **Commit**: `a54daddcd94b3d0db0a727a049e8dd5e410ef1b1`
+- **Push**: 未確認
 - **AAB**: 未作成 — Build Credit 節約のため
 
 ## Notes
