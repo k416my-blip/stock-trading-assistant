@@ -32,6 +32,7 @@ export const DEVICE_VERIFY_TEST_IDS = {
   manualOrderEditSave: 'manual-order-edit-save',
   manualOrderEditCancel: 'manual-order-edit-cancel',
   manualOrderEditShares: 'manual-order-edit-shares',
+  manualOrderEditMemo: 'manual-order-edit-memo',
   manualOrderConfirmDialog: 'manual-order-confirm-dialog',
   manualOrderConfirmTitle: 'manual-order-confirm-title',
   manualOrderConfirmBody: 'manual-order-confirm-body',

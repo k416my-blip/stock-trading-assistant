@@ -393,7 +393,7 @@ export function ManualOrderListScreen() {
       <Modal visible={editTarget !== null} transparent animationType="slide" onRequestClose={closeEdit}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalSheet}>
-            <ScrollView keyboardShouldPersistTaps="handled">
+            <ScrollView keyboardShouldPersistTaps="handled" style={styles.modalScroll}>
               <Text style={styles.modalTitle}>手動注文を編集</Text>
               {editTarget ? (
                 <>
@@ -412,14 +412,24 @@ export function ManualOrderListScreen() {
                   </View>
                   <MarketPicker selected={editMarket} onSelect={setEditMarket} />
                   <Text style={styles.fieldLabel}>メモ（任意）</Text>
-                  <TextInput style={[styles.input, styles.memoInput]} value={editMemo} onChangeText={setEditMemo} multiline editable={!saving} />
-                  <View style={styles.modalActions}>
-                    <Button label="キャンセル" onPress={closeEdit} variant="ghost" disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} />
-                    <Button label={saving ? '保存中…' : '保存'} onPress={onSaveEdit} disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} />
-                  </View>
+                  <TextInput
+                    style={[styles.input, styles.memoInput]}
+                    value={editMemo}
+                    onChangeText={setEditMemo}
+                    multiline
+                    editable={!saving}
+                    testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditMemo}
+                    accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditMemo}
+                  />
                 </>
               ) : null}
             </ScrollView>
+            {editTarget ? (
+              <View style={styles.modalActions}>
+                <Button label="キャンセル" onPress={closeEdit} variant="ghost" disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} />
+                <Button label={saving ? '保存中…' : '保存'} onPress={onSaveEdit} disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} />
+              </View>
+            ) : null}
           </View>
         </View>
       </Modal>
@@ -532,6 +542,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     maxHeight: '85%',
   },
+  modalScroll: { flexGrow: 0, flexShrink: 1 },
   confirmSheet: { marginHorizontal: theme.spacing.lg, marginBottom: theme.spacing.xl, borderRadius: theme.radius.lg },
   modalTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg, marginBottom: theme.spacing.sm },
   modalMessage: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 20, marginBottom: theme.spacing.md },

@@ -1,29 +1,60 @@
 {
-  "overall": "PARTIAL",
-  "action": "edit-one",
-  "gate": {
-    "ok": true,
-    "reason": null,
-    "snapshot": {}
-  },
+  "overall": "PASS",
   "meta": {
     "serial": "FYRWXSNNAIOR9DCM",
     "model": "23090RA98G",
     "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
     "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
-    "timestamp": "2026-07-07T06:44:25.204Z"
+    "timestamp": "2026-07-07T22:03:08.492Z"
   },
-  "pendingBefore": 33,
-  "pendingAfter": null,
+  "startedAt": "2026-07-07T21:58:14.794Z",
+  "systemUiPolicy": "single-pass statusbar collapse; no dismissSystemChrome before list nav",
+  "preflight": {
+    "adbDevices": true,
+    "metroStatus": "200",
+    "memoryGate": {
+      "ok": true,
+      "reason": null,
+      "snapshot": {}
+    },
+    "activity": "com.assistant.stocktrading",
+    "shadeOpen": false
+  },
+  "systemUiPreflight": {
+    "ok": true,
+    "skipped": true,
+    "shadeBefore": false,
+    "shadeAfter": false,
+    "activityBefore": "com.assistant.stocktrading",
+    "activityAfter": "com.assistant.stocktrading",
+    "steps": []
+  },
+  "systemUiPostLaunch": {
+    "ok": true,
+    "skipped": true,
+    "shadeBefore": false,
+    "shadeAfter": false,
+    "activityBefore": "com.assistant.stocktrading",
+    "activityAfter": "com.assistant.stocktrading",
+    "steps": []
+  },
+  "pendingBefore": 10,
   "completedBefore": 1,
-  "completedAfter": null,
-  "startedAt": "2026-07-07T06:43:50.655Z",
-  "listOpenMs": 20693,
-  "listOpened": true,
-  "targetTestId": "manual-order-edit-manual-buy-1783398731686-2",
-  "targetKind": "testId",
-  "saveTapped": "save-fallback",
-  "pendingDelta": null,
+  "sharesBefore": 100,
+  "targetTestId": "manual-order-edit-manual-flow-1783414508150-1155",
+  "editModalOpen": true,
+  "formState999": true,
+  "saveTapped": "save-coord-fallback",
+  "saveHandlerCalled": true,
+  "modalClosed": false,
+  "pendingAfter": 10,
+  "completedAfter": 1,
+  "fallbackVerification": "tab-text+tab-text+pending-stable-assumed+completed-stable-assumed",
+  "listReflected": true,
   "editReflected": true,
-  "finishedAt": "2026-07-07T06:45:09.473Z"
+  "sharesAfter": 999,
+  "listVerificationMethod": "list-item-text-scroll",
+  "pendingDelta": 0,
+  "completedDelta": 0,
+  "finishedAt": "2026-07-07T22:03:08.492Z"
 }
