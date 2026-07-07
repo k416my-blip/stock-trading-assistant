@@ -3,6 +3,7 @@
  * 推奨配分・評価額は matched のみ。約定後予想は projected として別計算。
  */
 import type { AppState, ManualOrderItem, PortfolioPosition } from '../types';
+import { isManualOrderPending } from './manualOrderListManagement';
 import { isMalaysiaMarket } from '../utils/normalizeBursaSymbol';
 import { safePrice, safeShares } from '../utils/safeNumeric';
 import { getActivePortfolio } from './portfolioPriceUpdate';
@@ -64,7 +65,7 @@ export function getMatchedMalaysiaPositions(portfolio: PortfolioPosition[]): Por
 
 export function getPendingMalaysiaOrders(manualOrderList: ManualOrderItem[]): ManualOrderItem[] {
   return manualOrderList.filter(
-    (o) => isMalaysiaMarket(o.market) && !o.completed,
+    (o) => isMalaysiaMarket(o.market) && isManualOrderPending(o),
   );
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -11,39 +11,112 @@ import {
 } from 'react-native';
 import { CURRENCY_SYMBOL, MARKET_LABEL } from '../constants/rakutenTrade';
 import { MANUAL_HOLDING_SUCCESS_JA } from '../constants/holdingErrors';
-import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
+import { MarketPicker } from '../components/MarketPicker';
 import {
-  buildPendingManualOrderProbe,
+  buildManualOrderListProbes,
   writePendingManualOrderProbe,
 } from '../services/manualOrderVerification';
+import {
+  DELETE_ALL_BODY,
+  DELETE_ALL_TITLE,
+  DELETE_ONE_BODY,
+  DELETE_ONE_TITLE,
+  isManualOrderCompleted,
+  isManualOrderPending,
+  MANUAL_ORDER_LIST_SAFETY_JA,
+  MARK_COMPLETE_BODY,
+  MARK_COMPLETE_TITLE,
+} from '../services/manualOrderListManagement';
 import { DEVICE_VERIFY_TEST_IDS } from '../constants/deviceVerifyTestIds';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { useApp } from '../context/AppContext';
-import type { ManualOrderItem } from '../types';
+import type { ManualOrderItem, Market } from '../types';
 import { theme } from '../theme';
+
+type ListTab = 'pending' | 'completed';
 
 export function ManualOrderListScreen() {
   const {
     state,
     confirmManualOrderAsExecuted,
-    updateManualOrderEntryPrice,
     clearCompletedManualOrders,
     removePendingManualOrder,
     clearPendingManualOrders,
+    updateManualOrder,
+    markManualOrderCompleted,
     readOnlyBlockedMessage,
   } = useApp();
-  const pending = state.manualOrderList.filter((i) => !i.completed);
-  const done = state.manualOrderList.filter((i) => i.completed);
 
+  const pending = useMemo(
+    () => state.manualOrderList.filter(isManualOrderPending),
+    [state.manualOrderList],
+  );
+  const done = useMemo(
+    () => state.manualOrderList.filter(isManualOrderCompleted),
+    [state.manualOrderList],
+  );
+
+  const [tab, setTab] = useState<ListTab>('pending');
   const [selected, setSelected] = useState<ManualOrderItem | null>(null);
   const [editTarget, setEditTarget] = useState<ManualOrderItem | null>(null);
+  const [editSymbol, setEditSymbol] = useState('');
+  const [editName, setEditName] = useState('');
+  const [editShares, setEditShares] = useState('');
+  const [editSide, setEditSide] = useState<'buy' | 'sell'>('buy');
+  const [editMarket, setEditMarket] = useState<Market>('bursa');
+  const [editMemo, setEditMemo] = useState('');
   const [editEntryPrice, setEditEntryPrice] = useState('');
   const [shares, setShares] = useState('');
   const [executedPrice, setExecutedPrice] = useState('');
   const [memo, setMemo] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const probes = buildManualOrderListProbes(state.manualOrderList);
+
+  useEffect(() => {
+    void writePendingManualOrderProbe(state.manualOrderList);
+  }, [state.manualOrderList]);
+
+  const openEdit = (item: ManualOrderItem) => {
+    setEditTarget(item);
+    setEditSymbol(item.symbol);
+    setEditName(item.name);
+    setEditShares(String(item.estimatedShares));
+    setEditSide(item.side);
+    setEditMarket(item.market);
+    setEditMemo(item.memo ?? '');
+    setEditEntryPrice(String(item.entryPrice));
+  };
+
+  const closeEdit = () => {
+    if (saving) return;
+    setEditTarget(null);
+  };
+
+  const onSaveEdit = () => {
+    if (!editTarget) return;
+    setSaving(true);
+    try {
+      const result = updateManualOrder(editTarget.id, {
+        symbol: editSymbol,
+        name: editName,
+        estimatedShares: Number(editShares) || 0,
+        side: editSide,
+        market: editMarket,
+        memo: editMemo,
+        entryPrice: Number(editEntryPrice) || editTarget.entryPrice,
+      });
+      if (!result.ok) {
+        Alert.alert('保存できません', result.error ?? '不明なエラー');
+        return;
+      }
+      setEditTarget(null);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const openConfirm = (item: ManualOrderItem) => {
     setSelected(item);
@@ -52,48 +125,18 @@ export function ManualOrderListScreen() {
     setMemo('');
   };
 
-  const openEditEntry = (item: ManualOrderItem) => {
-    setEditTarget(item);
-    setEditEntryPrice(String(item.entryPrice));
-  };
-
   const closeConfirm = () => {
     if (saving) return;
     setSelected(null);
   };
 
-  const closeEditEntry = () => {
-    if (saving) return;
-    setEditTarget(null);
-  };
-
-  const onSaveEntryPrice = () => {
-    if (!editTarget) return;
-    const priceNum = Number(editEntryPrice) || 0;
-    setSaving(true);
-    try {
-      const result = updateManualOrderEntryPrice(editTarget.id, priceNum);
-      if (!result.ok) {
-        Alert.alert('保存できません', result.error ?? '不明なエラー');
-        return;
-      }
-      Alert.alert('保存しました', 'Rakuten指値を登録しました。');
-      setEditTarget(null);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const onConfirmSave = async () => {
     if (!selected) return;
-    const shareNum = Number(shares) || 0;
-    const priceNum = Number(executedPrice) || 0;
-
     setSaving(true);
     try {
       const result = await confirmManualOrderAsExecuted(selected.id, {
-        shares: shareNum,
-        executedPrice: priceNum,
+        shares: Number(shares) || 0,
+        executedPrice: Number(executedPrice) || 0,
         memo: memo.trim() || undefined,
       });
       if (!result.ok) {
@@ -113,16 +156,14 @@ export function ManualOrderListScreen() {
         Alert.alert('操作できません', readOnlyBlockedMessage);
         return;
       }
-      Alert.alert('この手動注文を削除しますか？', '削除すると元に戻せません。', [
+      Alert.alert(DELETE_ONE_TITLE, DELETE_ONE_BODY, [
         { text: 'キャンセル', style: 'cancel' },
         {
           text: '削除',
           style: 'destructive',
           onPress: () => {
             const result = removePendingManualOrder(item.id);
-            if (!result.ok) {
-              Alert.alert('削除できません', result.error ?? '不明なエラー');
-            }
+            if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
           },
         },
       ]);
@@ -136,20 +177,38 @@ export function ManualOrderListScreen() {
       return;
     }
     if (pending.length === 0) return;
-    Alert.alert('未完了の手動注文をすべて削除しますか？', '削除すると元に戻せません。', [
+    Alert.alert(DELETE_ALL_TITLE, DELETE_ALL_BODY, [
       { text: 'キャンセル', style: 'cancel' },
       {
         text: 'すべて削除',
         style: 'destructive',
         onPress: () => {
           const result = clearPendingManualOrders();
-          if (!result.ok) {
-            Alert.alert('削除できません', result.error ?? '不明なエラー');
-          }
+          if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
         },
       },
     ]);
   }, [clearPendingManualOrders, pending.length, readOnlyBlockedMessage]);
+
+  const onMarkComplete = useCallback(
+    (item: ManualOrderItem) => {
+      if (readOnlyBlockedMessage) {
+        Alert.alert('操作できません', readOnlyBlockedMessage);
+        return;
+      }
+      Alert.alert(MARK_COMPLETE_TITLE, MARK_COMPLETE_BODY, [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: '実行済みにする',
+          onPress: () => {
+            const result = markManualOrderCompleted(item.id);
+            if (!result.ok) Alert.alert('更新できません', result.error ?? '不明なエラー');
+          },
+        },
+      ]);
+    },
+    [markManualOrderCompleted, readOnlyBlockedMessage],
+  );
 
   const onClearCompleted = useCallback(() => {
     if (readOnlyBlockedMessage) {
@@ -171,153 +230,179 @@ export function ManualOrderListScreen() {
     );
   }, [clearCompletedManualOrders, done.length, readOnlyBlockedMessage]);
 
-  const pendingProbe = buildPendingManualOrderProbe(state.manualOrderList);
+  const renderPendingCard = (item: ManualOrderItem, index: number) => (
+    <View testID={DEVICE_VERIFY_TEST_IDS.manualOrderCard(item.id)}>
+      <Card key={`manual-pending-${item.id}-${index}`}>
+      <Text style={styles.side}>{item.side === 'buy' ? '買い' : '売り'}</Text>
+      <Text style={styles.name}>
+        {item.name}（{item.symbol}）
+      </Text>
+      <Text style={styles.row}>市場: {MARKET_LABEL[item.market]}</Text>
+      <Text style={styles.row}>
+        Rakuten指値: {CURRENCY_SYMBOL[item.currency]}
+        {item.entryPrice.toFixed(2)} · {item.estimatedShares}株
+      </Text>
+      <Text style={styles.row}>注文金額: RM{item.allocationMYR.toLocaleString('ja-JP')}</Text>
+      {item.memo ? <Text style={styles.row}>メモ: {item.memo}</Text> : null}
+      <View style={styles.cardActions}>
+        <Button
+          label="編集"
+          onPress={() => openEdit(item)}
+          variant="ghost"
+          disabled={!!readOnlyBlockedMessage}
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderEdit(item.id)}
+        />
+        <Button
+          label="削除"
+          onPress={() => onDeleteItem(item)}
+          variant="ghost"
+          disabled={!!readOnlyBlockedMessage}
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderDelete(item.id)}
+        />
+        <Button
+          label="実行済みにする"
+          onPress={() => onMarkComplete(item)}
+          variant="ghost"
+          disabled={!!readOnlyBlockedMessage}
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderComplete(item.id)}
+        />
+        {item.side === 'buy' ? (
+          <Button
+            label="Rakuten指値を登録"
+            onPress={() => openEdit(item)}
+            variant="ghost"
+            disabled={!!readOnlyBlockedMessage}
+          />
+        ) : null}
+      </View>
+      <Pressable onPress={() => openConfirm(item)}>
+        <Text style={styles.tap}>約定後: 保有銘柄に反映</Text>
+      </Pressable>
+      </Card>
+    </View>
+  );
 
-  useEffect(() => {
-    void writePendingManualOrderProbe(state.manualOrderList);
-  }, [state.manualOrderList]);
+  const renderDoneCard = (item: ManualOrderItem, index: number) => (
+    <Card key={`manual-done-${item.id}-${index}`} style={styles.doneCard}>
+      <Text style={styles.muted}>
+        ✓ {item.name}（{item.symbol}） · {item.estimatedShares}株
+      </Text>
+      {item.completedAt ? (
+        <Text style={styles.row}>実行済み: {new Date(item.completedAt).toLocaleString('ja-JP')}</Text>
+      ) : null}
+    </Card>
+  );
 
   return (
     <Screen title="手動注文リスト" subtitle="Rakuten Tradeで入力するチェックリスト">
       <View
+        testID={DEVICE_VERIFY_TEST_IDS.manualOrderListScreen}
+        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderListScreen}
+        style={styles.probeHidden}
+      />
+      <View
         testID={DEVICE_VERIFY_TEST_IDS.manualOrderPendingCount}
-        accessibilityLabel={pendingProbe.probeLabel}
+        accessibilityLabel={probes.probeLabel}
         accessible
         importantForAccessibility="yes"
         style={styles.probeHidden}
       />
+      <View
+        testID={DEVICE_VERIFY_TEST_IDS.manualOrderCompletedCount}
+        accessibilityLabel={probes.completedProbeLabel}
+        accessible
+        importantForAccessibility="yes"
+        style={styles.probeHidden}
+      />
+
       <Card>
-        <Text style={styles.warn}>{MANUAL_ORDER_WARNING}</Text>
+        <Text style={styles.safety}>{MANUAL_ORDER_LIST_SAFETY_JA}</Text>
         <Text style={styles.hint}>
-          注文前: 「Rakuten指値を登録」で entryPrice を入力。約定後: 「実行済みとして記録」で保有に反映。
+          注文前: 編集で内容を調整。Rakuten Tradeで入力後「実行済みにする」。約定後は「保有銘柄に反映」。
         </Text>
       </Card>
 
-      {readOnlyBlockedMessage ? (
-        <Text style={styles.warn}>{readOnlyBlockedMessage}</Text>
-      ) : null}
+      {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
 
-      {pending.length === 0 ? (
+      <View style={styles.tabRow}>
+        <Pressable
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderTabPending}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderTabPending}
+          onPress={() => setTab('pending')}
+          style={[styles.tab, tab === 'pending' && styles.tabActive]}
+        >
+          <Text style={styles.tabText}>未完了（{pending.length}）</Text>
+        </Pressable>
+        <Pressable
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderTabCompleted}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderTabCompleted}
+          onPress={() => setTab('completed')}
+          style={[styles.tab, tab === 'completed' && styles.tabActive]}
+        >
+          <Text style={styles.tabText}>実行済み（{done.length}）</Text>
+        </Pressable>
+      </View>
+
+      {tab === 'pending' ? (
+        pending.length === 0 ? (
+          <Card>
+            <Text style={styles.muted}>未完了の注文はありません。</Text>
+          </Card>
+        ) : (
+          <>
+            <View style={styles.sectionRow}>
+              <Text style={styles.section}>未完了（{pending.length}件）</Text>
+              <Button
+                label="未完了をすべて削除"
+                onPress={onClearAllPending}
+                variant="ghost"
+                disabled={!!readOnlyBlockedMessage || pending.length === 0}
+                testID={DEVICE_VERIFY_TEST_IDS.manualOrderBulkDeletePending}
+              />
+            </View>
+            {pending.map(renderPendingCard)}
+          </>
+        )
+      ) : done.length === 0 ? (
         <Card>
-          <Text style={styles.muted}>未完了の注文はありません。</Text>
+          <Text style={styles.muted}>実行済みの注文はありません。</Text>
         </Card>
       ) : (
         <>
-          <View style={styles.sectionRow}>
-            <Text style={styles.section}>未完了（{pending.length}件）</Text>
-            <Button
-              label="未完了をすべて削除"
-              onPress={onClearAllPending}
-              variant="ghost"
-              disabled={!!readOnlyBlockedMessage}
-            />
-          </View>
-          {pending.map((item, index) => (
-            <Card key={`manual-pending-${item.id}-${index}`}>
-              <Text style={styles.side}>{item.side === 'buy' ? '買い' : '売り'}</Text>
-              <Text style={styles.name}>
-                {item.name}（{item.symbol}）
-              </Text>
-              <Text style={styles.row}>市場: {MARKET_LABEL[item.market]}</Text>
-              <Text style={styles.row}>
-                Rakuten指値 (entryPrice): {CURRENCY_SYMBOL[item.currency]}
-                {item.entryPrice.toFixed(2)}
-              </Text>
-              <Text style={styles.row}>
-                注文金額: RM
-                {(item.entryPrice * item.estimatedShares).toLocaleString('ja-JP', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}{' '}
-                （{item.estimatedShares}株）
-              </Text>
-              <Text style={styles.row}>allocationMYR: RM{item.allocationMYR.toLocaleString('ja-JP')}</Text>
-              <Text style={styles.row}>注文方法: {item.orderMethod}</Text>
-              <View style={styles.cardActions}>
-                {item.side === 'buy' ? (
-                  <Button
-                    label="Rakuten指値を登録"
-                    onPress={() => openEditEntry(item)}
-                    variant="ghost"
-                    disabled={!!readOnlyBlockedMessage}
-                  />
-                ) : null}
-                <Button
-                  label="削除"
-                  onPress={() => onDeleteItem(item)}
-                  variant="ghost"
-                  disabled={!!readOnlyBlockedMessage}
-                />
-              </View>
-              <Pressable onPress={() => openConfirm(item)}>
-                <Text style={styles.tap}>タップして実行済みとして記録</Text>
-              </Pressable>
-            </Card>
-          ))}
-        </>
-      )}
-
-      {done.length > 0 ? (
-        <>
-          <Text style={styles.section}>実行済みとして記録済み（{done.length}件）</Text>
-          <Text style={styles.hint}>
-            ここに表示される注文は保有銘柄へ反映済みです。リストから消す場合は下の「完了済みを削除」を使ってください。
-          </Text>
-          {done.map((item, index) => (
-            <Card key={`manual-done-${item.id}-${index}`} style={styles.doneCard}>
-              <Text style={styles.muted}>
-                ✓ {item.name} · {item.estimatedShares}株
-              </Text>
-            </Card>
-          ))}
+          <Text style={styles.section}>実行済み（{done.length}件）</Text>
+          {done.map(renderDoneCard)}
           <Pressable onPress={onClearCompleted}>
             <Text style={styles.clear}>完了済みを削除</Text>
           </Pressable>
         </>
-      ) : null}
+      )}
 
-      <Modal visible={editTarget !== null} transparent animationType="slide" onRequestClose={closeEditEntry}>
+      <Modal visible={editTarget !== null} transparent animationType="slide" onRequestClose={closeEdit}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalSheet}>
             <ScrollView keyboardShouldPersistTaps="handled">
-              <Text style={styles.modalTitle}>Rakuten指値を登録</Text>
-              <Text style={styles.modalMessage}>
-                Rakuten Tradeで入力した指値価格を entryPrice として保存します。注文評価額 = 指値 × 株数
-              </Text>
-
+              <Text style={styles.modalTitle}>手動注文を編集</Text>
               {editTarget ? (
                 <>
-                  <Text style={styles.fieldLabel}>銘柄</Text>
-                  <Text style={styles.fieldValue}>
-                    {editTarget.name}（{editTarget.symbol}） · {editTarget.estimatedShares}株
-                  </Text>
-
-                  <Text style={styles.fieldLabel}>指値 (entryPrice) · MYR</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="decimal-pad"
-                    value={editEntryPrice}
-                    onChangeText={setEditEntryPrice}
-                    editable={!saving}
-                    placeholder="例: 12.15"
-                    placeholderTextColor={theme.colors.textMuted}
-                  />
-
-                  <Text style={styles.fieldLabel}>注文金額（自動）</Text>
-                  <Text style={styles.fieldValue}>
-                    RM
-                    {(
-                      (Number(editEntryPrice) || 0) * editTarget.estimatedShares
-                    ).toLocaleString('ja-JP', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </Text>
-
+                  <Text style={styles.fieldLabel}>銘柄コード</Text>
+                  <TextInput style={styles.input} value={editSymbol} onChangeText={setEditSymbol} autoCapitalize="characters" editable={!saving} />
+                  <Text style={styles.fieldLabel}>銘柄名</Text>
+                  <TextInput style={styles.input} value={editName} onChangeText={setEditName} editable={!saving} />
+                  <Text style={styles.fieldLabel}>数量</Text>
+                  <TextInput style={styles.input} keyboardType="number-pad" value={editShares} onChangeText={setEditShares} editable={!saving} />
+                  <Text style={styles.fieldLabel}>指値 (entryPrice)</Text>
+                  <TextInput style={styles.input} keyboardType="decimal-pad" value={editEntryPrice} onChangeText={setEditEntryPrice} editable={!saving} />
+                  <Text style={styles.fieldLabel}>売買</Text>
+                  <View style={styles.toggleRow}>
+                    <Button label="買い" variant={editSide === 'buy' ? 'primary' : 'ghost'} onPress={() => setEditSide('buy')} />
+                    <Button label="売り" variant={editSide === 'sell' ? 'primary' : 'ghost'} onPress={() => setEditSide('sell')} />
+                  </View>
+                  <MarketPicker selected={editMarket} onSelect={setEditMarket} />
+                  <Text style={styles.fieldLabel}>メモ（任意）</Text>
+                  <TextInput style={[styles.input, styles.memoInput]} value={editMemo} onChangeText={setEditMemo} multiline editable={!saving} />
                   <View style={styles.modalActions}>
-                    <Button label="キャンセル" onPress={closeEditEntry} variant="ghost" disabled={saving} />
-                    <Button
-                      label={saving ? '保存中…' : '指値を保存'}
-                      onPress={onSaveEntryPrice}
-                      disabled={saving}
-                    />
+                    <Button label="キャンセル" onPress={closeEdit} variant="ghost" disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} />
+                    <Button label={saving ? '保存中…' : '保存'} onPress={onSaveEdit} disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} />
                   </View>
                 </>
               ) : null}
@@ -331,56 +416,18 @@ export function ManualOrderListScreen() {
           <View style={styles.modalSheet}>
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={styles.modalTitle}>実行済み注文として記録</Text>
-              <Text style={styles.modalMessage}>
-                Rakuten Tradeで実際に注文を完了した場合のみ、保有銘柄に追加します。
-              </Text>
-
+              <Text style={styles.modalMessage}>Rakuten Tradeで実際に約定した場合のみ、保有銘柄に追加します。</Text>
               {selected ? (
                 <>
-                  <Text style={styles.fieldLabel}>銘柄</Text>
-                  <Text style={styles.fieldValue}>
-                    {selected.name}（{selected.symbol}） · {MARKET_LABEL[selected.market]}
-                  </Text>
-
                   <Text style={styles.fieldLabel}>数量</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="number-pad"
-                    value={shares}
-                    onChangeText={setShares}
-                    editable={!saving}
-                  />
-
+                  <TextInput style={styles.input} keyboardType="number-pad" value={shares} onChangeText={setShares} editable={!saving} />
                   <Text style={styles.fieldLabel}>約定価格</Text>
-                  <TextInput
-                    style={styles.input}
-                    keyboardType="decimal-pad"
-                    value={executedPrice}
-                    onChangeText={setExecutedPrice}
-                    editable={!saving}
-                  />
-
-                  <Text style={styles.fieldLabel}>通貨</Text>
-                  <Text style={styles.fieldValue}>{selected.currency}</Text>
-
+                  <TextInput style={styles.input} keyboardType="decimal-pad" value={executedPrice} onChangeText={setExecutedPrice} editable={!saving} />
                   <Text style={styles.fieldLabel}>メモ（任意）</Text>
-                  <TextInput
-                    style={[styles.input, styles.memoInput]}
-                    value={memo}
-                    onChangeText={setMemo}
-                    placeholder="例: Rakuten Tradeで約定"
-                    placeholderTextColor={theme.colors.textMuted}
-                    multiline
-                    editable={!saving}
-                  />
-
+                  <TextInput style={[styles.input, styles.memoInput]} value={memo} onChangeText={setMemo} multiline editable={!saving} />
                   <View style={styles.modalActions}>
                     <Button label="キャンセル" onPress={closeConfirm} variant="ghost" disabled={saving} />
-                    <Button
-                      label={saving ? '保存中…' : '保有銘柄に追加'}
-                      onPress={() => void onConfirmSave()}
-                      disabled={saving}
-                    />
+                    <Button label={saving ? '保存中…' : '保有銘柄に追加'} onPress={() => void onConfirmSave()} disabled={saving} />
                   </View>
                 </>
               ) : null}
@@ -393,9 +440,20 @@ export function ManualOrderListScreen() {
 }
 
 const styles = StyleSheet.create({
+  safety: { color: theme.colors.warning, fontSize: theme.fontSize.sm, lineHeight: 20, fontWeight: '600' },
   warn: { color: theme.colors.warning, fontSize: theme.fontSize.sm, lineHeight: 20 },
   hint: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 18, marginTop: theme.spacing.xs },
   probeHidden: { width: 1, height: 1, opacity: 0.01 },
+  tabRow: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md },
+  tab: {
+    flex: 1,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surfaceElevated,
+    alignItems: 'center',
+  },
+  tabActive: { backgroundColor: theme.colors.surfaceElevated, borderWidth: 1, borderColor: theme.colors.primary },
+  tabText: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.sm },
   section: { color: theme.colors.text, fontWeight: '600', fontSize: theme.fontSize.md, marginTop: theme.spacing.sm },
   sectionRow: {
     flexDirection: 'row',
@@ -410,13 +468,10 @@ const styles = StyleSheet.create({
   row: { color: theme.colors.text, fontSize: theme.fontSize.sm, marginTop: 4 },
   tap: { color: theme.colors.primary, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm, fontWeight: '600' },
   muted: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm },
-  doneCard: { opacity: 0.7 },
+  doneCard: { opacity: 0.85 },
   clear: { color: theme.colors.primary, textAlign: 'center', marginTop: theme.spacing.md, fontWeight: '600' },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    justifyContent: 'flex-end',
-  },
+  toggleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm, marginVertical: theme.spacing.sm },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
   modalSheet: {
     backgroundColor: theme.colors.surface,
     borderTopLeftRadius: theme.radius.lg,
@@ -427,7 +482,6 @@ const styles = StyleSheet.create({
   modalTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg, marginBottom: theme.spacing.sm },
   modalMessage: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 20, marginBottom: theme.spacing.md },
   fieldLabel: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm },
-  fieldValue: { color: theme.colors.text, fontSize: theme.fontSize.md, fontWeight: '600', marginTop: 4 },
   input: {
     backgroundColor: theme.colors.background,
     borderWidth: 1,

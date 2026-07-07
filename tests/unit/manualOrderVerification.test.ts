@@ -5,6 +5,7 @@ import {
   parsePendingManualOrderProbe,
 } from '@/constants/deviceVerifyTestIds';
 import {
+  buildManualOrderListProbes,
   buildPendingManualOrderProbe,
   countPendingManualOrders,
   parsePendingCountFromAccessibilityLabels,
@@ -50,6 +51,8 @@ describe('manualOrderVerification', () => {
     const list = [order('a'), order('b', true), order('c')];
     expect(countPendingManualOrders(list)).toBe(2);
     expect(buildPendingManualOrderProbe(list).probeLabel).toBe('manual-order-pending-count:2');
+    const probes = buildManualOrderListProbes(list);
+    expect(probes.completedProbeLabel).toBe('manual-order-completed-count:1');
   });
 
   it('parses pending count from accessibility labels', () => {

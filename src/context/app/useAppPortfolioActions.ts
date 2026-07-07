@@ -26,6 +26,13 @@ import {
 } from '../../services/manualOrderConfirmation';
 import { applyManualOrderEntryPriceUpdate } from '../../services/manualOrderEntryPrice';
 import {
+  applyManualOrderEditInState,
+  clearPendingManualOrdersInState,
+  markManualOrderCompletedInState,
+  removePendingManualOrderInState,
+  type ManualOrderEditInput,
+} from '../../services/manualOrderListManagement';
+import {
   applyManualHoldingToState,
   mergePortfolioFromPersistence,
   type ManualHoldingInput,
@@ -458,7 +465,10 @@ export function useAppPortfolioActions({
     }
     setState((prev) => ({
       ...prev,
-      manualOrderList: [...items, ...prev.manualOrderList],
+      manualOrderList: [
+        ...items.map((i) => ({ ...i, status: i.status ?? ('pending' as const) })),
+        ...prev.manualOrderList,
+      ],
     }));
     return { ok: true, addedCount: items.length };
   }, [setState]);
@@ -577,28 +587,17 @@ export function useAppPortfolioActions({
       if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
         return { ok: false, error: '読み取り専用モードでは削除できません' };
       }
-      let found = false;
-      let wasCompleted = false;
+      let error: string | undefined;
       setState((prev) => {
-        const target = prev.manualOrderList.find((i) => i.id === orderId);
-        if (!target) return prev;
-        if (target.completed) {
-          wasCompleted = true;
+        const result = removePendingManualOrderInState(prev, orderId);
+        if (!result.ok) {
+          error = result.error;
           return prev;
         }
-        found = true;
-        const nextList = prev.manualOrderList.filter((i) => i.id !== orderId);
-        const next = { ...prev, manualOrderList: nextList };
-        stateRef.current = next;
-        return next;
+        stateRef.current = result.state;
+        return result.state;
       });
-      if (wasCompleted) {
-        return {
-          ok: false,
-          error: '実行済みとして記録済みの注文は未完了リストから削除できません。',
-        };
-      }
-      if (!found) return { ok: false, error: '候補が見つかりません' };
+      if (error) return { ok: false, error };
       return { ok: true };
     },
     [setState, stateRef],
@@ -613,19 +612,62 @@ export function useAppPortfolioActions({
       return { ok: false, error: '読み取り専用モードでは削除できません' };
     }
     let removedCount = 0;
+    let error: string | undefined;
     setState((prev) => {
-      const pendingIds = prev.manualOrderList.filter((i) => !i.completed);
-      removedCount = pendingIds.length;
-      if (removedCount === 0) return prev;
-      const next = {
-        ...prev,
-        manualOrderList: prev.manualOrderList.filter((i) => i.completed),
-      };
-      stateRef.current = next;
-      return next;
+      const result = clearPendingManualOrdersInState(prev);
+      if (!result.ok) {
+        error = result.error;
+        return prev;
+      }
+      removedCount = result.removedCount;
+      stateRef.current = result.state;
+      return result.state;
     });
+    if (error) return { ok: false, error };
     return { ok: true, removedCount };
   }, [setState, stateRef]);
+
+  const updateManualOrder = useCallback(
+    (orderId: string, input: ManualOrderEditInput): { ok: boolean; error?: string } => {
+      if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
+        return { ok: false, error: '読み取り専用モードでは編集できません' };
+      }
+      let error: string | undefined;
+      setState((prev) => {
+        const result = applyManualOrderEditInState(prev, orderId, input);
+        if (!result.ok) {
+          error = result.error;
+          return prev;
+        }
+        stateRef.current = result.state;
+        return result.state;
+      });
+      if (error) return { ok: false, error };
+      return { ok: true };
+    },
+    [setState, stateRef],
+  );
+
+  const markManualOrderCompleted = useCallback(
+    (orderId: string): { ok: boolean; error?: string } => {
+      if (getPersonalKillSwitchesSnapshot().readOnlyMode) {
+        return { ok: false, error: '読み取り専用モードでは変更できません' };
+      }
+      let error: string | undefined;
+      setState((prev) => {
+        const result = markManualOrderCompletedInState(prev, orderId);
+        if (!result.ok) {
+          error = result.error;
+          return prev;
+        }
+        stateRef.current = result.state;
+        return result.state;
+      });
+      if (error) return { ok: false, error };
+      return { ok: true };
+    },
+    [setState, stateRef],
+  );
 
   const updateManualOrderEntryPrice = useCallback(
     (orderId: string, entryPrice: number, estimatedShares?: number) => {
@@ -942,6 +984,8 @@ export function useAppPortfolioActions({
     clearCompletedManualOrders,
     removePendingManualOrder,
     clearPendingManualOrders,
+    updateManualOrder,
+    markManualOrderCompleted,
     updateManualOrderEntryPrice,
     addScreenerCandidateToManualList,
     updateHoldingCurrentPrice,

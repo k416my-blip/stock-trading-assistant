@@ -1,0 +1,13 @@
+{
+  "overall": "FAIL",
+  "gate": {
+    "ok": true,
+    "reason": null,
+    "snapshot": {}
+  },
+  "meta": null,
+  "pendingBefore": null,
+  "pendingAfter": null,
+  "action": "delete-one",
+  "fail": "list-not-opened"
+}

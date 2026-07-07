@@ -228,6 +228,11 @@ interface AppContextValue {
   clearCompletedManualOrders: () => void;
   removePendingManualOrder: (orderId: string) => { ok: boolean; error?: string };
   clearPendingManualOrders: () => { ok: boolean; error?: string; removedCount?: number };
+  updateManualOrder: (
+    orderId: string,
+    input: import('../services/manualOrderListManagement').ManualOrderEditInput,
+  ) => { ok: boolean; error?: string };
+  markManualOrderCompleted: (orderId: string) => { ok: boolean; error?: string };
   updateManualOrderEntryPrice: (
     orderId: string,
     entryPrice: number,
@@ -508,6 +513,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     clearCompletedManualOrders,
     removePendingManualOrder,
     clearPendingManualOrders,
+    updateManualOrder,
+    markManualOrderCompleted,
     updateManualOrderEntryPrice,
     addScreenerCandidateToManualList,
     updateHoldingCurrentPrice,
@@ -754,6 +761,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       clearCompletedManualOrders,
       removePendingManualOrder,
       clearPendingManualOrders,
+      updateManualOrder,
+      markManualOrderCompleted,
       updateManualOrderEntryPrice,
       updateNotificationSettings,
       dispatchAlert,
@@ -843,6 +852,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       clearCompletedManualOrders,
       removePendingManualOrder,
       clearPendingManualOrders,
+      updateManualOrder,
+      markManualOrderCompleted,
       updateManualOrderEntryPrice,
       updateNotificationSettings,
       dispatchAlert,

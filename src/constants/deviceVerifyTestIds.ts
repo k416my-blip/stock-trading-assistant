@@ -18,6 +18,17 @@ export const DEVICE_VERIFY_TEST_IDS = {
   aiInvestmentMode: (mode: InvestmentDisplayMode) => `ai-investment-mode-${mode}`,
   manualOrderCreate: (mode: ManualOrderFlowMode) => `manual-order-create-${mode}`,
   manualOrderPendingCount: 'manual-order-pending-count',
+  manualOrderCompletedCount: 'manual-order-completed-count',
+  manualOrderListScreen: 'manual-order-list-screen',
+  manualOrderCard: (id: string) => `manual-order-card-${id}`,
+  manualOrderDelete: (id: string) => `manual-order-delete-${id}`,
+  manualOrderEdit: (id: string) => `manual-order-edit-${id}`,
+  manualOrderComplete: (id: string) => `manual-order-complete-${id}`,
+  manualOrderBulkDeletePending: 'manual-order-bulk-delete-pending',
+  manualOrderTabPending: 'manual-order-tab-pending',
+  manualOrderTabCompleted: 'manual-order-tab-completed',
+  manualOrderEditSave: 'manual-order-edit-save',
+  manualOrderEditCancel: 'manual-order-edit-cancel',
   manualOrderInputDeposit: 'manual-order-input-deposit',
   manualOrderInputSymbol: 'manual-order-input-symbol',
   manualOrderInputShares: 'manual-order-input-shares',
@@ -54,9 +65,14 @@ export function formatCreateSuccessProbe(count: number): string {
 }
 
 export const DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX = 'manual-order-pending-count:';
+export const DEVICE_VERIFY_COMPLETED_COUNT_PROBE_PREFIX = 'manual-order-completed-count:';
 
 export function formatPendingManualOrderProbe(count: number): string {
   return `${DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX}${count}`;
+}
+
+export function formatCompletedManualOrderProbe(count: number): string {
+  return `${DEVICE_VERIFY_COMPLETED_COUNT_PROBE_PREFIX}${count}`;
 }
 
 export function parsePendingManualOrderProbe(label: string): number | null {

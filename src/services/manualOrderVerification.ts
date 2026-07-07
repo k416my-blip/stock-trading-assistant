@@ -2,9 +2,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from '../constants/storageKeys';
 import {
   DEVICE_VERIFY_PENDING_COUNT_PROBE_PREFIX,
+  DEVICE_VERIFY_COMPLETED_COUNT_PROBE_PREFIX,
+  formatCompletedManualOrderProbe,
   formatPendingManualOrderProbe,
 } from '../constants/deviceVerifyTestIds';
 import type { ManualOrderItem } from '../types';
+import {
+  countCompletedManualOrdersFromList,
+  countPendingManualOrdersFromList,
+} from './manualOrderListManagement';
 
 export type PendingManualOrderProbe = {
   count: number;
@@ -12,9 +18,24 @@ export type PendingManualOrderProbe = {
   probeLabel: string;
 };
 
+export type CompletedManualOrderProbe = {
+  count: number;
+  updatedAt: string;
+  probeLabel: string;
+};
+
+export type ManualOrderListProbes = PendingManualOrderProbe & {
+  completedCount: number;
+  completedProbeLabel: string;
+};
+
 /** Count incomplete manual orders from app state (not UI strings). */
 export function countPendingManualOrders(manualOrderList: ManualOrderItem[]): number {
-  return manualOrderList.filter((item) => !item.completed).length;
+  return countPendingManualOrdersFromList(manualOrderList);
+}
+
+export function countCompletedManualOrders(manualOrderList: ManualOrderItem[]): number {
+  return countCompletedManualOrdersFromList(manualOrderList);
 }
 
 export function buildPendingManualOrderProbe(
@@ -28,14 +49,41 @@ export function buildPendingManualOrderProbe(
   };
 }
 
+export function buildCompletedManualOrderProbe(
+  manualOrderList: ManualOrderItem[],
+): CompletedManualOrderProbe {
+  const count = countCompletedManualOrders(manualOrderList);
+  return {
+    count,
+    updatedAt: new Date().toISOString(),
+    probeLabel: formatCompletedManualOrderProbe(count),
+  };
+}
+
+export function buildManualOrderListProbes(manualOrderList: ManualOrderItem[]): ManualOrderListProbes {
+  const pending = buildPendingManualOrderProbe(manualOrderList);
+  const completed = buildCompletedManualOrderProbe(manualOrderList);
+  return {
+    ...pending,
+    completedCount: completed.count,
+    completedProbeLabel: completed.probeLabel,
+  };
+}
+
 /** Persist probe for adb / device scripts (debug verification). */
 export async function writePendingManualOrderProbe(
   manualOrderList: ManualOrderItem[],
-): Promise<PendingManualOrderProbe> {
-  const probe = buildPendingManualOrderProbe(manualOrderList);
+): Promise<ManualOrderListProbes> {
+  const probe = buildManualOrderListProbes(manualOrderList);
   await AsyncStorage.setItem(
     STORAGE_KEYS.deviceVerifyPendingManualOrderCount,
-    JSON.stringify(probe),
+    JSON.stringify({
+      count: probe.count,
+      updatedAt: probe.updatedAt,
+      probeLabel: probe.probeLabel,
+      completedCount: probe.completedCount,
+      completedProbeLabel: probe.completedProbeLabel,
+    }),
   );
   return probe;
 }

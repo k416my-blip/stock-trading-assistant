@@ -269,6 +269,19 @@ export interface AllocationPlan {
 }
 
 /** 手動注文チェックリスト（Rakuten Tradeでユーザーが入力） */
+export type ManualOrderStatus = 'pending' | 'completed' | 'deleted';
+
+export type ManualOrderSource =
+  | 'allocation'
+  | 'holding'
+  | 'sell_all'
+  | 'screener'
+  | 'concierge_full'
+  | 'manual_full'
+  | 'concierge_symbol'
+  | 'concierge_quantity'
+  | 'recommendation';
+
 export interface ManualOrderItem {
   id: string;
   symbol: StockSymbol;
@@ -280,9 +293,16 @@ export interface ManualOrderItem {
   estimatedShares: number;
   allocationMYR: number;
   orderMethod: string;
+  /** @deprecated prefer status === 'completed' */
   completed: boolean;
   createdAt: string;
-  source: 'allocation' | 'holding' | 'sell_all' | 'screener';
+  source: ManualOrderSource;
+  status?: ManualOrderStatus;
+  updatedAt?: string;
+  completedAt?: string;
+  memo?: string;
+  auditId?: string;
+  recommendationId?: string;
 }
 
 /** すべて売却の1銘柄分 */
