@@ -168,11 +168,77 @@ export function ensureAppForeground() {
   }
 }
 
+export function isNotificationShadeOpen() {
+  try {
+    const w = adb('dumpsys window displays');
+    if (/mCurrentFocus=Window\{[^}]*NotificationShade/.test(w)) return true;
+    if (/mFocusedApp=NotificationShade/.test(w)) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function dismissNotificationShade(ctx, tag = 'shade') {
+  let retries = 0;
+  for (let i = 0; i < 8; i++) {
+    if (!isNotificationShadeOpen()) {
+      ensureAppForeground();
+      await sleep(400);
+      if (!isNotificationShadeOpen()) return { closed: true, retries };
+    }
+    retries += 1;
+    console.log(`NOTIFICATION-SHADE ${tag} retry=${retries}`);
+    adb('input keyevent 4');
+    await sleep(350);
+    adb('input keyevent 3');
+    await sleep(500);
+    adb('input swipe 540 1200 540 400 220');
+    await sleep(450);
+  }
+  return { closed: !isNotificationShadeOpen(), retries };
+}
+
+export async function ensureHomeFlowStart(ctx, tag) {
+  const parts = [];
+  let shadeRetries = 0;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const shade = await dismissNotificationShade(ctx, `${tag}-shade-${attempt}`);
+    shadeRetries += shade.retries;
+    parts.push(`attempt${attempt}:shade=${shade.closed ? 'closed' : 'open'}`);
+    await dismissSystemChrome(ctx);
+    adb('input keyevent 3');
+    await sleep(500);
+    ensureAppForeground();
+    await tapTab(ctx, 'home');
+    await dismissOnboarding(ctx);
+    const ready = await ensureHomeReady(ctx, `${tag}-home-${attempt}`);
+    parts.push(`home4=${ready ? 'yes' : 'no'}`);
+    if (ready && !isNotificationShadeOpen()) {
+      return {
+        ok: true,
+        detail: `NotificationShade dismissed (${shadeRetries} keyevent retries); ${parts.join('; ')}`,
+        shadeRetries,
+      };
+    }
+  }
+  return {
+    ok: false,
+    detail: `home 4 buttons not visible after shade dismiss; ${parts.join('; ')}`,
+    shadeRetries,
+  };
+}
+
 export async function dismissSystemChrome(ctx) {
+  if (isNotificationShadeOpen()) {
+    await dismissNotificationShade(ctx, 'chrome-shade');
+  }
   for (let i = 0; i < 3; i++) {
     adb('input keyevent 4');
     await sleep(350);
   }
+  adb('input keyevent 3');
+  await sleep(400);
   adb('input keyevent 224');
   await sleep(400);
   ensureAppForeground();
@@ -388,7 +454,12 @@ export async function tapHomeFlowButton(ctx, modeKey, tag) {
   await tapTab(ctx, 'home');
   await dismissOnboarding(ctx);
   await scrollToHomeSection(ctx, tag);
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 20; i++) {
+    if (isNotificationShadeOpen()) {
+      await dismissNotificationShade(ctx, `${tag}-mid-shade`);
+      await tapTab(ctx, 'home');
+      await scrollToHomeSection(ctx, `${tag}-reshade`);
+    }
     const xml = await dump(ctx, `${tag}-btn-${modeKey}-${i}`);
     const hit = findTestId(xml, TIDS.homeManualOrderButton(modeKey));
     if (hit) {
@@ -400,6 +471,27 @@ export async function tapHomeFlowButton(ctx, modeKey, tag) {
   }
   const evidence = await saveFailureArtifacts(`${tag}-open-${modeKey}`, 'home button testID not found');
   return { ok: false, evidence };
+}
+
+export async function tapHomeFlowButtonWithRetry(ctx, modeKey, tag) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const start = await ensureHomeFlowStart(ctx, `${tag}-start-${attempt}`);
+    if (!start.ok && attempt < 2) {
+      console.log(`FLOW-START-RETRY ${tag} attempt=${attempt} ${start.detail}`);
+      continue;
+    }
+    const result = await tapHomeFlowButton(ctx, modeKey, `${tag}-a${attempt}`);
+    if (result.ok) {
+      return { ...result, shadeDetail: start.detail, shadeRetries: start.shadeRetries };
+    }
+    if (isNotificationShadeOpen() || attempt < 2) {
+      await dismissNotificationShade(ctx, `${tag}-post-fail`);
+      await ensureHomeReady(ctx, `${tag}-recover`);
+      continue;
+    }
+  }
+  const evidence = await saveFailureArtifacts(`${tag}-open-${modeKey}`, 'home button testID not found after retries');
+  return { ok: false, evidence, shadeDetail: 'exhausted retries' };
 }
 
 export function countHomeButtonsInXml(xml) {
@@ -547,7 +639,36 @@ export function evaluatePendingAfterCreate(before, after, alertResult = {}) {
   if (alertOk) {
     return { pass: true, detail: `pending unreadable but create alert OK ${detail}` };
   }
+  if (alertResult.reason === 'no-alert' && !anyReadable) {
+    return { pass: false, detail: `pending unreadable after no-alert (list probe failed) ${detail}` };
+  }
   return { pass: false, detail: `pending unreadable ${detail}` };
+}
+
+export async function readPendingAfterCreate(ctx, tag) {
+  await dismissNotificationShade(ctx, `${tag}-post-create-shade`);
+  await returnToHome(ctx);
+  let listOpened = await openManualOrderList(ctx, `${tag}-list-nav`);
+  if (!listOpened) {
+    await returnToHome(ctx);
+    listOpened = await openManualOrderList(ctx, `${tag}-list-nav-retry`);
+  }
+  await sleep(1500);
+  let after = await readPendingAllProbesAsync(ctx, `${tag}-list`, { openListFirst: false });
+  after.storageProbe = readPendingFromStorage();
+  after.appState = readPendingFromAppState();
+  after.count = after.ui ?? after.storageProbe ?? after.appState ?? after.count;
+  if (after.count == null) {
+    const mandatory = await readPendingCountMandatory(ctx, `${tag}-list-m`);
+    after = {
+      ui: mandatory.count ?? after.ui,
+      storageProbe: after.storageProbe,
+      appState: after.appState,
+      count: mandatory.count ?? after.storageProbe ?? after.appState,
+      source: mandatory.source || after.source,
+    };
+  }
+  return { after, listOpened };
 }
 
 export function writeAsyncStorageValue(storageKey, value) {

@@ -11,27 +11,23 @@ import {
   resultPath,
   FLOWS,
   CREATE,
-  VIEW_LIST,
-  OK_BTN,
   POST_TAP_MS,
   findTestId,
   texts,
-  find,
   tap,
   dump,
   shot,
   dismissSystemChrome,
   ensureHomeReady,
+  ensureHomeFlowStart,
   returnToHome,
-  tapHomeFlowButton,
-  readPendingInline,
+  tapHomeFlowButtonWithRetry,
   readPendingCountMandatory,
   readPendingAllProbesAsync,
   readPendingFromStorage,
   readPendingFromAppState,
-  readManualOrderListTotalFromAppState,
+  readPendingAfterCreate,
   evaluatePendingAfterCreate,
-  openManualOrderList,
   dismissPostCreateAlert,
   waitForCreateReady,
   fillFlow,
@@ -96,12 +92,23 @@ async function main() {
 
   for (const flow of FLOWS) {
     const tag = `test-c-${flow.key}`;
-    const open = await tapHomeFlowButton(ctx, flow.key, tag);
+    const flowStart = await ensureHomeFlowStart(ctx, `${tag}-pre`);
+    record(
+      `test-c-shade-${flow.key}`,
+      flowStart.ok ? 'PASS' : 'PARTIAL',
+      flowStart.detail,
+      [],
+    );
+
+    const open = await tapHomeFlowButtonWithRetry(ctx, flow.key, tag);
     if (!open.ok) {
-      record(`test-c-flow-${flow.key}-open`, 'FAIL', `button not found activity=${currentActivity()}`, open.evidence || []);
+      record(`test-c-flow-${flow.key}-open`, 'FAIL', `button not found activity=${currentActivity()}; ${open.shadeDetail ?? ''}`, open.evidence || []);
       record(`test-c-e2e-${flow.key}`, 'FAIL', 'open failed', open.evidence || []);
       await returnToHome(ctx);
       continue;
+    }
+    if (open.shadeDetail) {
+      record(`test-c-shade-${flow.key}`, 'PASS', open.shadeDetail, []);
     }
     await sleep(POST_TAP_MS);
     const fx = await dump(ctx, `${tag}-screen`);
@@ -138,11 +145,14 @@ async function main() {
     const before = pending;
     const beforeProbes = await readPendingAllProbesAsync(ctx, `${tag}-before-create`);
     if (beforeProbes.count != null) pending = Math.max(pending, beforeProbes.count);
+    record(`test-c-pending-before-${flow.key}`, 'PASS', `before=${before} (${beforeProbes.source || 'tracked'})`, []);
+
     if (!(await tapCreate(ctx, tag, flow.key))) {
       record(`test-c-e2e-${flow.key}`, 'FAIL', 'create button not tappable', await saveFailureArtifacts(`${tag}-create`, 'create tap failed'));
       await returnToHome(ctx);
       continue;
     }
+
     await sleep(15000);
     const alertResult = await dismissPostCreateAlert(ctx, tag);
     if (!alertResult.ok) {
@@ -152,33 +162,30 @@ async function main() {
       await returnToHome(ctx);
       continue;
     }
-    record(`test-c-create-alert-${flow.key}`, 'PASS', `alert=${alertResult.reason}`, []);
+    record(
+      `test-c-create-alert-${flow.key}`,
+      alertResult.reason === 'no-alert' ? 'PARTIAL' : 'PASS',
+      `alert=${alertResult.reason}${alertResult.body ? ` body=${alertResult.body}` : ''}`,
+      [],
+    );
 
-    if (alertResult.reason === 'no-alert') {
-      await returnToHome(ctx);
-    }
-    let listOpened = await openManualOrderList(ctx, `${tag}-list-nav`);
-    if (!listOpened) {
-      await returnToHome(ctx);
-      listOpened = await openManualOrderList(ctx, `${tag}-list-nav-retry`);
-    }
-    let afterProbe = await readPendingAllProbesAsync(ctx, `${tag}-list`, { openListFirst: false });
-    if (afterProbe.count == null) {
-      const mandatoryAfter = await readPendingCountMandatory(ctx, `${tag}-list-m`);
-      afterProbe = {
-        ...afterProbe,
-        ui: mandatoryAfter.count ?? afterProbe.ui,
-        count: mandatoryAfter.count ?? afterProbe.count,
-        source: mandatoryAfter.source || afterProbe.source,
-      };
-    }
+    const { after: afterProbe, listOpened } = await readPendingAfterCreate(ctx, tag);
     shot(`${tag}-list`);
+    if (!listOpened) {
+      record(`test-c-list-nav-${flow.key}`, 'PARTIAL', 'manual order list nav retry used', []);
+    } else {
+      record(`test-c-list-nav-${flow.key}`, 'PASS', 'manual order list opened', []);
+    }
+
     const evalResult = evaluatePendingAfterCreate(before, afterProbe, alertResult);
     record(`test-c-pending-after-${flow.key}`, evalResult.pass ? 'PASS' : 'FAIL', evalResult.detail, [`${tag}-list.png`]);
     if (evalResult.pass) {
       record(`test-c-e2e-${flow.key}`, 'PASS', evalResult.detail, [`${tag}-list.png`]);
-      const best = Math.max(afterProbe.ui ?? 0, afterProbe.storageProbe ?? 0, afterProbe.appState ?? 0);
-      if (best > 0) pending = best;
+      const best = Math.max(afterProbe.ui ?? 0, afterProbe.storageProbe ?? 0, afterProbe.appState ?? 0, before);
+      if (best > before) pending = best;
+      else if (afterProbe.ui != null) pending = Math.max(pending, afterProbe.ui);
+    } else if (alertResult.reason === 'no-alert' && evalResult.detail.includes('not increased')) {
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=no-alert`, [`${tag}-list.png`]);
     } else {
       record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=${alertResult.reason}`, [`${tag}-list.png`]);
     }

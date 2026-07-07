@@ -136,6 +136,15 @@ function runStep(script) {
   }
 }
 
+function clearRunTagResults() {
+  for (const step of ['a', 'b', 'c', 'd', 'e']) {
+    const p = resultFile(step);
+    if (fs.existsSync(p)) fs.unlinkSync(p);
+  }
+  const merged = path.join(OUT, MERGED_JSON);
+  if (fs.existsSync(merged)) fs.unlinkSync(merged);
+}
+
 function mergeResults() {
   const all = [];
   let meta = buildMeta();
@@ -258,8 +267,15 @@ function writeReport(meta, results, pushInfo) {
     '',
     '## Pending probes (after create)',
     ...FLOWS.map((f) => {
+      const before = pick(`test-c-pending-before-${f.key}`);
       const p = pick(`test-c-pending-after-${f.key}`);
-      return `- **${f.key}**: ${p?.detail ?? pick(`test-c-e2e-${f.key}`)?.detail ?? 'N/A'}`;
+      return `- **${f.key}**: before=${before?.detail ?? 'N/A'} | after=${p?.detail ?? pick(`test-c-e2e-${f.key}`)?.detail ?? 'N/A'}`;
+    }),
+    '',
+    '## NotificationShade handling',
+    ...FLOWS.map((f) => {
+      const s = pick(`test-c-shade-${f.key}`);
+      return `- **${f.key}**: ${s?.detail ?? 'N/A'} (${s?.status ?? 'N/A'})`;
     }),
     '',
     '## Practice mode save guarantee (code review)',
@@ -382,6 +398,11 @@ async function main() {
     const summary = writeReport(meta, results, 'merge-only (no push)');
     console.log('MERGE DONE', summary);
     return;
+  }
+
+  if (isRerun5) {
+    clearRunTagResults();
+    console.log('Cleared prior results for tag rerun5 (fresh merge)');
   }
 
   const metroOk = await ensureMetroLink();

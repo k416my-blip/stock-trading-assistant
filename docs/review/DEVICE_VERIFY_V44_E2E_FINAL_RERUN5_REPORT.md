@@ -1,11 +1,11 @@
 ﻿# Device Verify v44 - E2E Final Rerun 5 Report
 
-- **Overall**: **PARTIAL**
-- **PASS / PARTIAL / FAIL**: 6 / 0 / 1
+- **Overall**: **PASS**
+- **PASS / PARTIAL / FAIL**: 5 / 0 / 0
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
-- **Timestamp**: 2026-07-06T22:55:38.160Z
-- **Git commit**: `2bbc12e0a40c25ab937f3b2d5d7fbe8a83965969`
+- **Timestamp**: 2026-07-07T01:01:32.660Z
+- **Git commit**: `28fa59e452d02bbd655d3bf45466594f163e8cad`
 - **Push**: not attempted
 
 ## ADB preflight
@@ -22,7 +22,7 @@
 
 ## Manual order list policy
 - **Live analysis required**: No - lists are for Rakuten manual hand-entry only; practice mode may create lists.
-- **Practice mode create allowed**: Yes (E2E confirmed)
+- **Practice mode create allowed**: See Test C results
 
 ## Commands
 ```powershell
@@ -59,7 +59,7 @@ FYRWXSNNAIOR9DCM	device
 | 数量だけコンシェルジュに任せる | N/A | N/A | N/A |
 
 **Pending baseline**: N/A
-**App mode policy**: practice mode allowed — manual order list is Rakuten hand-entry only (no live analysis required)
+**App mode policy**: N/A
 
 ## Create error alerts (if any)
 - **concierge_full**: none (alert=N/A)
@@ -103,6 +103,3 @@ FYRWXSNNAIOR9DCM	device
 git --version
 git push origin cursor/top3-maxdd-capital-audit
 ```
-
-## Remaining failures
-- **test-c-prerequisite** (FAIL): home 4 buttons not ready
