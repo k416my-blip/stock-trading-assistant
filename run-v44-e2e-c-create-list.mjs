@@ -112,9 +112,8 @@ async function main() {
     }
     await sleep(POST_TAP_MS);
     const fx = await dump(ctx, `${tag}-screen`);
-    shot(`${tag}-screen`);
     const opened = flowOpened(fx, flow);
-    record(`test-c-flow-${flow.key}-open`, opened ? 'PASS' : 'FAIL', opened ? flow.title : `not open activity=${currentActivity()}`, [`${tag}-screen.png`]);
+    record(`test-c-flow-${flow.key}-open`, opened ? 'PASS' : 'FAIL', opened ? flow.title : `not open activity=${currentActivity()}`, []);
 
     if (!opened) {
       record(`test-c-e2e-${flow.key}`, 'FAIL', 'flow screen not verified', await saveFailureArtifacts(`${tag}-open-fail`, 'flow title missing'));
@@ -170,7 +169,6 @@ async function main() {
     );
 
     const { after: afterProbe, listOpened } = await readPendingAfterCreate(ctx, tag);
-    shot(`${tag}-list`);
     if (!listOpened) {
       record(`test-c-list-nav-${flow.key}`, 'PARTIAL', 'manual order list nav retry used', []);
     } else {
@@ -178,16 +176,16 @@ async function main() {
     }
 
     const evalResult = evaluatePendingAfterCreate(before, afterProbe, alertResult);
-    record(`test-c-pending-after-${flow.key}`, evalResult.pass ? 'PASS' : 'FAIL', evalResult.detail, [`${tag}-list.png`]);
+    record(`test-c-pending-after-${flow.key}`, evalResult.pass ? 'PASS' : 'FAIL', evalResult.detail, []);
     if (evalResult.pass) {
-      record(`test-c-e2e-${flow.key}`, 'PASS', evalResult.detail, [`${tag}-list.png`]);
+      record(`test-c-e2e-${flow.key}`, 'PASS', evalResult.detail, []);
       const best = Math.max(afterProbe.ui ?? 0, afterProbe.storageProbe ?? 0, afterProbe.appState ?? 0, before);
       if (best > before) pending = best;
       else if (afterProbe.ui != null) pending = Math.max(pending, afterProbe.ui);
     } else if (alertResult.reason === 'no-alert' && evalResult.detail.includes('not increased')) {
-      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=no-alert`, [`${tag}-list.png`]);
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=no-alert`, []);
     } else {
-      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=${alertResult.reason}`, [`${tag}-list.png`]);
+      record(`test-c-e2e-${flow.key}`, 'FAIL', `${evalResult.detail}; alert=${alertResult.reason}`, []);
     }
     await returnToHome(ctx);
     await ensureHomeReady(ctx, `${tag}-post`);

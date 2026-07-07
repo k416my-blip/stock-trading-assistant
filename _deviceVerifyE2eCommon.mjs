@@ -23,6 +23,8 @@ export const OUT = path.join('docs', 'review', 'device-verify-v44');
 export const ARTIFACTS = path.join(OUT, 'rerun2-artifacts');
 export const POST_TAP_MS = Number(process.env.POST_TAP_MS || 12000);
 export const SKIP_PM_CLEAR = process.env.SKIP_PM_CLEAR === '1';
+/** Default: do not write PNG/XML on success (fail-only media). Set E2E_SAVE_MEDIA=1 to force saves. */
+export const E2E_PERSIST_MEDIA = process.env.E2E_SAVE_MEDIA === '1';
 
 const jaHome = JSON.parse(fs.readFileSync('src/i18n/resources/ja/home.json', 'utf8'));
 const jaSettings = JSON.parse(fs.readFileSync('src/i18n/resources/ja/settings.json', 'utf8'));
@@ -91,21 +93,27 @@ export function createRecorder(results) {
   };
 }
 
-export async function dump(ctx, name) {
-  const dest = path.join(OUT, `${name}.xml`);
+export async function dump(ctx, name, { persist = false } = {}) {
+  const writeDisk = persist || E2E_PERSIST_MEDIA;
   for (let i = 0; i < 6; i++) {
     try {
       adb('uiautomator dump /sdcard/ui-rerun2.xml');
-      sh(`${ADB} exec-out cat /sdcard/ui-rerun2.xml > "${dest}"`);
-      const xml = fs.readFileSync(dest, 'utf8');
-      if (xml.includes('<hierarchy') && xml.length > 200) return xml;
+      const xml = sh(`${ADB} exec-out cat /sdcard/ui-rerun2.xml`);
+      if (xml.includes('<hierarchy') && xml.length > 200) {
+        if (writeDisk && name) {
+          fs.mkdirSync(OUT, { recursive: true });
+          fs.writeFileSync(path.join(OUT, `${name}.xml`), xml, 'utf8');
+        }
+        return xml;
+      }
     } catch {}
     await sleep(900);
   }
   return '';
 }
 
-export function shot(name) {
+export function shot(name, { persist = false } = {}) {
+  if (!name || (!persist && !E2E_PERSIST_MEDIA)) return;
   fs.mkdirSync(OUT, { recursive: true });
   sh(`${ADB} exec-out screencap -p > "${path.join(OUT, name + '.png')}"`);
 }
@@ -249,8 +257,8 @@ export async function saveFailureArtifacts(tag, reason) {
   const dir = path.join(OUT, artifactsSubdir());
   fs.mkdirSync(dir, { recursive: true });
   const base = path.join(dir, tag);
-  const xml = await dump({}, `${tag}-fail`);
-  shot(`${tag}-fail`);
+  const xml = await dump({}, `${tag}-fail`, { persist: true });
+  shot(`${tag}-fail`, { persist: true });
   const meta = {
     tag,
     reason,
@@ -516,11 +524,6 @@ export async function scrollHomeShots(ctx, prefix, record) {
       if (findTestId(xml, TIDS.homeManualOrderButton(flow.key))) seen.add(flow.key);
     }
     max = Math.max(max, seen.size, countHomeButtonsInXml(xml));
-    if (max > 0) {
-      const s = `${prefix}-found${max}-${i}`;
-      shot(s);
-      shots.push(`${s}.png`);
-    }
     if (max >= 4) break;
     adb('input swipe 540 1600 540 900 280');
     await sleep(400);

@@ -5,7 +5,7 @@
 - **Device**: 23090RA98G (FYRWXSNNAIOR9DCM)
 - **versionCode**: versionCode=44 minSdk=24 targetSdk=36
 - **Timestamp**: 2026-07-07T01:01:32.660Z
-- **Git commit**: `28fa59e452d02bbd655d3bf45466594f163e8cad`
+- **Git commit**: `6b0005b7cd7bc2b41dcc2d31f967460f0f2d1c33`
 - **Push**: not attempted
 
 ## ADB preflight
@@ -68,10 +68,16 @@ FYRWXSNNAIOR9DCM	device
 - **concierge_quantity**: none (alert=N/A)
 
 ## Pending probes (after create)
-- **concierge_full**: N/A
-- **manual_full**: N/A
-- **concierge_symbol**: N/A
-- **concierge_quantity**: N/A
+- **concierge_full**: before=N/A | after=N/A
+- **manual_full**: before=N/A | after=N/A
+- **concierge_symbol**: before=N/A | after=N/A
+- **concierge_quantity**: before=N/A | after=N/A
+
+## NotificationShade handling
+- **concierge_full**: N/A (N/A)
+- **manual_full**: N/A (N/A)
+- **concierge_symbol**: N/A (N/A)
+- **concierge_quantity**: N/A (N/A)
 
 ## Practice mode save guarantee (code review)
 - `ManualOrderFlowScreen`: create blocked only by `readOnlyBlockedMessage`, not practice mode

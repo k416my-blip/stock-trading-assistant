@@ -22,6 +22,7 @@ import {
   adb,
   PKG,
 } from './_deviceVerifyE2eCommon.mjs';
+import { checkE2eMemoryGate, logMemorySnapshot, stopE2eNodeProcesses } from './_deviceVerifyMemory.mjs';
 
 const isRerun5 = process.argv.includes('--rerun5');
 const isRerun4Retry = process.argv.includes('--rerun4-retry');
@@ -400,6 +401,25 @@ async function main() {
     return;
   }
 
+  stopE2eNodeProcesses();
+  logMemorySnapshot('before-bulk');
+  const gate = checkE2eMemoryGate();
+  if (!gate.ok) {
+    console.error('E2E BLOCKED (OOM prevention):', gate.reason);
+    process.exit(3);
+  }
+  if (isRerun5 && !process.env.E2E_ALLOW_BULK && !process.argv.includes('--force-bulk')) {
+    console.error(
+      'Bulk run-v44-e2e-all is disabled for OOM safety. Run one flow at a time:\n' +
+        '  node run-v44-e2e-flow.mjs concierge_full\n' +
+        '  node run-v44-e2e-flow.mjs manual_full\n' +
+        '  node run-v44-e2e-flow.mjs concierge_symbol\n' +
+        '  node run-v44-e2e-flow.mjs concierge_quantity\n' +
+        'Or set E2E_ALLOW_BULK=1 / --force-bulk to override (max once per session).',
+    );
+    process.exit(4);
+  }
+
   if (isRerun5) {
     clearRunTagResults();
     console.log('Cleared prior results for tag rerun5 (fresh merge)');
@@ -454,6 +474,8 @@ async function main() {
   }
 
   writeReport({ ...meta, adbPreflight: metaPreflight }, results, pushStatus);
+  logMemorySnapshot('after-bulk');
+  stopE2eNodeProcesses();
   const pass = results.filter((r) => r.status === 'PASS').length;
   const fail = results.filter((r) => r.status === 'FAIL').length;
   const summary = { pass, fail, overall: fail === 0 ? 'PASS' : pass > 0 ? 'PARTIAL' : 'FAIL' };
