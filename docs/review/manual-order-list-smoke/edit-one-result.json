@@ -1,0 +1,29 @@
+{
+  "overall": "PARTIAL",
+  "action": "edit-one",
+  "gate": {
+    "ok": true,
+    "reason": null,
+    "snapshot": {}
+  },
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-07T06:44:25.204Z"
+  },
+  "pendingBefore": 33,
+  "pendingAfter": null,
+  "completedBefore": 1,
+  "completedAfter": null,
+  "startedAt": "2026-07-07T06:43:50.655Z",
+  "listOpenMs": 20693,
+  "listOpened": true,
+  "targetTestId": "manual-order-edit-manual-buy-1783398731686-2",
+  "targetKind": "testId",
+  "saveTapped": "save-fallback",
+  "pendingDelta": null,
+  "editReflected": true,
+  "finishedAt": "2026-07-07T06:45:09.473Z"
+}

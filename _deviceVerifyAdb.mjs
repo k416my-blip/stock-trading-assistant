@@ -35,6 +35,22 @@ export function parsePendingCountFromXml(xml) {
   return null;
 }
 
+export function parseCompletedCountFromXml(xml) {
+  for (const label of xmlTexts(xml)) {
+    if (!label.startsWith('manual-order-completed-count:')) continue;
+    const n = Number(label.split(':')[1]);
+    if (Number.isFinite(n) && n >= 0) return n;
+  }
+  return null;
+}
+
+export function parseListProbesFromXml(xml) {
+  return {
+    pending: parsePendingCountFromXml(xml),
+    completed: parseCompletedCountFromXml(xml),
+  };
+}
+
 export function parseCreateBlockReason(xml) {
   for (const label of xmlTexts(xml)) {
     if (!label.startsWith('manual-order-create-blocked:')) continue;
@@ -89,7 +105,11 @@ export const TIDS = {
   languageOption: (lang) => `language-option-${lang}`,
   settingsLanguage: (lang) => `settings-language-${lang}`,
   homeManualOrderSection: 'home-manual-order-section',
+  homeNavManualOrderList: 'home-nav-manual-order-list',
   homeManualOrderButton: (mode) => `home-manual-order-${mode}`,
+  manualOrderListScreen: 'manual-order-list-screen',
+  manualOrderBulkDeletePending: 'manual-order-bulk-delete-pending',
+  manualOrderEditSave: 'manual-order-edit-save',
   settingsUxMode: (mode) => `settings-ux-mode-${mode}`,
   settingsNavAiStrategy: 'settings-nav-ai-strategy',
   aiInvestmentMode: (mode) => `ai-investment-mode-${mode}`,

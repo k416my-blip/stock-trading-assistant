@@ -42,6 +42,14 @@ export function HomeManualOrderEntrySection() {
       <Text style={styles.sectionSubtitle}>{t('manualOrderEntry.sectionSubtitle')}</Text>
       <Text style={styles.disclaimer}>{MANUAL_ORDER_WARNING}</Text>
 
+      <Button
+        label={t('proButtons.manualOrderList')}
+        onPress={() => navigation.navigate('ManualOrderList')}
+        variant="ghost"
+        testID={DEVICE_VERIFY_TEST_IDS.homeNavManualOrderList}
+        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.homeNavManualOrderList}
+      />
+
       <View style={styles.buttonStack}>
         {FLOW_MODES.map((mode) => (
           <View key={mode} style={styles.flowBlock}>

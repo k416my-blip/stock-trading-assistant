@@ -1,0 +1,35 @@
+{
+  "overall": "PASS",
+  "action": "complete-one",
+  "gate": {
+    "ok": true,
+    "reason": null,
+    "snapshot": {}
+  },
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-07T06:39:57.333Z"
+  },
+  "pendingBefore": 34,
+  "pendingAfter": 33,
+  "completedBefore": 0,
+  "completedAfter": 1,
+  "startedAt": "2026-07-07T06:39:23.367Z",
+  "listOpenMs": 20370,
+  "listOpened": true,
+  "targetTestId": "manual-order-complete-manual-buy-1783398731686-1",
+  "targetKind": "testId",
+  "dialog": {
+    "tapped": "manual-order-confirm-ok",
+    "dialogText": "この注文を実行済みにしますか？\nmanual-order-confirm-title\nRakuten Trade側で手入力済みの場合のみ実行してください。本アプリは注文を送信しません。\nmanual-order-confirm-body\nmanual-order-confirm-cancel\nキャンセル\nmanual-order-confirm-ok\n実行済みにする",
+    "titleVisible": true,
+    "bodyVisible": true
+  },
+  "dialogTitleOk": true,
+  "pendingDelta": -1,
+  "completedDelta": 1,
+  "finishedAt": "2026-07-07T06:40:12.917Z"
+}

@@ -1,13 +1,35 @@
 {
-  "overall": "FAIL",
+  "overall": "PASS",
+  "action": "delete-one",
   "gate": {
     "ok": true,
     "reason": null,
     "snapshot": {}
   },
-  "meta": null,
-  "pendingBefore": null,
-  "pendingAfter": null,
-  "action": "delete-one",
-  "fail": "list-not-opened"
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-07T06:39:00.522Z"
+  },
+  "pendingBefore": 35,
+  "pendingAfter": 34,
+  "completedBefore": 0,
+  "completedAfter": 0,
+  "startedAt": "2026-07-07T06:38:25.988Z",
+  "listOpenMs": 20503,
+  "listOpened": true,
+  "targetTestId": "manual-order-delete-manual-buy-1783398731686-0",
+  "targetKind": "testId",
+  "dialog": {
+    "tapped": "manual-order-confirm-ok",
+    "dialogText": "この手動注文を削除しますか？\nmanual-order-confirm-title\n削除すると元に戻せません。本アプリ内の手動注文リストからのみ削除され、Rakuten Trade側には影響しません。\nmanual-order-confirm-body\nmanual-order-confirm-cancel\nキャンセル\nmanual-order-confirm-ok\n削除",
+    "titleVisible": true,
+    "bodyVisible": true
+  },
+  "dialogTitleOk": true,
+  "dialogBodyOk": true,
+  "pendingDelta": -1,
+  "finishedAt": "2026-07-07T06:39:16.431Z"
 }

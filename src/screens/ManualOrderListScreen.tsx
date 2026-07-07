@@ -37,6 +37,11 @@ import { theme } from '../theme';
 
 type ListTab = 'pending' | 'completed';
 
+type ConfirmDialogState =
+  | { kind: 'delete-one'; item: ManualOrderItem; title: string; body: string; okLabel: string }
+  | { kind: 'delete-all'; title: string; body: string; okLabel: string }
+  | { kind: 'mark-complete'; item: ManualOrderItem; title: string; body: string; okLabel: string };
+
 export function ManualOrderListScreen() {
   const {
     state,
@@ -72,6 +77,7 @@ export function ManualOrderListScreen() {
   const [executedPrice, setExecutedPrice] = useState('');
   const [memo, setMemo] = useState('');
   const [saving, setSaving] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null);
 
   const probes = buildManualOrderListProbes(state.manualOrderList);
 
@@ -156,19 +162,15 @@ export function ManualOrderListScreen() {
         Alert.alert('操作できません', readOnlyBlockedMessage);
         return;
       }
-      Alert.alert(DELETE_ONE_TITLE, DELETE_ONE_BODY, [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除',
-          style: 'destructive',
-          onPress: () => {
-            const result = removePendingManualOrder(item.id);
-            if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
-          },
-        },
-      ]);
+      setConfirmDialog({
+        kind: 'delete-one',
+        item,
+        title: DELETE_ONE_TITLE,
+        body: DELETE_ONE_BODY,
+        okLabel: '削除',
+      });
     },
-    [readOnlyBlockedMessage, removePendingManualOrder],
+    [readOnlyBlockedMessage],
   );
 
   const onClearAllPending = useCallback(() => {
@@ -177,18 +179,13 @@ export function ManualOrderListScreen() {
       return;
     }
     if (pending.length === 0) return;
-    Alert.alert(DELETE_ALL_TITLE, DELETE_ALL_BODY, [
-      { text: 'キャンセル', style: 'cancel' },
-      {
-        text: 'すべて削除',
-        style: 'destructive',
-        onPress: () => {
-          const result = clearPendingManualOrders();
-          if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
-        },
-      },
-    ]);
-  }, [clearPendingManualOrders, pending.length, readOnlyBlockedMessage]);
+    setConfirmDialog({
+      kind: 'delete-all',
+      title: DELETE_ALL_TITLE,
+      body: DELETE_ALL_BODY,
+      okLabel: 'すべて削除',
+    });
+  }, [pending.length, readOnlyBlockedMessage]);
 
   const onMarkComplete = useCallback(
     (item: ManualOrderItem) => {
@@ -196,19 +193,31 @@ export function ManualOrderListScreen() {
         Alert.alert('操作できません', readOnlyBlockedMessage);
         return;
       }
-      Alert.alert(MARK_COMPLETE_TITLE, MARK_COMPLETE_BODY, [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '実行済みにする',
-          onPress: () => {
-            const result = markManualOrderCompleted(item.id);
-            if (!result.ok) Alert.alert('更新できません', result.error ?? '不明なエラー');
-          },
-        },
-      ]);
+      setConfirmDialog({
+        kind: 'mark-complete',
+        item,
+        title: MARK_COMPLETE_TITLE,
+        body: MARK_COMPLETE_BODY,
+        okLabel: '実行済みにする',
+      });
     },
-    [markManualOrderCompleted, readOnlyBlockedMessage],
+    [readOnlyBlockedMessage],
   );
+
+  const onConfirmDialogOk = useCallback(() => {
+    if (!confirmDialog) return;
+    if (confirmDialog.kind === 'delete-one') {
+      const result = removePendingManualOrder(confirmDialog.item.id);
+      if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
+    } else if (confirmDialog.kind === 'delete-all') {
+      const result = clearPendingManualOrders();
+      if (!result.ok) Alert.alert('削除できません', result.error ?? '不明なエラー');
+    } else {
+      const result = markManualOrderCompleted(confirmDialog.item.id);
+      if (!result.ok) Alert.alert('更新できません', result.error ?? '不明なエラー');
+    }
+    setConfirmDialog(null);
+  }, [clearPendingManualOrders, confirmDialog, markManualOrderCompleted, removePendingManualOrder]);
 
   const onClearCompleted = useCallback(() => {
     if (readOnlyBlockedMessage) {
@@ -251,6 +260,7 @@ export function ManualOrderListScreen() {
           variant="ghost"
           disabled={!!readOnlyBlockedMessage}
           testID={DEVICE_VERIFY_TEST_IDS.manualOrderEdit(item.id)}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEdit(item.id)}
         />
         <Button
           label="削除"
@@ -258,6 +268,7 @@ export function ManualOrderListScreen() {
           variant="ghost"
           disabled={!!readOnlyBlockedMessage}
           testID={DEVICE_VERIFY_TEST_IDS.manualOrderDelete(item.id)}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderDelete(item.id)}
         />
         <Button
           label="実行済みにする"
@@ -265,6 +276,7 @@ export function ManualOrderListScreen() {
           variant="ghost"
           disabled={!!readOnlyBlockedMessage}
           testID={DEVICE_VERIFY_TEST_IDS.manualOrderComplete(item.id)}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderComplete(item.id)}
         />
         {item.side === 'buy' ? (
           <Button
@@ -358,6 +370,7 @@ export function ManualOrderListScreen() {
                 variant="ghost"
                 disabled={!!readOnlyBlockedMessage || pending.length === 0}
                 testID={DEVICE_VERIFY_TEST_IDS.manualOrderBulkDeletePending}
+                accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderBulkDeletePending}
               />
             </View>
             {pending.map(renderPendingCard)}
@@ -389,7 +402,7 @@ export function ManualOrderListScreen() {
                   <Text style={styles.fieldLabel}>銘柄名</Text>
                   <TextInput style={styles.input} value={editName} onChangeText={setEditName} editable={!saving} />
                   <Text style={styles.fieldLabel}>数量</Text>
-                  <TextInput style={styles.input} keyboardType="number-pad" value={editShares} onChangeText={setEditShares} editable={!saving} />
+                  <TextInput style={styles.input} keyboardType="number-pad" value={editShares} onChangeText={setEditShares} editable={!saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditShares} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditShares} />
                   <Text style={styles.fieldLabel}>指値 (entryPrice)</Text>
                   <TextInput style={styles.input} keyboardType="decimal-pad" value={editEntryPrice} onChangeText={setEditEntryPrice} editable={!saving} />
                   <Text style={styles.fieldLabel}>売買</Text>
@@ -401,8 +414,8 @@ export function ManualOrderListScreen() {
                   <Text style={styles.fieldLabel}>メモ（任意）</Text>
                   <TextInput style={[styles.input, styles.memoInput]} value={editMemo} onChangeText={setEditMemo} multiline editable={!saving} />
                   <View style={styles.modalActions}>
-                    <Button label="キャンセル" onPress={closeEdit} variant="ghost" disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} />
-                    <Button label={saving ? '保存中…' : '保存'} onPress={onSaveEdit} disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} />
+                    <Button label="キャンセル" onPress={closeEdit} variant="ghost" disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditCancel} />
+                    <Button label={saving ? '保存中…' : '保存'} onPress={onSaveEdit} disabled={saving} testID={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderEditSave} />
                   </View>
                 </>
               ) : null}
@@ -432,6 +445,46 @@ export function ManualOrderListScreen() {
                 </>
               ) : null}
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={confirmDialog !== null} transparent animationType="fade" onRequestClose={() => setConfirmDialog(null)}>
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.modalSheet, styles.confirmSheet]} testID={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmDialog}>
+            {confirmDialog ? (
+              <>
+                <Text
+                  style={styles.modalTitle}
+                  testID={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmTitle}
+                  accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmTitle}
+                >
+                  {confirmDialog.title}
+                </Text>
+                <Text
+                  style={styles.modalMessage}
+                  testID={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmBody}
+                  accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmBody}
+                >
+                  {confirmDialog.body}
+                </Text>
+                <View style={styles.modalActions}>
+                  <Button
+                    label="キャンセル"
+                    onPress={() => setConfirmDialog(null)}
+                    variant="ghost"
+                    testID={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmCancel}
+                    accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmCancel}
+                  />
+                  <Button
+                    label={confirmDialog.okLabel}
+                    onPress={onConfirmDialogOk}
+                    testID={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmOk}
+                    accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderConfirmOk}
+                  />
+                </View>
+              </>
+            ) : null}
           </View>
         </View>
       </Modal>
@@ -479,6 +532,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     maxHeight: '85%',
   },
+  confirmSheet: { marginHorizontal: theme.spacing.lg, marginBottom: theme.spacing.xl, borderRadius: theme.radius.lg },
   modalTitle: { color: theme.colors.text, fontWeight: '700', fontSize: theme.fontSize.lg, marginBottom: theme.spacing.sm },
   modalMessage: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, lineHeight: 20, marginBottom: theme.spacing.md },
   fieldLabel: { color: theme.colors.textMuted, fontSize: theme.fontSize.sm, marginTop: theme.spacing.sm },

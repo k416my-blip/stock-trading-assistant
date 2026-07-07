@@ -9,6 +9,8 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import {
   findTestId,
   parsePendingCountFromXml,
+  parseCompletedCountFromXml,
+  parseListProbesFromXml,
   parseCreateBlockReason,
   isCreateReady,
   parseCreateErrorFromXml,
@@ -878,21 +880,53 @@ export function pendingFromXml(xml) {
   return m ? Number(m[1]) : null;
 }
 
-export async function openManualOrderList(ctx, tag) {
+export async function openManualOrderList(ctx, tag, { timeoutMs = 50000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  const listWaitMs = Number(process.env.MOL_LIST_WAIT_MS || 3500);
+
+  const isListOpen = async (suffix) => {
+    const xml = await dump(ctx, `${tag}-open-${suffix}`);
+    if (findTestId(xml, TIDS.manualOrderListScreen)) return true;
+    return [...texts(xml)].some(
+      (t) =>
+        t === LIST_TITLE ||
+        t === TIDS.manualOrderListScreen ||
+        t.startsWith('manual-order-pending-count:') ||
+        t.includes('manual-order-delete-'),
+    );
+  };
+
+  // Strategy 1: Home → 手動注文リスト (works in beginner/trust UX)
+  await tapTab(ctx, 'home');
+  for (let i = 0; i < 10 && Date.now() < deadline; i++) {
+    const xml = await dump(ctx, `${tag}-home-${i}`);
+    const byId = findTestId(xml, TIDS.homeNavManualOrderList);
+    if (byId) {
+      tap(byId);
+      await sleep(listWaitMs);
+      if (await isListOpen(`home-${i}`)) return true;
+      await sleep(1500);
+      if (await isListOpen(`home-retry-${i}`)) return true;
+    }
+    adb('input swipe 540 1700 540 750 320');
+    await sleep(400);
+  }
+
+  // Strategy 2: Portfolio footer (pro/live only)
   await tapTab(ctx, 'portfolio');
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 18 && Date.now() < deadline; i++) {
     const xml = await dump(ctx, `${tag}-plist-${i}`);
     const byId = findTestId(xml, TIDS.portfolioManualOrderList);
     if (byId) {
       tap(byId);
-      await sleep(POST_TAP_MS);
-      return true;
+      await sleep(listWaitMs);
+      if (await isListOpen(`plist-${i}`)) return true;
     }
     const b = find(xml, (t) => t === LIST_TITLE);
     if (b[0]) {
       tap(b[0]);
-      await sleep(POST_TAP_MS);
-      return true;
+      await sleep(listWaitMs);
+      if (await isListOpen(`plist-label-${i}`)) return true;
     }
     adb('input swipe 540 1900 540 650 350');
     await sleep(450);

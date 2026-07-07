@@ -1,0 +1,31 @@
+{
+  "overall": "PASS",
+  "action": "bulk-delete",
+  "gate": {
+    "ok": true,
+    "reason": null,
+    "snapshot": {}
+  },
+  "meta": {
+    "serial": "FYRWXSNNAIOR9DCM",
+    "model": "23090RA98G",
+    "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
+    "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
+    "timestamp": "2026-07-07T06:48:19.129Z"
+  },
+  "pendingBefore": 33,
+  "pendingAfter": 0,
+  "completedBefore": 1,
+  "completedAfter": 1,
+  "startedAt": "2026-07-07T06:47:41.830Z",
+  "listOpenMs": 23697,
+  "listOpened": true,
+  "dialog": {
+    "tapped": "manual-order-confirm-ok",
+    "dialogText": "未完了の手動注文をすべて削除しますか？\nmanual-order-confirm-title\nこの操作は元に戻せません。本アプリ内の未完了リストのみ削除されます。\nmanual-order-confirm-body\nmanual-order-confirm-cancel\nキャンセル\nmanual-order-confirm-ok\nすべて削除",
+    "titleVisible": true,
+    "bodyVisible": true
+  },
+  "dialogTitleOk": true,
+  "finishedAt": "2026-07-07T06:48:50.893Z"
+}
