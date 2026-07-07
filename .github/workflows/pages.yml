@@ -54,6 +54,9 @@ jobs:
             --exclude='*.xml' \
             docs/pages/ "$SITE/"
 
+          # Skip Jekyll processing on GitHub Pages (static HTML/MD only).
+          touch "$SITE/.nojekyll"
+
           echo "=== Published files ==="
           find "$SITE" -type f | sort
           echo "=== Artifact size ==="
