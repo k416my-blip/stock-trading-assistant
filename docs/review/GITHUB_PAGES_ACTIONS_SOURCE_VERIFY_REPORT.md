@@ -44,7 +44,7 @@ Even without Settings API access, the following confirms the **custom `pages.yml
 | Run | Trigger | SHA | Result |
 |-----|---------|-----|--------|
 | #2 | push `34a038f` | `fix(pages): static GitHub Actions deploy with .nojekyll skip` | **success** |
-| #3 | push verify commit (this report batch) | pending after push | expected success |
+| #3 | push `e7ca484` (docs/pages verify comment) | **success** | https://github.com/k416my-blip/stock-trading-assistant/actions/runs/28839058305 |
 
 Workflow uses:
 - `docs/pages/` only → `_site`
@@ -92,4 +92,5 @@ Reports pushed to `origin/cursor/top3-maxdd-capital-audit`.
 ## AAB
 
 **未作成**
+
 
