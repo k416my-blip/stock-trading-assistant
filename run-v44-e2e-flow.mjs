@@ -59,11 +59,12 @@ const RUN_TAG = process.env.E2E_RUN_TAG || `flow-${flowKey}`;
 process.env.E2E_RUN_TAG = RUN_TAG;
 const RESULT_FILE = path.join(OUT, `results-${RUN_TAG}.json`);
 
-const FLOWS_WITH_FORM_PROBE = new Set(['manual_full', 'concierge_symbol']);
+const FLOWS_WITH_FORM_PROBE = new Set(['manual_full', 'concierge_symbol', 'concierge_quantity']);
 
 const FORM_SEED_PAYLOAD = {
   manual_full: { symbol: '1155', shares: '100', market: 'bursa' },
   concierge_symbol: { deposit: '2000', market: 'bursa', inputMode: 'amount' },
+  concierge_quantity: { symbol: '1155', deposit: '50000', market: 'bursa' },
 };
 
 function formStateRecordDetail(flowKey, formState) {
@@ -72,6 +73,9 @@ function formStateRecordDetail(flowKey, formState) {
   }
   if (flowKey === 'concierge_symbol') {
     return `mode=${formState?.mode} amount=${formState?.amount} inputMode=${formState?.inputMode} market=${formState?.market}`;
+  }
+  if (flowKey === 'concierge_quantity') {
+    return `mode=${formState?.mode} symbol=${formState?.symbol} amount=${formState?.amount} investmentAmount=${formState?.investmentAmount} market=${formState?.market}`;
   }
   return JSON.stringify(formState ?? {});
 }

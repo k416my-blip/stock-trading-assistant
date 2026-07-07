@@ -655,6 +655,33 @@ export function evaluatePendingAfterCreate(before, after, alertResult = {}) {
 
 export async function readPendingAfterCreate(ctx, tag) {
   await dismissNotificationShade(ctx, `${tag}-post-create-shade`);
+  await sleep(2000);
+
+  for (let i = 0; i < 8; i++) {
+    const xml = await dump(ctx, `${tag}-inline-${i}`);
+    const c = pendingFromXml(xml);
+    if (c != null) {
+      return {
+        after: {
+          ui: c,
+          storageProbe: readPendingFromStorage(),
+          appState: readPendingFromAppState(),
+          count: c,
+          source: 'ui-inline-post-create',
+        },
+        listOpened: true,
+      };
+    }
+    const onList = [...texts(xml)].some(
+      (t) => t === LIST_TITLE || t.includes('\u624b\u52d5\u6ce8\u6587\u30ea\u30b9\u30c8') || t.includes('\u672a\u5b8c\u4e86'),
+    );
+    if (onList) {
+      await sleep(1500);
+      continue;
+    }
+    break;
+  }
+
   await returnToHome(ctx);
   let listOpened = await openManualOrderList(ctx, `${tag}-list-nav`);
   if (!listOpened) {
@@ -1155,8 +1182,21 @@ export async function fillFlow(ctx, key) {
     );
   }
   if (key === 'concierge_quantity') {
-    await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
-    await typeIntoField(ctx, `fill-${key}-d`, TIDS.manualOrderInputDeposit, '50000');
+    return fillFlowViaSeedProbe(
+      ctx,
+      key,
+      {
+        mode: 'concierge_quantity',
+        symbol: '1155',
+        market: 'bursa',
+        amount: '50000',
+        investmentAmount: '50000',
+      },
+      [
+        [TIDS.manualOrderInputSymbol, '1155'],
+        [TIDS.manualOrderInputDeposit, '50000'],
+      ],
+    );
   }
   await sleep(500);
   return verifyFlowInputs(ctx, key);

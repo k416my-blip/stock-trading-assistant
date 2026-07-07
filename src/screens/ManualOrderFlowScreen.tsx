@@ -96,6 +96,7 @@ export function ManualOrderFlowScreen() {
         side: 'buy',
         market,
         amount: deposit,
+        investmentAmount: deposit,
         inputMode,
         createEnabled: !busy && !readOnlyBlockedMessage,
         validation: formValidation,
@@ -202,6 +203,13 @@ export function ManualOrderFlowScreen() {
       setInputMode('amount');
       setDeposit('2000');
       setMarket('bursa');
+      return;
+    }
+    if (mode === 'concierge_quantity') {
+      logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', deposit: '50000', market: 'bursa' }));
+      setSymbol('1155');
+      setDeposit('50000');
+      setMarket('bursa');
     }
   };
 
@@ -225,7 +233,7 @@ export function ManualOrderFlowScreen() {
         />
       ) : null}
 
-      {mode === 'manual_full' || mode === 'concierge_symbol' ? (
+      {mode === 'manual_full' || mode === 'concierge_symbol' || mode === 'concierge_quantity' ? (
         <Pressable
           testID="manual-order-e2e-apply-seed"
           accessibilityLabel="manual-order-e2e-apply-seed"
