@@ -5,9 +5,9 @@
     "model": "23090RA98G",
     "versionCode": "versionCode=44 minSdk=24 targetSdk=36",
     "adbDevices": "List of devices attached\r\nFYRWXSNNAIOR9DCM\tdevice",
-    "timestamp": "2026-07-07T22:45:03.832Z"
+    "timestamp": "2026-07-07T23:10:18.413Z"
   },
-  "startedAt": "2026-07-07T22:40:12.474Z",
+  "startedAt": "2026-07-07T23:05:26.767Z",
   "systemUiPolicy": "single-pass statusbar collapse; no dismissSystemChrome before list nav",
   "preflight": {
     "adbDevices": true,
@@ -56,5 +56,5 @@
   "listVerificationMethod": "list-item-text-scroll",
   "pendingDelta": 0,
   "completedDelta": 0,
-  "finishedAt": "2026-07-07T22:45:03.832Z"
+  "finishedAt": "2026-07-07T23:10:18.413Z"
 }
