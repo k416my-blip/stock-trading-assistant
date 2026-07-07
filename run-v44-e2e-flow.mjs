@@ -59,6 +59,23 @@ const RUN_TAG = process.env.E2E_RUN_TAG || `flow-${flowKey}`;
 process.env.E2E_RUN_TAG = RUN_TAG;
 const RESULT_FILE = path.join(OUT, `results-${RUN_TAG}.json`);
 
+const FLOWS_WITH_FORM_PROBE = new Set(['manual_full', 'concierge_symbol']);
+
+const FORM_SEED_PAYLOAD = {
+  manual_full: { symbol: '1155', shares: '100', market: 'bursa' },
+  concierge_symbol: { deposit: '2000', market: 'bursa', inputMode: 'amount' },
+};
+
+function formStateRecordDetail(flowKey, formState) {
+  if (flowKey === 'manual_full') {
+    return `symbol=${formState?.symbol} shares=${formState?.shares} market=${formState?.market}`;
+  }
+  if (flowKey === 'concierge_symbol') {
+    return `mode=${formState?.mode} amount=${formState?.amount} inputMode=${formState?.inputMode} market=${formState?.market}`;
+  }
+  return JSON.stringify(formState ?? {});
+}
+
 function flowOpened(xml, f) {
   return (
     findTestId(xml, `manual-order-flow-${f.key}`) ||
@@ -108,16 +125,12 @@ async function main() {
     const flowStart = await ensureHomeFlowStart(ctx, `${tag}-pre`);
     record(`test-c-shade-${flowKey}`, flowStart.ok ? 'PASS' : 'PARTIAL', flowStart.detail, []);
 
-    if (flowKey === 'manual_full') {
-      const seeded = writeE2eManualOrderFormSeed('manual_full', {
-        symbol: '1155',
-        shares: '100',
-        market: 'bursa',
-      });
+    if (FORM_SEED_PAYLOAD[flowKey]) {
+      const seeded = writeE2eManualOrderFormSeed(flowKey, FORM_SEED_PAYLOAD[flowKey]);
       record(
         `test-c-form-seed-${flowKey}`,
         seeded ? 'PASS' : 'PARTIAL',
-        seeded ? 'seed written' : 'seed skipped (sqlite3 unavailable); using keyevent input',
+        seeded ? 'seed written' : 'seed skipped (sqlite3 unavailable); using apply-seed probe',
         [],
       );
     }
@@ -152,22 +165,16 @@ async function main() {
 
     const inputs = await fillFlow(ctx, flowKey);
     if (!inputs.ok) {
-      const detail =
-        flowKey === 'manual_full' && inputs.formState
-          ? `form: ${(inputs.issues ?? []).join('; ')} state=${JSON.stringify(inputs.formState)}`
-          : `inputs: ${(inputs.issues ?? []).join(', ')}`;
+      const detail = inputs.formState
+        ? `form: ${(inputs.issues ?? []).join('; ')} state=${JSON.stringify(inputs.formState)}`
+        : `inputs: ${(inputs.issues ?? []).join(', ')}`;
       record(`test-c-e2e-${flowKey}`, 'FAIL', detail, await saveFailureArtifacts(`${tag}-inputs`, detail));
       saveResults(RESULT_FILE, { meta: buildMeta(), results });
       process.exitCode = 1;
       return;
     }
-    if (flowKey === 'manual_full') {
-      record(
-        `test-c-form-state-${flowKey}`,
-        'PASS',
-        `symbol=${inputs.formState?.symbol} shares=${inputs.formState?.shares} market=${inputs.formState?.market}`,
-        [],
-      );
+    if (FLOWS_WITH_FORM_PROBE.has(flowKey)) {
+      record(`test-c-form-state-${flowKey}`, 'PASS', formStateRecordDetail(flowKey, inputs.formState), []);
     }
 
     const before = pending;

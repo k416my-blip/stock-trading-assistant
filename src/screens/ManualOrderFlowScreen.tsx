@@ -60,9 +60,32 @@ export function ManualOrderFlowScreen() {
       logCreate('e2e-seed-applied', JSON.stringify(seed));
       if (seed.symbol != null) setSymbol(String(seed.symbol));
       if (seed.shares != null) setShares(String(seed.shares));
+      if (seed.deposit != null) setDeposit(String(seed.deposit));
+      if (seed.inputMode) setInputMode(seed.inputMode);
       if (seed.market) setMarket(seed.market);
     })();
   }, [mode]);
+
+  const title = t(manualOrderFlowModeTitleKey(mode));
+  const subtitle = t(`manualOrderFlow.${modeToKey(mode)}.subtitle`);
+
+  const showDeposit = mode === 'concierge_full' || mode === 'concierge_quantity' || (mode === 'concierge_symbol' && inputMode === 'amount');
+  const showShares = mode === 'manual_full' || (mode === 'concierge_symbol' && inputMode === 'shares');
+  const showSymbol = mode === 'manual_full' || mode === 'concierge_quantity';
+  const showEntryPrice = mode === 'manual_full';
+  const showInputToggle = mode === 'concierge_symbol';
+
+  const formValidation = useMemo(() => {
+    const preview = buildManualOrderFlowItems({
+      mode,
+      market,
+      depositMYR: showDeposit ? Number(deposit) || 0 : inputMode === 'amount' ? Number(deposit) || 0 : 0,
+      symbol,
+      shares: showShares || (mode === 'concierge_symbol' && inputMode === 'shares') ? Number(shares) || 0 : 0,
+      entryPrice: entryPrice ? Number(entryPrice) : undefined,
+    });
+    return preview.ok ? 'ok' : preview.error;
+  }, [mode, market, deposit, symbol, shares, entryPrice, inputMode, showDeposit, showShares]);
 
   const formProbeLabel = useMemo(
     () =>
@@ -73,10 +96,11 @@ export function ManualOrderFlowScreen() {
         side: 'buy',
         market,
         amount: deposit,
+        inputMode,
         createEnabled: !busy && !readOnlyBlockedMessage,
-        validation: symbol.trim() && Number(shares) > 0 ? 'ok' : 'missing-fields',
+        validation: formValidation,
       }),
-    [mode, symbol, shares, market, deposit, busy, readOnlyBlockedMessage],
+    [mode, symbol, shares, market, deposit, inputMode, busy, readOnlyBlockedMessage, formValidation],
   );
 
   const logPreSubmitState = (showDep: boolean, showShr: boolean) => {
@@ -103,15 +127,6 @@ export function ManualOrderFlowScreen() {
       }),
     );
   };
-
-  const title = t(manualOrderFlowModeTitleKey(mode));
-  const subtitle = t(`manualOrderFlow.${modeToKey(mode)}.subtitle`);
-
-  const showDeposit = mode === 'concierge_full' || mode === 'concierge_quantity' || (mode === 'concierge_symbol' && inputMode === 'amount');
-  const showShares = mode === 'manual_full' || (mode === 'concierge_symbol' && inputMode === 'shares');
-  const showSymbol = mode === 'manual_full' || mode === 'concierge_quantity';
-  const showEntryPrice = mode === 'manual_full';
-  const showInputToggle = mode === 'concierge_symbol';
 
   const onCreate = () => {
     logCreate('submit-called', 'onPressCreateManualOrder');
@@ -175,10 +190,19 @@ export function ManualOrderFlowScreen() {
   };
 
   const applyE2eSeed = () => {
-    logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', shares: '100', market: 'bursa' }));
-    setSymbol('1155');
-    setShares('100');
-    setMarket('bursa');
+    if (mode === 'manual_full') {
+      logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', shares: '100', market: 'bursa' }));
+      setSymbol('1155');
+      setShares('100');
+      setMarket('bursa');
+      return;
+    }
+    if (mode === 'concierge_symbol') {
+      logCreate('e2e-seed-tap', JSON.stringify({ deposit: '2000', market: 'bursa', inputMode: 'amount' }));
+      setInputMode('amount');
+      setDeposit('2000');
+      setMarket('bursa');
+    }
   };
 
   const hint = useMemo(() => t(`manualOrderFlow.${modeToKey(mode)}.hint`), [mode, t]);
@@ -201,7 +225,7 @@ export function ManualOrderFlowScreen() {
         />
       ) : null}
 
-      {mode === 'manual_full' ? (
+      {mode === 'manual_full' || mode === 'concierge_symbol' ? (
         <Pressable
           testID="manual-order-e2e-apply-seed"
           accessibilityLabel="manual-order-e2e-apply-seed"
@@ -239,6 +263,7 @@ export function ManualOrderFlowScreen() {
             placeholderTextColor={theme.colors.textMuted}
             editable={!busy}
             testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputDeposit}
+            accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderDepositInput}
           />
         </>
       ) : null}

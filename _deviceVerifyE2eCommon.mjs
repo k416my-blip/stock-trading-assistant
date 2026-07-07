@@ -728,6 +728,39 @@ export async function waitForManualOrderFormState(ctx, tag, expected, maxSec = 2
   return { ok: false, state, issues };
 }
 
+async function fillFlowViaSeedProbe(ctx, key, expected, typeFields = []) {
+  let form = { ok: false, state: null, issues: ['not-started'] };
+  const seedXml = await dump(ctx, `fill-${key}-seed`);
+  const seedHit = findTestId(seedXml, 'manual-order-e2e-apply-seed');
+  if (seedHit) {
+    console.log(`FORM-SEED-TAP ${key} applying dev seed probe (primary)`);
+    tap(seedHit);
+    await sleep(1500);
+    form = await waitForManualOrderFormState(ctx, `fill-${key}`, expected, 10);
+  }
+  if (!form.ok && typeFields.length) {
+    for (const [testId, val] of typeFields) {
+      await typeIntoField(ctx, `fill-${key}-${testId}`, testId, val);
+    }
+    await sleep(1500);
+    form = await waitForManualOrderFormState(ctx, `fill-${key}-keyevent`, expected, 10);
+  }
+  if (!form.ok && seedHit) {
+    console.log(`FORM-SEED-TAP ${key} retry dev seed probe`);
+    tap(seedHit);
+    await sleep(1500);
+    form = await waitForManualOrderFormState(ctx, `fill-${key}-retry`, expected, 12);
+  }
+  const issues = form.ok ? [] : form.issues ?? ['form-state-not-ready'];
+  const filled = Object.fromEntries(
+    Object.entries(expected).map(([k, v]) => [k, String(form.state?.[k]) === String(v)]),
+  );
+  filled.createEnabled = form.state?.createEnabled === 'true';
+  filled.validation = form.state?.validation === 'ok';
+  console.log(`FLOW-INPUTS ${key}`, JSON.stringify({ filled, issues, formState: form.state }));
+  return { ok: form.ok, filled, issues, formState: form.state };
+}
+
 export async function waitForCreateOutcome(ctx, tag, maxSec = 25) {
   await sleep(1500);
   for (let i = 0; i < maxSec; i++) {
@@ -927,7 +960,9 @@ export async function typeIntoField(ctx, tag, testId, val, { useKeyevents = true
       ? [testId, 'manual-order-symbol-input']
       : testId === TIDS.manualOrderInputShares
         ? [testId, 'manual-order-shares-input']
-        : [testId];
+        : testId === TIDS.manualOrderInputDeposit
+          ? [testId, 'manual-order-deposit-input']
+          : [testId];
   let xml = await dump(ctx, tag);
   let hit = findFieldByTestIds(xml, aliases);
   if (!hit) {
@@ -1101,55 +1136,24 @@ export async function fillFlow(ctx, key) {
   await ensureMarketBursa(ctx, `fill-${key}`);
   if (key === 'concierge_full') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
   if (key === 'manual_full') {
-    let form = { ok: false, state: null, issues: ['not-started'] };
-    const seedXml = await dump(ctx, `fill-${key}-seed`);
-    const seedHit = findTestId(seedXml, 'manual-order-e2e-apply-seed');
-    if (seedHit) {
-      console.log('FORM-SEED-TAP applying dev seed probe (primary)');
-      tap(seedHit);
-      await sleep(1500);
-      form = await waitForManualOrderFormState(
-        ctx,
-        `fill-${key}`,
-        { symbol: '1155', shares: '100', market: 'bursa' },
-        10,
-      );
-    }
-    if (!form.ok) {
-      await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
-      await typeIntoField(ctx, `fill-${key}-s`, TIDS.manualOrderInputShares, '100');
-      await sleep(1500);
-      form = await waitForManualOrderFormState(
-        ctx,
-        `fill-${key}-keyevent`,
-        { symbol: '1155', shares: '100', market: 'bursa' },
-        10,
-      );
-    }
-    if (!form.ok && seedHit) {
-      console.log('FORM-SEED-TAP retry dev seed probe');
-      tap(seedHit);
-      await sleep(1500);
-      form = await waitForManualOrderFormState(
-        ctx,
-        `fill-${key}-retry`,
-        { symbol: '1155', shares: '100', market: 'bursa' },
-        12,
-      );
-    }
-    const issues = form.ok ? [] : form.issues ?? ['form-state-not-ready'];
-    const filled = {
-      market: form.state?.market === 'bursa',
-      symbol: form.state?.symbol === '1155',
-      shares: form.state?.shares === '100',
-      side: form.state?.side === 'buy',
-      createEnabled: form.state?.createEnabled === 'true',
-      validation: form.state?.validation === 'ok',
-    };
-    console.log(`FLOW-INPUTS ${key}`, JSON.stringify({ filled, issues, formState: form.state }));
-    return { ok: form.ok, filled, issues, formState: form.state };
+    return fillFlowViaSeedProbe(
+      ctx,
+      key,
+      { mode: 'manual_full', symbol: '1155', shares: '100', market: 'bursa' },
+      [
+        [TIDS.manualOrderInputSymbol, '1155'],
+        [TIDS.manualOrderInputShares, '100'],
+      ],
+    );
   }
-  if (key === 'concierge_symbol') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
+  if (key === 'concierge_symbol') {
+    return fillFlowViaSeedProbe(
+      ctx,
+      key,
+      { mode: 'concierge_symbol', market: 'bursa', amount: '2000', inputMode: 'amount' },
+      [[TIDS.manualOrderInputDeposit, '2000']],
+    );
+  }
   if (key === 'concierge_quantity') {
     await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
     await typeIntoField(ctx, `fill-${key}-d`, TIDS.manualOrderInputDeposit, '50000');

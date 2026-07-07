@@ -7,6 +7,8 @@ export type E2eManualOrderFormSeed = {
   mode: ManualOrderFlowMode;
   symbol?: string;
   shares?: string | number;
+  deposit?: string | number;
+  inputMode?: 'amount' | 'shares';
   market?: Market;
   side?: 'buy';
 };

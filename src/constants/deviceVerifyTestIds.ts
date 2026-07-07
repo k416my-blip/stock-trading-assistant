@@ -24,6 +24,7 @@ export const DEVICE_VERIFY_TEST_IDS = {
   /** E2E aliases (UiAutomator). */
   manualOrderSymbolInput: 'manual-order-symbol-input',
   manualOrderSharesInput: 'manual-order-shares-input',
+  manualOrderDepositInput: 'manual-order-deposit-input',
   manualOrderSideBuy: 'manual-order-side-buy',
   manualOrderMarketBursa: 'market-picker-bursa',
   portfolioManualOrderList: 'portfolio-manual-order-list',
