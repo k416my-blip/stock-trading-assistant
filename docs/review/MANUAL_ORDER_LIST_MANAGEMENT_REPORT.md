@@ -83,6 +83,7 @@ Prior v44 E2E + RM5000 smoke confirmed list create/navigation paths. Re-run: `no
 
 ## Git
 
-Commit hash: `938c3dbc5e3edbe33b7af3075c54f366acf47ad5`
-Push: pending
+Commit hash: `f952316`
+Push: success (origin/cursor/top3-maxdd-capital-audit)
+
 
