@@ -21,6 +21,11 @@ export const DEVICE_VERIFY_TEST_IDS = {
   manualOrderInputDeposit: 'manual-order-input-deposit',
   manualOrderInputSymbol: 'manual-order-input-symbol',
   manualOrderInputShares: 'manual-order-input-shares',
+  /** E2E aliases (UiAutomator). */
+  manualOrderSymbolInput: 'manual-order-symbol-input',
+  manualOrderSharesInput: 'manual-order-shares-input',
+  manualOrderSideBuy: 'manual-order-side-buy',
+  manualOrderMarketBursa: 'market-picker-bursa',
   portfolioManualOrderList: 'portfolio-manual-order-list',
   settingsNavPracticeMode: 'settings-nav-practice-mode',
   appModeLiveAnalysis: 'app-mode-live-analysis',
@@ -59,3 +64,27 @@ export function parsePendingManualOrderProbe(label: string): number | null {
   const n = Number(label.slice(prefix.length));
   return Number.isFinite(n) && n >= 0 ? n : null;
 }
+
+export const DEVICE_VERIFY_FORM_STATE_PREFIX = 'manual-order-form-state:';
+
+export function formatManualOrderFormProbe(fields: Record<string, string | number | boolean>): string {
+  const pairs = Object.entries(fields)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(',');
+  return `${DEVICE_VERIFY_FORM_STATE_PREFIX}${pairs}`;
+}
+
+export function parseManualOrderFormProbe(label: string): Record<string, string> | null {
+  if (!label.startsWith(DEVICE_VERIFY_FORM_STATE_PREFIX)) return null;
+  const body = label.slice(DEVICE_VERIFY_FORM_STATE_PREFIX.length);
+  const out: Record<string, string> = {};
+  for (const part of body.split(',')) {
+    const i = part.indexOf('=');
+    if (i <= 0) continue;
+    out[part.slice(0, i)] = part.slice(i + 1);
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+/** Dev/E2E only — seeds ManualOrderFlowScreen controlled inputs via AsyncStorage. */
+export const E2E_MANUAL_ORDER_FORM_SEED_KEY = '@sta/e2e_manual_order_form_seed';

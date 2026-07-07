@@ -146,7 +146,8 @@ async function main() {
     if (beforeProbes.count != null) pending = Math.max(pending, beforeProbes.count);
     record(`test-c-pending-before-${flow.key}`, 'PASS', `before=${before} (${beforeProbes.source || 'tracked'})`, []);
 
-    if (!(await tapCreate(ctx, tag, flow.key))) {
+    const tapOk = (await tapCreate(ctx, tag, flow.key)).ok;
+    if (!tapOk) {
       record(`test-c-e2e-${flow.key}`, 'FAIL', 'create button not tappable', await saveFailureArtifacts(`${tag}-create`, 'create tap failed'));
       await returnToHome(ctx);
       continue;

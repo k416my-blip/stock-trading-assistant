@@ -39,6 +39,9 @@ import {
   waitForCreateReady,
   fillFlow,
   tapCreate,
+  writeE2eManualOrderFormSeed,
+  waitForManualOrderFormState,
+  waitForCreateOutcome,
   saveFailureArtifacts,
   currentActivity,
   adb,
@@ -105,6 +108,20 @@ async function main() {
     const flowStart = await ensureHomeFlowStart(ctx, `${tag}-pre`);
     record(`test-c-shade-${flowKey}`, flowStart.ok ? 'PASS' : 'PARTIAL', flowStart.detail, []);
 
+    if (flowKey === 'manual_full') {
+      const seeded = writeE2eManualOrderFormSeed('manual_full', {
+        symbol: '1155',
+        shares: '100',
+        market: 'bursa',
+      });
+      record(
+        `test-c-form-seed-${flowKey}`,
+        seeded ? 'PASS' : 'PARTIAL',
+        seeded ? 'seed written' : 'seed skipped (sqlite3 unavailable); using keyevent input',
+        [],
+      );
+    }
+
     const open = await tapHomeFlowButtonWithRetry(ctx, flowKey, tag);
     if (!open.ok) {
       record(`test-c-flow-${flowKey}-open`, 'FAIL', `button not found activity=${currentActivity()}`, open.evidence || []);
@@ -135,30 +152,52 @@ async function main() {
 
     const inputs = await fillFlow(ctx, flowKey);
     if (!inputs.ok) {
-      record(`test-c-e2e-${flowKey}`, 'FAIL', `inputs: ${inputs.issues.join(', ')}`, []);
+      const detail =
+        flowKey === 'manual_full' && inputs.formState
+          ? `form: ${(inputs.issues ?? []).join('; ')} state=${JSON.stringify(inputs.formState)}`
+          : `inputs: ${(inputs.issues ?? []).join(', ')}`;
+      record(`test-c-e2e-${flowKey}`, 'FAIL', detail, await saveFailureArtifacts(`${tag}-inputs`, detail));
       saveResults(RESULT_FILE, { meta: buildMeta(), results });
       process.exitCode = 1;
       return;
+    }
+    if (flowKey === 'manual_full') {
+      record(
+        `test-c-form-state-${flowKey}`,
+        'PASS',
+        `symbol=${inputs.formState?.symbol} shares=${inputs.formState?.shares} market=${inputs.formState?.market}`,
+        [],
+      );
     }
 
     const before = pending;
     record(`test-c-pending-before-${flowKey}`, 'PASS', `before=${before}`, []);
-    if (!(await tapCreate(ctx, tag, flowKey))) {
-      record(`test-c-e2e-${flowKey}`, 'FAIL', 'create tap failed', await saveFailureArtifacts(`${tag}-create`, 'create tap failed'));
+    const tapResult = await tapCreate(ctx, tag, flowKey);
+    if (!tapResult.ok) {
+      const tapDetail = tapResult.disabled
+        ? `create disabled: ${tapResult.label ?? tapResult.reason}`
+        : tapResult.reason ?? 'create tap failed';
+      record(`test-c-e2e-${flowKey}`, 'FAIL', tapDetail, await saveFailureArtifacts(`${tag}-create`, tapDetail));
       saveResults(RESULT_FILE, { meta: buildMeta(), results });
       process.exitCode = 1;
       return;
     }
+    record(`test-c-create-tap-${flowKey}`, 'PASS', tapResult.via ?? 'testid', []);
 
-    await sleep(15000);
-    const alertResult = await dismissPostCreateAlert(ctx, tag);
-    if (!alertResult.ok) {
-      record(`test-c-e2e-${flowKey}`, 'FAIL', alertResult.body || alertResult.reason, await saveFailureArtifacts(`${tag}-alert-err`, alertResult.reason));
+    const outcome = await waitForCreateOutcome(ctx, tag);
+    const alertResult = outcome.alertResult ?? { ok: true, reason: outcome.reason };
+    if (!outcome.ok) {
+      record(`test-c-e2e-${flowKey}`, 'FAIL', outcome.reason, await saveFailureArtifacts(`${tag}-outcome`, outcome.reason));
       saveResults(RESULT_FILE, { meta: buildMeta(), results });
       process.exitCode = 1;
       return;
     }
-    record(`test-c-create-alert-${flowKey}`, alertResult.reason === 'no-alert' ? 'PARTIAL' : 'PASS', `alert=${alertResult.reason}`, []);
+    record(
+      `test-c-create-alert-${flowKey}`,
+      alertResult.reason === 'no-alert' ? 'PARTIAL' : 'PASS',
+      `alert=${alertResult.reason} probe=${outcome.probe ?? 'n/a'}`,
+      [],
+    );
 
     const { after: afterProbe } = await readPendingAfterCreate(ctx, tag);
     const evalResult = evaluatePendingAfterCreate(before, afterProbe, alertResult);

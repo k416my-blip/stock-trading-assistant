@@ -11,6 +11,9 @@ import {
   parsePendingCountFromXml,
   parseCreateBlockReason,
   isCreateReady,
+  parseCreateErrorFromXml,
+  parseCreateSuccessFromXml,
+  parseManualOrderFormProbeFromXml,
   TIDS,
   CREATE_READY,
   CREATE_BLOCKED_PREFIX,
@@ -324,7 +327,9 @@ export async function ensureMetroLink() {
   for (let i = 0; i < 15; i++) {
     try {
       const code = sh(
-        'powershell -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -TimeoutSec 5 http://127.0.0.1:8081/status).StatusCode } catch { 0 }"',
+        process.platform === 'win32'
+          ? 'curl.exe -s -o NUL -w "%{http_code}" http://127.0.0.1:8081/status'
+          : 'curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8081/status',
       );
       if (code === '200') return true;
     } catch {}
@@ -686,6 +691,114 @@ export function writeAsyncStorageValue(storageKey, value) {
   }
 }
 
+export function writeE2eManualOrderFormSeed(mode, fields = {}) {
+  const payload = { mode, side: 'buy', ...fields };
+  const ok = writeAsyncStorageValue('@sta/e2e_manual_order_form_seed', payload);
+  console.log(`E2E-FORM-SEED ${mode}`, JSON.stringify(payload), ok ? 'written' : 'skipped-no-sqlite3');
+  return ok;
+}
+
+export async function waitForManualOrderFormState(ctx, tag, expected, maxSec = 20) {
+  const want = { ...expected };
+  for (let i = 0; i < maxSec; i++) {
+    const xml = await dump(ctx, `${tag}-form-${i}`);
+    const state = parseManualOrderFormProbeFromXml(xml);
+    if (state) {
+      console.log(`FORM-STATE ${tag}`, JSON.stringify(state));
+      const fieldsOk = Object.entries(want).every(([k, v]) => String(state[k]) === String(v));
+      const enabledOk = state.createEnabled === 'true';
+      const validationOk = state.validation === 'ok';
+      if (fieldsOk && enabledOk && validationOk) {
+        return { ok: true, state };
+      }
+    }
+    await sleep(1000);
+  }
+  const xml = await dump(ctx, `${tag}-form-final`, { persist: true });
+  const state = parseManualOrderFormProbeFromXml(xml);
+  const issues = [];
+  if (!state) issues.push('form-probe-missing');
+  else {
+    for (const [k, v] of Object.entries(want)) {
+      if (String(state[k]) !== String(v)) issues.push(`${k}=${state[k] ?? '?'} want ${v}`);
+    }
+    if (state.createEnabled !== 'true') issues.push(`createEnabled=${state.createEnabled}`);
+    if (state.validation !== 'ok') issues.push(`validation=${state.validation}`);
+  }
+  return { ok: false, state, issues };
+}
+
+export async function waitForCreateOutcome(ctx, tag, maxSec = 25) {
+  await sleep(1500);
+  for (let i = 0; i < maxSec; i++) {
+    const xml = await dump(ctx, `${tag}-outcome-${i}`);
+    const parsed = parseAlertFromXml(xml);
+    const tx = [...texts(xml)];
+
+    if (parsed?.kind === 'error') {
+      console.log(`CREATE-OUTCOME error-probe ${parsed.body}`);
+      const okBtn = find(xml, (t) => t === OK_BTN || t === 'OK')[0];
+      if (okBtn) tap(okBtn);
+      return {
+        ok: false,
+        reason: `create-error-probe:${parsed.body}`,
+        alertResult: { ok: false, reason: `create-error-alert:${parsed.body}`, body: parsed.body },
+      };
+    }
+
+    const errProbe = parseCreateErrorFromXml(xml);
+    if (errProbe) {
+      console.log(`CREATE-OUTCOME error ${errProbe}`);
+      const okBtn = find(xml, (t) => t === OK_BTN || t === 'OK')[0];
+      if (okBtn) tap(okBtn);
+      return {
+        ok: false,
+        reason: `create-error-probe:${errProbe}`,
+        alertResult: { ok: false, reason: `create-error-alert:${errProbe}`, body: errProbe },
+      };
+    }
+
+    const successProbe = parseCreateSuccessFromXml(xml);
+    const hasCreatedTitle = tx.some(
+      (t) =>
+        t === CREATED_TITLE ||
+        t === '\u30ea\u30b9\u30c8\u306b\u8ffd\u52a0\u3057\u307e\u3057\u305f' ||
+        t.includes('\u624b\u52d5\u6ce8\u6587\u30ea\u30b9\u30c8\u306b\u8ffd\u52a0'),
+    );
+    if (successProbe != null || parsed?.kind === 'success' || hasCreatedTitle) {
+      const alertResult = await dismissPostCreateAlert(ctx, `${tag}-outcome-dismiss`);
+      return {
+        ok: true,
+        reason: alertResult.reason === 'no-alert' ? 'success-probe-only' : alertResult.reason,
+        alertResult,
+        probe: successProbe,
+      };
+    }
+
+    await sleep(1000);
+  }
+  const xml = await dump(ctx, `${tag}-outcome-final`, { persist: true });
+  const errProbe = parseCreateErrorFromXml(xml);
+  const successProbe = parseCreateSuccessFromXml(xml);
+  if (errProbe) {
+    return {
+      ok: false,
+      reason: `create-error-probe:${errProbe}`,
+      alertResult: { ok: false, reason: `create-error-alert:${errProbe}` },
+    };
+  }
+  if (successProbe != null) {
+    const alertResult = await dismissPostCreateAlert(ctx, `${tag}-outcome-late`);
+    return { ok: true, reason: alertResult.reason, alertResult, probe: successProbe };
+  }
+  return {
+    ok: false,
+    reason: 'no-alert',
+    alertResult: { ok: true, reason: 'no-alert' },
+    probe: null,
+  };
+}
+
 /** Beginner UX hides Settings tab — seed standard mode before Test C/D/E settings navigation. */
 export async function ensureStandardUxMode(ctx) {
   writeAsyncStorageValue('@sta/app_ux_mode_v1', 'standard');
@@ -789,14 +902,39 @@ export async function waitForCreateReady(ctx, modeKey, tag, record, maxSec = 30)
   return { ok: false, reason: 'timeout-create-ready-probe' };
 }
 
-export async function typeIntoField(ctx, tag, testId, val) {
+const DIGIT_KEYCODE = { '0': 7, '1': 8, '2': 9, '3': 10, '4': 11, '5': 12, '6': 13, '7': 14, '8': 15, '9': 16 };
+
+async function typeViaKeyevents(val) {
+  for (const ch of String(val)) {
+    const code = DIGIT_KEYCODE[ch];
+    if (code == null) continue;
+    adb(`input keyevent ${code}`);
+    await sleep(130);
+  }
+}
+
+function findFieldByTestIds(xml, testIds) {
+  for (const id of testIds) {
+    const hit = findTestId(xml, id);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+export async function typeIntoField(ctx, tag, testId, val, { useKeyevents = true } = {}) {
+  const aliases =
+    testId === TIDS.manualOrderInputSymbol
+      ? [testId, 'manual-order-symbol-input']
+      : testId === TIDS.manualOrderInputShares
+        ? [testId, 'manual-order-shares-input']
+        : [testId];
   let xml = await dump(ctx, tag);
-  let hit = findTestId(xml, testId);
+  let hit = findFieldByTestIds(xml, aliases);
   if (!hit) {
     adb('input swipe 540 1600 540 900 280');
     await sleep(500);
     xml = await dump(ctx, `${tag}-scroll`);
-    hit = findTestId(xml, testId);
+    hit = findFieldByTestIds(xml, aliases);
   }
   if (!hit) {
     const e = edits(xml).sort((a, b) => a.cy - b.cy);
@@ -805,14 +943,25 @@ export async function typeIntoField(ctx, tag, testId, val) {
     if (testId === TIDS.manualOrderInputShares && e[1]) hit = e[1];
     else if (testId === TIDS.manualOrderInputShares && e[0]) hit = e[0];
   }
-  if (!hit) return false;
+  if (!hit) {
+    console.log(`TYPE-FIELD-MISS ${testId} val=${val}`);
+    return false;
+  }
+  adb(`input tap ${hit.cx} ${hit.cy}`);
+  await sleep(500);
   adb(`input tap ${hit.cx} ${hit.cy}`);
   await sleep(400);
-  for (let i = 0; i < 8; i++) adb('input keyevent 67');
-  adb(`input text ${val}`);
-  await sleep(300);
+  for (let i = 0; i < 12; i++) adb('input keyevent 67');
+  await sleep(200);
+  if (useKeyevents && /^[0-9.]+$/.test(String(val))) {
+    await typeViaKeyevents(val);
+  } else {
+    adb(`input text ${val}`);
+  }
+  await sleep(400);
   adb('input tap 540 220');
-  await sleep(300);
+  await sleep(400);
+  console.log(`TYPE-FIELD-OK ${testId} val=${val} keyevents=${useKeyevents}`);
   return true;
 }
 
@@ -952,8 +1101,53 @@ export async function fillFlow(ctx, key) {
   await ensureMarketBursa(ctx, `fill-${key}`);
   if (key === 'concierge_full') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
   if (key === 'manual_full') {
-    await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
-    await typeIntoField(ctx, `fill-${key}-s`, TIDS.manualOrderInputShares, '100');
+    let form = { ok: false, state: null, issues: ['not-started'] };
+    const seedXml = await dump(ctx, `fill-${key}-seed`);
+    const seedHit = findTestId(seedXml, 'manual-order-e2e-apply-seed');
+    if (seedHit) {
+      console.log('FORM-SEED-TAP applying dev seed probe (primary)');
+      tap(seedHit);
+      await sleep(1500);
+      form = await waitForManualOrderFormState(
+        ctx,
+        `fill-${key}`,
+        { symbol: '1155', shares: '100', market: 'bursa' },
+        10,
+      );
+    }
+    if (!form.ok) {
+      await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputSymbol, '1155');
+      await typeIntoField(ctx, `fill-${key}-s`, TIDS.manualOrderInputShares, '100');
+      await sleep(1500);
+      form = await waitForManualOrderFormState(
+        ctx,
+        `fill-${key}-keyevent`,
+        { symbol: '1155', shares: '100', market: 'bursa' },
+        10,
+      );
+    }
+    if (!form.ok && seedHit) {
+      console.log('FORM-SEED-TAP retry dev seed probe');
+      tap(seedHit);
+      await sleep(1500);
+      form = await waitForManualOrderFormState(
+        ctx,
+        `fill-${key}-retry`,
+        { symbol: '1155', shares: '100', market: 'bursa' },
+        12,
+      );
+    }
+    const issues = form.ok ? [] : form.issues ?? ['form-state-not-ready'];
+    const filled = {
+      market: form.state?.market === 'bursa',
+      symbol: form.state?.symbol === '1155',
+      shares: form.state?.shares === '100',
+      side: form.state?.side === 'buy',
+      createEnabled: form.state?.createEnabled === 'true',
+      validation: form.state?.validation === 'ok',
+    };
+    console.log(`FLOW-INPUTS ${key}`, JSON.stringify({ filled, issues, formState: form.state }));
+    return { ok: form.ok, filled, issues, formState: form.state };
   }
   if (key === 'concierge_symbol') await typeIntoField(ctx, `fill-${key}`, TIDS.manualOrderInputDeposit, '2000');
   if (key === 'concierge_quantity') {
@@ -976,13 +1170,32 @@ export async function tapCreate(ctx, tag, modeKey) {
   if (!hit) {
     const b = find(xml, (t) => t === CREATE);
     if (b[0]) {
+      console.log(`CREATE-TAP ${modeKey} fallback-label coords=${b[0].cx},${b[0].cy}`);
       tap(b[0]);
-      return true;
+      return { ok: true, via: 'label-fallback' };
     }
-    return false;
+    console.log(`CREATE-TAP ${modeKey} MISS testID=${TIDS.manualOrderCreate(modeKey)}`);
+    return { ok: false, reason: 'create-button-not-found' };
   }
-  tap(hit);
-  return true;
+  if (hit.cy > 2350) {
+    console.log(`CREATE-TAP ${modeKey} scroll-up cy=${hit.cy}`);
+    adb('input swipe 540 1900 540 900 350');
+    await sleep(600);
+    xml = await dump(ctx, `${tag}-create-scroll-${modeKey}`);
+    hit = findTestId(xml, TIDS.manualOrderCreate(modeKey)) ?? hit;
+  }
+  const label = hit.label || TIDS.manualOrderCreate(modeKey);
+  if (label.includes(':disabled')) {
+    console.log(`CREATE-TAP-BLOCKED ${modeKey} disabled label=${label}`);
+    return { ok: false, disabled: true, reason: 'create-button-disabled', label };
+  }
+  const createLabel = find(xml, (t) => t === CREATE)[0];
+  const target = createLabel && createLabel.cy < hit.cy ? createLabel : hit;
+  console.log(
+    `CREATE-TAP ${modeKey} testID=${TIDS.manualOrderCreate(modeKey)} coords=${target.cx},${target.cy} label=${label}`,
+  );
+  tap(target);
+  return { ok: true, via: createLabel && createLabel.cy < hit.cy ? 'create-label' : 'testid', label };
 }
 
 const UX_MODE_LABELS = {

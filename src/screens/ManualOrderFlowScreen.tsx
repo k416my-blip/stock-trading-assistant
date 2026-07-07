@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useMemo, useState, useEffect } from 'react';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MarketPicker } from '../components/MarketPicker';
@@ -13,7 +13,9 @@ import {
   formatCreateErrorProbe,
   formatCreateSuccessProbe,
   DEVICE_VERIFY_CREATE_READY_LABEL,
+  formatManualOrderFormProbe,
 } from '../constants/deviceVerifyTestIds';
+import { consumeE2eManualOrderFormSeed } from '../services/e2eManualOrderFormSeed';
 import { writePendingManualOrderProbe } from '../services/manualOrderVerification';
 import { useApp } from '../context/AppContext';
 import {
@@ -51,6 +53,57 @@ export function ManualOrderFlowScreen() {
     console.warn(`[ManualOrderFlow/${mode}] ${phase}: ${detail}`);
   };
 
+  useEffect(() => {
+    void (async () => {
+      const seed = await consumeE2eManualOrderFormSeed(mode);
+      if (!seed) return;
+      logCreate('e2e-seed-applied', JSON.stringify(seed));
+      if (seed.symbol != null) setSymbol(String(seed.symbol));
+      if (seed.shares != null) setShares(String(seed.shares));
+      if (seed.market) setMarket(seed.market);
+    })();
+  }, [mode]);
+
+  const formProbeLabel = useMemo(
+    () =>
+      formatManualOrderFormProbe({
+        mode,
+        symbol: symbol.trim() || '(empty)',
+        shares: shares.trim() || '(empty)',
+        side: 'buy',
+        market,
+        amount: deposit,
+        createEnabled: !busy && !readOnlyBlockedMessage,
+        validation: symbol.trim() && Number(shares) > 0 ? 'ok' : 'missing-fields',
+      }),
+    [mode, symbol, shares, market, deposit, busy, readOnlyBlockedMessage],
+  );
+
+  const logPreSubmitState = (showDep: boolean, showShr: boolean) => {
+    const preview = buildManualOrderFlowItems({
+      mode,
+      market,
+      depositMYR: showDep ? Number(deposit) || 0 : inputMode === 'amount' ? Number(deposit) || 0 : 0,
+      symbol,
+      shares: showShr || (mode === 'concierge_symbol' && inputMode === 'shares') ? Number(shares) || 0 : 0,
+      entryPrice: entryPrice ? Number(entryPrice) : undefined,
+    });
+    logCreate(
+      'pre-submit',
+      JSON.stringify({
+        mode,
+        symbol: symbol.trim(),
+        shares: Number(shares) || 0,
+        side: 'buy',
+        market,
+        amount: Number(deposit) || 0,
+        createEnabled: !busy && !readOnlyBlockedMessage,
+        validation: preview.ok ? 'ok' : preview.error,
+        submitHandler: 'about-to-call',
+      }),
+    );
+  };
+
   const title = t(manualOrderFlowModeTitleKey(mode));
   const subtitle = t(`manualOrderFlow.${modeToKey(mode)}.subtitle`);
 
@@ -61,6 +114,9 @@ export function ManualOrderFlowScreen() {
   const showInputToggle = mode === 'concierge_symbol';
 
   const onCreate = () => {
+    logCreate('submit-called', 'onPressCreateManualOrder');
+    logPreSubmitState(showDeposit, showShares);
+
     if (readOnlyBlockedMessage) {
       logCreate('blocked-readonly', readOnlyBlockedMessage);
       setCreateVerifyProbe(formatCreateErrorProbe(`readonly:${readOnlyBlockedMessage}`));
@@ -78,20 +134,22 @@ export function ManualOrderFlowScreen() {
         shares: showShares || (mode === 'concierge_symbol' && inputMode === 'shares') ? Number(shares) || 0 : 0,
         entryPrice: entryPrice ? Number(entryPrice) : undefined,
       });
-      if (!built.ok) {
-        logCreate('build-fail', built.error);
-        setCreateVerifyProbe(formatCreateErrorProbe(built.error));
-        Alert.alert(t('manualOrderFlow.cannotCreateTitle'), built.error);
-        return;
-      }
-      const added = addManualBuyOrders(built.items);
-      if (!added.ok) {
-        const err = added.error ?? t('manualOrderFlow.createFailed');
-        logCreate('add-fail', err);
-        setCreateVerifyProbe(formatCreateErrorProbe(err));
-        Alert.alert(t('manualOrderFlow.cannotCreateTitle'), err);
-        return;
-      }
+    if (!built.ok) {
+      logCreate('build-fail', built.error);
+      setCreateVerifyProbe(formatCreateErrorProbe(built.error));
+      setBusy(false);
+      Alert.alert(t('manualOrderFlow.cannotCreateTitle'), built.error);
+      return;
+    }
+    const added = addManualBuyOrders(built.items);
+    if (!added.ok) {
+      const err = added.error ?? t('manualOrderFlow.createFailed');
+      logCreate('add-fail', err);
+      setCreateVerifyProbe(formatCreateErrorProbe(err));
+      setBusy(false);
+      Alert.alert(t('manualOrderFlow.cannotCreateTitle'), err);
+      return;
+    }
       logCreate('ok', `added=${added.addedCount ?? built.items.length} practice=${isPractice}`);
       setCreateVerifyProbe(formatCreateSuccessProbe(added.addedCount ?? built.items.length));
       void writePendingManualOrderProbe([
@@ -106,9 +164,21 @@ export function ManualOrderFlowScreen() {
           { text: t('trust.ok'), onPress: () => navigation.goBack() },
         ],
       );
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      logCreate('unexpected-fail', msg);
+      setCreateVerifyProbe(formatCreateErrorProbe(msg));
+      Alert.alert(t('manualOrderFlow.cannotCreateTitle'), msg);
     } finally {
       setBusy(false);
     }
+  };
+
+  const applyE2eSeed = () => {
+    logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', shares: '100', market: 'bursa' }));
+    setSymbol('1155');
+    setShares('100');
+    setMarket('bursa');
   };
 
   const hint = useMemo(() => t(`manualOrderFlow.${modeToKey(mode)}.hint`), [mode, t]);
@@ -120,6 +190,25 @@ export function ManualOrderFlowScreen() {
       </Card>
 
       {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
+
+      {mode === 'manual_full' ? (
+        <View
+          testID={DEVICE_VERIFY_TEST_IDS.manualOrderSideBuy}
+          accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderSideBuy}
+          accessible
+          importantForAccessibility="yes"
+          style={styles.createReadyProbe}
+        />
+      ) : null}
+
+      {mode === 'manual_full' ? (
+        <Pressable
+          testID="manual-order-e2e-apply-seed"
+          accessibilityLabel="manual-order-e2e-apply-seed"
+          onPress={applyE2eSeed}
+          style={styles.createReadyProbe}
+        />
+      ) : null}
 
       <MarketPicker selected={market} onSelect={setMarket} />
 
@@ -166,6 +255,7 @@ export function ManualOrderFlowScreen() {
             autoCapitalize="characters"
             editable={!busy}
             testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputSymbol}
+            accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderSymbolInput}
           />
         </>
       ) : null}
@@ -182,6 +272,7 @@ export function ManualOrderFlowScreen() {
             placeholderTextColor={theme.colors.textMuted}
             editable={!busy}
             testID={DEVICE_VERIFY_TEST_IDS.manualOrderInputShares}
+            accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderSharesInput}
           />
         </>
       ) : null}
@@ -204,6 +295,14 @@ export function ManualOrderFlowScreen() {
       <Text style={styles.hint}>{hint}</Text>
 
       <View
+        testID="manual-order-form-state"
+        accessibilityLabel={formProbeLabel}
+        accessible
+        importantForAccessibility="yes"
+        style={styles.createReadyProbe}
+      />
+
+      <View
         testID={DEVICE_VERIFY_TEST_IDS.manualOrderCreateReady}
         accessibilityLabel={
           readOnlyBlockedMessage
@@ -220,7 +319,7 @@ export function ManualOrderFlowScreen() {
         onPress={onCreate}
         disabled={busy}
         testID={DEVICE_VERIFY_TEST_IDS.manualOrderCreate(mode)}
-        accessibilityLabel={DEVICE_VERIFY_TEST_IDS.manualOrderCreate(mode)}
+        accessibilityLabel={`${DEVICE_VERIFY_TEST_IDS.manualOrderCreate(mode)}:${busy ? 'disabled' : 'enabled'}`}
       />
       <Button label={t('manualOrderFlow.backHome')} onPress={() => navigation.goBack()} variant="ghost" />
     </Screen>

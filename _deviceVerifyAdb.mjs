@@ -60,6 +60,23 @@ export function parseCreateSuccessFromXml(xml) {
   return null;
 }
 
+export const FORM_STATE_PREFIX = 'manual-order-form-state:';
+
+export function parseManualOrderFormProbeFromXml(xml) {
+  for (const label of xmlTexts(xml)) {
+    if (!label.startsWith(FORM_STATE_PREFIX)) continue;
+    const body = label.slice(FORM_STATE_PREFIX.length);
+    const out = {};
+    for (const part of body.split(',')) {
+      const i = part.indexOf('=');
+      if (i <= 0) continue;
+      out[part.slice(0, i)] = part.slice(i + 1);
+    }
+    return Object.keys(out).length ? out : null;
+  }
+  return null;
+}
+
 export function isCreateReady(xml) {
   const labels = [...xmlTexts(xml)];
   if (labels.some((l) => l.startsWith('manual-order-create-error:'))) return false;
