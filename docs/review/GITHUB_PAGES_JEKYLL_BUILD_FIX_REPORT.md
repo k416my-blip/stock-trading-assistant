@@ -51,5 +51,6 @@ Manual re-run: Actions → **Deploy GitHub Pages** → **Run workflow**.
 
 ## Commit / push
 
-*(filled after push)*
+- **E2E commit:** `d2902a8` — `fix(concierge_quantity): E2E create flow for device verify v44`n- **Pages commit:** `34a038f` — `fix(pages): static GitHub Actions deploy with .nojekyll skip`n- **Push:** success → `origin/cursor/top3-maxdd-capital-audit`
+
 
