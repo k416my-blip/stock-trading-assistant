@@ -56,5 +56,7 @@
   "listVerificationMethod": "list-item-text-scroll",
   "pendingDelta": 0,
   "completedDelta": 0,
-  "finishedAt": "2026-07-07T22:03:08.492Z"
+  "finishedAt": "2026-07-07T22:03:08.492Z",
+  "commitHash": "f7c534b5fedae75e70f4b249fc9deda3523ae737",
+  "pushStatus": "成功（リモートと同期）"
 }
