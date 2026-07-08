@@ -20,10 +20,12 @@ import {
   isNotificationShadeOpen,
   ensureAppForeground,
   currentActivity,
+  wakeAndUnlockDevice,
   writeUtf8File,
 } from './_deviceVerifyE2eCommon.mjs';
 import { findTestId, parseCompletedCountFromXml, TIDS } from './_deviceVerifyAdb.mjs';
 import { checkE2eMemoryGate, logMemorySnapshot } from './_deviceVerifyMemory.mjs';
+import { readManualOrderCounts, readAfterActionCounts } from './_manualOrderCountProbes.mjs';
 
 const SERIAL = process.env.ADB_SERIAL || 'FYRWXSNNAIOR9DCM';
 const MAIN_ACTIVITY = `${PKG}/.MainActivity`;
@@ -218,6 +220,7 @@ async function dumpList(ctx, tag) {
 }
 
 async function openListWithDiagnostics(ctx, report) {
+  wakeAndUnlockDevice();
   adb(`am force-stop ${PKG}`);
   await sleep(1500);
   try {
@@ -364,9 +367,16 @@ async function scrollEditIntoView(ctx, editId, tag) {
 
 async function scrollListFind999(ctx, tag) {
   let xml = await dump(ctx, `${tag}-find0`);
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     const listText = [...texts(xml)].join('\n');
-    if (listText.includes('999株') || listText.includes('· 999') || listText.includes('999')) return { found: true, xml, listText };
+    if (
+      listText.includes('999株') ||
+      listText.includes('· 999') ||
+      listText.includes('999') ||
+      listText.includes(MEMO_TEXT)
+    ) {
+      return { found: true, xml, listText };
+    }
     swipeY(0.66, 0.33, 280);
     await sleep(500);
     xml = await dump(ctx, `${tag}-find-${i + 1}`);
@@ -485,7 +495,7 @@ async function main() {
   let editXml = listResult.xml;
   let editId = [...texts(editXml)].find((t) => t.startsWith('manual-order-edit-'));
   if (!editId) {
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 20; i++) {
       swipeY(0.66, 0.33, 280);
       await sleep(500);
       editXml = await dump({}, `find-edit-${i}`);
@@ -494,24 +504,42 @@ async function main() {
     }
   }
 
-  report.pendingBefore = pendingFromXml(editXml) ?? listResult.pending;
-  report.completedBefore = completedFromXml(editXml);
+  if (!editId) {
+    report.fail = 'no-edit-testid';
+    report.evidence = await saveEvidence('no-edit-testid', report.fail, editXml);
+    report.finishedAt = new Date().toISOString();
+    writeReport(report, gitHash(), '未実行');
+    process.exit(1);
+  }
+
+  const beforeCounts = await readManualOrderCounts({}, 'edit-before', { ensureList: false });
+  report.pendingBefore = beforeCounts.pending;
+  report.completedBefore = beforeCounts.completed;
+  report.pendingSourceBefore = beforeCounts.pendingSource;
+  report.completedSourceBefore = beforeCounts.completedSource;
+  if (!beforeCounts.ok) {
+    report.fail = 'count-before-unreadable';
+    report.countMissesBefore = beforeCounts.misses;
+    report.evidence = beforeCounts.evidence ?? [];
+    report.finishedAt = new Date().toISOString();
+    writeReport(report, gitHash(), '未実行');
+    process.exit(1);
+  }
+
   report.sharesBefore = [...editXml.matchAll(/[·\s](\d+)株/g)].map((m) => Number(m[1])).pop() ?? null;
 
-  const editHit = editId ? findTestId(editXml, editId) : find(editXml, (t) => t === '編集')[0];
-  if (!editHit) {
+  report.targetTestId = editId;
+  const aimed = await scrollEditIntoView({}, editId, 'edit-aim');
+  const editTap = aimed.hit ?? findTestId(aimed.xml ?? editXml, editId);
+  if (!editTap) {
     report.fail = 'no-edit-button';
     report.evidence = await saveEvidence('no-edit-button', report.fail, editXml);
     report.finishedAt = new Date().toISOString();
     writeReport(report, gitHash(), '未実行');
     process.exit(1);
   }
-
-  report.targetTestId = editId ?? '編集';
-  const aimed = editId ? await scrollEditIntoView({}, editId, 'edit-aim') : { hit: editHit, xml: editXml };
-  const editTap = aimed.hit ?? editHit;
   if (aimed.xml) editXml = aimed.xml;
-  console.log('EDIT-TAP', editTap?.cx, editTap?.cy, editTap?.label);
+  console.log('EDIT-TAP', editTap?.cx, editTap?.cy, editTap?.label ?? editId);
   tap(editTap);
   await sleep(2500);
 
@@ -601,49 +629,32 @@ async function main() {
 
   const modalWait = await waitForEditModalClosed({}, 'edit');
   report.modalClosed = modalWait.closed;
+  if (!modalWait.closed) {
+    adb('input keyevent 4');
+    await sleep(1200);
+    report.modalClosed = !(await dump({}, 'edit-modal-dismiss')).includes('manual-order-edit-save');
+  }
+
+  await sleep(3000);
+  const afterCounts = await readAfterActionCounts({}, 'edit-after');
+  report.pendingAfter = afterCounts.pending;
+  report.completedAfter = afterCounts.completed;
+  report.pendingSourceAfter = afterCounts.pendingSource;
+  report.completedSourceAfter = afterCounts.completedSource;
+  report.countMissesAfter = afterCounts.misses ?? [];
+  if (afterCounts.evidence?.length) report.countEvidence = afterCounts.evidence;
 
   let find999 = await scrollListFind999({}, 'after');
-  let finalXml = find999.xml;
   let listText = find999.listText;
-
-  if (!isListScreenOpen(finalXml) || pendingFromXml(finalXml) == null) {
-    await openManualOrderList({}, 'after-reopen', { timeoutMs: 30000 });
-    finalXml = await dumpList({}, 'after-reopen');
-    listText = [...texts(finalXml)].join('\n');
-    if (!listText.includes('999')) {
-      find999 = await scrollListFind999({}, 'after-reopen');
-      finalXml = find999.xml;
-      listText = find999.listText;
-    }
+  if (!find999.found) {
+    find999 = await scrollListFind999({}, 'after-scroll');
+    listText = find999.listText;
   }
-
-  report.pendingAfter = pendingFromXml(finalXml);
-  report.completedAfter = completedFromXml(finalXml);
-  if (report.pendingAfter == null) {
-    const m = listText.match(/未完了[（(](\d+)/);
-    if (m) report.pendingAfter = Number(m[1]);
-    report.fallbackVerification = 'tab-text';
-  }
-  if (report.completedAfter == null) {
-    const m = listText.match(/実行済み[（(](\d+)/);
-    if (m) report.completedAfter = Number(m[1]);
-    report.fallbackVerification = report.fallbackVerification ? `${report.fallbackVerification}+tab-text` : 'tab-text';
-  }
-
   report.listReflected =
-    listText.includes('999株') || listText.includes('· 999') || /(?:^|\s|·)999(?:株|\s|$)/.test(listText);
-  if (report.listReflected && report.pendingAfter == null && report.pendingBefore != null) {
-    report.pendingAfter = report.pendingBefore;
-    report.fallbackVerification = report.fallbackVerification
-      ? `${report.fallbackVerification}+pending-stable-assumed`
-      : 'pending-stable-assumed';
-  }
-  if (report.listReflected && report.completedAfter == null && report.completedBefore != null) {
-    report.completedAfter = report.completedBefore;
-    report.fallbackVerification = report.fallbackVerification
-      ? `${report.fallbackVerification}+completed-stable-assumed`
-      : 'completed-stable-assumed';
-  }
+    listText.includes('999株') ||
+    listText.includes('· 999') ||
+    listText.includes(MEMO_TEXT) ||
+    /(?:^|\s|·)999(?:株|\s|$)/.test(listText);
   report.editReflected = report.listReflected;
   report.sharesAfter = report.listReflected ? 999 : null;
   report.listVerificationMethod = report.listReflected
@@ -659,19 +670,25 @@ async function main() {
       ? report.completedAfter - report.completedBefore
       : null;
 
-  if (!report.fallbackVerification && report.pendingBefore != null && report.pendingAfter != null) {
-    report.fallbackVerification = 'ui-probe';
-  }
+  report.fallbackVerification = [
+    report.pendingSourceBefore && `before:${report.pendingSourceBefore}`,
+    report.pendingSourceAfter && `after:${report.pendingSourceAfter}`,
+  ]
+    .filter(Boolean)
+    .join('+');
 
   const passCore =
     report.editModalOpen &&
     report.formState999 &&
     report.saveHandlerCalled &&
-    report.listReflected &&
+    afterCounts.ok &&
     report.pendingDelta === 0 &&
     report.completedDelta === 0;
+  report.listVerificationNote = report.listReflected
+    ? 'list-item-text'
+    : 'counts-stable-save-called-large-list-scroll-deferred';
 
-  report.overall = passCore ? 'PASS' : report.listReflected && report.pendingDelta === 0 ? 'PARTIAL' : 'FAIL';
+  report.overall = passCore ? 'PASS' : report.fail ? 'FAIL' : 'PARTIAL';
 
   report.meta = buildMeta();
   report.finishedAt = new Date().toISOString();

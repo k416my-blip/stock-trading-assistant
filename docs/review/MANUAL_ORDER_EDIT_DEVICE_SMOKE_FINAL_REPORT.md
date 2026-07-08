@@ -1,6 +1,6 @@
 # MANUAL_ORDER_EDIT_DEVICE_SMOKE_FINAL_REPORT
 
-Generated: 2026-07-07T23:10:18.413Z
+Generated: 2026-07-08T01:45:19.480Z
 
 ## Overall
 
@@ -30,23 +30,23 @@ Generated: 2026-07-07T23:10:18.413Z
 | edit modal open | PASS |
 | form state shares=999 | PASS |
 | save handler called | PASS |
-| list reflected shares=999 | PASS |
-| 編集前の数量 | 100 |
-| 編集後の数量 | 999 |
-| pending before | 10 |
-| pending after | 10 |
-| completed before | 1 |
-| completed after | 1 |
+| list reflected shares=999 | FAIL |
+| 編集前の数量 | 176 |
+| 編集後の数量 | null |
+| pending before | 16 |
+| pending after | 16 |
+| completed before | 2 |
+| completed after | 2 |
 | pending delta | 0 |
 | completed delta | 0 |
-| saveTapped | save-coord-fallback |
+| saveTapped | manual-order-edit-save |
 | modalClosed | false |
-| list反映確認 | list-item-text-scroll |
+| list反映確認 | none |
 
 ## Probe results
 
-- UI probe: pending 10 → 10, completed 1 → 1
-- 代替確認: tab-text+tab-text+pending-stable-assumed+completed-stable-assumed
+- UI probe: pending 16 → 16, completed 2 → 2
+- 代替確認: before:ui-probe+after:ui-probe
 
 ## Failure
 
@@ -62,11 +62,11 @@ Generated: 2026-07-07T23:10:18.413Z
 
 ## Git / build
 
-- **Commit**: `9aec451e121146412305f43371131235d9c1df83`
+- **Commit**: `31354c1c158cf7ca8c7ecb216252ac8bb6ac4401`
 - **Push**: 未確認
 - **AAB**: 未作成 — Build Credit 節約のため
 
 ## Notes
 
 - 編集 smoke のみ（seed なし・一括 E2E なし）
-- memo: not filled
+- memo: e2e-edit-smoke
