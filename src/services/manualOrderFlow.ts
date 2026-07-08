@@ -6,7 +6,15 @@ import {
   MANUAL_ORDER_METHOD,
 } from './allocationActions';
 import { candidatesToManualBuyItemsSafe } from './investmentRecommendationQuality';
+import {
+  buildBudgetSummaryFromPlan,
+  computeRiskBasedSharesForSymbol,
+  evaluateRequestedQuantity,
+  normalizeRiskLevel,
+  type ConciergeBudgetSummary,
+} from './conciergeBudgetOptimization';
 import { toMYR } from './fx';
+import { normalizeStockCodeInput } from '../utils/normalizeStockCodeInput';
 import type {
   AllocationPlan,
   InvestmentStyle,
@@ -22,6 +30,8 @@ export type ManualOrderFlowMode =
   | 'concierge_symbol'
   | 'concierge_quantity';
 
+export type { ConciergeBudgetSummary };
+
 export type BuildManualOrderFlowInput = {
   mode: ManualOrderFlowMode;
   market: Market;
@@ -30,27 +40,29 @@ export type BuildManualOrderFlowInput = {
   shares?: number;
   entryPrice?: number;
   investmentStyle?: InvestmentStyle;
-  riskLevel?: RiskLevel;
+  riskLevel?: RiskLevel | 'medium';
   fractionalSharesEnabled?: boolean;
 };
 
 export type BuildManualOrderFlowResult =
-  | { ok: true; items: ManualOrderItem[] }
-  | { ok: false; error: string };
+  | { ok: true; items: ManualOrderItem[]; budget?: ConciergeBudgetSummary }
+  | { ok: false; error: string; budget?: ConciergeBudgetSummary };
 
 function defaultPlanInput(
   depositMYR: number,
   market: Market,
   investmentStyle: InvestmentStyle = 'balanced',
-  riskLevel: RiskLevel = 'standard',
+  riskLevel: RiskLevel | 'medium' = 'standard',
   fractionalSharesEnabled = false,
+  strictCharterOnly = true,
 ) {
   return {
     depositMYR,
     market,
-    riskLevel,
+    riskLevel: normalizeRiskLevel(riskLevel),
     investmentStyle,
     fractionalSharesEnabled,
+    strictCharterOnly,
   };
 }
 
@@ -73,7 +85,8 @@ function medianSharePriceMYR(market: Market): number {
 }
 
 function resolveStock(symbol: string, market: Market): StockFundamentals | undefined {
-  const found = findStock(symbol);
+  const trimmed = normalizeStockCodeInput(symbol);
+  const found = findStock(trimmed);
   if (!found) return undefined;
   if (found.market !== market) return undefined;
   return found;
@@ -83,6 +96,7 @@ function manualFullItem(
   stock: StockFundamentals,
   shares: number,
   entryPrice: number,
+  source: ManualOrderItem['source'] = 'allocation',
 ): ManualOrderItem {
   const buyShares = stock.market === 'us' && shares % 1 !== 0 ? shares : Math.floor(shares);
   return {
@@ -98,18 +112,8 @@ function manualFullItem(
     orderMethod: MANUAL_ORDER_METHOD,
     completed: false,
     createdAt: new Date().toISOString(),
-    source: 'allocation',
+    source,
   };
-}
-
-function conciergeQuantityItem(stock: StockFundamentals, depositMYR: number): ManualOrderItem | null {
-  const priceMYR = toMYR(stock.price, stock.currency);
-  if (priceMYR <= 0 || depositMYR <= 0) return null;
-  const shares = Math.floor(depositMYR / priceMYR);
-  if (shares <= 0) {
-    return null;
-  }
-  return manualFullItem(stock, shares, stock.price);
 }
 
 export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): BuildManualOrderFlowResult {
@@ -121,15 +125,16 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     shares = 0,
     entryPrice,
     investmentStyle = 'balanced',
-    riskLevel = 'medium',
+    riskLevel = 'standard',
     fractionalSharesEnabled = false,
   } = input;
+  const normalizedRisk = normalizeRiskLevel(riskLevel);
 
   if (mode === 'concierge_full') {
     if (depositMYR <= 0) return { ok: false, error: '投資金額を入力してください。' };
-    const plan = buildPlanOrError(defaultPlanInput(depositMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled));
+    const planInput = defaultPlanInput(depositMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled, true);
+    const plan = buildPlanOrError(planInput);
     if ('error' in plan) return { ok: false, error: plan.error };
-    const planInput = defaultPlanInput(depositMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled);
     void import('./allocationPlan').then(({ persistAllocationPlanQualityAudit }) => {
       void persistAllocationPlanQualityAudit(plan, planInput, {
         priceApi: 'ok',
@@ -138,10 +143,13 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
         network: 'online',
       });
     });
+    const budget = buildBudgetSummaryFromPlan(plan);
     const safe = candidatesToManualBuyItemsSafe(plan.candidates);
-    if (!safe.ok) return { ok: false, error: safe.error };
-    if (safe.items.length === 0) return { ok: false, error: 'この金額では購入できる銘柄がありません。' };
-    return { ok: true, items: safe.items };
+    if (!safe.ok) return { ok: false, error: safe.error, budget };
+    if (safe.items.length === 0) {
+      return { ok: false, error: '本日の買付推奨はありません。現金維持を推奨します。', budget };
+    }
+    return { ok: true, items: safe.items, budget };
   }
 
   if (mode === 'manual_full') {
@@ -152,7 +160,7 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     if (!stock) return { ok: false, error: '銘柄が見つかりません。市場とコードを確認してください。' };
     const price = entryPrice && entryPrice > 0 ? entryPrice : stock.price;
     if (price <= 0) return { ok: false, error: '有効な指値を入力してください。' };
-    return { ok: true, items: [manualFullItem(stock, shares, price)] };
+    return { ok: true, items: [manualFullItem(stock, shares, price, 'manual_full')] };
   }
 
   if (mode === 'concierge_symbol') {
@@ -162,18 +170,50 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
       return { ok: false, error: '投資金額または数量のどちらかを入力してください。' };
     }
     const budgetMYR = hasAmount ? depositMYR : shares * medianSharePriceMYR(market);
-    const plan = buildPlanOrError(defaultPlanInput(budgetMYR, market, investmentStyle, riskLevel, fractionalSharesEnabled));
+    const planInput = defaultPlanInput(budgetMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled, true);
+    const plan = buildPlanOrError(planInput);
     if ('error' in plan) return { ok: false, error: plan.error };
+    const budget = buildBudgetSummaryFromPlan(plan);
     const candidate = topBuyableCandidate(plan);
-    if (!candidate) return { ok: false, error: 'コンシェルジュが選定できる銘柄がありません。' };
-    if (!(candidate.entryPrice > 0)) {
-      return { ok: false, error: '価格取得に失敗しました。銘柄を再取得するか、別の銘柄を選んでください。' };
+    if (!candidate) {
+      return { ok: false, error: '本日の買付推奨はありません。候補銘柄の信頼度が不足しています。', budget };
     }
-    const resolvedShares = hasShares
-      ? shares
-      : buyableShares({ ...candidate, allocationMYR: depositMYR });
+    if (!(candidate.entryPrice > 0)) {
+      return { ok: false, error: '価格取得に失敗しました。銘柄を再取得するか、別の銘柄を選んでください。', budget };
+    }
+
+    let resolvedShares: number;
+    let quantityReasonJa: string | undefined;
+
+    if (hasShares) {
+      const stockForEval = resolveStock(candidate.symbol, market) ?? ({
+        symbol: candidate.symbol,
+        name: candidate.name,
+        market: candidate.market,
+        currency: candidate.currency,
+        price: candidate.entryPrice,
+      } as StockFundamentals);
+      const qEval = evaluateRequestedQuantity({
+        stock: stockForEval,
+        requestedShares: shares,
+        budgetMYR,
+        riskLevel: normalizedRisk,
+      });
+      if (!qEval.approved) {
+        return { ok: false, error: qEval.reasonJa, budget: { ...budget, quantityAdjusted: true, quantityReasonJa: qEval.reasonJa } };
+      }
+      resolvedShares = qEval.recommendedShares;
+      if (qEval.adjusted) {
+        quantityReasonJa = qEval.reasonJa;
+        budget.quantityAdjusted = true;
+        budget.quantityReasonJa = qEval.reasonJa;
+      }
+    } else {
+      resolvedShares = buyableShares({ ...candidate, allocationMYR: Math.min(candidate.allocationMYR, budget.proposedSpendMYR || candidate.allocationMYR) });
+    }
+
     if (resolvedShares <= 0) {
-      return { ok: false, error: '指定条件では購入可能な数量がありません。' };
+      return { ok: false, error: '指定条件では購入可能な数量がありません。', budget };
     }
     const item = manualFullItem(
       {
@@ -185,8 +225,12 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
       } as StockFundamentals,
       resolvedShares,
       candidate.entryPrice,
+      'concierge_symbol',
     );
-    return { ok: true, items: [item] };
+    budget.proposedSpendMYR = item.allocationMYR;
+    budget.remainingCashMYR = Math.max(0, budgetMYR - item.allocationMYR);
+    if (quantityReasonJa) budget.quantityReasonJa = quantityReasonJa;
+    return { ok: true, items: [item], budget };
   }
 
   if (mode === 'concierge_quantity') {
@@ -195,9 +239,31 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
     if (depositMYR <= 0) return { ok: false, error: '投資金額を入力してください。' };
     const stock = resolveStock(trimmed, market);
     if (!stock) return { ok: false, error: '銘柄が見つかりません。市場とコードを確認してください。' };
-    const item = conciergeQuantityItem(stock, depositMYR);
-    if (!item) return { ok: false, error: '投資金額では1株も購入できません。金額を増やしてください。' };
-    return { ok: true, items: [item] };
+
+    const sized = computeRiskBasedSharesForSymbol({
+      stock,
+      depositMYR,
+      riskLevel: normalizedRisk,
+      explicitUserSymbol: true,
+    });
+    if (sized.shares <= 0) {
+      return {
+        ok: false,
+        error: sized.reasonJa || '投資金額では1株も購入できません。金額を増やすか、別銘柄をご検討ください。',
+      };
+    }
+    const item = manualFullItem(stock, sized.shares, stock.price, 'concierge_quantity');
+    const budget: ConciergeBudgetSummary = {
+      budgetMYR: depositMYR,
+      proposedSpendMYR: item.allocationMYR,
+      remainingCashMYR: Math.max(0, depositMYR - item.allocationMYR),
+      cashReserveMYR: depositMYR * 0.1,
+      remainingReasonJa: sized.reasonJa,
+      riskJudgmentJa: sized.confidencePct < 60 ? '信頼度が基準未満 — 数量を抑制しました' : '標準リスク設定',
+      concentrationJa: `単一銘柄 ${((item.allocationMYR / depositMYR) * 100).toFixed(1)}%`,
+      didNotUseFullBudget: item.allocationMYR < depositMYR * 0.95,
+    };
+    return { ok: true, items: [item], budget };
   }
 
   return { ok: false, error: '不明なフローです。' };

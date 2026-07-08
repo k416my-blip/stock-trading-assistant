@@ -21,9 +21,11 @@ import { useApp } from '../context/AppContext';
 import {
   buildManualOrderFlowItems,
   manualOrderFlowModeTitleKey,
+  type ConciergeBudgetSummary,
   type ManualOrderFlowMode,
 } from '../services/manualOrderFlow';
 import { resolveLatestInvestableDepositMYR } from '../services/resolveLatestInvestableDepositMYR';
+import { normalizeStockCodeInput } from '../utils/normalizeStockCodeInput';
 import type { Market } from '../types';
 import type { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme';
@@ -58,7 +60,7 @@ export function ManualOrderFlowScreen() {
       const seed = await consumeE2eManualOrderFormSeed(mode);
       if (!seed) return;
       logCreate('e2e-seed-applied', JSON.stringify(seed));
-      if (seed.symbol != null) setSymbol(String(seed.symbol));
+      if (seed.symbol != null) setSymbol(normalizeStockCodeInput(String(seed.symbol)));
       if (seed.shares != null) setShares(String(seed.shares));
       if (seed.deposit != null) setDeposit(String(seed.deposit));
       if (seed.inputMode) setInputMode(seed.inputMode);
@@ -84,8 +86,13 @@ export function ManualOrderFlowScreen() {
       shares: showShares || (mode === 'concierge_symbol' && inputMode === 'shares') ? Number(shares) || 0 : 0,
       entryPrice: entryPrice ? Number(entryPrice) : undefined,
     });
-    return preview.ok ? 'ok' : preview.error;
+    return preview;
   }, [mode, market, deposit, symbol, shares, entryPrice, inputMode, showDeposit, showShares]);
+
+  const budgetPreview: ConciergeBudgetSummary | undefined = formValidation.ok
+    ? formValidation.budget
+    : formValidation.budget;
+  const formValidationError = formValidation.ok ? 'ok' : formValidation.error;
 
   const formProbeLabel = useMemo(
     () =>
@@ -99,9 +106,9 @@ export function ManualOrderFlowScreen() {
         investmentAmount: deposit,
         inputMode,
         createEnabled: !busy && !readOnlyBlockedMessage,
-        validation: formValidation,
+        validation: formValidationError,
       }),
-    [mode, symbol, shares, market, deposit, inputMode, busy, readOnlyBlockedMessage, formValidation],
+    [mode, symbol, shares, market, deposit, inputMode, busy, readOnlyBlockedMessage, formValidationError],
   );
 
   const logPreSubmitState = (showDep: boolean, showShr: boolean) => {
@@ -212,11 +219,25 @@ export function ManualOrderFlowScreen() {
       return;
     }
     if (mode === 'concierge_quantity') {
-      logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', deposit: '50000', market: 'bursa' }));
+      logCreate('e2e-seed-tap', JSON.stringify({ symbol: '1155', deposit: '5000', market: 'bursa' }));
       setSymbol('1155');
-      setDeposit('50000');
+      setDeposit('5000');
       setMarket('bursa');
     }
+  };
+
+  const applyE2eSeedQuantityRm5000 = () => {
+    logCreate('e2e-seed-quantity-rm5000', JSON.stringify({ symbol: '1155', deposit: '5000', market: 'bursa' }));
+    setSymbol('1155');
+    setDeposit('5000');
+    setMarket('bursa');
+  };
+
+  const applyE2eSeedSymbolShares100 = () => {
+    logCreate('e2e-seed-symbol-shares-100', JSON.stringify({ shares: '100', market: 'bursa', inputMode: 'shares' }));
+    setInputMode('shares');
+    setShares('100');
+    setMarket('bursa');
   };
 
   const hint = useMemo(() => t(`manualOrderFlow.${modeToKey(mode)}.hint`), [mode, t]);
@@ -240,12 +261,30 @@ export function ManualOrderFlowScreen() {
       ) : null}
 
       {mode === 'manual_full' || mode === 'concierge_full' || mode === 'concierge_symbol' || mode === 'concierge_quantity' ? (
-        <Pressable
-          testID="manual-order-e2e-apply-seed"
-          accessibilityLabel="manual-order-e2e-apply-seed"
-          onPress={applyE2eSeed}
-          style={styles.createReadyProbe}
-        />
+        <>
+          <Pressable
+            testID="manual-order-e2e-apply-seed"
+            accessibilityLabel="manual-order-e2e-apply-seed"
+            onPress={applyE2eSeed}
+            style={styles.createReadyProbe}
+          />
+          {mode === 'concierge_quantity' ? (
+            <Pressable
+              testID="manual-order-e2e-apply-seed-quantity-rm5000"
+              accessibilityLabel="manual-order-e2e-apply-seed-quantity-rm5000"
+              onPress={applyE2eSeedQuantityRm5000}
+              style={styles.createReadyProbe}
+            />
+          ) : null}
+          {mode === 'concierge_symbol' ? (
+            <Pressable
+              testID="manual-order-e2e-apply-seed-shares-100"
+              accessibilityLabel="manual-order-e2e-apply-seed-shares-100"
+              onPress={applyE2eSeedSymbolShares100}
+              style={styles.createReadyProbe}
+            />
+          ) : null}
+        </>
       ) : null}
 
       <MarketPicker selected={market} onSelect={setMarket} />
@@ -288,7 +327,7 @@ export function ManualOrderFlowScreen() {
           <TextInput
             style={styles.input}
             value={symbol}
-            onChangeText={setSymbol}
+            onChangeText={(v) => setSymbol(normalizeStockCodeInput(v))}
             placeholder="1155"
             placeholderTextColor={theme.colors.textMuted}
             autoCapitalize="characters"
@@ -332,6 +371,21 @@ export function ManualOrderFlowScreen() {
       ) : null}
 
       <Text style={styles.hint}>{hint}</Text>
+
+      {budgetPreview ? (
+        <Card testID="concierge-budget-summary">
+          <Text style={styles.budgetTitle}>買付提案サマリー</Text>
+          <Text style={styles.budgetLine}>指定額: RM{budgetPreview.budgetMYR.toFixed(0)}</Text>
+          <Text style={styles.budgetLine}>提案買付額: RM{budgetPreview.proposedSpendMYR.toFixed(0)}</Text>
+          <Text style={styles.budgetLine}>残現金: RM{budgetPreview.remainingCashMYR.toFixed(0)}</Text>
+          <Text style={styles.budgetReason}>{budgetPreview.remainingReasonJa}</Text>
+          <Text style={styles.budgetMeta}>リスク: {budgetPreview.riskJudgmentJa}</Text>
+          <Text style={styles.budgetMeta}>集中度: {budgetPreview.concentrationJa}</Text>
+          {budgetPreview.quantityReasonJa ? (
+            <Text style={styles.budgetWarn}>数量調整: {budgetPreview.quantityReasonJa}</Text>
+          ) : null}
+        </Card>
+      ) : null}
 
       <View
         testID="manual-order-form-state"
@@ -412,6 +466,34 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     lineHeight: 20,
     marginVertical: theme.spacing.md,
+  },
+  budgetTitle: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.md,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
+  },
+  budgetLine: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.sm,
+    marginBottom: 2,
+  },
+  budgetReason: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    marginTop: theme.spacing.sm,
+    lineHeight: 18,
+  },
+  budgetMeta: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.xs,
+    marginTop: 4,
+  },
+  budgetWarn: {
+    color: theme.colors.warning,
+    fontSize: theme.fontSize.sm,
+    marginTop: theme.spacing.xs,
+    lineHeight: 18,
   },
   createReadyProbe: {
     width: 1,

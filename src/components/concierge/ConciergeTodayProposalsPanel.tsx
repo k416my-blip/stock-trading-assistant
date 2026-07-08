@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState, useCallback, useEffect } from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useUrgencySignals } from '../../context/UrgencySignalContext';
 import {
@@ -9,6 +9,10 @@ import {
 import { Card } from '../ui/Card';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
+import {
+  isForceEmptyTodayProposals,
+  persistForceEmptyTodayProposals,
+} from '../../services/e2eConciergeUiSeed';
 
 const KIND_COLOR: Record<string, string> = {
   hold_continue: theme.colors.primary,
@@ -27,15 +31,38 @@ const PROPOSAL_LABEL_KEYS: Record<ConciergeProposalKind, string> = {
 export function ConciergeTodayProposalsPanel() {
   const { t } = useTranslation('concierge');
   const { queueWithAck } = useUrgencySignals();
+  const [forceEmptyE2e, setForceEmptyE2e] = useState(() => isForceEmptyTodayProposals());
+
+  useEffect(() => {
+    if (isForceEmptyTodayProposals()) setForceEmptyE2e(true);
+  }, []);
+
+  const applyE2eEmptyProposals = useCallback(() => {
+    setForceEmptyE2e(true);
+    void persistForceEmptyTodayProposals();
+  }, []);
 
   const proposals = useMemo(
-    () => buildConciergeTodayProposals(queueWithAck, 3),
-    [queueWithAck],
+    () => (forceEmptyE2e ? [] : buildConciergeTodayProposals(queueWithAck, 3)),
+    [queueWithAck, forceEmptyE2e],
   );
 
   if (proposals.length === 0) {
     return (
-      <Card style={styles.card} testID="concierge-today-proposals-empty">
+      <Card
+        style={styles.card}
+        testID="concierge-today-proposals-empty"
+        accessibilityLabel="concierge-today-proposals-empty"
+        accessible
+      >
+        <Pressable
+          testID="concierge-e2e-force-empty-proposals"
+          accessibilityLabel="concierge-e2e-force-empty-proposals"
+          accessible
+          importantForAccessibility="yes"
+          onPress={applyE2eEmptyProposals}
+          style={styles.e2eProbe}
+        />
         <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
         <Text style={styles.empty}>{t('todayProposalsEmpty')}</Text>
       </Card>
@@ -44,6 +71,14 @@ export function ConciergeTodayProposalsPanel() {
 
   return (
     <Card style={styles.card} testID="concierge-today-proposals">
+      <Pressable
+        testID="concierge-e2e-force-empty-proposals"
+        accessibilityLabel="concierge-e2e-force-empty-proposals"
+        accessible
+        importantForAccessibility="yes"
+        onPress={applyE2eEmptyProposals}
+        style={styles.e2eProbe}
+      />
       <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
       <Text style={styles.subtitle}>{t('todayProposalsSubtitle')}</Text>
       {proposals.map((p) => (
@@ -105,4 +140,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
     lineHeight: 18,
   },
+  e2eProbe: { width: 44, height: 44, opacity: 0.02 },
 });

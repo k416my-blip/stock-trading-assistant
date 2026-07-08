@@ -1,6 +1,8 @@
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { theme } from '../theme';
+import { e2eNavigationRef, e2eNavigateToAllocationPlan } from './e2eNavigationRef';
+import { consumeForceAllocationRoute } from '../services/e2eConciergeUiSeed';
 import { AiSettingsScreen } from '../screens/AiSettingsScreen';
 import { ApiKeySettingsScreen } from '../screens/ApiKeySettingsScreen';
 import { ApiSetupWizardScreen } from '../screens/ApiSetupWizardScreen';
@@ -74,7 +76,18 @@ export function RootNavigator() {
   const navigationKey = `${appLanguage}-${languageRevision}`;
 
   return (
-    <NavigationContainer key={navigationKey} theme={navTheme}>
+    <NavigationContainer
+      ref={e2eNavigationRef}
+      key={navigationKey}
+      theme={navTheme}
+      onReady={() => {
+        void consumeForceAllocationRoute().then((forced) => {
+          if (forced) {
+            setTimeout(() => e2eNavigateToAllocationPlan(), 400);
+          }
+        });
+      }}
+    >
       <Stack.Navigator
         screenOptions={{
           contentStyle: { backgroundColor: theme.colors.background },
