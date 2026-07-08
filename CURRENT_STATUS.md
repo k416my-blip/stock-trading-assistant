@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-08T07:55:00.000Z (UTC)
+Updated: 2026-07-08T08:33:00.000Z (UTC)
 
 ## AI Concierge Budget / Quantity UI Final Acceptance — **PASS**
 
@@ -70,29 +70,14 @@ Updated: 2026-07-08T07:55:00.000Z (UTC)
 
 | 項目 | 値 |
 |------|-----|
-| **commit** | **未実施** |
-| **commit hash** | —（未作成） |
-| **push** | **未実施** |
-| **push 成否** | N/A |
-| **未実施理由** | 実行環境に `git` CLI がインストールされていない（`.git` ディレクトリは存在するが、`where git` / `Program Files\Git` / `AppData\Local\Programs\Git` いずれも未検出） |
-| **記録日時** | 2026-07-08T07:55:00Z (UTC) |
-
-**意図した commit message:**
-
-```
-fix: finalize AI concierge budget and quantity optimization
-```
-
-**手動実行（git 利用可能な環境）:**
-
-```bash
-git status
-git add src/components/e2e/E2eConciergeUiSeedHost.tsx src/navigation/e2eNavigationRef.ts src/navigation/RootNavigator.tsx src/services/e2eConciergeUiSeed.ts src/utils/normalizeStockCodeInput.ts src/services/manualOrderFlow.ts src/screens/ManualOrderFlowScreen.tsx src/components/concierge/ConciergeTodayProposalsPanel.tsx tests/unit/normalizeStockCodeInput.test.ts run-concierge-optimization-followup-device-smoke.mjs AI_CONCIERGE_UI_E2E_OPTIMIZATION_FINAL_FIX_REPORT.md AI_CONCIERGE_BUDGET_QUANTITY_UI_FINAL_ACCEPTANCE_REPORT.md CURRENT_STATUS.md
-git commit -m "fix: finalize AI concierge budget and quantity optimization"
-git push
-```
-
-commit / push 実施後は上表の hash と push 成否を本セクションに追記すること。
+| **commit** | **実施済み** |
+| **commit hash** | `b437bd830c57b073bf9bc3c4a2f1cdee053d60f9` |
+| **branch** | `cursor/top3-maxdd-capital-audit` |
+| **commit message** | `fix: finalize AI concierge budget and quantity optimization` |
+| **push** | **実施済み** |
+| **push 成否** | **成功** → `origin/cursor/top3-maxdd-capital-audit` |
+| **実施日時** | 2026-07-08T16:32:41+08:00 (commit) / 2026-07-08T16:33:00+08:00 (push 記録) |
+| **remote** | `https://github.com/k416my-blip/stock-trading-assistant.git` |
 
 ---
 
