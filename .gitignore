@@ -12,6 +12,9 @@ tmp/
 temp/
 reports/
 artifacts/
+detox-artifacts/
+e2e-artifacts/
+logs/
 screenshots/
 !docs/pages/screenshots/
 !docs/pages/screenshots/**
@@ -27,9 +30,11 @@ src/native/soak/generated/
 *.orig
 *.orig.*
 *~
+android/.gradle/
 android/build/
 android/app/build/
 ios/build/
+.turbo/
 .dev/
 OOM_REPORT.md
 
@@ -84,6 +89,12 @@ Thumbs.db
 # HyperOS long-run temp logcat (multi-GB; summaries kept in repo)
 docs/review/hyperos-screen-off-survival/logcat-live*.log
 docs/review/hyperos-screen-off-survival/logcat-live-verify*.log
+
+# 12h OOM run logcat archives (multi-GB; keep markdown reports only)
+docs/review/twelve-hour-test/adb-logcat*.log
+
+# Active memory_watch session marker (jsonl under logs/ is kept)
+logs/.memory_watch_session
 
 # Review evidence blobs (keep markdown reports; ignore captures & binaries)
 docs/review/**/*.png

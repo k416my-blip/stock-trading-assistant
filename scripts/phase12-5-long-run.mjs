@@ -32,6 +32,28 @@ import {
   writeCheckpointEmergency,
   writeCheckpointWithRetry,
 } from './lib/phase12-5-checkpoint.mjs';
+import { applyNodeMemoryLimit, isNodeHeapOverThreshold, readNodeHeapStatsMb } from './lib/oom-node-env.mjs';
+import {
+  startRotatingLogcatCapture,
+  scanLogcatFileDelta,
+  readLogcatTailLines,
+} from './lib/rotating-logcat-stream.mjs';
+import {
+  appendMemoryWatchEntry,
+  collectMemoryWatchEntry,
+  formatWatchTimestamp,
+  resolveMemoryWatchSession,
+  resolveWatchLogPath,
+  writeMemoryWatchSessionFile,
+} from './lib/memory-watch-jsonl.mjs';
+import {
+  DEFAULT_CHUNK_MS,
+  HEALTH_RESTART,
+  buildHealthRestartRecord,
+  shouldGracefulRestart,
+  writeHealthRestartTelemetry,
+} from './lib/chunked-runner.mjs';
+import { buildLightLogSection } from './lib/light-report.mjs';
 import {
   clearSearchField,
   dumpCurrentFocus,
@@ -71,6 +93,12 @@ const DURATION_MS = HOURS * 3600 * 1000;
 const HOUR_MS = 3600 * 1000;
 const PRICE_INTERVAL_MS = 15 * 60 * 1000;
 const TICK_MS = 60 * 1000;
+const MEMORY_WATCH_MS = Number(process.env.MEMORY_WATCH_JSONL_MS ?? 5 * 60 * 1000);
+const ADB_SERIAL = process.env.ADB_SERIAL ?? '';
+
+applyNodeMemoryLimit();
+
+
 
 const STOCKS = [
   {
@@ -168,13 +196,21 @@ const state = {
 };
 
 let checkpointExitInProgress = false;
+let logcatCaptureHandle = null;
+let logcatMetricsOffset = 0;
+let lastMemoryWatchMs = 0;
+let lastHealthRestartMs = Date.now();
+let healthRestartCount = 0;
+const memoryWatchSession = resolveMemoryWatchSession(ROOT, { defaultPrefix: '12h' });
+writeMemoryWatchSessionFile(ROOT, memoryWatchSession);
+const memoryWatchPath = resolveWatchLogPath(ROOT, memoryWatchSession);
 
 function sh(cmd, opts = {}) {
   try {
     return execSync(cmd, {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      maxBuffer: 30 * 1024 * 1024,
+      maxBuffer: 4 * 1024 * 1024,
       ...opts,
     }).trim();
   } catch (e) {
@@ -897,15 +933,15 @@ async function runAiAnalysis(hourIndex) {
 }
 
 function scanLogcatDelta() {
-  const raw = sh('adb logcat -d', { allowFail: true });
-  const metrics = parseLogcatMetrics(raw);
+  const delta = scanLogcatFileDelta({ filePath: LIVE_LOGCAT_PATH, offset: logcatMetricsOffset });
+  logcatMetricsOffset = delta.newOffset;
   state.crashes = {
-    fatal: metrics.fatal,
-    rnTypeError: metrics.rnTypeError,
-    undefined: metrics.undefined,
+    fatal: delta.metrics.fatal,
+    rnTypeError: delta.metrics.rnTypeError,
+    undefined: delta.metrics.undefined,
   };
-  state.anrCount = metrics.anr;
-  return metrics;
+  state.anrCount = delta.metrics.anr;
+  return delta.metrics;
 }
 
 function recordLogFinalizationWarning(warning) {
@@ -915,7 +951,7 @@ function recordLogFinalizationWarning(warning) {
 }
 
 function finalizeLogcatArtifacts({ adbDumpText = null, mockFail = false } = {}) {
-  const dump = adbDumpText ?? sh('adb logcat -d', { allowFail: true });
+  const dump = adbDumpText ?? readLogcatTailLines(LIVE_LOGCAT_PATH, 300).join('\n');
   const result = finalizeLogcatSnapshot({
     rootDir: ROOT,
     outDir: 'docs/review/phase12-5-long-run',
@@ -1244,11 +1280,18 @@ function writeProgressReport(status, detail = null) {
     '```',
     '',
   ].filter((line) => line !== null);
-  fs.writeFileSync(REPORT_PATH, lines.join('\n'));
+  lines.push('', buildLightLogSection({ title: 'Live logcat tail', filePath: LIVE_LOGCAT_PATH, tailLines: 150 }));
+  lines.push('', '- memory_watch: `' + memoryWatchPath + '`');
+  lines.push('- health_restarts: ' + healthRestartCount);
+  const reportBody = lines.join('\n');
+  fs.writeFileSync(REPORT_PATH, reportBody.length > 120000 ? reportBody.slice(0, 120000) + '\n...(truncated)\n' : reportBody);
 }
 
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
+  appendMemoryWatchEntry(memoryWatchPath, collectMemoryWatchEntry({ rootDir: ROOT, label: 'phase12-5-start' }));
+  lastMemoryWatchMs = Date.now();
+  console.log(`[p12.5] memory_watch jsonl: ${memoryWatchPath}`);
   if (!adbOk()) {
     if (process.env.PHASE12_5_DRY_RUN === '1') {
       console.warn('[p12.5] WARN dry-run: adb device not found — logcat finalization only');
@@ -1385,6 +1428,11 @@ async function main() {
       lastHour = hourIndex;
       await hourlySnapshot(hourIndex);
       await runAiAnalysis(hourIndex);
+    }
+
+    if (Date.now() - lastMemoryWatchMs >= MEMORY_WATCH_MS) {
+      appendMemoryWatchEntry(memoryWatchPath, collectMemoryWatchEntry({ rootDir: ROOT, label: 'phase12-5' }));
+      lastMemoryWatchMs = Date.now();
     }
 
     if (Math.floor(elapsed / 60000) % 10 === 0) {
