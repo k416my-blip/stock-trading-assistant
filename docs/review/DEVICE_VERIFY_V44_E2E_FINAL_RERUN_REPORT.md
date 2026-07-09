@@ -1,4 +1,4 @@
-﻿# Device Verify v44 — E2E Final Rerun Report
+# Device Verify v44 — E2E Final Rerun Report
 
 - **Overall**: **PARTIAL**
 - **PASS / PARTIAL / FAIL**: 8 / 0 / 19

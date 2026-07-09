@@ -1,4 +1,4 @@
-# Device Verify v44  EE2E Final Rerun 3 Report
+# Device Verify v44 —EE2E Final Rerun 3 Report
 
 - **Overall**: **PARTIAL**
 - **PASS / PARTIAL / FAIL**: 11 / 0 / 16
@@ -9,7 +9,7 @@
 - **Push**: SUCCESS (98ccc1c)
 
 ## Manual order list policy
-- **Live analysis required**: No  Elists are for Rakuten manual hand-entry only; practice mode may create lists.
+- **Live analysis required**: No —Elists are for Rakuten manual hand-entry only; practice mode may create lists.
 - **Practice mode create allowed**: See Test C
 
 ## Commands
@@ -36,24 +36,24 @@ FYRWXSNNAIOR9DCM	device
 | test-b-four-buttons | PASS | 4/4 |
 | test-b-home-stability | PASS | 20s home stable |
 
-## Test C  Ecreate ↁElist
+## Test C —Ecreate ↁElist
 | Flow | Open | E2E | Pending |
 |------|------|-----|---------|
 | コンシェルジュに全て任せる | FAIL | FAIL | skipped: practice mode |
-| 自刁E��銘柄と数量を持E��すめE| FAIL | FAIL | skipped: practice mode |
+| 自刁E銘柄と数量を持EすめE| FAIL | FAIL | skipped: practice mode |
 | 銘柄だけコンシェルジュに任せる | FAIL | FAIL | skipped: practice mode |
 | 数量だけコンシェルジュに任せる | FAIL | FAIL | skipped: practice mode |
 
-Baseline:  EApp mode policy: live analysis mode required
+Baseline: —EApp mode policy: live analysis mode required
 
-## Test D  EUX modes
+## Test D —EUX modes
 | Mode | Switch | 4 buttons | Flow open |
 |------|--------|-----------|-----------|
 | Beginner | PASS | 4/4 | PASS |
 | Standard | FAIL | 4/4 | PASS |
 | Pro | FAIL | 4/4 | PASS |
 
-## Test E  ETrust
+## Test E —ETrust
 | Check | Status | Detail |
 |-------|--------|--------|
 | test-e-trust-mode-switch | FAIL | AI信託モーチE|
@@ -67,7 +67,7 @@ Baseline:  EApp mode policy: live analysis mode required
 - Per-step logs: `e2e-rerun3-run-*.log`
 
 ## AAB
-- **Created**: No  EBuild Credit 節紁E�Eため今回は未作�E
+- **Created**: No —EBuild Credit 節紁EEため今回は未作E
 
 ## Git manual
 ```powershell
