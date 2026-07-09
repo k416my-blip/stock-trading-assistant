@@ -58,6 +58,16 @@ Updated: 2026-07-09T09:44+08:00
 
 * Budget / Quantity UI Final Acceptance: **PASS 済み**（12h 中再検証なし）
 
+### Git 反映（12h OOM stability run）
+
+| 項目 | 値 |
+|------|-----|
+| 12h OOM stability run commit hash | `9ab6458`（証跡: reports / telemetry / checkpoint） |
+| CURRENT_STATUS 更新 commit hash | `0d47fb1` |
+| push | **成功** |
+| push branch | `cursor/top3-maxdd-capital-audit` |
+| 実施日時 | 2026-07-09 09:44 +08 |
+
 ---
 
 ## Quick resume after Cursor restart
@@ -72,7 +82,9 @@ Updated: 2026-07-09T09:44+08:00
 ## Git
 
 - Branch: `cursor/top3-maxdd-capital-audit`
-- HEAD: `9ab6458`（12h 証跡 commit、push 済み）
+- HEAD: `0d47fb1`
+- 12h 証跡 commit: `9ab6458`（push 済み）
+- 12h CURRENT_STATUS commit: `0d47fb1`（push 済み）
 
 ## Commands
 
