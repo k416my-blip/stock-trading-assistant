@@ -2,20 +2,26 @@
 
 対象: 内部テスター / QA（エンドユーザー向けリリースノートではありません）
 
-Updated: 2026-07-09  
+Updated: 2026-07-09T14:55+08:00  
 Branch: `cursor/top3-maxdd-capital-audit`  
-Base commit: `4596e88` + release readiness commit  
-Target versionCode: **45**  
-AAB build: **PASS** (`1545a8ba` / commit `4d79c8b`)
+Base commit: `4d79c8b`（AAB 成功ビルド）  
+Target versionCode: **45**
 
 ---
 
 ## Internal testing build（versionCode 45）
 
-- **AAB ready** for Play internal testing
-- Artifact: https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab
-- package: `com.assistant.stocktrading`
-- profile: EAS `production`
+| 項目 | 値 |
+|------|-----|
+| AAB build | **PASS** |
+| build ID | `1545a8ba-7574-419a-aa24-47bdc1cafcd4` |
+| commit | `4d79c8b` |
+| versionCode | **45** |
+| package | `com.assistant.stocktrading` |
+| profile | EAS `production`（app-bundle / store） |
+| artifact | `MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab` |
+| artifact URL | https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab |
+| Play 内部テスト | **アップロード可能** |
 
 ---
 
@@ -62,7 +68,11 @@ AAB build: **PASS** (`1545a8ba` / commit `4d79c8b`)
 
 - versionCode **45**（Play 再提出用、44 から increment）
 - package: `com.assistant.stocktrading`
-- AAB: EAS `production` profile（app-bundle）— **ビルド再試行中**（JS bundle フェーズ要修正）
+- AAB: EAS `production` profile（app-bundle / store）— **生成成功**
+- build ID: `1545a8ba-7574-419a-aa24-47bdc1cafcd4`
+- commit: `4d79c8b`
+- artifact: https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab
+- **Play 内部テストへアップロード可能**
 
 ---
 
@@ -75,7 +85,9 @@ AAB build: **PASS** (`1545a8ba` / commit `4d79c8b`)
 
 ---
 
-## 既知の制限（本ビルド前）
+## 既知の制限（本ビルド）
 
-- AAB 未生成のため Play 内部テスト配布は **次ビルド成功後**
-- typecheck / lint に既存エラーあり（実行時動作とは別 track）
+- **AAB は生成済み** — Play 内部テストへのアップロード待ち
+- typecheck / lint **17 errors** — 既存未解決（今回の AAB 生成 BLOCKER ではない。次フェーズで解消対象）
+- npm test **6 fail** — 既存未解決（同上）
+- foreground WARN（12h 記録 35 件）— 停止条件外
