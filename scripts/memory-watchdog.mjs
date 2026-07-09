@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   CURRENT_STATUS_FILE,
-  buildCurrentStatusMarkdown,
   collectSnapshot,
+  writeCurrentStatusPreserving,
   detectStopped,
   formatCursorFocusLines,
   loadPreviousSession,
@@ -35,9 +35,7 @@ function tick() {
     jsonlPath,
     collectMemoryWatchEntry({ rootDir: ROOT, label: 'watchdog' }),
   );
-  fs.writeFileSync(
-    path.join(ROOT, CURRENT_STATUS_FILE),
-    buildCurrentStatusMarkdown({
+  writeCurrentStatusPreserving(ROOT, {
       snapshot,
       stopped,
       highMemory,
@@ -48,9 +46,7 @@ function tick() {
         `memory_watch jsonl: \`${jsonlPath.replace(/\\/g, '/')}\``,
         ...(highMemory ? ['Watchdog: memory >=80%'] : []),
       ],
-    }),
-    'utf8',
-  );
+    });
   saveSession(ROOT, snapshot);
   const focus = formatCursorFocusLines(snapshot.cursor).map((l) => l.replace(/\*\*/g, '')).join(' | ');
   if (!loggedJsonlPath) {

@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import {
   CURRENT_STATUS_FILE,
   OOM_REPORT_FILE,
-  buildCurrentStatusMarkdown,
   buildOomReportMarkdown,
+  writeCurrentStatusPreserving,
   collectSnapshot,
   detectStopped,
   formatCursorFocusLines,
@@ -31,11 +31,7 @@ if (writeOom) notes.push('OOM report requested — see OOM_REPORT.md');
 if (stopped.some((s) => s.key === 'metro')) notes.push('Metro stopped — run `npm run start:clear` if device testing');
 if (stopped.some((s) => s.key === 'adbLogcat')) notes.push('adb logcat tail stopped — restart only if needed');
 
-fs.writeFileSync(
-  path.join(ROOT, CURRENT_STATUS_FILE),
-  buildCurrentStatusMarkdown({ snapshot, stopped, highMemory, gitHead: git.head, gitBranch: git.branch, notes }),
-  'utf8',
-);
+writeCurrentStatusPreserving(ROOT, { snapshot, stopped, highMemory, gitHead: git.head, gitBranch: git.branch, notes });
 saveSession(ROOT, snapshot);
 
 if (writeOom) {

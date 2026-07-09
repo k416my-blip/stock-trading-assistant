@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { e2eMetroPolicyLines } from './e2eMetroEnv.mjs';
 import {
   collectCursorMemorySnapshot,
   formatCursorCategoryTable,
@@ -45,7 +46,7 @@ function readWindowsProcesses() {
       const parts = t.split(',');
       if (parts.length < 4) continue;
       const name = parts[1];
-      if (!/cursor|node|adb|code|tsserver|eslint|expo/i.test(name)) continue;
+      if (!/cursor|node|adb|code|tsserver|eslint|expo|chrome|expo/i/i.test(name)) continue;
       rows.push({ Name: name, ProcessId: Number(parts[2]), WorkingSetSize: Number(parts[3]), CommandLine: '' });
     }
     return rows;
@@ -172,6 +173,13 @@ export function inferOomCauses(snapshot, previous) {
   }
   if (previous?.processes?.metro?.running && !snapshot.processes.metro?.running) c.push('Metro stopped after restart');
   if (previous?.processes?.adbLogcat?.running && !snapshot.processes.adbLogcat?.running) c.push('adb logcat stopped after restart');
+  if (snapshot.processes?.rnDevTools?.running) {
+    c.push(`React Native DevTools browser (~${snapshot.processes.rnDevTools.totalMb} MB) — close and use npm run e2e:metro during E2E`);
+  }
+  if (snapshot.processes?.metro?.running && snapshot.processes?.rnDevTools?.running) {
+    c.push('Metro + DevTools browser together — EXPO_DEBUG=0 / CI=1 / npm run e2e:metro suppresses auto-open');
+  }
+  c.push('React Native DevTools auto-launch during E2E (npm run e2e:metro; EXPO_DEBUG=0; CI=1; BROWSER=none)');
   c.push('docs/review tree if watchers not excluded');
   c.push('Full vitest without path filter');
   c.push('TS Server + large chat context');
@@ -197,12 +205,139 @@ export function formatCursorFocusLines(cursor) {
   return lines;
 }
 
+
+export const MEMORY_NOTE_HEADING = '## Memory note';
+export const LIVE_SNAPSHOT_HEADING = '## Live snapshot';
+
+function formatLiveSnapshotTimestamp(iso = new Date().toISOString()) {
+  const d = new Date(iso);
+  const pad = (n) => String(n).padStart(2, '0');
+  const utc8 = new Date(d.getTime() + 8 * 60 * 60 * 1000);
+  return (
+    `${utc8.getUTCFullYear()}-${pad(utc8.getUTCMonth() + 1)}-${pad(utc8.getUTCDate())} ` +
+    `${pad(utc8.getUTCHours())}:${pad(utc8.getUTCMinutes())} +08`
+  );
+}
+
+function memoryJudgment(cursorMb) {
+  if (cursorMb >= 7000) return '**危険** — Reload Window / Cursor 再起動を推奨';
+  if (cursorMb >= 5000) return '**注意** — 5 GB 超過';
+  return '**正常** — 5 GB 未満';
+}
+
+function devProcessRunningLabel(processes, keys) {
+  const running = keys.filter((k) => processes?.[k]?.running);
+  if (!running.length) return '**停止中**';
+  return running.map((k) => processes[k].label).join(', ') + ' running';
+}
+
+export function buildMemoryNoteAndLiveSnapshotMarkdown({ snapshot, stopped = [] }) {
+  const mem = snapshot.memory;
+  const cursorMb = snapshot.cursorTotalMb;
+  const ts = formatLiveSnapshotTimestamp(snapshot.capturedAt);
+  const cats = snapshot.cursor?.categories ?? {};
+  const proc = snapshot.processes ?? {};
+
+  const lines = [
+    MEMORY_NOTE_HEADING,
+    '',
+    '| 項目 | 値 |',
+    '|------|-----|',
+    `| 現在の Cursor aggregate | **~${cursorMb} MB**（${ts}、npm run status） |`,
+    `| Metro / adb / node | ${devProcessRunningLabel(proc, ['metro', 'adb', 'node'])} |`,
+    `| 判定 | ${memoryJudgment(cursorMb)} |`,
+    '',
+  ];
+
+  if (stopped.length) {
+    lines.push('### Stopped since last snapshot', '');
+    for (const item of stopped) {
+      lines.push(
+        `- **${item.label}** — was running (PIDs: ${item.lastPids.join(', ') || 'n/a'}, ~${item.lastMb} MB)`,
+      );
+    }
+    lines.push('');
+  }
+
+  lines.push(
+    '---',
+    '',
+    `${LIVE_SNAPSHOT_HEADING}（${ts}）`,
+    '',
+    '`npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。',
+    '',
+    '### System memory',
+    '',
+    `- Used: **${mem.usedPct}%** (${mem.totalMB - mem.freeMB} / ${mem.totalMB} MB)`,
+    '',
+    '### Cursor memory',
+    '',
+    `- **Cursor aggregate**: ~${cursorMb} MB (${snapshot.cursor?.processCount ?? 0} proc)`,
+    `- TypeScript Server: ${cats.tsserver?.totalMb ?? 0} MB (${cats.tsserver?.count ?? 0} proc)`,
+    `- Extension Host: ${cats.extensionHost?.totalMb ?? 0} MB (${cats.extensionHost?.count ?? 0} proc)`,
+    '',
+    '### Dev processes',
+    '',
+    '| Process | Running |',
+    '|---------|---------|',
+    `| Metro | ${proc.metro?.running ? 'yes' : 'no'} |`,
+    `| adb | ${proc.adb?.running ? 'yes' : 'no'} |`,
+    `| node | ${proc.node?.running ? 'yes' : 'no'} |`,
+    `| adb logcat | ${proc.adbLogcat?.running ? 'yes' : 'no'} |`,
+    '',
+    '---',
+    '',
+  );
+
+  return lines.join('\n');
+}
+
+export function extractSuffixAfterLiveSnapshot(content) {
+  const liveIdx = content.indexOf(LIVE_SNAPSHOT_HEADING);
+  if (liveIdx < 0) return '';
+  const tail = content.slice(liveIdx);
+  const match = tail.match(/\n## Commands\r?\n/);
+  if (!match || match.index === undefined) return '';
+  return tail.slice(match.index + 1).trimEnd();
+}
+
+export function mergeCurrentStatusLiveSections(existingContent, ctx) {
+  const liveBlock = buildMemoryNoteAndLiveSnapshotMarkdown(ctx);
+  const suffix = extractSuffixAfterLiveSnapshot(existingContent);
+  const memoryIdx = existingContent.indexOf(MEMORY_NOTE_HEADING);
+  const liveIdx = existingContent.indexOf(LIVE_SNAPSHOT_HEADING);
+
+  let updateStart = -1;
+  if (memoryIdx >= 0) updateStart = memoryIdx;
+  else if (liveIdx >= 0) updateStart = liveIdx;
+
+  if (updateStart < 0) {
+    const preserved = existingContent.trimEnd();
+    const parts = preserved ? [preserved, '', liveBlock] : [liveBlock];
+    if (suffix) parts.push('', suffix);
+    return parts.join('\n').trimEnd() + '\n';
+  }
+
+  const preserved = existingContent.slice(0, updateStart).trimEnd();
+  const parts = [preserved, '', liveBlock];
+  if (suffix) parts.push('', suffix);
+  return parts.join('\n').trimEnd() + '\n';
+}
+
+export function writeCurrentStatusPreserving(rootDir, ctx) {
+  const filePath = path.join(rootDir, CURRENT_STATUS_FILE);
+  const existing = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+  const merged = mergeCurrentStatusLiveSections(existing, ctx);
+  fs.writeFileSync(filePath, merged, 'utf8');
+  return merged;
+}
+
 export function buildCurrentStatusMarkdown({ snapshot, stopped, highMemory, gitHead, gitBranch, notes = [] }) {
   const mem = snapshot.memory;
   const lines = ['# CURRENT_STATUS', '', `Updated: ${snapshot.capturedAt}`, '', '## Quick resume after Cursor restart', ''];
   if (stopped.length) {
     lines.push('### Stopped since last snapshot');
-    for (const i of stopped) lines.push(`- **${i.label}** — was running (PIDs: ${i.lastPids.join(', ') || 'n/a'}, ~${i.lastMb} MB)`);
+    for (const i of stopped) lines.push(`- **${i.label}** 窶・was running (PIDs: ${i.lastPids.join(', ') || 'n/a'}, ~${i.lastMb} MB)`);
     lines.push('');
   } else {
     lines.push('- No tracked dev processes disappeared since the last `npm run status`.', '');
@@ -232,7 +367,7 @@ export function buildOomReportMarkdown({ snapshot, previous, stopped, gitHead, g
     '',
     '## Top Cursor consumers (by PID)',
     ...(top.length
-      ? top.map((p) => `- PID ${p.pid} **${p.name}** [${p.category}] — ${p.mb} MB`)
+      ? top.map((p) => `- PID ${p.pid} **${p.name}** [${p.category}] 窶・${p.mb} MB`)
       : ['- none captured']),
     '',
     '## Likely causes',
@@ -251,7 +386,12 @@ export function buildOomReportMarkdown({ snapshot, previous, stopped, gitHead, g
     '1. Reload Cursor',
     '2. npm run status',
     '3. npm run memory:leak-report',
-    '4. npm run start:clear if Metro needed',
+    '4. E2E/device smokes: npm run e2e:metro (suppresses RN DevTools auto-launch)',
+    '5. Close Chrome/Edge DevTools tabs opened by interactive Metro before long E2E runs',
+    '6. npm run start:clear if Metro needed (interactive dev only — not E2E)',
+    '',
+    '## E2E Metro policy (DevTools suppression)',
+    ...e2eMetroPolicyLines().map((line) => `- ${line}`),
     '',
     `Branch: ${gitBranch}`,
     `HEAD: ${gitHead}`,

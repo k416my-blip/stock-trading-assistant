@@ -124,34 +124,25 @@ Updated: 2026-07-09T10:04+08:00
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~7190 MB**（2026-07-09 10:04 +08 時点、`npm run status`） |
-| 12h run 中 Cursor 最大 | 5101 MB（危険域外） |
+| 現在の Cursor aggregate | **~6303.6 MB**（2026-07-09 10:47 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **高すぎる** — 次作業前に整理推奨 |
-
-### 次作業前の推奨手順
-
-* 不要な Cursor ウィンドウ / タブを閉じる
-* 不要ターミナルを閉じる
-* **Reload Window** または **Cursor 再起動**を検討
-* 再起動後に `npm run status` を再実行
-* Cursor aggregate が **5 GB 未満**に戻るか確認
+| 判定 | **注意** — 5 GB 超過 |
 
 ---
 
-## Live snapshot（2026-07-09 10:04 +08）
+## Live snapshot（2026-07-09 10:47 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **65.3%** (21344 / 32678 MB)
+- Used: **45.6%** (14915 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~7190 MB (30 proc)
-- TypeScript Server: 1262 MB (2 proc)
-- Extension Host: 1853 MB (7 proc)
+- **Cursor aggregate**: ~6303.6 MB (22 proc)
+- TypeScript Server: 1258.9 MB (2 proc)
+- Extension Host: 2036.4 MB (9 proc)
 
 ### Dev processes
 
@@ -163,6 +154,7 @@ Updated: 2026-07-09T10:04+08:00
 | adb logcat | no |
 
 ---
+
 
 ## Commands
 
