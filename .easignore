@@ -3,7 +3,12 @@
 /android/
 /ios/
 
-# Never upload local node_modules — EAS runs npm ci on Linux; a Windows tree breaks resolution (expo/AppEntry.js).
+# Secrets — never upload to EAS ( .easignore overrides .gitignore )
+.env
+.env.*
+!.env.example
+
+# Never upload local node_modules — EAS runs npm ci on Linux
 /node_modules/
 
 # Dev / audit artifacts (not needed in cloud build)

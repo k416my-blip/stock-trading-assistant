@@ -10,6 +10,9 @@
       "env": {
         "EXPO_PUBLIC_TWELVE_HOUR_TEST_MONITOR": "0"
       },
+      "cache": {
+        "disabled": true
+      },
       "android": {
         "buildType": "app-bundle",
         "credentialsSource": "remote"
