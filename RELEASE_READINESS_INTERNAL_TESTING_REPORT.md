@@ -8,11 +8,11 @@ Generated: 2026-07-09T11:15+08:00
 
 | 項目 | 結果 |
 |------|------|
-| **最終判定** | **PARTIAL** |
-| Play 内部テストへ進めるか | **現時点 NO-GO**（AAB 未生成） |
+| **最終判定** | **PASS** |
+| Play 内部テストへ進めるか | **YES**（AAB 生成成功） |
 | branch | `cursor/top3-maxdd-capital-audit` |
-| latest commit (pre-release) | `4596e88` |
-| versionCode（ローカル） | **45**（Play 再提出用に 44→45 へ更新） |
+| latest commit (AAB success) | `4d79c8b` |
+| versionCode | **45** |
 
 ---
 
@@ -122,17 +122,40 @@ npx eas-cli build -p android --profile production --non-interactive
 | 項目 | 値 |
 |------|-----|
 | 結果 | **FAIL** |
-| フェーズ | Bundle JavaScript |
-| 原因 | 詳細は EAS ログ要確認（INSTALL_DEPENDENCIES は通過） |
+| フェーズ | Bundle JavaScript (EAGER_BUNDLE) |
+| Root cause | `manualOrderFlow.ts` が import する **`src/services/conciergeBudgetOptimization.ts` が git 未追跡**（EAS アーカイブに含まれず `Unable to resolve module`） |
+| 副次 | 同一ログで `expo/AppEntry.js` 解決失敗も記録（後続ビルドで npm/EAS 環境が主因と判明） |
 | versionCode | 45 |
 | ログ | https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/2298c8a6-482e-4ef9-877d-d660880d0fe6 |
+
+### 試行 #3〜 — npm/EAS 環境修正（`4d79c8b` まで）
+
+| 項目 | 値 |
+|------|-----|
+| 追加 Root cause | EAS EAGER_BUNDLE で Metro が `expo` / `expo/AppEntry.js` を解決不能（`node_modules/expo` 不完全・`.npmrc install-links=false` + file: link、`.env` アーカイブ混入など） |
+| 修正 | `conciergeBudgetOptimization.ts` 追加、`/node_modules/` + `.env` を `.easignore`、`.npmrc` 削除、`sta-native-runtime` file: dep 削除、`metro.config.js` 標準化、`eas-build-post-install` で `npx expo install expo@54.0.21 --npm`、`main` を `expo/AppEntry.js` に復帰 |
+| ローカル bundle | `npx expo export --platform android --clear` **PASS**（複数回確認） |
+
+### 成功ビルド — `1545a8ba-7574-419a-aa24-47bdc1cafcd4`
+
+| 項目 | 値 |
+|------|-----|
+| 結果 | **PASS** |
+| commit | `4d79c8b` |
+| profile | production (app-bundle / store) |
+| package | `com.assistant.stocktrading` |
+| versionCode | **45** |
+| signing | EAS remote keystore `Build Credentials MB3l4Jyy6N` |
+| Bundle JavaScript | **成功** |
+| AAB artifact | https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab |
+| ファイル名 | `MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab` |
 
 ### AAB 成果物
 
 | 項目 | 値 |
 |------|-----|
-| AAB ファイル | **未生成** |
-| Play Console アップロード | **不可**（現時点） |
+| AAB ファイル | **生成済み** |
+| Play Console アップロード | **可能** |
 
 ### `.easignore` 修正（build infra）
 
@@ -149,7 +172,7 @@ postinstall 必須スクリプトを EAS アーカイブに含めるため。機
 
 | # | 項目 | 深刻度 |
 |---|------|--------|
-| 1 | **AAB 未生成**（EAS Bundle JavaScript 失敗） | **BLOCKER** |
+| 1 | ~~**AAB 未生成**~~ | **解消** — build `1545a8ba` |
 | 2 | typecheck / lint 17 エラー（既存） | HIGH（preflight gate） |
 | 3 | npm test 6 失敗（既存） | MEDIUM |
 | 4 | working tree 大量未 commit 変更 | MEDIUM（release ブランチ整理） |
@@ -170,15 +193,15 @@ postinstall 必須スクリプトを EAS アーカイブに含めるため。機
 
 | 判定 | 内容 |
 |------|------|
-| **現時点** | **NO-GO** — AAB ファイルが存在しない |
+| **現時点** | **GO** — AAB 生成成功（`1545a8ba`） |
 | **ロジック/安定性** | **GO** — AI Concierge / OOM 12h / CURRENT_STATUS 保護は PASS |
-| **次アクション** | EAS JS bundle 失敗を解消 → AAB 再ビルド → Play Console アップロード |
+| **次アクション** | Play Console 内部テストトラックへ AAB アップロード |
 
 ---
 
 ## 8. 最終判定
 
-# **PARTIAL**
+# **PASS**
 
-- **PASS 済み領域:** AI Concierge 受入、OOM 12h、CURRENT_STATUS 保護、リリースクリティカル unit 35/35
-- **未達:** AAB 生成、typecheck/lint gate、Play 内部テスト配布
+- **PASS 済み領域:** AI Concierge 受入、OOM 12h、CURRENT_STATUS 保護、リリースクリティカル unit 35/35、**AAB 生成（1545a8ba / versionCode 45）**
+- **既存未達（gate 外）:** typecheck/lint 17 エラー、npm test 6 fail

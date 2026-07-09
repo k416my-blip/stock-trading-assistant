@@ -5,7 +5,17 @@
 Updated: 2026-07-09  
 Branch: `cursor/top3-maxdd-capital-audit`  
 Base commit: `4596e88` + release readiness commit  
-Target versionCode: **45**
+Target versionCode: **45**  
+AAB build: **PASS** (`1545a8ba` / commit `4d79c8b`)
+
+---
+
+## Internal testing build（versionCode 45）
+
+- **AAB ready** for Play internal testing
+- Artifact: https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab
+- package: `com.assistant.stocktrading`
+- profile: EAS `production`
 
 ---
 
