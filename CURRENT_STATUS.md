@@ -95,13 +95,13 @@ Updated: 2026-07-09T10:04+08:00
 
 | 項目 | 値 |
 |------|-----|
-| `git log -1 --oneline` | `08c61d8 docs: restore CURRENT_STATUS with Concierge and 12h OOM PASS sections` |
+| `git log -1 --oneline` | `a31a305 docs: update CURRENT_STATUS git section for 08c61d8` |
 | `git branch --show-current` | `cursor/top3-maxdd-capital-audit` |
 | `git remote -v` | `origin https://github.com/k416my-blip/stock-trading-assistant.git` (fetch/push) |
-| working tree (12h 対象ファイル) | 12h 証跡は commit 済み。`CURRENT_STATUS.md` のみ未 commit 更新あり |
+| working tree (12h 対象ファイル) | **clean** — 12h 証跡および本 CURRENT_STATUS 更新は push 済み |
 | **12h OOM stability run commit hash** | `9ab6458` — reports / telemetry / checkpoint / memory_watch スクリプト |
-| CURRENT_STATUS 更新 commits | `0d47fb1`, `78fe711`, `4229af7`, **`08c61d8`**（本ファイル完全版） |
-| **push** | **成功**（`08c61d8` → `origin/cursor/top3-maxdd-capital-audit`） |
+| CURRENT_STATUS 更新 commits | `0d47fb1`, `78fe711`, `4229af7`, `08c61d8`, **`a31a305`** |
+| **push** | **成功**（`a31a305` → `origin/cursor/top3-maxdd-capital-audit`） |
 | **push branch** | `cursor/top3-maxdd-capital-audit` |
 | **実施日時** | 2026-07-09 09:44 +08（初回 push）、2026-07-09 10:04 +08（本更新） |
 
