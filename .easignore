@@ -3,6 +3,9 @@
 /android/
 /ios/
 
+# Never upload local node_modules — EAS runs npm ci on Linux; a Windows tree breaks resolution (expo/AppEntry.js).
+/node_modules/
+
 # Dev / audit artifacts (not needed in cloud build)
 .expo/
 .expo-bundle-*/
