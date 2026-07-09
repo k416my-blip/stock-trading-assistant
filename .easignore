@@ -22,7 +22,7 @@ artifacts/
 
 # Unit tests and dev scripts (not needed in production bundle)
 /tests/
-/scripts/
-!scripts/sync-sta-native-runtime.mjs
+/scripts/**
+!/scripts/sync-sta-native-runtime.mjs
 /src/tooling/
 /.cursor/

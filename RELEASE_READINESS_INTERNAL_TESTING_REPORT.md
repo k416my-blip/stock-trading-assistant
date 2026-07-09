@@ -1,0 +1,184 @@
+# Release Readiness / Internal Testing Stabilization Report
+
+Generated: 2026-07-09T11:15+08:00
+
+---
+
+## Executive Summary
+
+| 項目 | 結果 |
+|------|------|
+| **最終判定** | **PARTIAL** |
+| Play 内部テストへ進めるか | **現時点 NO-GO**（AAB 未生成） |
+| branch | `cursor/top3-maxdd-capital-audit` |
+| latest commit (pre-release) | `4596e88` |
+| versionCode（ローカル） | **45**（Play 再提出用に 44→45 へ更新） |
+
+---
+
+## 前提 PASS（維持）
+
+| 項目 | 状態 |
+|------|------|
+| AI Concierge Budget / Quantity UI Final Acceptance | **PASS** |
+| OOM 12h Stability Run（試行 #2） | **PASS** |
+| CURRENT_STATUS 保護修正（4596e88） | **PASS** |
+| メモリ整理 | OK — Cursor ~4949 MB（status 実行時）、dev プロセス停止 |
+
+---
+
+## 1. 現在状態（2026-07-09 11:05 +08）
+
+| 項目 | 値 |
+|------|-----|
+| branch | `cursor/top3-maxdd-capital-audit` |
+| HEAD | `4596e88` |
+| working tree | **not clean**（多数の未 commit 変更あり。本フェーズ commit は release 関連のみ） |
+| CURRENT_STATUS PASS セクション | **維持**（npm run status 後も AI Concierge / OOM 12h / Git 残存） |
+| Cursor aggregate | ~4949 MB（5 GB 未満） |
+| Metro / adb / node | 停止 |
+
+---
+
+## 2. リリース前テスト
+
+### npm test（`npm run test:unit`）
+
+| 項目 | 結果 |
+|------|------|
+| 全体 | **PARTIAL** — 1611 passed / **6 failed** / 33 test files with issues |
+| 失敗例（既存） | `aiAssistantChatState`, `aiConciergeConversationQuality`, `buySignalForwardReturnAnalysis`（データ欠落）, `phase12Stability`, `rakutenImport/importConfidence` |
+| 分類 | **既存未解決** — 本フェーズの新規 regression ではない |
+
+### リリースクリティカル subset
+
+| ファイル | 結果 |
+|----------|------|
+| `devStatus.test.ts` | 6/6 PASS |
+| `conciergeBudgetOptimization.test.ts` | 14/14 PASS |
+| `conciergeUiE2eOptimizationSmoke.test.ts` | 8/8 PASS |
+| `oomHotfix.test.ts` | 7/7 PASS |
+| **合計** | **35/35 PASS** |
+
+### npm run typecheck / lint
+
+| 項目 | 結果 |
+|------|------|
+| エラー数 | **17**（src 10 + tests 7） |
+| 分類 | **既存未解決** |
+| 代表例 | `conciergeEvidenceBuilder.ts`, `storage.ts`, `bursaPhase24Analysis.ts`, test fixture 型ずれ |
+| NO-GO 判定 | **AAB preflight は typecheck で停止**。EAS cloud build は preflight  bypass 可能だが、ローカル release gate としては未達 |
+
+### npm run verify:aab-preflight
+
+| 結果 |
+|------|
+| **FAIL** — typecheck で停止（versionCode 44 表示時点） |
+
+---
+
+## 3. AAB / APK ビルド準備
+
+| 項目 | 値 |
+|------|-----|
+| app version | `1.0.0` |
+| versionCode（app.json） | **45**（44→45 に更新） |
+| versionCode（android/app/build.gradle） | **45**（HEAD 26 から同期） |
+| package name | `com.assistant.stocktrading` |
+| EAS profile（内部テスト向け AAB） | **`production`** — `buildType: app-bundle`, `distribution: store` |
+| preview profile | APK（内部配布用、AAB ではない） |
+| signing | EAS remote credentials — Keystore `Build Credentials MB3l4Jyy6N` |
+| versionCode 45 理由 | Play 再提出には配布済み 44 より大きい code が必要 |
+
+### versionCode 45 への更新理由
+
+- 12h テスト・AI Concierge 受入は **versionCode 44** で実施済み
+- Play Console へ **新ビルド提出**する場合、versionCode インクリメントが必須
+- **45** は 44 の次番号として最小の安全な increment
+
+---
+
+## 4. AAB ビルド結果
+
+### 使用コマンド
+
+```bash
+npx eas-cli build -p android --profile production --non-interactive
+```
+
+**理由:** `eas.json` の `production` プロファイルが `buildType: app-bundle` + `distribution: store` で Play 内部テスト / 本番トラック向け AAB に該当。`preview` は APK のため AAB 目的に不適。
+
+### 試行 #1 — `09fce84c-0de4-4957-bead-af45d5c175ad`
+
+| 項目 | 値 |
+|------|-----|
+| 結果 | **FAIL** |
+| フェーズ | INSTALL_DEPENDENCIES |
+| 原因 | `postinstall`: `scripts/sync-sta-native-runtime.mjs` が EAS アーカイブに含まれず ENOENT |
+| versionCode | 45（git 4596e88 ベース） |
+
+### 試行 #2 — `2298c8a6-482e-4ef9-877d-d660880d0fe6`（`.easignore` 修正後）
+
+| 項目 | 値 |
+|------|-----|
+| 結果 | **FAIL** |
+| フェーズ | Bundle JavaScript |
+| 原因 | 詳細は EAS ログ要確認（INSTALL_DEPENDENCIES は通過） |
+| versionCode | 45 |
+| ログ | https://expo.dev/accounts/k416my/projects/stock-trading-assistant/builds/2298c8a6-482e-4ef9-877d-d660880d0fe6 |
+
+### AAB 成果物
+
+| 項目 | 値 |
+|------|-----|
+| AAB ファイル | **未生成** |
+| Play Console アップロード | **不可**（現時点） |
+
+### `.easignore` 修正（build infra）
+
+```
+/scripts/**
+!/scripts/sync-sta-native-runtime.mjs
+```
+
+postinstall 必須スクリプトを EAS アーカイブに含めるため。機能変更ではなく release インフラ修正。
+
+---
+
+## 5. NO-GO 項目
+
+| # | 項目 | 深刻度 |
+|---|------|--------|
+| 1 | **AAB 未生成**（EAS Bundle JavaScript 失敗） | **BLOCKER** |
+| 2 | typecheck / lint 17 エラー（既存） | HIGH（preflight gate） |
+| 3 | npm test 6 失敗（既存） | MEDIUM |
+| 4 | working tree 大量未 commit 変更 | MEDIUM（release ブランチ整理） |
+
+---
+
+## 6. 既知の残課題
+
+- EAS Bundle JavaScript フェーズの root cause 調査・修正
+- typecheck 17 エラーの段階的解消（release gate 復帰）
+- npm test 6 失敗の既存 issue 整理
+- working tree の release 无关変更を本 branch から分離
+- EAS アーカイブ 165 MB の `.easignore` 最適化
+
+---
+
+## 7. Play 内部テストへ進めるか
+
+| 判定 | 内容 |
+|------|------|
+| **現時点** | **NO-GO** — AAB ファイルが存在しない |
+| **ロジック/安定性** | **GO** — AI Concierge / OOM 12h / CURRENT_STATUS 保護は PASS |
+| **次アクション** | EAS JS bundle 失敗を解消 → AAB 再ビルド → Play Console アップロード |
+
+---
+
+## 8. 最終判定
+
+# **PARTIAL**
+
+- **PASS 済み領域:** AI Concierge 受入、OOM 12h、CURRENT_STATUS 保護、リリースクリティカル unit 35/35
+- **未達:** AAB 生成、typecheck/lint gate、Play 内部テスト配布

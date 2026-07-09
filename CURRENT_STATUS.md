@@ -124,25 +124,25 @@ Updated: 2026-07-09T10:04+08:00
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~6303.6 MB**（2026-07-09 10:47 +08、npm run status） |
+| 現在の Cursor aggregate | **~4948.8 MB**（2026-07-09 11:05 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **注意** — 5 GB 超過 |
+| 判定 | **正常** — 5 GB 未満 |
 
 ---
 
-## Live snapshot（2026-07-09 10:47 +08）
+## Live snapshot（2026-07-09 11:05 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **45.6%** (14915 / 32678 MB)
+- Used: **39%** (12737 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~6303.6 MB (22 proc)
-- TypeScript Server: 1258.9 MB (2 proc)
-- Extension Host: 2036.4 MB (9 proc)
+- **Cursor aggregate**: ~4948.8 MB (22 proc)
+- TypeScript Server: 105.6 MB (2 proc)
+- Extension Host: 2295.3 MB (9 proc)
 
 ### Dev processes
 
