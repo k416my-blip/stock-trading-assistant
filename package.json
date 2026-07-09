@@ -49,6 +49,7 @@
     "test:unit:full": "vitest run tests/unit",
     "sync:report": "node scripts/git-safe-sync-after-report.mjs",
     "postinstall": "node scripts/sync-sta-native-runtime.mjs",
+    "eas-build-post-install": "node scripts/sync-sta-native-runtime.mjs",
     "test:release": "npx tsx src/verify/runRelease.verify.ts",
     "test:integration": "vitest run tests/integration tests/recovery tests/execution tests/persistence",
     "verify:integration": "npx tsx src/verify/integration.verify.ts",
