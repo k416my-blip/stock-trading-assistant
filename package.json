@@ -2,7 +2,7 @@
   "name": "stock-trading-assistant",
   "version": "1.0.0",
   "private": true,
-  "main": "expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "start:clear": "powershell -ExecutionPolicy Bypass -File scripts/start-metro.ps1 -Mode clear",
