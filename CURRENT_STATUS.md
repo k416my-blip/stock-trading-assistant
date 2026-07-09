@@ -1,6 +1,33 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-09T09:44+08:00
+Updated: 2026-07-09T10:04+08:00
+
+> **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## AI Concierge Budget / Quantity UI Final Acceptance — PASS
+
+| 項目 | 状態 |
+| -------------------------------- | ---------------------------------------------------------- |
+| 最終受入 | PASS |
+| report | AI_CONCIERGE_BUDGET_QUANTITY_UI_FINAL_ACCEPTANCE_REPORT.md |
+| 指定額を使い切らない / 残現金許容 | 受入済み |
+| 弱候補・低 confidence の buy 昇格禁止 | 受入済み |
+| 今日のおすすめなし | 実機 PASS |
+| beginner strict / AllocationPlan | 実機 PASS |
+| 1155 + RM5000 表示統一 | 実機 PASS |
+| 見送り・現金維持・残現金 | 正常な AI 判断、エラー扱いしない |
+| commit hash | b437bd830c57b073bf9bc3c4a2f1cdee053d60f9 |
+
+### 維持原則
+
+* AIコンシェルジュを予算消化係に戻さない
+* budget utilization を最優先目的に戻さない
+* 「おすすめなし」「見送り」「現金維持」は正常判断として維持
+* 「買わない」「見送る」「現金を残す」は正式な投資判断として扱う
+
+---
 
 ## OOM 12h Stability Run — PASS
 
@@ -11,7 +38,7 @@ Updated: 2026-07-09T09:44+08:00
 | 評価対象 | 試行 #2 |
 | 実行時間 | 12h 15m 51s |
 | branch | cursor/top3-maxdd-capital-audit |
-| commit hash | b437bd830c57b073bf9bc3c4a2f1cdee053d60f9 |
+| base commit hash | b437bd830c57b073bf9bc3c4a2f1cdee053d60f9 |
 | app versionCode | 44 |
 | device | FYRWXSNNAIOR9DCM / Xiaomi 23090RA98G / Android 16 |
 | OOM | なし |
@@ -46,51 +73,100 @@ Updated: 2026-07-09T09:44+08:00
 * Metro / adb 維持
 * PASS
 
-### 次回run改善
+### foreground WARN（本 run）
 
-* 次回以降、memory_watchは必ず session ごとの jsonl を作成する
-* 出力先: logs/memory_watch_<session>.jsonl
-* MEMORY_WATCH_SESSION を runner と watchdog で共有する
-* foreground WARN は停止条件にしないが、件数とcontextを継続記録する
+| package | 件数 | 扱い |
+|---------|------|------|
+| unknown | 26 | 停止条件外 — runner 継続、price refresh 44 runs、AI analysis hour 0–12 完了 |
+| com.teslacoilsw.launcher | 9 | 停止条件外 — ensureAppForeground 誤検知候補 |
+| **合計** | **35** | PASS を覆さない。件数と context を継続記録 |
+
+### 次回 run 改善
+
+* 次回以降、memory_watch は必ず session ごとの jsonl を作成する
+* 出力先: `logs/memory_watch_<session>.jsonl`（例: `logs/memory_watch_12h-20260708-202834.jsonl`）
+* `MEMORY_WATCH_SESSION` を runner と watchdog で共有する（`logs/.memory_watch_session` も可）
+* foreground WARN は停止条件にしないが、件数と context を継続記録する
 * ensureAppForeground 判定安定化は今後の改善候補
-
-### AI Concierge
-
-* Budget / Quantity UI Final Acceptance: **PASS 済み**（12h 中再検証なし）
-
-### Git 反映（12h OOM stability run）
-
-| 項目 | 値 |
-|------|-----|
-| 12h OOM stability run commit hash | `9ab6458`（証跡: reports / telemetry / checkpoint） |
-| CURRENT_STATUS 更新 commit hash | `0d47fb1` → `78fe711`（Git 反映追記） |
-| push | **成功** |
-| push branch | `cursor/top3-maxdd-capital-audit` |
-| 実施日時 | 2026-07-09 09:44 +08 |
 
 ---
 
-## Quick resume after Cursor restart
-
-- 12h OOM run 完了。Metro / adb / memory:watch は停止済み。
-- 次回 12h 前: `npm run status` → `npm run e2e:metro` → `MEMORY_WATCH_SESSION=12h-<ts> npm run memory:watch` → `npm run verify:phase12-5`
-
-## System memory
-
-- Used: **63.1%** (20630 / 32678 MB) — ライブ snapshot（12h run 最大 55.3%）
-
 ## Git
 
-- Branch: `cursor/top3-maxdd-capital-audit`
-- HEAD: `78fe711`
-- 12h 証跡 commit: `9ab6458`（push 済み）
-- 12h CURRENT_STATUS commit: `0d47fb1`, `78fe711`（push 済み）
+| 項目 | 値 |
+|------|-----|
+| `git log -1 --oneline` | `4229af7 docs: sync CURRENT_STATUS HEAD after git reflection push` |
+| `git branch --show-current` | `cursor/top3-maxdd-capital-audit` |
+| `git remote -v` | `origin https://github.com/k416my-blip/stock-trading-assistant.git` (fetch/push) |
+| working tree (12h 対象ファイル) | 12h 証跡は commit 済み。`CURRENT_STATUS.md` のみ未 commit 更新あり |
+| **12h OOM stability run commit hash** | `9ab6458` — reports / telemetry / checkpoint / memory_watch スクリプト |
+| CURRENT_STATUS 更新 commits | `0d47fb1`, `78fe711`, `4229af7` |
+| **push** | **成功**（`origin/cursor/top3-maxdd-capital-audit` と同期済み） |
+| **push branch** | `cursor/top3-maxdd-capital-audit` |
+| **実施日時** | 2026-07-09 09:44 +08（初回 push）、2026-07-09 10:04 +08（本更新） |
+
+### 12h git add 対象（commit 済み — 再 add 不要）
+
+* `OOM_12H_RUN_REPORT.md` ✓
+* `OOM_12H_RUN_INTERIM.md` ✓
+* `OOM_12H_RUN_KICKOFF.md` ✓
+* `docs/review/PHASE12_5_LONG_RUN_REPORT.md` ✓
+* `docs/review/phase12-5-long-run/checkpoint.json` ✓
+* `docs/review/phase12-5-long-run/telemetry.jsonl` ✓
+
+### git 除外（大容量 logcat）
+
+* `docs/review/twelve-hour-test/adb-logcat-final-20260709-091018.log`（約 489 MB）— **git 未追跡**、`.gitignore` 対象
+
+---
+
+## Memory note
+
+| 項目 | 値 |
+|------|-----|
+| 現在の Cursor aggregate | **~7190 MB**（2026-07-09 10:04 +08 時点、`npm run status`） |
+| 12h run 中 Cursor 最大 | 5101 MB（危険域外） |
+| Metro / adb / node | **停止中** |
+| 判定 | **高すぎる** — 次作業前に整理推奨 |
+
+### 次作業前の推奨手順
+
+* 不要な Cursor ウィンドウ / タブを閉じる
+* 不要ターミナルを閉じる
+* **Reload Window** または **Cursor 再起動**を検討
+* 再起動後に `npm run status` を再実行
+* Cursor aggregate が **5 GB 未満**に戻るか確認
+
+---
+
+## Live snapshot（2026-07-09 10:04 +08）
+
+`npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
+
+### System memory
+
+- Used: **65.3%** (21344 / 32678 MB)
+
+### Cursor memory
+
+- **Cursor aggregate**: ~7190 MB (30 proc)
+- TypeScript Server: 1262 MB (2 proc)
+- Extension Host: 1853 MB (7 proc)
+
+### Dev processes
+
+| Process | Running |
+|---------|---------|
+| Metro | no |
+| adb | no |
+| node | no |
+| adb logcat | no |
+
+---
 
 ## Commands
 
-- `npm run status`
+- `npm run status` — ライブ snapshot（本ファイルの PASS セクションは上書きしないよう注意）
 - `npm run oom:report`
-- `npm run memory:watch`
-- `npm run memory:log`
-- `npm run memory:leak-report`
+- `npm run memory:watch` — `logs/memory_watch_<session>.jsonl`
 - `npm run verify:phase12-5`
