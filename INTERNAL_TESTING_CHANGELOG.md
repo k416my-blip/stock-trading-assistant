@@ -2,10 +2,24 @@
 
 対象: 内部テスター / QA（エンドユーザー向けリリースノートではありません）
 
-Updated: 2026-07-09T14:55+08:00  
+Updated: 2026-07-10T13:15+08:00  
 Branch: `cursor/top3-maxdd-capital-audit`  
-Base commit: `4d79c8b`（AAB 成功ビルド）  
-Target versionCode: **45**
+Target versionCode: **46**（P0 CompactSafetyNotice 入り）
+
+---
+
+## Internal testing build（versionCode 46）— P0 Safety Notice
+
+| 項目 | 値 |
+|------|-----|
+| 目的 | CompactSafetyNotice（参考情報のみ / 利益保証なし / 証券アプリで手動）を含む配布ビルド |
+| versionCode | **46** |
+| package | `com.assistant.stocktrading` |
+| profile | EAS `production`（app-bundle / store） |
+| base | `8d64ce6`（P0 Minimal Safety Fix）以降 |
+| 前ビルド | versionCode **45** / `1545a8ba`（CompactSafetyNotice **未収録**） |
+
+（EAS build ID / artifact URL はビルド完了後に本ファイルまたは Final Smoke レポートへ追記）
 
 ---
 
@@ -21,7 +35,7 @@ Target versionCode: **45**
 | profile | EAS `production`（app-bundle / store） |
 | artifact | `MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab` |
 | artifact URL | https://expo.dev/artifacts/eas/MMepTuw8tN2IvdbxkfxGzP9vXA6yTdetIDjneNhUJT4.aab |
-| Play 内部テスト | **アップロード可能** |
+| Play 内部テスト | **アップロード可能**（ただし P0 新免責は未収録） |
 
 ---
 
