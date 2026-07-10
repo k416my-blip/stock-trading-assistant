@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HomeManualOrderEntrySection } from '../components/home/HomeManualOrderEntrySection';
+import { CompactSafetyNotice } from '../components/CompactSafetyNotice';
 import { BursaConciergeHomeCard } from '../components/BursaConciergeHomeCard';
 import { BursaMaterialHomeCard } from '../components/BursaMaterialHomeCard';
 import { HeaderUrgencyBadge } from '../components/HeaderUrgencyBadge';
@@ -201,6 +202,7 @@ export function HomeScreen() {
         title={isStandardMode ? t('title.todayPortfolio') : t('title.trustHome')}
         subtitle={isStandardMode ? t('subtitle.todayAdvice') : t('subtitle.trustHome')}
       >
+        <CompactSafetyNotice />
         <BeginnerTodayAdviceCard
           data={beginnerAdvice}
           onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
@@ -259,6 +261,7 @@ export function HomeScreen() {
         subtitle={t('subtitle.todayAdvice')}
       >
         {isPractice ? <PracticeModeBadge /> : null}
+        <CompactSafetyNotice />
         <BeginnerTodayAdviceCard
           data={beginnerAdvice}
           onPressDetail={() => tabNav.navigate('MaterialAnalysis')}
@@ -308,6 +311,7 @@ export function HomeScreen() {
             : t('subtitle.platformPositioning')
       }
     >
+      <CompactSafetyNotice />
       <DegradedModeBanner />
       <BeginnerTodayAdviceCard
         data={beginnerAdvice}

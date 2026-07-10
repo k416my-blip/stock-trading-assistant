@@ -21,6 +21,7 @@ import {
 } from '../constants/trustDisplay';
 import { BulkBuyDebugPanel } from '../components/BulkBuyDebugPanel';
 import { BeginnerWarningBanner } from '../components/BeginnerWarningBanner';
+import { CompactSafetyNotice } from '../components/CompactSafetyNotice';
 import { FractionalSharesToggle } from '../components/FractionalSharesToggle';
 import { InvestmentStylePicker } from '../components/InvestmentStylePicker';
 import { MarketSessionPanel } from '../components/MarketSessionPanel';
@@ -528,6 +529,7 @@ export function AllocationPlanScreen() {
       title="おすすめ配分プラン"
       subtitle="入金額から購入候補と参考配分を表示 — 手動でRakuten Trade注文"
     >
+      <CompactSafetyNotice />
       <BeginnerWarningBanner />
       {isPractice ? <PracticeModeBadge /> : null}
       <TermHint term="allocationPlan" />

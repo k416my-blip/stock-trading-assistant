@@ -3,10 +3,12 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MarketPicker } from '../components/MarketPicker';
+import { CompactSafetyNotice } from '../components/CompactSafetyNotice';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Screen } from '../components/ui/Screen';
 import { MANUAL_ORDER_WARNING } from '../services/allocationActions';
+import { SHORT_INTERNAL_TESTING_SAFETY_NOTICE_JA } from '../constants/disclaimers';
 import {
   DEVICE_VERIFY_TEST_IDS,
   formatCreateBlockedProbe,
@@ -244,8 +246,10 @@ export function ManualOrderFlowScreen() {
 
   return (
     <Screen title={title} subtitle={subtitle}>
+      <CompactSafetyNotice />
       <Card>
         <Text style={styles.disclaimer}>{MANUAL_ORDER_WARNING}</Text>
+        <Text style={styles.disclaimerExtra}>{SHORT_INTERNAL_TESTING_SAFETY_NOTICE_JA}</Text>
       </Card>
 
       {readOnlyBlockedMessage ? <Text style={styles.warn}>{readOnlyBlockedMessage}</Text> : null}
@@ -440,6 +444,12 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     lineHeight: 20,
     fontStyle: 'italic',
+  },
+  disclaimerExtra: {
+    color: theme.colors.textMuted,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 18,
+    marginTop: theme.spacing.xs,
   },
   warn: {
     color: theme.colors.warning,

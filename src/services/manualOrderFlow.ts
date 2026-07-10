@@ -54,7 +54,6 @@ function defaultPlanInput(
   investmentStyle: InvestmentStyle = 'balanced',
   riskLevel: RiskLevel | 'medium' = 'standard',
   fractionalSharesEnabled = false,
-  strictCharterOnly = true,
 ) {
   return {
     depositMYR,
@@ -62,7 +61,6 @@ function defaultPlanInput(
     riskLevel: normalizeRiskLevel(riskLevel),
     investmentStyle,
     fractionalSharesEnabled,
-    strictCharterOnly,
   };
 }
 
@@ -132,7 +130,7 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
 
   if (mode === 'concierge_full') {
     if (depositMYR <= 0) return { ok: false, error: '投資金額を入力してください。' };
-    const planInput = defaultPlanInput(depositMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled, true);
+    const planInput = defaultPlanInput(depositMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled);
     const plan = buildPlanOrError(planInput);
     if ('error' in plan) return { ok: false, error: plan.error };
     void import('./allocationPlan').then(({ persistAllocationPlanQualityAudit }) => {
@@ -170,7 +168,7 @@ export function buildManualOrderFlowItems(input: BuildManualOrderFlowInput): Bui
       return { ok: false, error: '投資金額または数量のどちらかを入力してください。' };
     }
     const budgetMYR = hasAmount ? depositMYR : shares * medianSharePriceMYR(market);
-    const planInput = defaultPlanInput(budgetMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled, true);
+    const planInput = defaultPlanInput(budgetMYR, market, investmentStyle, normalizedRisk, fractionalSharesEnabled);
     const plan = buildPlanOrError(planInput);
     if ('error' in plan) return { ok: false, error: plan.error };
     const budget = buildBudgetSummaryFromPlan(plan);

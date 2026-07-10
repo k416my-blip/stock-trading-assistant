@@ -1,8 +1,24 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T09:20+08:00
+Updated: 2026-07-10T12:25+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## P0 Minimal Safety Fix Before Internal Testing
+
+| 項目 | 状態 |
+|------|------|
+| disclaimer / non-auto-trading | **実施** — `CompactSafetyNotice` を Home / Concierge / 今日のおすすめ / Manual order / Allocation / Settings に追加 |
+| API key missing UX | **文言改善済み**。実機キーなし確認は adb unauthorized のため未完了 |
+| versionCode 45 smoke | **コード準備済み / 実機未実施**（運用者確認待ち） |
+| strictCharterOnly | **B案** — 未使用のため削除。型とテストの不整合を解消 |
+| release-critical tests | **追跡化**（conciergeBudget / conciergeUiE2e / oomHotfix / e2eMetroEnv） |
+| Internal testing | **CONDITIONAL GO** |
+| Play public release | **NO** |
+
+report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 ---
 
@@ -146,25 +162,25 @@ Updated: 2026-07-10T09:20+08:00
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~7157.8 MB**（2026-07-09 14:34 +08、npm run status） |
+| 現在の Cursor aggregate | **~6288.7 MB**（2026-07-10 11:11 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **危険** — Reload Window / Cursor 再起動を推奨 |
+| 判定 | **注意** — 5 GB 超過 |
 
 ---
 
-## Live snapshot（2026-07-09 14:34 +08）
+## Live snapshot（2026-07-10 11:11 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **60.5%** (19773 / 32678 MB)
+- Used: **66.5%** (21742 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~7157.8 MB (17 proc)
-- TypeScript Server: 0 MB (0 proc)
-- Extension Host: 1867.7 MB (9 proc)
+- **Cursor aggregate**: ~6288.7 MB (22 proc)
+- TypeScript Server: 1218.2 MB (2 proc)
+- Extension Host: 2210.8 MB (9 proc)
 
 ### Dev processes
 

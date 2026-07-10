@@ -1,7 +1,8 @@
 /** APIキー設定画面 — 表示文言 */
 
 export const API_KEY_SETTINGS = {
-  needKeyHint: '実運用分析には OpenAI と Twelve Data の登録を推奨します',
+  needKeyHint:
+    '実運用分析には OpenAI と Twelve Data の登録を推奨します。内部テストの画面確認だけなら未設定でも起動・ホーム・設定は確認できます。',
   getKeyButton: 'Twelve Data キー取得',
   openSettingsButton: '⚙ APIキー設定',
   settingsHubTitle: '設定',
@@ -12,7 +13,7 @@ export const API_KEY_SETTINGS = {
     '① 必須API（OpenAI · Twelve Data）を登録 → ② 任意APIは必要なものだけ追加',
   requiredSectionTitle: '【必須】',
   requiredSectionNote:
-    'AIコンシェルジュと保有銘柄の株価更新に使用します。未設定だと主要機能が動作しません。',
+    'AIコンシェルジュの高度な応答と保有銘柄の株価更新に使用します。未設定でもアプリは起動し、基本画面は確認できます（AI応答・最新株価は制限されます）。',
   optionalSectionTitle: '【任意】',
   optionalSectionNote:
     '未設定でもアプリは動作します（RSS · 参考推定 · フォールバックあり）。X API は Settings の X API と同一です（SNS 欄は廃止）。',

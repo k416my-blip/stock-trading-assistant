@@ -15,6 +15,7 @@ import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 import { AiAssistantChat } from '../AiAssistantChat';
 import { AiConciergeErrorBoundary } from './AiConciergeErrorBoundary';
+import { CompactSafetyNotice } from '../CompactSafetyNotice';
 
 type Props = {
   visible: boolean;
@@ -60,6 +61,8 @@ export function AiConciergeSheet({ visible, onClose, panelOptions }: Props) {
                 <Ionicons name="close" size={26} color={theme.colors.textMuted} />
               </Pressable>
             </View>
+
+            <CompactSafetyNotice style={styles.safetyNotice} />
 
             <View style={styles.chatHost}>
               <AiConciergeErrorBoundary>
@@ -133,6 +136,9 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     fontSize: theme.fontSize.sm,
     marginTop: 2,
+  },
+  safetyNotice: {
+    marginBottom: theme.spacing.sm,
   },
   chatHost: {
     flex: 1,

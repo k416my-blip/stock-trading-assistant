@@ -7,6 +7,7 @@ import {
   type ConciergeProposalKind,
 } from '../../services/concierge/conciergeTodayProposalsBuilder';
 import { Card } from '../ui/Card';
+import { CompactSafetyNotice } from '../CompactSafetyNotice';
 import { SelectableText } from '../ui/SelectableText';
 import { theme } from '../../theme';
 import {
@@ -64,6 +65,7 @@ export function ConciergeTodayProposalsPanel() {
           style={styles.e2eProbe}
         />
         <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
+        <CompactSafetyNotice />
         <Text style={styles.empty}>{t('todayProposalsEmpty')}</Text>
       </Card>
     );
@@ -80,6 +82,7 @@ export function ConciergeTodayProposalsPanel() {
         style={styles.e2eProbe}
       />
       <Text style={styles.title}>{t('todayProposalsTitle')}</Text>
+      <CompactSafetyNotice />
       <Text style={styles.subtitle}>{t('todayProposalsSubtitle')}</Text>
       {proposals.map((p) => (
         <View key={p.id} style={styles.row} testID={`concierge-proposal-${p.symbol}`}>

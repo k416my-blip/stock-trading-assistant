@@ -20,3 +20,11 @@ export const RISK_WARNING_BODY = `【重要なリスク告知】
 
 export const BEGINNER_TRADE_WARNING =
   'このアプリは投資判断を保証するものではありません。実際の売買は自分で確認して行ってください。';
+
+/** Full line for internal testing / primary surfaces (non-blocking). */
+export const INTERNAL_TESTING_SAFETY_NOTICE_JA =
+  'このアプリは投資判断の参考情報を表示するもので、利益を保証するものではありません。実際の注文は証券会社アプリで内容を確認し、ご自身で手動入力してください。';
+
+/** Compact line for Home / Concierge / proposals (prefer this on dense screens). */
+export const SHORT_INTERNAL_TESTING_SAFETY_NOTICE_JA =
+  '参考情報のみ。利益保証なし。実際の注文は証券会社アプリで手動確認・手動入力してください。';

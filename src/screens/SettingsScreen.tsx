@@ -3,6 +3,7 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SettingsMenuRow } from '../components/ApiKeyPromoCard';
+import { CompactSafetyNotice } from '../components/CompactSafetyNotice';
 import { PersonalUseBanner } from '../components/PersonalUseBanner';
 import { PlatformClarificationCard } from '../components/PlatformClarificationCard';
 import { SettingsAdvancedDisclosureSection } from '../components/SettingsAdvancedDisclosureSection';
@@ -1116,6 +1117,7 @@ export function SettingsScreen() {
       <Card>
         <Text style={styles.sectionTitle}>{t('detailedSettings.sectionTitle')}</Text>
         <Text style={styles.sectionHint}>{t('detailedSettings.sectionHint')}</Text>
+        <CompactSafetyNotice />
         <PersonalUseBanner />
         <PlatformClarificationCard compact />
         <SettingsAdvancedDisclosureSection />
