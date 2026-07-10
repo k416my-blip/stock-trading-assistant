@@ -1,8 +1,27 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T13:00+08:00
+Updated: 2026-07-10T13:35+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## P0 Safety Notice AAB Rebuild Final Smoke
+
+| 項目 | 状態 |
+|------|------|
+| versionCode | **46** |
+| AAB build | **PASS**（`4952baeb` / commit `1afa9f4`） |
+| CompactSafetyNotice included | **PASS**（Hermes bundle UTF-16 検証） |
+| device smoke | **PARTIAL** — `INSTALL_FAILED_USER_RESTRICTED`（USB経由インストール許可が必要） |
+| API key missing UX | **PARTIAL**（v46 実機未達。v45 ではクラッシュなし） |
+| RM5000 display | **PARTIAL**（v46 実機未達） |
+| focused vitest | **PASS**（35/35） |
+| Internal testing | **CONDITIONAL GO** |
+| Play public release | **NO** |
+
+artifact: https://expo.dev/artifacts/eas/CYgg_p7x812m0m02QpKw_75LQQbwFLIaoGBQQjbiloQ.aab  
+report: `P0_SAFETY_NOTICE_AAB_REBUILD_FINAL_SMOKE_REPORT.md`
 
 ---
 
@@ -178,25 +197,25 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~5715.4 MB**（2026-07-10 12:58 +08、npm run status） |
+| 現在の Cursor aggregate | **~5389.8 MB**（2026-07-10 13:08 +08、npm run status） |
 | Metro / adb / node | **停止中** |
 | 判定 | **注意** — 5 GB 超過 |
 
 ---
 
-## Live snapshot（2026-07-10 12:58 +08）
+## Live snapshot（2026-07-10 13:08 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **62.4%** (20389 / 32678 MB)
+- Used: **62.7%** (20485 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~5715.4 MB (17 proc)
+- **Cursor aggregate**: ~5389.8 MB (17 proc)
 - TypeScript Server: 0 MB (0 proc)
-- Extension Host: 2361.7 MB (9 proc)
+- Extension Host: 2419.2 MB (9 proc)
 
 ### Dev processes
 

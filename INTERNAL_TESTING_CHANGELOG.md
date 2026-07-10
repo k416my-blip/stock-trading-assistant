@@ -13,13 +13,17 @@ Target versionCode: **46**（P0 CompactSafetyNotice 入り）
 | 項目 | 値 |
 |------|-----|
 | 目的 | CompactSafetyNotice（参考情報のみ / 利益保証なし / 証券アプリで手動）を含む配布ビルド |
+| AAB build | **PASS** |
+| build ID | `4952baeb-d6cd-46e9-bff1-a2afc6fe1859` |
+| commit | `1afa9f4` |
 | versionCode | **46** |
 | package | `com.assistant.stocktrading` |
 | profile | EAS `production`（app-bundle / store） |
-| base | `8d64ce6`（P0 Minimal Safety Fix）以降 |
+| artifact URL | https://expo.dev/artifacts/eas/CYgg_p7x812m0m02QpKw_75LQQbwFLIaoGBQQjbiloQ.aab |
+| CompactSafetyNotice in bundle | **PASS**（Hermes UTF-16 検証） |
+| 実機 sideload | **blocked** — `INSTALL_FAILED_USER_RESTRICTED`（USB経由インストール許可が必要） |
+| Play 内部テスト | **アップロード可能**（推奨経路） |
 | 前ビルド | versionCode **45** / `1545a8ba`（CompactSafetyNotice **未収録**） |
-
-（EAS build ID / artifact URL はビルド完了後に本ファイルまたは Final Smoke レポートへ追記）
 
 ---
 
