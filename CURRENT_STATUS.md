@@ -1,8 +1,30 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T16:45+08:00
+Updated: 2026-07-10T17:50+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## Cursor OOM Crash Recovery and Workspace Quarantine
+
+| 項目 | 状態 |
+|------|------|
+| Cursor OOM crash | **確認** — `reason: 'oom', code: '-536870904'` |
+| working tree | **3716 → 12** 行（quarantine 後） |
+| quarantine | `stock-trading-artifacts/quarantine-20260710/`（~3749 files） |
+| tmp-device-smoke | **workspace 外**（戻りなし） |
+| cursorignore | **updated** — `.tmp*/`, `*.zip`, `.gradle/` 追加 |
+| T0 Cursor aggregate | **4801 MB**（5 GB 未満） |
+| T+15 / T+30 | **pending**（`logs/oom-crash-recheck.log` watch 実行中） |
+| Extension Host | **1764 MB / 8 proc**（T0） |
+| freeze / restart | クラッシュ後 **再発なし**（作業セッション中） |
+| Internal testing | **HOLD** |
+| Play upload | **HOLD** |
+| 15 testers | **HOLD** |
+| Play public release | **NO** |
+
+report: `CURSOR_OOM_CRASH_RECOVERY_REPORT.md`
 
 ---
 
@@ -256,25 +278,25 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~5733.6 MB**（2026-07-10 16:42 +08、npm run status） |
+| 現在の Cursor aggregate | **~5575.4 MB**（2026-07-10 17:51 +08、npm run status） |
 | Metro / adb / node | **停止中** |
 | 判定 | **注意** — 5 GB 超過 |
 
 ---
 
-## Live snapshot（2026-07-10 16:42 +08）
+## Live snapshot（2026-07-10 17:51 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **67.9%** (22182 / 32678 MB)
+- Used: **38.3%** (12515 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~5733.6 MB (17 proc)
-- TypeScript Server: 0 MB (0 proc)
-- Extension Host: 2698.6 MB (9 proc)
+- **Cursor aggregate**: ~5575.4 MB (20 proc)
+- TypeScript Server: 117.7 MB (2 proc)
+- Extension Host: 1833.4 MB (8 proc)
 
 ### Dev processes
 

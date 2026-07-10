@@ -12,6 +12,7 @@ node_modules/
 .expo-shared/
 .expo-export-android/
 .eas-prebuild-test/
+.tmp*/
 .tmp-device-smoke/
 dist/
 build/
@@ -35,6 +36,7 @@ agent-tools/
 agent-transcripts/
 
 # Native / platform trees
+.gradle/
 android/.gradle/
 android/
 ios/
@@ -80,6 +82,7 @@ scripts/
 *.aab
 *.apk
 *.apks
+*.zip
 **/*.csv
 **/*.jsonl
 **/forward-validation-*.json
