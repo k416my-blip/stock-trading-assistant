@@ -24,6 +24,10 @@ generated/
 src/native/soak/generated/
 *.log
 *.tmp
+# EAS local temp JSON (not matched by *.tmp — suffix is .json)
+.tmp-eas.json
+.tmp-eas*.json
+*.tmp.json
 *.tsbuildinfo
 *.bak
 *.backup

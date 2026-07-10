@@ -8,6 +8,11 @@
 .env.*
 !.env.example
 
+# Local EAS temp JSON (must not upload; .easignore overrides .gitignore)
+.tmp-eas.json
+.tmp-eas*.json
+*.tmp.json
+
 # Never upload local node_modules — EAS runs npm ci on Linux
 /node_modules/
 
