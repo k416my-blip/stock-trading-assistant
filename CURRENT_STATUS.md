@@ -1,8 +1,29 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T17:50+08:00
+Updated: 2026-07-10T19:45+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## Cursor OOM Recurrence Hard Stop
+
+| 項目 | 状態 |
+|------|------|
+| recurrence | **yes**（17:50 以降、正確な時刻不明） |
+| exact time | **unknown** |
+| 30min stability | **FAIL**（T+15/T+30 完走前に再 OOM） |
+| Cursor aggregate | **~3875 MB**（再発後 ~19:45）。直前 **7786 MB** まで増加 |
+| working tree | **11 行** |
+| tmp-device-smoke | **workspace 外** |
+| Metro / node / adb / logcat | **停止** |
+| Internal testing | **HOLD** |
+| Play upload | **HOLD** |
+| 15 testers | **HOLD** |
+| Play public release | **NO** |
+| next policy | **no long Cursor Agent sessions** — VS Code / CLI / 手動 Play 作業を推奨 |
+
+report: `CURSOR_OOM_RECURRENCE_HARD_STOP_REPORT.md`
 
 ---
 
@@ -278,25 +299,25 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~5575.4 MB**（2026-07-10 17:51 +08、npm run status） |
+| 現在の Cursor aggregate | **~3874.6 MB**（2026-07-10 19:46 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **注意** — 5 GB 超過 |
+| 判定 | **正常** — 5 GB 未満 |
 
 ---
 
-## Live snapshot（2026-07-10 17:51 +08）
+## Live snapshot（2026-07-10 19:46 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **38.3%** (12515 / 32678 MB)
+- Used: **35.6%** (11640 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~5575.4 MB (20 proc)
-- TypeScript Server: 117.7 MB (2 proc)
-- Extension Host: 1833.4 MB (8 proc)
+- **Cursor aggregate**: ~3874.6 MB (15 proc)
+- TypeScript Server: 0 MB (0 proc)
+- Extension Host: 1720.9 MB (8 proc)
 
 ### Dev processes
 
