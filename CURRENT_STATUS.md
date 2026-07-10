@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T13:35+08:00
+Updated: 2026-07-10T14:50+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
 
@@ -13,15 +13,33 @@ Updated: 2026-07-10T13:35+08:00
 | versionCode | **46** |
 | AAB build | **PASS**（`4952baeb` / commit `1afa9f4`） |
 | CompactSafetyNotice included | **PASS**（Hermes bundle UTF-16 検証） |
-| device smoke | **PARTIAL** — `INSTALL_FAILED_USER_RESTRICTED`（USB経由インストール許可が必要） |
-| API key missing UX | **PARTIAL**（v46 実機未達。v45 ではクラッシュなし） |
-| RM5000 display | **PARTIAL**（v46 実機未達） |
+| device smoke | **PARTIAL PASS** — v46 sideload 成功。Home / Concierge / Manual / Settings で notice 視認。Allocation 未達 |
+| API key missing UX | **PASS**（v46 Settings「未設定」表示・クラッシュなし） |
+| RM5000 display | **PASS**（「指定額: RM5000」。RM50000 誤表示なし） |
 | focused vitest | **PASS**（35/35） |
 | Internal testing | **CONDITIONAL GO** |
 | Play public release | **NO** |
 
 artifact: https://expo.dev/artifacts/eas/CYgg_p7x812m0m02QpKw_75LQQbwFLIaoGBQQjbiloQ.aab  
 report: `P0_SAFETY_NOTICE_AAB_REBUILD_FINAL_SMOKE_REPORT.md`
+
+---
+
+## P0 Internal Testing Final Gate Cleanup
+
+| 項目 | 状態 |
+|------|------|
+| 配布対象 AAB | **versionCode 46**（45 は配布禁止） |
+| changelog / upload guide 整合 | **PASS** |
+| AllocationPlan 実機 notice | **未達**（端末ロック）。コード配線 **PASS** |
+| 今日のおすすめ空状態 v46 | **未達**（同上）。コード配線 **PASS** |
+| Play Opt-in smoke | **pending**（アップロード後手動） |
+| sideload smoke | **PARTIAL PASS** |
+| Internal testing | **CONDITIONAL GO** |
+| テスター 15 人送付 | **Play アップロード + Opt-in 後 OK** |
+| Play public release | **NO** |
+
+report: `P0_INTERNAL_TESTING_FINAL_GATE_REPORT.md`
 
 ---
 
@@ -62,11 +80,14 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 | 項目 | 状態 |
 |------|------|
 | Release Readiness | PASS |
-| AAB | versionCode 45 生成済み |
-| Play upload | 手動作業待ち |
+| AAB | versionCode **46** 生成済み（**配布対象**。45 は使用禁止） |
+| Play upload | 手動作業待ち（`PLAY_INTERNAL_TESTING_UPLOAD_GUIDE.md`） |
+| Play Opt-in smoke | pending（アップロード後） |
 | tester target | 15人推奨 |
 | minimum testers | Play Console上で要確認。個人開発者要件では12人以上/14日間のclosed testが必要になる可能性あり |
-| docs | 作成済み |
+| Internal testing | **CONDITIONAL GO** |
+| Play public release | **NO** |
+| docs | 作成済み・v46 整合済み |
 
 関連ドキュメント:
 
@@ -75,7 +96,8 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 * `TESTER_TRACKING_TEMPLATE.md`
 * `TESTER_INVITATION_MESSAGE_JA.md`
 * `TESTER_INSTALL_AND_FEEDBACK_GUIDE_JA.md`
-* `PLAY_INTERNAL_TESTING_UPLOAD_GUIDE.md`（AAB アップロード手順）
+* `PLAY_INTERNAL_TESTING_UPLOAD_GUIDE.md`（AAB アップロード手順 — **versionCode 46**）
+* `P0_INTERNAL_TESTING_FINAL_GATE_REPORT.md`
 
 ---
 
