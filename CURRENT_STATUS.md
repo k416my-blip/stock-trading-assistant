@@ -1,8 +1,26 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T14:50+08:00
+Updated: 2026-07-10T15:20+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## OOM Regression Incident Before Internal Testing
+
+| 項目 | 状態 |
+|------|------|
+| incident | **OOM / freeze / restart** reported（Cursor / PC） |
+| timing | 2026-07-10 約 15:10 (+08)。P0 Final Gate（`3d153c9`）直後 |
+| suspected cause | Extension Host ~2.5 GB（9 proc）+ `.tmp-device-smoke/` **776 MB** + 572 untracked + 長時間 Agent context |
+| Cursor aggregate | **~5286 MB** (T0) → **~7025 MB** (T1 triage 中) |
+| residual processes | adb 低メモリ残留。Metro/node/logcat **停止**。node 1 proc 前日残留 |
+| large files | `.tmp-device-smoke/` 1439 files / ~776 MB。**要ワークスペース外移動** |
+| mitigation | `.cursorignore` 拡張。Cursor 再起動推奨。15/30 分 memory 再計測 pending |
+| Internal testing | **HOLD**（15人送付・Play upload 停止） |
+| Play public release | **NO** |
+
+report: `OOM_REGRESSION_INCIDENT_TRIAGE_REPORT.md`
 
 ---
 
@@ -17,7 +35,7 @@ Updated: 2026-07-10T14:50+08:00
 | API key missing UX | **PASS**（v46 Settings「未設定」表示・クラッシュなし） |
 | RM5000 display | **PASS**（「指定額: RM5000」。RM50000 誤表示なし） |
 | focused vitest | **PASS**（35/35） |
-| Internal testing | **CONDITIONAL GO** |
+| Internal testing | **HOLD**（OOM incident） |
 | Play public release | **NO** |
 
 artifact: https://expo.dev/artifacts/eas/CYgg_p7x812m0m02QpKw_75LQQbwFLIaoGBQQjbiloQ.aab  
@@ -35,8 +53,8 @@ report: `P0_SAFETY_NOTICE_AAB_REBUILD_FINAL_SMOKE_REPORT.md`
 | 今日のおすすめ空状態 v46 | **未達**（同上）。コード配線 **PASS** |
 | Play Opt-in smoke | **pending**（アップロード後手動） |
 | sideload smoke | **PARTIAL PASS** |
-| Internal testing | **CONDITIONAL GO** |
-| テスター 15 人送付 | **Play アップロード + Opt-in 後 OK** |
+| Internal testing | **HOLD**（OOM incident） |
+| テスター 15 人送付 | **HOLD**（OOM incident 解消まで） |
 | Play public release | **NO** |
 
 report: `P0_INTERNAL_TESTING_FINAL_GATE_REPORT.md`
@@ -52,7 +70,7 @@ report: `P0_INTERNAL_TESTING_FINAL_GATE_REPORT.md`
 | API key missing UX | **PASS**（未設定表示・クラッシュなし）。新文言は本 AAB 未収録 |
 | safety notice visibility | **PARTIAL** — 既存「注文を送信しません」PASS / CompactSafetyNotice は本 AAB に無し |
 | focused vitest | **PASS**（35/35） |
-| Internal testing | **CONDITIONAL GO** |
+| Internal testing | **HOLD**（OOM incident） |
 | Play public release | **NO** |
 
 report: `P0_DEVICE_SMOKE_BEFORE_INTERNAL_TESTING_REPORT.md`
@@ -68,7 +86,7 @@ report: `P0_DEVICE_SMOKE_BEFORE_INTERNAL_TESTING_REPORT.md`
 | versionCode 45 smoke | **実機 PASS**（Device Smoke） |
 | strictCharterOnly | **B案** — 未使用のため削除。型とテストの不整合を解消 |
 | release-critical tests | **追跡化**（conciergeBudget / conciergeUiE2e / oomHotfix / e2eMetroEnv） |
-| Internal testing | **CONDITIONAL GO** |
+| Internal testing | **HOLD**（OOM incident） |
 | Play public release | **NO** |
 
 report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
@@ -81,11 +99,11 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 |------|------|
 | Release Readiness | PASS |
 | AAB | versionCode **46** 生成済み（**配布対象**。45 は使用禁止） |
-| Play upload | 手動作業待ち（`PLAY_INTERNAL_TESTING_UPLOAD_GUIDE.md`） |
+| Play upload | **HOLD**（OOM incident 解消まで） |
 | Play Opt-in smoke | pending（アップロード後） |
 | tester target | 15人推奨 |
 | minimum testers | Play Console上で要確認。個人開発者要件では12人以上/14日間のclosed testが必要になる可能性あり |
-| Internal testing | **CONDITIONAL GO** |
+| Internal testing | **HOLD**（OOM incident） |
 | Play public release | **NO** |
 | docs | 作成済み・v46 整合済み |
 
@@ -219,25 +237,25 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~5389.8 MB**（2026-07-10 13:08 +08、npm run status） |
+| 現在の Cursor aggregate | **~7025.3 MB**（2026-07-10 15:15 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **注意** — 5 GB 超過 |
+| 判定 | **危険** — Reload Window / Cursor 再起動を推奨 |
 
 ---
 
-## Live snapshot（2026-07-10 13:08 +08）
+## Live snapshot（2026-07-10 15:15 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **62.7%** (20485 / 32678 MB)
+- Used: **69.4%** (22688 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~5389.8 MB (17 proc)
+- **Cursor aggregate**: ~7025.3 MB (17 proc)
 - TypeScript Server: 0 MB (0 proc)
-- Extension Host: 2419.2 MB (9 proc)
+- Extension Host: 2542.4 MB (9 proc)
 
 ### Dev processes
 

@@ -10,6 +10,9 @@
 node_modules/
 .expo/
 .expo-shared/
+.expo-export-android/
+.eas-prebuild-test/
+.tmp-device-smoke/
 dist/
 build/
 coverage/
@@ -75,10 +78,14 @@ scripts/
 # Binaries & large exports
 *.aab
 *.apk
+*.apks
 **/*.csv
 **/*.jsonl
 **/forward-validation-*.json
 **/forward-validation-*.csv
+**/checkpoint.json
+**/telemetry.json
+docs/fable-evaluation.zip
 
 # Device capture evidence
 **/*-device/
