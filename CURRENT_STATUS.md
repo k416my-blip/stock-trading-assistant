@@ -1,6 +1,6 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-10T15:20+08:00
+Updated: 2026-07-10T16:45+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
 
@@ -15,12 +15,31 @@ Updated: 2026-07-10T15:20+08:00
 | suspected cause | Extension Host ~2.5 GB（9 proc）+ `.tmp-device-smoke/` **776 MB** + 572 untracked + 長時間 Agent context |
 | Cursor aggregate | **~5286 MB** (T0) → **~7025 MB** (T1 triage 中) |
 | residual processes | adb 低メモリ残留。Metro/node/logcat **停止**。node 1 proc 前日残留 |
-| large files | `.tmp-device-smoke/` 1439 files / ~776 MB。**要ワークスペース外移動** |
+| large files | `.tmp-device-smoke/` **移動済み**（→ `stock-trading-artifacts/device-smoke-20260710/`） |
 | mitigation | `.cursorignore` 拡張。Cursor 再起動推奨。15/30 分 memory 再計測 pending |
 | Internal testing | **HOLD**（15人送付・Play upload 停止） |
 | Play public release | **NO** |
 
 report: `OOM_REGRESSION_INCIDENT_TRIAGE_REPORT.md`
+
+---
+
+## OOM Workspace Stabilization Before Internal Testing
+
+| 項目 | 状態 |
+|------|------|
+| Cursor restart | **部分** — 15:30/15:46 付近 EH 再起動痕跡。完全終了はユーザー操作待ち |
+| tmp-device-smoke | **moved** — 1439 files / 776 MB → `stock-trading-artifacts/device-smoke-20260710/` |
+| cursorignore | **updated** — `telemetry.jsonl`, `android/.gradle/`, `adb-logcat*.log` 追加 |
+| T0 Cursor aggregate | **6045 MB**（15:39、移動後） |
+| T+15 Cursor aggregate | **未記録**（watch 停滞） |
+| T+30 Cursor aggregate | **未記録**（watch 停滞） |
+| T+63 manual | **5734 MB**（16:42） |
+| residual processes | adb server ~8 MB 維持。Metro/logcat 停止。Adobe node 51 MB（非 Metro） |
+| Internal testing | **HOLD** |
+| Play public release | **NO** |
+
+report: `OOM_WORKSPACE_STABILIZATION_REPORT.md`
 
 ---
 
@@ -237,25 +256,25 @@ report: `P0_MINIMAL_SAFETY_FIX_REPORT.md`
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~7025.3 MB**（2026-07-10 15:15 +08、npm run status） |
+| 現在の Cursor aggregate | **~5733.6 MB**（2026-07-10 16:42 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **危険** — Reload Window / Cursor 再起動を推奨 |
+| 判定 | **注意** — 5 GB 超過 |
 
 ---
 
-## Live snapshot（2026-07-10 15:15 +08）
+## Live snapshot（2026-07-10 16:42 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **69.4%** (22688 / 32678 MB)
+- Used: **67.9%** (22182 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~7025.3 MB (17 proc)
+- **Cursor aggregate**: ~5733.6 MB (17 proc)
 - TypeScript Server: 0 MB (0 proc)
-- Extension Host: 2542.4 MB (9 proc)
+- Extension Host: 2698.6 MB (9 proc)
 
 ### Dev processes
 
