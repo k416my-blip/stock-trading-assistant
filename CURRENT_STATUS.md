@@ -1,8 +1,30 @@
 # CURRENT_STATUS
 
-Updated: 2026-07-09T10:04+08:00
+Updated: 2026-07-10T09:20+08:00
 
 > **注意:** `npm run status` / memory watchdog は本ファイルの先頭セクション（受入 PASS 記録）を上書きしません。ライブ snapshot は末尾の **Live snapshot** を参照してください。
+
+---
+
+## Closed Testing / Tester Operations — PREPARED
+
+| 項目 | 状態 |
+|------|------|
+| Release Readiness | PASS |
+| AAB | versionCode 45 生成済み |
+| Play upload | 手動作業待ち |
+| tester target | 15人推奨 |
+| minimum testers | Play Console上で要確認。個人開発者要件では12人以上/14日間のclosed testが必要になる可能性あり |
+| docs | 作成済み |
+
+関連ドキュメント:
+
+* `PLAY_CLOSED_TESTING_TESTER_OPERATIONS_GUIDE.md`
+* `PLAY_CONSOLE_CLOSED_TESTING_CHECKLIST.md`
+* `TESTER_TRACKING_TEMPLATE.md`
+* `TESTER_INVITATION_MESSAGE_JA.md`
+* `TESTER_INSTALL_AND_FEEDBACK_GUIDE_JA.md`
+* `PLAY_INTERNAL_TESTING_UPLOAD_GUIDE.md`（AAB アップロード手順）
 
 ---
 
@@ -124,25 +146,25 @@ Updated: 2026-07-09T10:04+08:00
 
 | 項目 | 値 |
 |------|-----|
-| 現在の Cursor aggregate | **~4948.8 MB**（2026-07-09 11:05 +08、npm run status） |
+| 現在の Cursor aggregate | **~7157.8 MB**（2026-07-09 14:34 +08、npm run status） |
 | Metro / adb / node | **停止中** |
-| 判定 | **正常** — 5 GB 未満 |
+| 判定 | **危険** — Reload Window / Cursor 再起動を推奨 |
 
 ---
 
-## Live snapshot（2026-07-09 11:05 +08）
+## Live snapshot（2026-07-09 14:34 +08）
 
 `npm run status` による一時計測。PASS 判定値は上記 OOM / Concierge セクションを正とする。
 
 ### System memory
 
-- Used: **39%** (12737 / 32678 MB)
+- Used: **60.5%** (19773 / 32678 MB)
 
 ### Cursor memory
 
-- **Cursor aggregate**: ~4948.8 MB (22 proc)
-- TypeScript Server: 105.6 MB (2 proc)
-- Extension Host: 2295.3 MB (9 proc)
+- **Cursor aggregate**: ~7157.8 MB (17 proc)
+- TypeScript Server: 0 MB (0 proc)
+- Extension Host: 1867.7 MB (9 proc)
 
 ### Dev processes
 
